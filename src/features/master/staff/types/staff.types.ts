@@ -20,6 +20,7 @@ export type StaffDto = {
   branch_id: number | null;
   employee_code: string;
   full_name: string;
+  short_name: string | null;
   designation_id: number | null;
   designation_name: string | null;
   mobile: string | null;
@@ -27,9 +28,8 @@ export type StaffDto = {
   join_date: string | null;
   aadhaar: string | null;
   pan: string | null;
-  monthly_salary: number | null;
-  collection_target: number | null;
-  assignment: string | null;
+  device_id: number | null;
+  user_id: number | null;
   status: number;
   module_access?: StaffModuleAccessDto[] | null;
   created_by?: number | null;
@@ -43,6 +43,7 @@ export type Staff = {
   branchId: number | null;
   employeeCode: string;
   fullName: string;
+  shortName: string | null;
   designationId: number | null;
   designationName: string | null;
   mobile: string | null;
@@ -50,9 +51,8 @@ export type Staff = {
   joinDate: string | null;
   aadhaar: string | null;
   pan: string | null;
-  monthlySalary: number | null;
-  collectionTarget: number | null;
-  assignment: string | null;
+  deviceId: number | null;
+  userId: number | null;
   status: number;
   moduleAccess: StaffModuleAccess[];
   createdAt: string | null;
@@ -91,8 +91,10 @@ export type StaffListResult = {
   meta: PaginationMeta | null;
 };
 
-export type StaffCreateInput = {
+/** Shared writable fields (create + edit). */
+export type StaffWritableInput = {
   fullName: string;
+  shortName?: string | null;
   employeeCode?: string | null;
   branchId?: number | null;
   designationId?: number | null;
@@ -101,15 +103,19 @@ export type StaffCreateInput = {
   joinDate?: string | null;
   aadhaar?: string | null;
   pan?: string | null;
-  monthlySalary?: number | null;
-  collectionTarget?: number | null;
-  assignment?: string | null;
+  deviceId?: number | null;
   moduleIds?: number[];
   status?: number;
 };
 
-export type StaffCreateDto = {
+export type StaffCreateInput = StaffWritableInput & {
+  userName: string;
+  userPass: string;
+};
+
+export type StaffWritableDto = {
   full_name: string;
+  short_name?: string | null;
   employee_code?: string | null;
   branch_id?: number | null;
   designation_id?: number | null;
@@ -118,19 +124,22 @@ export type StaffCreateDto = {
   join_date?: string | null;
   aadhaar?: string | null;
   pan?: string | null;
-  monthly_salary?: number | null;
-  collection_target?: number | null;
-  assignment?: string | null;
+  device_id?: number | null;
   module_ids?: number[];
   status?: number;
 };
 
-export type StaffUpdateInput = StaffCreateInput & {
+export type StaffCreateDto = StaffWritableDto & {
+  user_name: string;
+  user_pass: string;
+};
+
+export type StaffUpdateInput = StaffWritableInput & {
   staffId: number;
   employeeCode: string;
 };
 
-export type StaffUpdateDto = StaffCreateDto & {
+export type StaffUpdateDto = StaffWritableDto & {
   staff_id: number;
   employee_code: string;
 };
@@ -138,6 +147,8 @@ export type StaffUpdateDto = StaffCreateDto & {
 export type StaffMutationResult = {
   staffId: number;
   employeeCode: string | null;
+  userId: number | null;
+  userName: string | null;
 };
 
 export type DesignationOption = {

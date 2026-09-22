@@ -138,6 +138,8 @@ export async function createStaff(
     const data = await api.post<{
       staff_id: number;
       employee_code?: string | null;
+      user_id?: number | null;
+      user_name?: string | null;
     }>(endpoints.staff.add, body, {
       accessToken: token,
       expectEnvelope: true,
@@ -174,6 +176,8 @@ export async function updateStaff(
     const data = await api.post<{
       staff_id: number;
       employee_code?: string | null;
+      user_id?: number | null;
+      user_name?: string | null;
     }>(endpoints.staff.edit, body, {
       accessToken: token,
       expectEnvelope: true,

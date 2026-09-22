@@ -1,10 +1,10 @@
 /**
- * Browser-side menu loader with:
- * - request dedupe (Strict Mode safe)
- * - short in-memory cache
- * - localStorage persistence for instant sidebar paint
+ * Browser-side menu helpers.
+ * Calls Next.js BFF only — never Laravel and never the Bearer token.
+ * Same pattern as LoginForm → endpoints.auth.login.
  */
 
+import { endpoints } from "@/lib/api/endpoints";
 import type { MenuTreeNode } from "@/features/navigation/types/menu";
 import {
   clearStoredMenu,
@@ -12,6 +12,7 @@ import {
   readStoredMenu,
   writeStoredMenu,
 } from "@/features/navigation/services/menu-storage";
+import { normalizeMenuLang, toMenuLang } from "@/features/navigation/utils/menu-lang";
 
 export type MenuClientResult =
   | { ok: true; items: MenuTreeNode[]; fromCache?: boolean }
@@ -23,36 +24,61 @@ type MenuEnvelope = {
   data?: MenuTreeNode[] | null;
 };
 
-const MEMORY_TTL_MS = 5_000;
-
-let inflight: Promise<MenuClientResult> | null = null;
-let memoryCache: { at: number; result: MenuClientResult } | null = null;
+/** Share one HTTP request when Strict Mode / remount fires the effect twice. */
+const inflightByKey = new Map<string, Promise<MenuClientResult>>();
 
 export function clearMenuClientCache(): void {
-  inflight = null;
-  memoryCache = null;
   clearStoredMenu();
+  inflightByKey.clear();
 }
 
 export function getStoredMenuForUser(
   userId: number,
   orgId: number,
+  lang?: string | null,
 ): MenuTreeNode[] | null {
-  return readStoredMenu(userId, orgId);
+  return readStoredMenu(userId, orgId, lang);
 }
 
-async function requestMenu(): Promise<MenuClientResult> {
+function menuRequestKey(options?: {
+  userId?: number;
+  orgId?: number;
+  roleId?: number | null;
+  lang?: string | null;
+}): string {
+  return [
+    "status=1",
+    `lang=${normalizeMenuLang(options?.lang)}`,
+    `role=${typeof options?.roleId === "number" ? options.roleId : ""}`,
+    `user=${options?.userId ?? ""}`,
+    `org=${options?.orgId ?? ""}`,
+  ].join("|");
+}
+
+async function fetchMenuOnce(options?: {
+  userId?: number;
+  orgId?: number;
+  roleId?: number | null;
+  lang?: string | null;
+}): Promise<MenuClientResult> {
   try {
-    const response = await fetch("/api/menu?status=1", {
+    const lang = normalizeMenuLang(options?.lang ?? toMenuLang(undefined));
+    const params = new URLSearchParams({ status: "1", lang });
+    if (typeof options?.roleId === "number") {
+      params.set("role_id", String(options.roleId));
+    }
+
+    const response = await fetch(`${endpoints.bff.menu}?${params}`, {
       method: "GET",
       headers: { Accept: "application/json" },
       credentials: "same-origin",
+      cache: "no-store",
     });
 
     const payload = (await response.json()) as MenuEnvelope;
 
     if (response.status === 401) {
-      clearMenuClientCache();
+      clearStoredMenu();
       return {
         ok: false,
         status: 401,
@@ -68,10 +94,16 @@ async function requestMenu(): Promise<MenuClientResult> {
       };
     }
 
-    return {
-      ok: true,
-      items: Array.isArray(payload.data) ? payload.data : [],
-    };
+    const items = Array.isArray(payload.data) ? payload.data : [];
+
+    if (options?.userId != null && options.orgId != null) {
+      const previous = readStoredMenu(options.userId, options.orgId, lang);
+      if (!previous || !menusEqual(previous, items)) {
+        writeStoredMenu(options.userId, options.orgId, items, lang);
+      }
+    }
+
+    return { ok: true, items };
   } catch {
     return {
       ok: false,
@@ -82,40 +114,24 @@ async function requestMenu(): Promise<MenuClientResult> {
 }
 
 /**
- * Fetch menu from BFF. Optionally scoped to a user for localStorage write.
- * When `user` is provided and the response differs from storage, storage is updated.
+ * Refresh menu from BFF (`GET /api/menu` → Laravel `GET /api/MenuTree`).
+ * Pass `lang` (EN|BN|HI|OR) from the active next-intl locale.
  */
-export function fetchMenuClient(options?: {
+export async function fetchMenuClient(options?: {
   userId?: number;
   orgId?: number;
-  /** Bypass short memory cache (still dedupes in-flight). */
-  force?: boolean;
+  roleId?: number | null;
+  lang?: string | null;
 }): Promise<MenuClientResult> {
-  const force = options?.force === true;
+  const key = menuRequestKey(options);
+  const existing = inflightByKey.get(key);
+  if (existing) return existing;
 
-  if (!force && memoryCache && Date.now() - memoryCache.at < MEMORY_TTL_MS) {
-    return Promise.resolve(memoryCache.result);
-  }
-
-  if (!inflight) {
-    inflight = requestMenu()
-      .then((result) => {
-        if (result.ok && options?.userId != null && options.orgId != null) {
-          const previous = readStoredMenu(options.userId, options.orgId);
-          if (!previous || !menusEqual(previous, result.items)) {
-            writeStoredMenu(options.userId, options.orgId, result.items);
-          }
-        }
-
-        memoryCache = { at: Date.now(), result };
-        return result;
-      })
-      .finally(() => {
-        inflight = null;
-      });
-  }
-
-  return inflight;
+  const request = fetchMenuOnce(options).finally(() => {
+    inflightByKey.delete(key);
+  });
+  inflightByKey.set(key, request);
+  return request;
 }
 
 export { menusEqual };

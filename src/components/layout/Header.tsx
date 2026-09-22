@@ -56,9 +56,21 @@ const pageTitles: Record<string, { title: string; subtitle: string }> = {
     title: "Designations & RBAC Permissions",
     subtitle: "Sanction · Disbursal · Collection · Reversals · Legal notice",
   },
+  "/master/fiscal-year": {
+    title: "Fiscal Year Setup",
+    subtitle: "Financial years · Active period · Start & end dates",
+  },
+  "/master/holiday-calendar": {
+    title: "Holiday Calendar",
+    subtitle: "National & festival holidays by financial year",
+  },
+  "/master/business-hours": {
+    title: "Business Hours",
+    subtitle: "Branch operational days · Open & close times · Half-day flags",
+  },
   "/master/gateway": {
-    title: "SMS & WhatsApp Gateway",
-    subtitle: "OTP · EMI reminders · Transactional messaging",
+    title: "SMS & WA Gateway",
+    subtitle: "SMS credentials · Meta WhatsApp Cloud API",
   },
   "/master/rbi-policies": {
     title: "RBI Lending Policies",
@@ -257,12 +269,8 @@ const pageTitles: Record<string, { title: string; subtitle: string }> = {
     title: "User Management & Security",
     subtitle: "Profiles · Roles · Permissions · Audit trail",
   },
-  "/security/audit-log": {
-    title: "Security Audit Log",
-    subtitle: "Operator · IP · Entity change · Login activity",
-  },
-  "/mis/audit-trail": {
-    title: "Security Audit Trail",
+  "/security/audit-logs": {
+    title: "Audit & Security",
     subtitle: "Operator · IP · Entity change · Login activity",
   },
   "/customer-kyc": {
@@ -392,6 +400,7 @@ export function Header({ onMenuClick, user }: HeaderProps) {
                           setLangOpen(false);
                           if (lang.code !== locale) {
                             router.replace(pathname, { locale: lang.code });
+                            router.refresh();
                           }
                         }}
                         className={`flex w-full items-center gap-2 px-3 py-2 text-left text-xs transition hover:bg-surface-muted ${

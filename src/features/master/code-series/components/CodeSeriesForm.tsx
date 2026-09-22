@@ -170,7 +170,7 @@ function CodeSeriesFormBody({
       />
 
       <p className="text-xs text-muted">
-        {t("sampleHint", { sample: series.formattedSample })}
+        {t("sampleHint", { sample: series.genCode || series.formattedSample })}
       </p>
     </form>
   );

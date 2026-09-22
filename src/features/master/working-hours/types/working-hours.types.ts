@@ -4,52 +4,34 @@
 
 /** Laravel WorkingHoursGet / WorkingHoursUpdate response `data`. */
 export type WorkingHoursDto = {
-  timing_id: number;
-  opening_time: string;
-  closing_time: string;
-  session_timeout_min: number;
-  working_days_desc: string | null;
-  allow_sunday_login: boolean;
-  lockout_holidays: boolean;
-  allow_offline_collection: boolean;
-  updated_by: number | null;
-  created_at: string;
-  updated_at: string;
+  id: number;
+  sod_time: string;
+  eod_time: string;
+  batch_exe_time: string | null;
+  session_inc_time: string;
 };
 
 /** Frontend domain model (camelCase). Times are always HH:mm. */
 export type WorkingHours = {
-  timingId: number;
-  openingTime: string;
-  closingTime: string;
-  sessionTimeoutMin: number;
-  workingDaysDesc: string | null;
-  allowSundayLogin: boolean;
-  lockoutHolidays: boolean;
-  allowOfflineCollection: boolean;
-  updatedBy: number | null;
-  createdAt: string;
-  updatedAt: string;
+  id: number;
+  sodTime: string;
+  eodTime: string;
+  batchExeTime: string | null;
+  sessionIncTime: string;
 };
 
 /** Writable update payload (domain). Times must be HH:mm. */
 export type WorkingHoursUpdateInput = {
-  openingTime: string;
-  closingTime: string;
-  sessionTimeoutMin: number;
-  workingDaysDesc?: string | null;
-  allowSundayLogin?: boolean;
-  lockoutHolidays?: boolean;
-  allowOfflineCollection?: boolean;
+  sodTime: string;
+  eodTime: string;
+  batchExeTime?: string | null;
+  sessionIncTime: string;
 };
 
 /** Laravel WorkingHoursUpdate request body. */
 export type WorkingHoursUpdateDto = {
-  opening_time: string;
-  closing_time: string;
-  session_timeout_min: number;
-  working_days_desc?: string | null;
-  allow_sunday_login?: boolean;
-  lockout_holidays?: boolean;
-  allow_offline_collection?: boolean;
+  sod_time: string;
+  eod_time: string;
+  batch_exe_time?: string | null;
+  session_inc_time: string;
 };

@@ -38,7 +38,20 @@
     "filtersHeading": "Filters",
     "selectPlaceholder": "Select…",
     "selectSearch": "Search…",
-    "selectEmpty": "No options found"
+    "selectEmpty": "No options found",
+    "datePlaceholder": "Select date…",
+    "dateClear": "Clear",
+    "dateToday": "Today",
+    "calendarLabel": "Calendar",
+    "calendarPrevMonth": "Previous month",
+    "calendarNextMonth": "Next month",
+    "weekdayMo": "Mo",
+    "weekdayTu": "Tu",
+    "weekdayWe": "We",
+    "weekdayTh": "Th",
+    "weekdayFr": "Fr",
+    "weekdaySa": "Sa",
+    "weekdaySu": "Su"
   },
   "navigation": {
     "dashboard": "Executive Dashboard",
@@ -59,15 +72,17 @@
     "menuEmpty": "No menu items available for your account.",
     "menuUnauthorized": "Your session has expired. Please sign in again.",
     "menuError": "Unable to load the menu.",
+    "routeUnavailable": "This page is not available yet.",
     "branchLabel": "Branch {branch}"
   },
   "auth": {
     "staffPortal": "Staff portal",
     "signInTitle": "Sign in to Core Banking",
-    "signInSubtitle": "Use your user code or username and password to continue.",
-    "username": "User Code / Username",
-    "usernamePlaceholder": "User Code / Username",
+    "signInSubtitle": "Use your username and password to continue.",
+    "username": "Username",
+    "usernamePlaceholder": "Username",
     "password": "Password",
+    "passwordPlaceholder": "Enter your password",
     "showPassword": "Show password",
     "hidePassword": "Hide password",
     "rememberDevice": "Remember this device",
@@ -76,7 +91,26 @@
     "signingIn": "Signing in…",
     "newStaffUser": "New staff user?",
     "registerAccount": "Register account",
-    "language": "Language"
+    "language": "Language",
+    "invalidCredentials": "Invalid credentials",
+    "brandName": "eZi-Micro",
+    "brandTagline": "Core Banking Portal",
+    "secureBadge": "RBI 2026 · Encrypted staff session",
+    "heroTitle": "Secure staff access to MFIN operations",
+    "heroBody": "Authenticate with your employee credentials. Sessions respect institutional software timings and RBI Core Banking Security Guidelines.",
+    "highlightVaultTitle": "Branch Vault & Day Controls",
+    "highlightVaultBody": "Dual-custody cash, day open/close, and GL 111000 reconciliation.",
+    "highlightRbacTitle": "Maker-Checker & RBAC",
+    "highlightRbacBody": "Segregation of duties with RBI-aligned dual authorization.",
+    "highlightMultiBranchTitle": "Multi-Branch Core Banking",
+    "highlightMultiBranchBody": "Kendra collections, any-branch service, and offline Wi-Fi sync.",
+    "footer": "© {year} eZiMicro Financial Services Ltd · Design & Developed By Priority Solutions",
+    "localeEn": "English",
+    "localeHi": "Hindi",
+    "localeBn": "Bengali",
+    "localeOr": "Odia",
+    "metaSignInTitle": "Sign In · eZi-Micro Core Banking",
+    "metaSignInDescription": "Secure staff login to eZi-Micro MFIN Core Banking Portal"
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",
@@ -133,29 +167,79 @@
     },
     "workingHours": {
       "title": "Software Timings & Sessions",
-      "description": "Prevent unauthorized staff logins outside prescribed institutional operating windows",
+      "description": "Institutional start-of-day, end-of-day, batch, and session inactivity windows",
       "loading": "Loading working hours…",
       "loadErrorTitle": "Unable to load working hours",
       "emptyTitle": "Working hours not configured",
       "emptyMessage": "No working hours configuration is available for this organization.",
+      "notConfiguredHint": "No timings row exists yet. Enter values below and save to create the institutional configuration.",
       "save": "Save Operating Timings",
       "saving": "Saving…",
       "saveSuccess": "Working hours updated successfully.",
       "validationFailed": "Please check the form and correct the highlighted fields.",
-      "sectionTitle": "Branch Working Hours & Session Controls",
-      "sectionHint": "Prevent unauthorized staff logins outside prescribed institutional operating windows.",
+      "sectionTitle": "Institutional Timings & Session Controls",
+      "sectionHint": "Configure start of day (SOD), end of day (EOD), batch execution, and session inactivity timeout.",
       "fields": {
-        "openingTime": "Branch Opening Time",
-        "closingTime": "Branch Closing Time",
-        "sessionTimeoutMin": "Session Inactivity Timeout (Minutes)",
-        "workingDaysDesc": "Working Days Description",
-        "allowSundayLogin": "Allow System Logins on Sundays",
-        "lockoutHolidays": "Lockout Branch Logins on National & Bank Holidays",
-        "allowOfflineCollection": "Allow Field Officers Mobile Offline Collection Outside Branch Hours"
+        "sodTime": "Start of Day (SOD)",
+        "eodTime": "End of Day (EOD)",
+        "batchExeTime": "Batch Execution Time",
+        "sessionIncTime": "Session Inactivity Timeout"
+      },
+      "hints": {
+        "sessionIncTime": "Use 24-hour HH:mm duration (e.g. 00:30 for 30 minutes)."
       },
       "errors": {
-        "invalidOpening": "Enter opening time as HH:mm AM/PM (e.g. 08:00 AM)",
-        "invalidClosing": "Enter closing time as HH:mm AM/PM (e.g. 07:30 PM)"
+        "invalidSod": "Enter start of day as HH:mm AM/PM (e.g. 08:00 AM)",
+        "invalidEod": "Enter end of day as HH:mm AM/PM (e.g. 07:30 PM)",
+        "invalidBatch": "Enter batch time as HH:mm AM/PM (e.g. 10:00 PM)",
+        "invalidSession": "Enter session timeout as HH:mm (e.g. 00:30)"
+      }
+    },
+    "smsSettings": {
+      "title": "SMS & WA Gateway",
+      "description": "SMS gateway API credentials and DLT sender header",
+      "loading": "Loading SMS settings…",
+      "loadErrorTitle": "Unable to load SMS settings",
+      "notConfiguredHint": "No SMS settings row exists yet. Enter credentials below and save to create the configuration.",
+      "save": "Save SMS Settings",
+      "saving": "Saving…",
+      "saveSuccess": "SMS settings updated successfully.",
+      "validationFailed": "Please check the form and correct the highlighted fields.",
+      "sectionTitle": "SMS Gateway Credentials",
+      "sectionHint": "Configure the SMS provider API key, DLT header, and gateway login used for OTP and transactional messages.",
+      "fields": {
+        "apiKey": "SMS API Key",
+        "headerKey": "DLT Header / Sender ID",
+        "userName": "Gateway Username",
+        "userPassword": "Gateway Password",
+        "isDefault": "Use as default SMS gateway"
+      },
+      "hints": {
+        "headerKey": "Registered DLT sender ID / header (e.g. PRIOMF)."
+      }
+    },
+    "whatsAppSettings": {
+      "title": "WhatsApp Cloud API",
+      "description": "Meta WhatsApp Business Cloud API credentials",
+      "loading": "Loading WhatsApp settings…",
+      "loadErrorTitle": "Unable to load WhatsApp settings",
+      "notConfiguredHint": "No WhatsApp settings row exists yet. Enter credentials below and save to create the configuration.",
+      "save": "Save WhatsApp Settings",
+      "saving": "Saving…",
+      "saveSuccess": "WhatsApp settings updated successfully.",
+      "validationFailed": "Please check the form and correct the highlighted fields.",
+      "sectionTitle": "Meta WhatsApp Cloud API",
+      "sectionHint": "Configure the system user access token, phone number ID, WABA ID, and optional webhook verification.",
+      "fields": {
+        "accessToken": "System User Access Token",
+        "phoneNumberId": "Phone Number ID",
+        "wabaId": "WABA ID",
+        "webhookUrl": "Webhook URL",
+        "verifyToken": "Webhook Verify Token",
+        "isDefault": "Use as default WhatsApp gateway"
+      },
+      "hints": {
+        "webhookUrl": "Optional HTTPS callback URL for WhatsApp webhooks."
       }
     },
     "rbiLendingPolicy": {
@@ -207,7 +291,7 @@
       "deactivateSuccess": "Code series deactivated successfully.",
       "activateSuccess": "Code series activated successfully.",
       "cancel": "Cancel",
-      "sampleHint": "Current formatted sample: {sample}",
+      "sampleHint": "Current generated code: {sample}",
       "statusActive": "Active",
       "statusInactive": "Inactive",
       "columns": {
@@ -216,7 +300,7 @@
         "nextCounter": "Next Counter",
         "padding": "Padding Digits",
         "suffix": "Suffix",
-        "sample": "Live Formatted Sample",
+        "sample": "Generated Code",
         "status": "Status",
         "actions": "Actions"
       },
@@ -262,7 +346,7 @@
       "statusInactive": "Inactive",
       "filters": {
         "search": "Search",
-        "searchPlaceholder": "Search by role name…",
+        "searchPlaceholder": "Search by name or description…",
         "status": "Status",
         "statusAll": "All",
         "isAdmin": "Admin role",
@@ -273,6 +357,7 @@
       "columns": {
         "id": "ID",
         "roleName": "Role name",
+        "description": "Description",
         "isAdmin": "Admin",
         "status": "Status",
         "createdAt": "Created",
@@ -280,8 +365,174 @@
       },
       "fields": {
         "roleName": "Role name",
+        "description": "Description",
         "isAdmin": "Administrator role",
         "status": "Status"
+      }
+    },
+    "finYear": {
+      "title": "Fiscal Year Setup",
+      "description": "Create and manage financial years for accounting periods",
+      "add": "Add Financial Year",
+      "edit": "Edit",
+      "deactivate": "Deactivate",
+      "activate": "Activate",
+      "deactivateSuccess": "Financial year deactivated successfully.",
+      "activateSuccess": "Financial year activated successfully.",
+      "createTitle": "Add Financial Year",
+      "editTitle": "Edit Financial Year",
+      "save": "Save Financial Year",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "createSuccess": "Financial year created successfully.",
+      "updateSuccess": "Financial year updated successfully.",
+      "loadErrorTitle": "Unable to load financial years",
+      "emptyTitle": "No financial years found",
+      "emptyMessage": "No financial years match the current filters.",
+      "tableCaption": "Financial years list",
+      "statusActive": "Active",
+      "statusInactive": "Inactive",
+      "filters": {
+        "search": "Search",
+        "searchPlaceholder": "Search by year name…",
+        "status": "Status",
+        "statusAll": "All"
+      },
+      "columns": {
+        "id": "ID",
+        "yearName": "Year name",
+        "startDate": "Start date",
+        "endDate": "End date",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "fields": {
+        "yearName": "Year name",
+        "startDate": "Start date",
+        "endDate": "End date",
+        "isActive": "Active financial year"
+      },
+      "hints": {
+        "endDate": "Must be after the start date.",
+        "isActive": "Activating this year will deactivate all other financial years."
+      }
+    },
+    "holiday": {
+      "title": "Holiday Calendar",
+      "description": "Manage national and festival holidays by financial year",
+      "add": "Add Holiday",
+      "edit": "Edit",
+      "createTitle": "Add Holiday",
+      "editTitle": "Edit Holiday",
+      "save": "Save Holiday",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "createSuccess": "Holiday created successfully.",
+      "updateSuccess": "Holiday updated successfully.",
+      "loadErrorTitle": "Unable to load holidays",
+      "emptyTitle": "No holidays found",
+      "emptyMessage": "No holidays match the current filters.",
+      "tableCaption": "Holidays list",
+      "types": {
+        "national": "National",
+        "festival": "Festival"
+      },
+      "filters": {
+        "search": "Search",
+        "searchPlaceholder": "Search by purpose…",
+        "year": "Financial year",
+        "yearAll": "All years",
+        "type": "Type",
+        "typeAll": "All types",
+        "fromDate": "From date",
+        "toDate": "To date"
+      },
+      "columns": {
+        "holidayDate": "Date",
+        "purpose": "Purpose",
+        "year": "Year",
+        "type": "Type",
+        "actions": "Actions"
+      },
+      "fields": {
+        "year": "Financial year",
+        "yearPlaceholder": "Select financial year",
+        "holidayDate": "Holiday date",
+        "purpose": "Purpose",
+        "holiType": "Holiday type",
+        "holiTypePlaceholder": "Select type"
+      }
+    },
+    "operationalDays": {
+      "title": "Business Hours",
+      "description": "Configure branch operational days, open and close times",
+      "add": "Add Operational Day",
+      "edit": "Edit",
+      "deactivate": "Deactivate",
+      "activate": "Activate",
+      "deactivateSuccess": "Operational day deactivated successfully.",
+      "activateSuccess": "Operational day activated successfully.",
+      "createTitle": "Add Operational Day",
+      "editTitle": "Edit Operational Day",
+      "save": "Save Operational Day",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "createSuccess": "Operational day created successfully.",
+      "updateSuccess": "Operational day updated successfully.",
+      "loadErrorTitle": "Unable to load operational days",
+      "emptyTitle": "No operational days found",
+      "emptyMessage": "No operational days match the current filters.",
+      "tableCaption": "Operational days list",
+      "statusActive": "Active",
+      "statusInactive": "Inactive",
+      "days": {
+        "1": "Monday",
+        "2": "Tuesday",
+        "3": "Wednesday",
+        "4": "Thursday",
+        "5": "Friday",
+        "6": "Saturday",
+        "7": "Sunday"
+      },
+      "labels": {
+        "operational": "Operational",
+        "nonOperational": "Closed",
+        "halfDay": "Half day"
+      },
+      "filters": {
+        "branch": "Branch",
+        "branchAll": "All branches",
+        "dayOfWeek": "Day",
+        "dayAll": "All days",
+        "isOperational": "Operational",
+        "isOperationalAll": "All",
+        "operationalYes": "Yes",
+        "operationalNo": "No",
+        "status": "Status",
+        "statusAll": "All"
+      },
+      "columns": {
+        "branch": "Branch",
+        "dayOfWeek": "Day",
+        "hours": "Hours",
+        "isOperational": "Operational",
+        "isHalfDay": "Half day",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "fields": {
+        "branch": "Branch",
+        "branchPlaceholder": "Select active branch",
+        "dayOfWeek": "Day of week",
+        "dayOfWeekPlaceholder": "Select day",
+        "openTime": "Open time",
+        "closeTime": "Close time",
+        "isOperational": "Operational day",
+        "isHalfDay": "Half day",
+        "isActive": "Active"
+      },
+      "hints": {
+        "time": "24-hour format (HH:mm). Close must be after open when both are set."
       }
     },
     "branch": {
@@ -343,6 +594,60 @@
         "isActive": "Status"
       }
     },
+    "center": {
+      "title": "Kendra Centres",
+      "description": "Create and manage kendra centres under active branches",
+      "directoryTitle": "Kendra Centre Directory",
+      "directoryDescription": "Centres mapped to branches with address and status",
+      "add": "Add Centre",
+      "edit": "Edit",
+      "deactivate": "Deactivate",
+      "activate": "Activate",
+      "deactivateSuccess": "Centre deactivated successfully.",
+      "activateSuccess": "Centre activated successfully.",
+      "createTitle": "Add Centre",
+      "editTitle": "Edit Centre",
+      "save": "Save Centre",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "createSuccess": "Centre created successfully.",
+      "updateSuccess": "Centre updated successfully.",
+      "loadErrorTitle": "Unable to load centres",
+      "emptyTitle": "No centres found",
+      "emptyMessage": "No centres match the current filters.",
+      "tableCaption": "Centres list",
+      "statusActive": "Active",
+      "statusInactive": "Inactive",
+      "stats": {
+        "total": "Total Centres",
+        "active": "Active"
+      },
+      "filters": {
+        "search": "Search",
+        "searchPlaceholder": "Search by name or address…",
+        "branch": "Branch",
+        "branchAll": "All branches",
+        "status": "Status",
+        "statusAll": "All"
+      },
+      "columns": {
+        "centerName": "Centre name",
+        "branch": "Branch",
+        "address": "Address",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "fields": {
+        "branch": "Branch",
+        "branchPlaceholder": "Select active branch",
+        "centerName": "Centre name",
+        "centerAddress": "Address",
+        "isActive": "Active centre"
+      },
+      "hints": {
+        "centerAddress": "Optional. Max 255 characters."
+      }
+    },
     "staff": {
       "title": "Staff Master",
       "description": "Manage employees, designations, and module access",
@@ -380,12 +685,13 @@
         "fullName": "Name",
         "designation": "Designation",
         "mobile": "Mobile",
-        "assignment": "Assignment",
+        "shortName": "Short name",
         "status": "Status",
         "actions": "Actions"
       },
       "fields": {
         "fullName": "Full name",
+        "shortName": "Short name",
         "employeeCode": "Employee code",
         "branch": "Branch",
         "designation": "Designation",
@@ -394,9 +700,9 @@
         "joinDate": "Join date",
         "aadhaar": "Aadhaar",
         "pan": "PAN",
-        "monthlySalary": "Monthly salary",
-        "collectionTarget": "Collection target",
-        "assignment": "Assignment",
+        "deviceId": "Device ID",
+        "userName": "Username",
+        "userPass": "Password",
         "status": "Status",
         "moduleAccess": "Module access",
         "none": "None"
@@ -405,7 +711,7 @@
   },
   "security": {
     "auditLog": {
-      "title": "Security Audit Log",
+      "title": "Audit & Security",
       "description": "Operator actions, entity changes, and login activity",
       "view": "View",
       "detailTitle": "Audit log detail",
@@ -417,6 +723,7 @@
       "actions": {
         "create": "Create",
         "update": "Update",
+        "delete": "Delete",
         "login": "Login",
         "logout": "Logout"
       },

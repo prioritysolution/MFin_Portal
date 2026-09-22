@@ -7,9 +7,12 @@ export const codeSeriesDtoSchema = z.object({
   prefix: z.string(),
   next_counter: z.number(),
   padding_digits: z.number(),
-  suffix: z.string(),
+  suffix: z.string().nullable().optional(),
+  gen_code: z.string().optional(),
   formatted_sample: z.string(),
   status: z.number(),
+  created_by: z.number().nullable().optional(),
+  /** @deprecated Prefer `created_by` — kept optional for older payloads. */
   updated_by: z.number().nullable().optional(),
   created_at: z.string(),
   updated_at: z.string(),

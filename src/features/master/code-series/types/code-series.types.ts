@@ -11,9 +11,10 @@ export type CodeSeriesDto = {
   next_counter: number;
   padding_digits: number;
   suffix: string;
+  gen_code: string;
   formatted_sample: string;
   status: number;
-  updated_by: number | null;
+  created_by: number | null;
   created_at: string;
   updated_at: string;
 };
@@ -26,9 +27,11 @@ export type CodeSeries = {
   nextCounter: number;
   paddingDigits: number;
   suffix: string;
+  /** Server-refreshed generated code (`Gen_Code`). */
+  genCode: string;
   formattedSample: string;
   status: number;
-  updatedBy: number | null;
+  createdBy: number | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -36,7 +39,6 @@ export type CodeSeries = {
 /**
  * Canonical list query (domain).
  * Search maps to Laravel `keyword` (documented alias of `search`).
- * Change SEARCH_QUERY_PARAM in the server service if Laravel expects `search`.
  */
 export type CodeSeriesListQuery = {
   page?: number;

@@ -11,6 +11,7 @@ export const staffDtoSchema = z.object({
   branch_id: z.number().nullable().optional(),
   employee_code: z.string(),
   full_name: z.string(),
+  short_name: z.string().nullable().optional(),
   designation_id: z.number().nullable().optional(),
   designation_name: z.string().nullable().optional(),
   mobile: z.string().nullable().optional(),
@@ -18,9 +19,8 @@ export const staffDtoSchema = z.object({
   join_date: z.string().nullable().optional(),
   aadhaar: z.string().nullable().optional(),
   pan: z.string().nullable().optional(),
-  monthly_salary: z.coerce.number().nullable().optional(),
-  collection_target: z.coerce.number().nullable().optional(),
-  assignment: z.string().nullable().optional(),
+  device_id: z.number().nullable().optional(),
+  user_id: z.number().nullable().optional(),
   status: z.number(),
   module_access: z.array(staffModuleAccessDtoSchema).nullable().optional(),
   created_by: z.number().nullable().optional(),
@@ -43,8 +43,9 @@ const optionalEmail = z
 
 const optionalText = z.string().trim().nullable().optional();
 
-export const staffCreateInputSchema = z.object({
+const staffWritableInputSchema = z.object({
   fullName: z.string().trim().min(1).max(100),
+  shortName: optionalText,
   employeeCode: z.string().trim().max(50).nullable().optional(),
   branchId: z.number().int().positive().nullable().optional(),
   designationId: z.number().int().positive().nullable().optional(),
@@ -59,14 +60,17 @@ export const staffCreateInputSchema = z.object({
     .optional(),
   aadhaar: optionalText,
   pan: optionalText,
-  monthlySalary: z.number().nonnegative().nullable().optional(),
-  collectionTarget: z.number().nonnegative().nullable().optional(),
-  assignment: optionalText,
+  deviceId: z.number().int().positive().nullable().optional(),
   moduleIds: z.array(z.number().int().positive()).optional(),
   status: z.number().int().min(0).max(1).optional(),
 });
 
-export const staffUpdateInputSchema = staffCreateInputSchema.extend({
+export const staffCreateInputSchema = staffWritableInputSchema.extend({
+  userName: z.string().trim().min(1).max(100),
+  userPass: z.string().min(1).max(100),
+});
+
+export const staffUpdateInputSchema = staffWritableInputSchema.extend({
   staffId: z.number().int().positive(),
   employeeCode: z.string().trim().min(1).max(50),
 });
@@ -74,17 +78,21 @@ export const staffUpdateInputSchema = staffCreateInputSchema.extend({
 export const staffMutationResultSchema = z.object({
   staff_id: z.number(),
   employee_code: z.string().nullable().optional(),
+  user_id: z.number().nullable().optional(),
+  user_name: z.string().nullable().optional(),
 });
 
-/** DesignationList — shape inferred from StaffList designation fields. */
+/** DesignationList — active designations for the dropdown. */
 export const designationDtoSchema = z.object({
   designation_id: z.number(),
   designation_name: z.string(),
+  status: z.number().optional(),
 });
 
-/** ModuleAccessList — shape matches StaffList module_access chips. */
+/** ModuleAccessList — chips used in StaffAdd / StaffEdit module_ids. */
 export const moduleAccessDtoSchema = z.object({
   module_id: z.number(),
   module_key: z.string(),
   module_label: z.string(),
+  status: z.number().optional(),
 });

@@ -3,6 +3,7 @@ import { z } from "zod";
 export const roleDtoSchema = z.object({
   id: z.number(),
   role_name: z.string(),
+  description: z.string().nullable().optional(),
   is_admin: z.boolean(),
   status: z.number(),
   created_by: z.number().nullable().optional(),
@@ -19,6 +20,7 @@ export const paginationMetaDtoSchema = z.object({
 
 export const roleCreateInputSchema = z.object({
   roleName: z.string().trim().min(1).max(100),
+  description: z.string().trim().max(255).optional(),
   isAdmin: z.boolean().optional(),
   status: z.number().int().optional(),
 });
@@ -26,10 +28,7 @@ export const roleCreateInputSchema = z.object({
 export const roleUpdateInputSchema = z.object({
   roleId: z.number().int().positive(),
   roleName: z.string().trim().min(1).max(100),
+  description: z.string().max(255).nullable().optional(),
   isAdmin: z.boolean().optional(),
   status: z.number().int().optional(),
-});
-
-export const roleMutationResultSchema = z.object({
-  id: z.number(),
 });

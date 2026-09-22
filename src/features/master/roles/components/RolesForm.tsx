@@ -5,7 +5,12 @@ import { useTranslations } from "next-intl";
 import { Save } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
-import { CheckboxField, SelectField, TextField } from "@/components/ui/Form";
+import {
+  CheckboxField,
+  SelectField,
+  TextAreaField,
+  TextField,
+} from "@/components/ui/Form";
 import {
   roleCreateInputSchema,
   roleUpdateInputSchema,
@@ -29,16 +34,18 @@ type RolesFormProps = {
 
 type FormState = {
   roleName: string;
+  description: string;
   isAdmin: boolean;
   status: number;
 };
 
 function toFormState(role: Role | null): FormState {
   if (!role) {
-    return { roleName: "", isAdmin: false, status: 1 };
+    return { roleName: "", description: "", isAdmin: false, status: 1 };
   }
   return {
     roleName: role.roleName,
+    description: role.description,
     isAdmin: role.isAdmin,
     status: role.status,
   };
@@ -88,6 +95,7 @@ export function RolesForm({
         selectEmpty={tUi("selectEmpty")}
         fieldLabels={{
           roleName: t("fields.roleName"),
+          description: t("fields.description"),
           isAdmin: t("fields.isAdmin"),
           status: t("fields.status"),
         }}
@@ -108,6 +116,7 @@ type BodyProps = {
   selectEmpty: string;
   fieldLabels: {
     roleName: string;
+    description: string;
     isAdmin: string;
     status: string;
   };
@@ -135,6 +144,7 @@ function RolesFormBody({
     if (mode === "create") {
       const payload: RoleCreateInput = {
         roleName: form.roleName,
+        description: form.description,
         isAdmin: form.isAdmin,
         status: form.status,
       };
@@ -156,6 +166,7 @@ function RolesFormBody({
     const payload: RoleUpdateInput = {
       roleId: role.id,
       roleName: form.roleName,
+      description: form.description,
       isAdmin: form.isAdmin,
       status: form.status,
     };
@@ -194,6 +205,16 @@ function RolesFormBody({
         maxLength={100}
         error={fieldErrors.roleName}
         onChange={(roleName) => setForm((prev) => ({ ...prev, roleName }))}
+      />
+
+      <TextAreaField
+        label={fieldLabels.description}
+        value={form.description}
+        rows={3}
+        error={fieldErrors.description}
+        onChange={(description) =>
+          setForm((prev) => ({ ...prev, description }))
+        }
       />
 
       <SelectField

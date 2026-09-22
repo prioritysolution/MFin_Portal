@@ -29,9 +29,10 @@ type AuditLogTableProps = {
 
 function actionTone(
   action: number,
-): "success" | "info" | "warning" | "neutral" {
+): "success" | "info" | "warning" | "neutral" | "danger" {
   if (action === AUDIT_ACTIONS.create) return "success";
   if (action === AUDIT_ACTIONS.update) return "info";
+  if (action === AUDIT_ACTIONS.delete) return "danger";
   if (action === AUDIT_ACTIONS.login) return "neutral";
   if (action === AUDIT_ACTIONS.logout) return "warning";
   return "neutral";
@@ -144,7 +145,7 @@ export function AuditLogTable({
         pageSize,
         total: meta?.total ?? items.length,
         totalPages: meta?.lastPage,
-        pageSizeOptions: [10, 20, 50],
+        pageSizeOptions: [20, 50, 100, 200],
         onPageChange,
         onPageSizeChange,
       }}

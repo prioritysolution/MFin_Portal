@@ -6,7 +6,7 @@ export const auditLogDtoSchema = z.object({
   menu_name: z.string().nullable().optional(),
   table_name: z.string().nullable().optional(),
   record_id: z.number().nullable().optional(),
-  action: z.number(),
+  action: z.number().int().min(1).max(5),
   action_name: z.string(),
   old_values: z.unknown().nullable().optional(),
   new_values: z.unknown().nullable().optional(),

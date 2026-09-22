@@ -8,9 +8,7 @@ import {
   Code2,
   FileCode2,
   Lock,
-  MessageCircle,
   Plus,
-  RadioTower,
   RefreshCw,
   Save,
   Search,
@@ -125,15 +123,6 @@ const roles = [
     dept: "Legal & Debt Recovery",
     checked: ["Collect EMI", "Legal Notices", "View Reports"],
   },
-];
-
-const eventTriggers = [
-  "On Customer Onboard",
-  "On EMI Collection Receipt",
-  "On Loan Sanction",
-  "On Kendra Due Reminder",
-  "On Disbursal Payout",
-  "On Defaulter Demand Notice",
 ];
 
 const entityCards = [
@@ -495,93 +484,6 @@ export function RbacPanel() {
         ))}
       </div>
     </div>
-  );
-}
-
-export function GatewayPanel() {
-  return (
-    <section className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5">
-      <h2 className="text-base font-semibold text-slate-900">
-        SMS & WhatsApp Cloud API Gateway Credentials
-      </h2>
-      <p className="mt-1 text-sm text-muted">
-        Configure Indian Telecom DLT registration IDs and Meta WhatsApp Cloud API
-        credentials.
-      </p>
-
-      <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
-        <article className="rounded-2xl border border-border bg-surface-muted/40 p-4">
-          <div className="mb-3 flex items-center justify-between gap-2">
-            <p className="inline-flex items-center gap-2 text-sm font-semibold text-slate-800">
-              <MessageCircle className="h-4 w-4 text-blue-600" />
-              Fast2SMS / DLT Gateway
-            </p>
-            <span className="rounded-full bg-brand-soft px-2.5 py-1 text-[11px] font-semibold text-brand-ink">
-              Active
-            </span>
-          </div>
-          <div className="space-y-3">
-            <Field label="SMS API Key" value="••••••••••••••••••••" onChange={() => undefined} />
-            <Field
-              label="6-Character Sender ID (DLT Header)"
-              value="EZIMCR"
-              onChange={() => undefined}
-            />
-          </div>
-        </article>
-
-        <article className="rounded-2xl border border-border bg-surface-muted/40 p-4">
-          <div className="mb-3 flex items-center justify-between gap-2">
-            <p className="inline-flex items-center gap-2 text-sm font-semibold text-slate-800">
-              <RadioTower className="h-4 w-4 text-emerald-600" />
-              Meta WhatsApp Cloud API
-            </p>
-            <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
-              Connected
-            </span>
-          </div>
-          <div className="space-y-3">
-            <Field
-              label="System User Access Token"
-              value="••••••••••••••••••••"
-              onChange={() => undefined}
-            />
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <Field
-                label="Phone Number ID"
-                value="189876543218987"
-                onChange={() => undefined}
-              />
-              <Field
-                label="WABA ID"
-                value="987654321898765"
-                onChange={() => undefined}
-              />
-            </div>
-          </div>
-        </article>
-      </div>
-
-      <div className="mt-4 rounded-2xl bg-surface-muted px-4 py-3">
-        <p className="mb-3 text-sm font-semibold text-slate-800">
-          Automated Event Triggers & Alerts
-        </p>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {eventTriggers.map((trigger) => (
-            <CheckRow
-              key={trigger}
-              checked
-              label={trigger}
-              onChange={() => undefined}
-            />
-          ))}
-        </div>
-      </div>
-
-      <div className="btn-actions mt-4">
-        <PrimaryButton icon={RadioTower}>Save Gateway Configuration</PrimaryButton>
-      </div>
-    </section>
   );
 }
 

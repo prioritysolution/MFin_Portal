@@ -62,6 +62,15 @@ export function RolesTable({
         ),
       },
       {
+        id: "description",
+        header: t("columns.description"),
+        cell: (row) => (
+          <span className="line-clamp-2 max-w-[16rem] text-sm text-muted">
+            {row.description || "—"}
+          </span>
+        ),
+      },
+      {
         id: "isAdmin",
         header: t("columns.isAdmin"),
         cell: (row) => (
@@ -102,7 +111,7 @@ export function RolesTable({
       onRetry={onRetry}
       emptyTitle={t("emptyTitle")}
       emptyMessage={t("emptyMessage")}
-      minWidth="720px"
+      minWidth="860px"
       caption={t("tableCaption")}
       rowActions={{
         header: t("columns.actions"),

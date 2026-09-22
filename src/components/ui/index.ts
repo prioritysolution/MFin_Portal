@@ -18,6 +18,7 @@ export { Input, controlClass, controlReadOnlyClass } from "@/components/ui/Input
 export { Textarea } from "@/components/ui/Textarea";
 export { Select } from "@/components/ui/Select";
 export type { SelectOption } from "@/components/ui/Select";
+export { DatePicker } from "@/components/ui/DatePicker";
 export { Checkbox } from "@/components/ui/Checkbox";
 export { Alert } from "@/components/ui/Alert";
 export { Card } from "@/components/ui/Card";
@@ -29,6 +30,7 @@ export {
   TextField,
   TextAreaField,
   SelectField,
+  DateField,
   CheckboxField,
   CheckRow,
   formControlClass,

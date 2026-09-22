@@ -5,12 +5,7 @@ import { useTranslations } from "next-intl";
 import { Save } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
-import {
-  CheckRow,
-  SelectField,
-  TextAreaField,
-  TextField,
-} from "@/components/ui/Form";
+import { CheckRow, SelectField, TextField } from "@/components/ui/Form";
 import {
   staffCreateInputSchema,
   staffUpdateInputSchema,
@@ -40,6 +35,7 @@ type StaffFormProps = {
 
 type FormState = {
   fullName: string;
+  shortName: string;
   employeeCode: string;
   branchId: string;
   designationId: string;
@@ -48,9 +44,9 @@ type FormState = {
   joinDate: string;
   aadhaar: string;
   pan: string;
-  monthlySalary: string;
-  collectionTarget: string;
-  assignment: string;
+  deviceId: string;
+  userName: string;
+  userPass: string;
   moduleIds: number[];
   status: number;
 };
@@ -59,6 +55,7 @@ function toFormState(staff: Staff | null): FormState {
   if (!staff) {
     return {
       fullName: "",
+      shortName: "",
       employeeCode: "",
       branchId: "",
       designationId: "",
@@ -67,15 +64,16 @@ function toFormState(staff: Staff | null): FormState {
       joinDate: "",
       aadhaar: "",
       pan: "",
-      monthlySalary: "",
-      collectionTarget: "",
-      assignment: "",
+      deviceId: "",
+      userName: "",
+      userPass: "",
       moduleIds: [],
       status: 1,
     };
   }
   return {
     fullName: staff.fullName,
+    shortName: staff.shortName ?? "",
     employeeCode: staff.employeeCode,
     branchId: staff.branchId != null ? String(staff.branchId) : "",
     designationId:
@@ -85,11 +83,9 @@ function toFormState(staff: Staff | null): FormState {
     joinDate: staff.joinDate ?? "",
     aadhaar: staff.aadhaar ?? "",
     pan: staff.pan ?? "",
-    monthlySalary:
-      staff.monthlySalary != null ? String(staff.monthlySalary) : "",
-    collectionTarget:
-      staff.collectionTarget != null ? String(staff.collectionTarget) : "",
-    assignment: staff.assignment ?? "",
+    deviceId: staff.deviceId != null ? String(staff.deviceId) : "",
+    userName: "",
+    userPass: "",
     moduleIds: staff.moduleAccess.map((item) => item.moduleId),
     status: staff.status,
   };
@@ -101,9 +97,10 @@ function parseOptionalNumber(value: string): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-function toWritablePayload(form: FormState): StaffCreateInput {
+function toWritableFields(form: FormState) {
   return {
     fullName: form.fullName,
+    shortName: form.shortName || null,
     employeeCode: form.employeeCode || null,
     branchId: form.branchId ? Number(form.branchId) : null,
     designationId: form.designationId ? Number(form.designationId) : null,
@@ -112,9 +109,7 @@ function toWritablePayload(form: FormState): StaffCreateInput {
     joinDate: form.joinDate || null,
     aadhaar: form.aadhaar || null,
     pan: form.pan || null,
-    monthlySalary: parseOptionalNumber(form.monthlySalary),
-    collectionTarget: parseOptionalNumber(form.collectionTarget),
-    assignment: form.assignment || null,
+    deviceId: parseOptionalNumber(form.deviceId),
     moduleIds: form.moduleIds,
     status: form.status,
   };
@@ -172,6 +167,7 @@ export function StaffForm({
         moduleAccessLabel={t("fields.moduleAccess")}
         fieldLabels={{
           fullName: t("fields.fullName"),
+          shortName: t("fields.shortName"),
           employeeCode: t("fields.employeeCode"),
           branchId: t("fields.branch"),
           designationId: t("fields.designation"),
@@ -180,9 +176,9 @@ export function StaffForm({
           joinDate: t("fields.joinDate"),
           aadhaar: t("fields.aadhaar"),
           pan: t("fields.pan"),
-          monthlySalary: t("fields.monthlySalary"),
-          collectionTarget: t("fields.collectionTarget"),
-          assignment: t("fields.assignment"),
+          deviceId: t("fields.deviceId"),
+          userName: t("fields.userName"),
+          userPass: t("fields.userPass"),
           status: t("fields.status"),
         }}
       />
@@ -207,6 +203,7 @@ type BodyProps = {
   moduleAccessLabel: string;
   fieldLabels: {
     fullName: string;
+    shortName: string;
     employeeCode: string;
     branchId: string;
     designationId: string;
@@ -215,9 +212,9 @@ type BodyProps = {
     joinDate: string;
     aadhaar: string;
     pan: string;
-    monthlySalary: string;
-    collectionTarget: string;
-    assignment: string;
+    deviceId: string;
+    userName: string;
+    userPass: string;
     status: string;
   };
 };
@@ -256,7 +253,11 @@ function StaffFormBody({
     setFieldErrors({});
 
     if (mode === "create") {
-      const payload = toWritablePayload(form);
+      const payload: StaffCreateInput = {
+        ...toWritableFields(form),
+        userName: form.userName,
+        userPass: form.userPass,
+      };
       const parsed = staffCreateInputSchema.safeParse(payload);
       if (!parsed.success) {
         const flat = parsed.error.flatten().fieldErrors;
@@ -272,7 +273,7 @@ function StaffFormBody({
     }
 
     if (!staff) return;
-    const writable = toWritablePayload(form);
+    const writable = toWritableFields(form);
     const payload: StaffUpdateInput = {
       ...writable,
       staffId: staff.staffId,
@@ -316,6 +317,16 @@ function StaffFormBody({
           onChange={(fullName) => setForm((prev) => ({ ...prev, fullName }))}
         />
         <TextField
+          label={fieldLabels.shortName}
+          value={form.shortName}
+          maxLength={50}
+          error={fieldErrors.shortName}
+          onChange={(shortName) => setForm((prev) => ({ ...prev, shortName }))}
+        />
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <TextField
           label={fieldLabels.employeeCode}
           value={form.employeeCode}
           maxLength={50}
@@ -323,6 +334,13 @@ function StaffFormBody({
           onChange={(employeeCode) =>
             setForm((prev) => ({ ...prev, employeeCode }))
           }
+        />
+        <TextField
+          label={fieldLabels.deviceId}
+          type="number"
+          value={form.deviceId}
+          error={fieldErrors.deviceId}
+          onChange={(deviceId) => setForm((prev) => ({ ...prev, deviceId }))}
         />
       </div>
 
@@ -416,33 +434,29 @@ function StaffFormBody({
         />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <TextField
-          label={fieldLabels.monthlySalary}
-          type="number"
-          value={form.monthlySalary}
-          error={fieldErrors.monthlySalary}
-          onChange={(monthlySalary) =>
-            setForm((prev) => ({ ...prev, monthlySalary }))
-          }
-        />
-        <TextField
-          label={fieldLabels.collectionTarget}
-          type="number"
-          value={form.collectionTarget}
-          error={fieldErrors.collectionTarget}
-          onChange={(collectionTarget) =>
-            setForm((prev) => ({ ...prev, collectionTarget }))
-          }
-        />
-      </div>
-
-      <TextAreaField
-        label={fieldLabels.assignment}
-        value={form.assignment}
-        error={fieldErrors.assignment}
-        onChange={(assignment) => setForm((prev) => ({ ...prev, assignment }))}
-      />
+      {mode === "create" ? (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <TextField
+            label={fieldLabels.userName}
+            required
+            value={form.userName}
+            maxLength={100}
+            autoComplete="off"
+            error={fieldErrors.userName}
+            onChange={(userName) => setForm((prev) => ({ ...prev, userName }))}
+          />
+          <TextField
+            label={fieldLabels.userPass}
+            required
+            type="password"
+            value={form.userPass}
+            maxLength={100}
+            autoComplete="new-password"
+            error={fieldErrors.userPass}
+            onChange={(userPass) => setForm((prev) => ({ ...prev, userPass }))}
+          />
+        </div>
+      ) : null}
 
       {modules.length > 0 ? (
         <fieldset className="space-y-2">

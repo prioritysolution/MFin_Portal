@@ -1,17 +1,20 @@
+import { getTranslations } from "next-intl/server";
 import { AuthShell } from "@/features/auth/components/AuthShell";
 import { LoginForm } from "@/features/auth/components/LoginForm";
 
-export const metadata = {
-  title: "Sign In · eZi-Micro Core Banking",
-  description: "Secure staff login to eZi-Micro MFIN Core Banking Portal",
-};
+export async function generateMetadata() {
+  const t = await getTranslations("auth");
+  return {
+    title: t("metaSignInTitle"),
+    description: t("metaSignInDescription"),
+  };
+}
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const t = await getTranslations("auth");
+
   return (
-    <AuthShell
-      title="Sign in to Core Banking"
-      subtitle="Use your user code or username and password to continue."
-    >
+    <AuthShell title={t("signInTitle")} subtitle={t("signInSubtitle")}>
       <LoginForm />
     </AuthShell>
   );

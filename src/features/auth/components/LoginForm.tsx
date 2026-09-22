@@ -1,11 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Eye, EyeOff, LogIn } from "lucide-react";
 import { AuthLanguageSelect, authFieldClass } from "@/features/auth/components/AuthShell";
 import { Link, useRouter } from "@/i18n/navigation";
+import { endpoints } from "@/lib/api/endpoints";
+import { clearMenuClientCache } from "@/features/navigation/services/menu-client";
 
 export function LoginForm() {
+  const t = useTranslations("auth");
+  const tErrors = useTranslations("errors");
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(true);
@@ -22,7 +27,7 @@ export function LoginForm() {
     const password = String(form.get("password") ?? "");
 
     try {
-      const response = await fetch("/api/auth/login", {
+      const response = await fetch(endpoints.auth.login, {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -38,16 +43,20 @@ export function LoginForm() {
       };
 
       if (!response.ok || payload.success === false) {
-        setError(payload.message || "Invalid credentials");
+        setError(payload.message || t("invalidCredentials"));
         return;
       }
 
       // remember flag reserved for future device preference; session uses httpOnly cookie.
       void remember;
-      router.push("/");
-      router.refresh();
+      // Full login payload (token + user + roleId) is already sealed server-side in the
+      // AUTH_SESSION cookie by /api/auth/login — do not store token in localStorage.
+      // Soft replace keeps Network log; avoid refresh() (it remounts Sidebar → 2nd menu call).
+      clearMenuClientCache();
+      router.replace("/");
+      return;
     } catch {
-      setError("Network error. Check your connection and try again.");
+      setError(tErrors("network"));
     } finally {
       setSubmitting(false);
     }
@@ -59,21 +68,21 @@ export function LoginForm() {
 
       <label className="auth-field-group block text-sm">
         <span className="auth-label mb-1.5 block font-medium text-slate-700">
-          User Code / Username
+          {t("username")}
         </span>
         <input
           type="text"
           name="username"
           required
           autoComplete="username"
-          placeholder="User Code / Username"
+          placeholder={t("usernamePlaceholder")}
           className={authFieldClass}
         />
       </label>
 
       <label className="auth-field-group block text-sm">
         <span className="auth-label mb-1.5 block font-medium text-slate-700">
-          Password
+          {t("password")}
         </span>
         <span className="relative block">
           <input
@@ -81,13 +90,14 @@ export function LoginForm() {
             name="password"
             required
             autoComplete="current-password"
+            placeholder={t("passwordPlaceholder")}
             className={`${authFieldClass} pr-11`}
           />
           <button
             type="button"
             onClick={() => setShowPassword((prev) => !prev)}
-            className="absolute top-1/2 right-3 -translate-y-1/2 rounded-md p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
-            aria-label={showPassword ? "Hide password" : "Show password"}
+            className="absolute top-1/2 end-3 -translate-y-1/2 rounded-md p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+            aria-label={showPassword ? t("hidePassword") : t("showPassword")}
           >
             {showPassword ? (
               <EyeOff className="h-4 w-4" />
@@ -109,16 +119,16 @@ export function LoginForm() {
           <input
             type="checkbox"
             checked={remember}
-            onChange={(event) => setRemember(event.target.checked)}
+            onChange={(event) => setRemember(event.currentTarget.checked)}
             className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500/30"
           />
-          Remember this device
+          {t("rememberDevice")}
         </label>
         <Link
           href="/forgot-password"
           className="font-semibold text-blue-600 hover:text-blue-700 hover:underline"
         >
-          Forgot password?
+          {t("forgotPassword")}
         </Link>
       </div>
 
@@ -128,16 +138,16 @@ export function LoginForm() {
         className="btn btn-primary mt-1 w-full justify-center gap-2 py-3.5 text-[0.9375rem] shadow-[0_8px_20px_-6px_rgba(37,99,235,0.55)]"
       >
         <LogIn className="h-4 w-4" />
-        {submitting ? "Signing in…" : "Sign In"}
+        {submitting ? t("signingIn") : t("signIn")}
       </button>
 
       <p className="text-center text-sm text-slate-500">
-        New staff user?{" "}
+        {t("newStaffUser")}{" "}
         <Link
           href="/register"
           className="font-semibold text-brand-ink hover:underline"
         >
-          Register account
+          {t("registerAccount")}
         </Link>
       </p>
     </form>

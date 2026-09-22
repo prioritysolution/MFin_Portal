@@ -6,17 +6,15 @@ import { WorkingHoursForm } from "@/features/master/working-hours";
 import { CodeSeriesView } from "@/features/master/code-series";
 import { RolesView } from "@/features/master/roles";
 import { RbiLendingPolicyForm } from "@/features/master/rbi-lending-policy";
-import {
-  GatewayPanel,
-  SeedPanel,
-} from "@/features/master/components/MasterPanels";
+import { SeedPanel } from "@/features/master/components/MasterPanels";
+import { GatewaySettingsView } from "@/features/master/components/GatewaySettingsView";
 
 const panelMap: Record<string, () => ReactNode> = {
   "company-profile": () => <OrganizationForm />,
   series: () => <CodeSeriesView />,
   timings: () => <WorkingHoursForm />,
   roles: () => <RolesView />,
-  gateway: () => <GatewayPanel />,
+  gateway: () => <GatewaySettingsView />,
   "rbi-policies": () => <RbiLendingPolicyForm />,
   "database-seed": () => <SeedPanel />,
 };

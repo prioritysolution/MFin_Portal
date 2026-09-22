@@ -10,24 +10,21 @@ import {
   Search,
   Users,
 } from "lucide-react";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import { KendraBranchMasterTab } from "@/features/master/branch/components/KendraBranchMasterTab";
+import { KendraCenterMasterTab } from "@/features/master/center/components/KendraCenterMasterTab";
 import type { Branch } from "@/features/master/branch/types/branch.types";
+import type { Center } from "@/features/master/center/types/center.types";
 
 type TabId = "branches" | "kendras" | "jlg" | "org";
 
 type OrgBranch = {
+  id: number;
   code: string;
   name: string;
   detail: string;
-};
-
-type KendraRow = {
-  code: string;
-  name: string;
-  branch: string;
-  meetingDay: string;
-  members: number;
-  status: "Active" | "Inactive";
 };
 
 type JlgRow = {
@@ -44,33 +41,6 @@ const tabs: { id: TabId; label: string; icon: typeof Building2 }[] = [
   { id: "kendras", label: "Kendra Centres", icon: MapPin },
   { id: "jlg", label: "JLG Groups", icon: Users },
   { id: "org", label: "Org Chart", icon: Network },
-];
-
-const initialKendras: KendraRow[] = [
-  {
-    code: "CEN-GN-01",
-    name: "Gandhinagar Kendra 01",
-    branch: "Karveer Rural Branch",
-    meetingDay: "Monday",
-    members: 18,
-    status: "Active",
-  },
-  {
-    code: "CEN-UC-02",
-    name: "Uchgaon Kendra 02",
-    branch: "Karveer Rural Branch",
-    meetingDay: "Wednesday",
-    members: 16,
-    status: "Active",
-  },
-  {
-    code: "CEN-SG-01",
-    name: "Sangli Market Kendra",
-    branch: "Sangli Urban Branch",
-    meetingDay: "Friday",
-    members: 15,
-    status: "Active",
-  },
 ];
 
 const initialJlgs: JlgRow[] = [
@@ -95,13 +65,14 @@ const initialJlgs: JlgRow[] = [
 export function KendraJlgView() {
   const [activeTab, setActiveTab] = useState<TabId>("branches");
   const [liveBranches, setLiveBranches] = useState<Branch[]>([]);
-  const [kendras] = useState<KendraRow[]>(initialKendras);
+  const [liveCenters, setLiveCenters] = useState<Center[]>([]);
   const [jlgs] = useState<JlgRow[]>(initialJlgs);
   const [query, setQuery] = useState("");
 
   const orgBranches = useMemo<OrgBranch[]>(
     () =>
       liveBranches.map((branch) => ({
+        id: branch.branchId,
         code: branch.branchCode,
         name: branch.branchName,
         detail: [
@@ -114,17 +85,6 @@ export function KendraJlgView() {
       })),
     [liveBranches],
   );
-
-  const filteredKendras = useMemo(() => {
-    const q = query.toLowerCase().trim();
-    if (!q) return kendras;
-    return kendras.filter(
-      (row) =>
-        row.code.toLowerCase().includes(q) ||
-        row.name.toLowerCase().includes(q) ||
-        row.branch.toLowerCase().includes(q),
-    );
-  }, [kendras, query]);
 
   const filteredJlgs = useMemo(() => {
     const q = query.toLowerCase().trim();
@@ -140,10 +100,9 @@ export function KendraJlgView() {
 
   const totals = useMemo(
     () => ({
-      kendras: kendras.length,
       jlgs: jlgs.length,
     }),
-    [kendras, jlgs],
+    [jlgs],
   );
 
   function switchTab(tab: TabId) {
@@ -182,12 +141,7 @@ export function KendraJlgView() {
       ) : null}
 
       {activeTab === "kendras" ? (
-        <KendraCentresPanel
-          rows={filteredKendras}
-          total={totals.kendras}
-          query={query}
-          onQueryChange={setQuery}
-        />
+        <KendraCenterMasterTab onCentersChange={setLiveCenters} />
       ) : null}
 
       {activeTab === "jlg" ? (
@@ -202,105 +156,11 @@ export function KendraJlgView() {
       {activeTab === "org" ? (
         <OrgChartPanel
           branches={orgBranches}
-          kendras={kendras}
+          centers={liveCenters}
           jlgs={jlgs}
         />
       ) : null}
     </div>
-  );
-}
-
-function KendraCentresPanel({
-  rows,
-  total,
-  query,
-  onQueryChange,
-}: {
-  rows: KendraRow[];
-  total: number;
-  query: string;
-  onQueryChange: (value: string) => void;
-}) {
-  return (
-    <>
-      <div className="flex justify-end">
-        <button type="button" className="btn btn-primary">
-          <Plus className="h-4 w-4" />
-          Add Kendra
-        </button>
-      </div>
-      <div className="grid gap-3 sm:grid-cols-3">
-        <StatCard
-          label="Total Kendras"
-          value={String(total)}
-          tone="bg-violet-50 text-violet-700"
-        />
-        <StatCard
-          label="Active Centres"
-          value={String(rows.filter((r) => r.status === "Active").length)}
-          tone="bg-emerald-50 text-emerald-700"
-        />
-        <StatCard
-          label="Mapped Members"
-          value={String(rows.reduce((sum, r) => sum + r.members, 0))}
-          tone="bg-blue-50 text-blue-700"
-        />
-      </div>
-      <section className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5">
-        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="text-base font-semibold text-slate-900">
-              Kendra Centre Directory
-            </h2>
-            <p className="mt-1 text-sm text-muted">
-              Centre codes, parent branch mapping, and meeting cadence
-            </p>
-          </div>
-          <FilterInput value={query} onChange={onQueryChange} />
-        </div>
-        <div className="table-scroll">
-          <table className="w-full min-w-[860px] text-left text-sm">
-            <thead>
-              <tr className="border-b border-border text-[11px] uppercase tracking-[0.12em] text-muted-soft">
-                <th className="pb-3 pr-3 font-semibold">Centre Code</th>
-                <th className="pb-3 pr-3 font-semibold">Kendra Name</th>
-                <th className="pb-3 pr-3 font-semibold">Parent Branch</th>
-                <th className="pb-3 pr-3 font-semibold">Meeting Day</th>
-                <th className="pb-3 pr-3 font-semibold">Members</th>
-                <th className="pb-3 font-semibold">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => (
-                <tr
-                  key={row.code}
-                  className="border-b border-border/70 last:border-0"
-                >
-                  <td className="py-3.5 pr-3">
-                    <span className="rounded-full bg-violet-50 px-2.5 py-1 text-[11px] font-semibold text-violet-700">
-                      {row.code}
-                    </span>
-                  </td>
-                  <td className="py-3.5 pr-3 font-medium text-slate-800">
-                    {row.name}
-                  </td>
-                  <td className="py-3.5 pr-3 text-slate-700">{row.branch}</td>
-                  <td className="py-3.5 pr-3 text-slate-700">
-                    {row.meetingDay}
-                  </td>
-                  <td className="py-3.5 pr-3 font-semibold tabular-nums">
-                    {row.members}
-                  </td>
-                  <td className="py-3.5">
-                    <StatusBadge status={row.status} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-    </>
   );
 }
 
@@ -318,10 +178,9 @@ function JlgGroupsPanel({
   return (
     <>
       <div className="flex justify-end">
-        <button type="button" className="btn btn-primary">
-          <Plus className="h-4 w-4" />
+        <Button type="button" icon={Plus}>
           Add JLG Group
-        </button>
+        </Button>
       </div>
       <div className="grid gap-3 sm:grid-cols-3">
         <StatCard
@@ -340,18 +199,26 @@ function JlgGroupsPanel({
           tone="bg-blue-50 text-blue-700"
         />
       </div>
-      <section className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5">
-        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="text-base font-semibold text-slate-900">
-              JLG Group Directory
-            </h2>
-            <p className="mt-1 text-sm text-muted">
-              Group codes, parent kendra, and membership
-            </p>
-          </div>
-          <FilterInput value={query} onChange={onQueryChange} />
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-base font-semibold text-slate-900">
+            JLG Group Directory
+          </h2>
+          <p className="mt-1 text-sm text-muted">
+            Group codes, parent kendra, and membership
+          </p>
         </div>
+        <label className="relative block w-full sm:w-64">
+          <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-soft" />
+          <Input
+            value={query}
+            onChange={(event) => onQueryChange(event.target.value)}
+            placeholder="Filter records..."
+            className="pl-9"
+          />
+        </label>
+      </div>
+      <section className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5">
         <div className="table-scroll">
           <table className="w-full min-w-[860px] text-left text-sm">
             <thead>
@@ -384,7 +251,12 @@ function JlgGroupsPanel({
                     {row.members}
                   </td>
                   <td className="py-3.5">
-                    <StatusBadge status={row.status} />
+                    <Badge
+                      tone={row.status === "Active" ? "success" : "neutral"}
+                      caps
+                    >
+                      {row.status}
+                    </Badge>
                   </td>
                 </tr>
               ))}
@@ -398,82 +270,100 @@ function JlgGroupsPanel({
 
 function OrgChartPanel({
   branches,
-  kendras,
+  centers,
   jlgs,
 }: {
   branches: OrgBranch[];
-  kendras: KendraRow[];
+  centers: Center[];
   jlgs: JlgRow[];
 }) {
   return (
-    <>
-      <div className="grid gap-4">
-        {branches.length === 0 ? (
-          <p className="rounded-2xl border border-border bg-surface p-6 text-sm text-muted">
-            Open the Branch Master tab once to load live branches for the chart.
-          </p>
-        ) : null}
-        {branches.map((branch) => {
-          const branchKendras = kendras.filter((k) => k.branch === branch.name);
-          return (
-            <section
-              key={branch.code}
-              className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5"
-            >
-              <div className="flex items-start gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
-                  <Building2 className="h-5 w-5" />
-                </span>
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">
-                    {branch.name}
-                  </p>
-                  <p className="mt-0.5 text-xs text-muted">
-                    {branch.code}
-                    {branch.detail ? ` · ${branch.detail}` : ""}
-                  </p>
-                </div>
+    <div className="grid gap-4">
+      {branches.length === 0 ? (
+        <p className="rounded-2xl border border-border bg-surface p-6 text-sm text-muted">
+          Open the Branch Master tab once to load live branches for the chart.
+        </p>
+      ) : null}
+      {branches.map((branch) => {
+        const branchCenters = centers.filter(
+          (center) => center.branchId === branch.id,
+        );
+        return (
+          <section
+            key={branch.code}
+            className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5"
+          >
+            <div className="flex items-start gap-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
+                <Building2 className="h-5 w-5" />
+              </span>
+              <div>
+                <p className="text-sm font-semibold text-slate-900">
+                  {branch.name}
+                </p>
+                <p className="mt-0.5 text-xs text-muted">
+                  {branch.code}
+                  {branch.detail ? ` · ${branch.detail}` : ""}
+                </p>
               </div>
+            </div>
 
-              <div className="mt-4 space-y-3 border-l-2 border-blue-100 pl-4">
-                {branchKendras.map((kendra) => {
-                  const groups = jlgs.filter((g) => g.kendra === kendra.name);
-                  return (
-                    <div key={kendra.code} className="rounded-xl bg-slate-50 p-3">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-violet-600" />
-                        <p className="text-sm font-semibold text-slate-800">
-                          {kendra.name}
-                        </p>
-                        <span className="text-xs text-muted">
-                          ({kendra.code})
-                        </span>
-                      </div>
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {groups.map((group) => (
-                          <span
-                            key={group.code}
-                            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-white px-2.5 py-1 text-xs font-medium text-slate-700"
-                          >
-                            <GitBranch className="h-3 w-3 text-rose-500" />
-                            {group.name}
-                          </span>
-                        ))}
-                        {groups.length === 0 ? (
-                          <span className="text-xs text-muted">
-                            No JLG groups mapped
-                          </span>
-                        ) : null}
-                      </div>
+            <div className="mt-4 space-y-3 border-l-2 border-blue-100 pl-4">
+              {branchCenters.length === 0 ? (
+                <p className="text-xs text-muted">
+                  No kendra centres loaded for this branch. Open the Kendra
+                  Centres tab to refresh.
+                </p>
+              ) : null}
+              {branchCenters.map((center) => {
+                const groups = jlgs.filter(
+                  (g) => g.kendra === center.centerName,
+                );
+                return (
+                  <div
+                    key={center.centerId}
+                    className="rounded-xl bg-slate-50 p-3"
+                  >
+                    <div className="flex flex-wrap items-center gap-2">
+                      <MapPin className="h-4 w-4 text-violet-600" />
+                      <p className="text-sm font-semibold text-slate-800">
+                        {center.centerName}
+                      </p>
+                      {!center.isActive ? (
+                        <Badge tone="neutral" caps>
+                          Inactive
+                        </Badge>
+                      ) : null}
                     </div>
-                  );
-                })}
-              </div>
-            </section>
-          );
-        })}
-      </div>
-    </>
+                    {center.centerAddress ? (
+                      <p className="mt-1 text-xs text-muted">
+                        {center.centerAddress}
+                      </p>
+                    ) : null}
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {groups.map((group) => (
+                        <span
+                          key={group.code}
+                          className="inline-flex items-center gap-1.5 rounded-full border border-border bg-white px-2.5 py-1 text-xs font-medium text-slate-700"
+                        >
+                          <GitBranch className="h-3 w-3 text-rose-500" />
+                          {group.name}
+                        </span>
+                      ))}
+                      {groups.length === 0 ? (
+                        <span className="text-xs text-muted">
+                          No JLG groups mapped
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        );
+      })}
+    </div>
   );
 }
 
@@ -487,45 +377,15 @@ function StatCard({
   tone: string;
 }) {
   return (
-    <div className={`rounded-2xl px-4 py-4 ${tone}`}>
-      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] opacity-80">
+    <div className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)]">
+      <p className="text-xs font-semibold tracking-wide text-muted uppercase">
         {label}
       </p>
-      <p className="mt-2 text-3xl font-semibold tracking-tight">{value}</p>
+      <p
+        className={`mt-2 inline-flex rounded-xl px-2.5 py-1 text-lg font-semibold ${tone}`}
+      >
+        {value}
+      </p>
     </div>
-  );
-}
-
-function StatusBadge({ status }: { status: "Active" | "Inactive" }) {
-  return (
-    <span
-      className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
-        status === "Active"
-          ? "bg-emerald-500 text-white"
-          : "bg-slate-200 text-slate-600"
-      }`}
-    >
-      {status}
-    </span>
-  );
-}
-
-function FilterInput({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  return (
-    <label className="relative block w-full sm:max-w-xs">
-      <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-soft" />
-      <input
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        placeholder="Filter records..."
-        className="w-full rounded-xl border border-border bg-surface-muted py-2 pr-3 pl-9 text-sm outline-none focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100"
-      />
-    </label>
   );
 }

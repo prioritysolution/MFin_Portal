@@ -956,7 +956,7 @@
   {
     "slug": "09_MIS_Report_12",
     "pdf": "09_MIS_Report_12.pdf",
-    "route": "/mis/audit-trail",
+    "route": "/mis/report-12",
     "module": "mis",
     "title": "MIS Report 12",
     "pages": 2,

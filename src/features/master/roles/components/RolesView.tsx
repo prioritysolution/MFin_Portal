@@ -190,6 +190,7 @@ export function RolesView() {
       await updateRole({
         roleId: role.id,
         roleName: role.roleName,
+        description: role.description,
         isAdmin: role.isAdmin,
         status: nextActive ? 1 : 0,
       });

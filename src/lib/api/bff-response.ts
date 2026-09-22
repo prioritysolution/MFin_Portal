@@ -64,8 +64,15 @@ export function sanitizeClientErrors(details: unknown): unknown {
 
 function clientMessageFor(error: ApiError): string {
   // Prefer stable code messages for server/unexpected to avoid leaking internals.
-  if (error.code === "SERVER" || error.code === "UNEXPECTED") {
+  if (error.code === "SERVER") {
     return SAFE_MESSAGE[error.code];
+  }
+  if (error.code === "UNEXPECTED") {
+    const trimmed = error.message?.trim();
+    if (trimmed && trimmed.length <= 200 && !/[\\{}$]/.test(trimmed)) {
+      return trimmed;
+    }
+    return SAFE_MESSAGE.UNEXPECTED;
   }
   if (error.code === "VALIDATION") {
     return SAFE_MESSAGE.VALIDATION;

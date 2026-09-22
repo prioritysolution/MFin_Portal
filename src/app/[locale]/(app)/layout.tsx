@@ -9,12 +9,10 @@ type AppLayoutProps = {
 };
 
 export default async function AppLayout({ children }: AppLayoutProps) {
+  const locale = await getLocale();
   const session = await getAuthSession();
   if (!session) {
-    redirect({
-      href: "/login",
-      locale: await getLocale(),
-    });
+    redirect({ href: "/login", locale });
     return null;
   }
 

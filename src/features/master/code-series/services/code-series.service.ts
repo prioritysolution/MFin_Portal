@@ -63,7 +63,7 @@ export async function listCodeSeries(
         expectEnvelope: false,
         searchParams: {
           page: query.page ?? 1,
-          per_page: query.perPage ?? 20,
+          per_page: query.perPage ?? 50,
           series_id: query.seriesId,
           module_key: query.moduleKey,
           [CODE_SERIES_SEARCH_PARAM]: query.keyword,

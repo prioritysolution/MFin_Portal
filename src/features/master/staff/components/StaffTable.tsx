@@ -78,12 +78,10 @@ export function StaffTable({
         ),
       },
       {
-        id: "assignment",
-        header: t("columns.assignment"),
+        id: "shortName",
+        header: t("columns.shortName"),
         cell: (row) => (
-          <span className="line-clamp-2 max-w-[14rem] text-sm text-muted">
-            {row.assignment ?? ""}
-          </span>
+          <span className="text-sm text-muted">{row.shortName ?? ""}</span>
         ),
       },
       {

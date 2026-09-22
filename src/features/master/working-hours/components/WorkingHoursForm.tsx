@@ -7,10 +7,9 @@ import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
 import { Alert } from "@/components/ui/Alert";
 import { Card } from "@/components/ui/Card";
-import { CheckRow, TextField } from "@/components/ui/Form";
+import { TextField } from "@/components/ui/Form";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { ErrorState } from "@/components/shared/ErrorState";
-import { EmptyState } from "@/components/shared/EmptyState";
 import {
   fetchWorkingHours,
   isWorkingHoursClientError,
@@ -21,33 +20,34 @@ import type { WorkingHours } from "@/features/master/working-hours/types/working
 import {
   displayToHhmm,
   hhmmToDisplay,
+  isValidHhmm,
 } from "@/features/master/working-hours/utils/time-format";
 
 type FormState = {
-  openingDisplay: string;
-  closingDisplay: string;
-  sessionTimeoutMin: number;
-  workingDaysDesc: string;
-  allowSundayLogin: boolean;
-  lockoutHolidays: boolean;
-  allowOfflineCollection: boolean;
+  sodDisplay: string;
+  eodDisplay: string;
+  batchDisplay: string;
+  sessionIncTime: string;
 };
 
 type LoadStatus =
   | { status: "loading" }
-  | { status: "ready"; workingHours: WorkingHours }
-  | { status: "empty" }
+  | { status: "ready"; workingHours: WorkingHours | null }
   | { status: "error"; message: string };
+
+const EMPTY_FORM: FormState = {
+  sodDisplay: "08:00 AM",
+  eodDisplay: "07:30 PM",
+  batchDisplay: "10:00 PM",
+  sessionIncTime: "00:30",
+};
 
 function toFormState(data: WorkingHours): FormState {
   return {
-    openingDisplay: hhmmToDisplay(data.openingTime),
-    closingDisplay: hhmmToDisplay(data.closingTime),
-    sessionTimeoutMin: data.sessionTimeoutMin,
-    workingDaysDesc: data.workingDaysDesc ?? "",
-    allowSundayLogin: data.allowSundayLogin,
-    lockoutHolidays: data.lockoutHolidays,
-    allowOfflineCollection: data.allowOfflineCollection,
+    sodDisplay: hhmmToDisplay(data.sodTime),
+    eodDisplay: hhmmToDisplay(data.eodTime),
+    batchDisplay: data.batchExeTime ? hhmmToDisplay(data.batchExeTime) : "",
+    sessionIncTime: data.sessionIncTime,
   };
 }
 
@@ -74,10 +74,6 @@ export function WorkingHoursForm() {
       try {
         const data = await fetchWorkingHours();
         if (cancelled) return;
-        if (!data) {
-          setLoadState({ status: "empty" });
-          return;
-        }
         setForm(toFormState(data));
         setLoadState({ status: "ready", workingHours: data });
       } catch (error) {
@@ -87,8 +83,10 @@ export function WorkingHoursForm() {
           router.refresh();
           return;
         }
+        // Upsert: allow first-time configure when Laravel has no row yet.
         if (isWorkingHoursClientError(error) && error.status === 404) {
-          setLoadState({ status: "empty" });
+          setForm(EMPTY_FORM);
+          setLoadState({ status: "ready", workingHours: null });
           return;
         }
         setLoadState({
@@ -118,38 +116,49 @@ export function WorkingHoursForm() {
     setSuccessMessage(null);
     setFieldErrors({});
 
-    const openingTime = displayToHhmm(form.openingDisplay);
-    const closingTime = displayToHhmm(form.closingDisplay);
+    const sodTime = displayToHhmm(form.sodDisplay);
+    const eodTime = displayToHhmm(form.eodDisplay);
+    const batchRaw = form.batchDisplay.trim();
+    const batchExeTime = batchRaw
+      ? displayToHhmm(batchRaw) ?? (isValidHhmm(batchRaw) ? batchRaw : null)
+      : null;
+    const sessionIncTime = form.sessionIncTime.trim();
     const nextErrors: Record<string, string> = {};
 
-    if (!openingTime) {
-      nextErrors.openingDisplay = t("errors.invalidOpening");
+    if (!sodTime) {
+      nextErrors.sodDisplay = t("errors.invalidSod");
     }
-    if (!closingTime) {
-      nextErrors.closingDisplay = t("errors.invalidClosing");
+    if (!eodTime) {
+      nextErrors.eodDisplay = t("errors.invalidEod");
+    }
+    if (batchRaw && !batchExeTime) {
+      nextErrors.batchDisplay = t("errors.invalidBatch");
+    }
+    if (!isValidHhmm(sessionIncTime)) {
+      nextErrors.sessionIncTime = t("errors.invalidSession");
     }
 
     const payload = {
-      openingTime: openingTime ?? "",
-      closingTime: closingTime ?? "",
-      sessionTimeoutMin: form.sessionTimeoutMin,
-      workingDaysDesc: form.workingDaysDesc || null,
-      allowSundayLogin: form.allowSundayLogin,
-      lockoutHolidays: form.lockoutHolidays,
-      allowOfflineCollection: form.allowOfflineCollection,
+      sodTime: sodTime ?? "",
+      eodTime: eodTime ?? "",
+      batchExeTime,
+      sessionIncTime,
     };
 
     const parsed = workingHoursUpdateInputSchema.safeParse(payload);
     if (!parsed.success) {
       const flat = parsed.error.flatten().fieldErrors;
-      if (flat.openingTime?.[0] && !nextErrors.openingDisplay) {
-        nextErrors.openingDisplay = flat.openingTime[0];
+      if (flat.sodTime?.[0] && !nextErrors.sodDisplay) {
+        nextErrors.sodDisplay = flat.sodTime[0];
       }
-      if (flat.closingTime?.[0] && !nextErrors.closingDisplay) {
-        nextErrors.closingDisplay = flat.closingTime[0];
+      if (flat.eodTime?.[0] && !nextErrors.eodDisplay) {
+        nextErrors.eodDisplay = flat.eodTime[0];
       }
-      if (flat.sessionTimeoutMin?.[0]) {
-        nextErrors.sessionTimeoutMin = flat.sessionTimeoutMin[0];
+      if (flat.batchExeTime?.[0] && !nextErrors.batchDisplay) {
+        nextErrors.batchDisplay = flat.batchExeTime[0];
+      }
+      if (flat.sessionIncTime?.[0] && !nextErrors.sessionIncTime) {
+        nextErrors.sessionIncTime = flat.sessionIncTime[0];
       }
       setFieldErrors(nextErrors);
       setFormError(t("validationFailed"));
@@ -164,7 +173,10 @@ export function WorkingHoursForm() {
 
     setSaving(true);
     try {
-      const updated = await saveWorkingHours(parsed.data);
+      const updated = await saveWorkingHours({
+        ...parsed.data,
+        batchExeTime: parsed.data.batchExeTime || null,
+      });
       setForm(toFormState(updated));
       setLoadState({ status: "ready", workingHours: updated });
       setSuccessMessage(t("saveSuccess"));
@@ -181,14 +193,17 @@ export function WorkingHoursForm() {
           | undefined;
         if (details?.fieldErrors) {
           const mapped: Record<string, string> = {};
-          if (details.fieldErrors.openingTime?.[0]) {
-            mapped.openingDisplay = details.fieldErrors.openingTime[0];
+          if (details.fieldErrors.sodTime?.[0]) {
+            mapped.sodDisplay = details.fieldErrors.sodTime[0];
           }
-          if (details.fieldErrors.closingTime?.[0]) {
-            mapped.closingDisplay = details.fieldErrors.closingTime[0];
+          if (details.fieldErrors.eodTime?.[0]) {
+            mapped.eodDisplay = details.fieldErrors.eodTime[0];
           }
-          if (details.fieldErrors.sessionTimeoutMin?.[0]) {
-            mapped.sessionTimeoutMin = details.fieldErrors.sessionTimeoutMin[0];
+          if (details.fieldErrors.batchExeTime?.[0]) {
+            mapped.batchDisplay = details.fieldErrors.batchExeTime[0];
+          }
+          if (details.fieldErrors.sessionIncTime?.[0]) {
+            mapped.sessionIncTime = details.fieldErrors.sessionIncTime[0];
           }
           setFieldErrors(mapped);
         }
@@ -216,10 +231,8 @@ export function WorkingHoursForm() {
     );
   }
 
-  if (loadState.status === "empty" || !form) {
-    return (
-      <EmptyState title={t("emptyTitle")} message={t("emptyMessage")} />
-    );
+  if (!form) {
+    return <LoadingState title={t("loading")} />;
   }
 
   return (
@@ -230,6 +243,10 @@ export function WorkingHoursForm() {
 
       {formError ? <Alert tone="error">{formError}</Alert> : null}
 
+      {loadState.status === "ready" && loadState.workingHours == null ? (
+        <Alert tone="info">{t("notConfiguredHint")}</Alert>
+      ) : null}
+
       <form
         id="working-hours-form"
         onSubmit={(event) => void handleSubmit(event)}
@@ -237,54 +254,36 @@ export function WorkingHoursForm() {
         <Card title={t("sectionTitle")} description={t("sectionHint")}>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <TextField
-              label={t("fields.openingTime")}
-              value={form.openingDisplay}
+              label={t("fields.sodTime")}
+              value={form.sodDisplay}
               placeholder="08:00 AM"
-              error={fieldErrors.openingDisplay}
-              onChange={(value) => updateField("openingDisplay", value)}
+              required
+              error={fieldErrors.sodDisplay}
+              onChange={(value) => updateField("sodDisplay", value)}
             />
             <TextField
-              label={t("fields.closingTime")}
-              value={form.closingDisplay}
+              label={t("fields.eodTime")}
+              value={form.eodDisplay}
               placeholder="07:30 PM"
-              error={fieldErrors.closingDisplay}
-              onChange={(value) => updateField("closingDisplay", value)}
+              required
+              error={fieldErrors.eodDisplay}
+              onChange={(value) => updateField("eodDisplay", value)}
             />
             <TextField
-              label={t("fields.sessionTimeoutMin")}
-              type="number"
-              min={1}
-              max={1440}
-              value={form.sessionTimeoutMin}
-              error={fieldErrors.sessionTimeoutMin}
-              onChange={(value) =>
-                updateField("sessionTimeoutMin", Number(value) || 0)
-              }
+              label={t("fields.batchExeTime")}
+              value={form.batchDisplay}
+              placeholder="10:00 PM"
+              error={fieldErrors.batchDisplay}
+              onChange={(value) => updateField("batchDisplay", value)}
             />
             <TextField
-              label={t("fields.workingDaysDesc")}
-              value={form.workingDaysDesc}
-              onChange={(value) => updateField("workingDaysDesc", value)}
-            />
-          </div>
-
-          <div className="mt-4 space-y-2 rounded-2xl bg-surface-muted px-4 py-3">
-            <CheckRow
-              checked={form.allowSundayLogin}
-              label={t("fields.allowSundayLogin")}
-              onChange={(checked) => updateField("allowSundayLogin", checked)}
-            />
-            <CheckRow
-              checked={form.lockoutHolidays}
-              label={t("fields.lockoutHolidays")}
-              onChange={(checked) => updateField("lockoutHolidays", checked)}
-            />
-            <CheckRow
-              checked={form.allowOfflineCollection}
-              label={t("fields.allowOfflineCollection")}
-              onChange={(checked) =>
-                updateField("allowOfflineCollection", checked)
-              }
+              label={t("fields.sessionIncTime")}
+              value={form.sessionIncTime}
+              placeholder="00:30"
+              required
+              hint={t("hints.sessionIncTime")}
+              error={fieldErrors.sessionIncTime}
+              onChange={(value) => updateField("sessionIncTime", value)}
             />
           </div>
 

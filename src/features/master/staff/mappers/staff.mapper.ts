@@ -10,6 +10,8 @@ import type {
   StaffMutationResult,
   StaffUpdateDto,
   StaffUpdateInput,
+  StaffWritableDto,
+  StaffWritableInput,
 } from "@/features/master/staff/types/staff.types";
 
 export function mapStaffModuleAccessDto(dto: {
@@ -29,6 +31,7 @@ export function mapStaffDto(dto: {
   branch_id?: number | null;
   employee_code: string;
   full_name: string;
+  short_name?: string | null;
   designation_id?: number | null;
   designation_name?: string | null;
   mobile?: string | null;
@@ -36,9 +39,8 @@ export function mapStaffDto(dto: {
   join_date?: string | null;
   aadhaar?: string | null;
   pan?: string | null;
-  monthly_salary?: number | null;
-  collection_target?: number | null;
-  assignment?: string | null;
+  device_id?: number | null;
+  user_id?: number | null;
   status: number;
   module_access?:
     | {
@@ -55,6 +57,7 @@ export function mapStaffDto(dto: {
     branchId: dto.branch_id ?? null,
     employeeCode: dto.employee_code,
     fullName: dto.full_name,
+    shortName: dto.short_name ?? null,
     designationId: dto.designation_id ?? null,
     designationName: dto.designation_name ?? null,
     mobile: dto.mobile ?? null,
@@ -62,9 +65,8 @@ export function mapStaffDto(dto: {
     joinDate: dto.join_date ?? null,
     aadhaar: dto.aadhaar ?? null,
     pan: dto.pan ?? null,
-    monthlySalary: dto.monthly_salary ?? null,
-    collectionTarget: dto.collection_target ?? null,
-    assignment: dto.assignment ?? null,
+    deviceId: dto.device_id ?? null,
+    userId: dto.user_id ?? null,
     status: dto.status,
     moduleAccess: (dto.module_access ?? []).map(mapStaffModuleAccessDto),
     createdAt: dto.created_at ?? null,
@@ -78,10 +80,13 @@ function emptyToNull(value: string | null | undefined): string | null | undefine
   return value;
 }
 
-function mapWritable(input: StaffCreateInput): StaffCreateDto {
-  const dto: StaffCreateDto = {
+function mapWritable(input: StaffWritableInput): StaffWritableDto {
+  const dto: StaffWritableDto = {
     full_name: input.fullName,
   };
+  if (input.shortName !== undefined) {
+    dto.short_name = emptyToNull(input.shortName);
+  }
   if (input.employeeCode !== undefined) {
     dto.employee_code = emptyToNull(input.employeeCode);
   }
@@ -94,22 +99,18 @@ function mapWritable(input: StaffCreateInput): StaffCreateDto {
   if (input.joinDate !== undefined) dto.join_date = emptyToNull(input.joinDate);
   if (input.aadhaar !== undefined) dto.aadhaar = emptyToNull(input.aadhaar);
   if (input.pan !== undefined) dto.pan = emptyToNull(input.pan);
-  if (input.monthlySalary !== undefined) {
-    dto.monthly_salary = input.monthlySalary;
-  }
-  if (input.collectionTarget !== undefined) {
-    dto.collection_target = input.collectionTarget;
-  }
-  if (input.assignment !== undefined) {
-    dto.assignment = emptyToNull(input.assignment);
-  }
+  if (input.deviceId !== undefined) dto.device_id = input.deviceId;
   if (input.moduleIds !== undefined) dto.module_ids = input.moduleIds;
   if (input.status !== undefined) dto.status = input.status;
   return dto;
 }
 
 export function mapStaffCreateToDto(input: StaffCreateInput): StaffCreateDto {
-  return mapWritable(input);
+  return {
+    ...mapWritable(input),
+    user_name: input.userName,
+    user_pass: input.userPass,
+  };
 }
 
 export function mapStaffUpdateToDto(input: StaffUpdateInput): StaffUpdateDto {
@@ -123,10 +124,14 @@ export function mapStaffUpdateToDto(input: StaffUpdateInput): StaffUpdateDto {
 export function mapStaffMutationResult(dto: {
   staff_id: number;
   employee_code?: string | null;
+  user_id?: number | null;
+  user_name?: string | null;
 }): StaffMutationResult {
   return {
     staffId: dto.staff_id,
     employeeCode: dto.employee_code ?? null,
+    userId: dto.user_id ?? null,
+    userName: dto.user_name ?? null,
   };
 }
 

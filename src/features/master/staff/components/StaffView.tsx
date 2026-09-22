@@ -241,6 +241,7 @@ export function StaffView() {
         staffId: staff.staffId,
         employeeCode: staff.employeeCode,
         fullName: staff.fullName,
+        shortName: staff.shortName,
         branchId: staff.branchId,
         designationId: staff.designationId,
         mobile: staff.mobile,
@@ -248,9 +249,7 @@ export function StaffView() {
         joinDate: staff.joinDate,
         aadhaar: staff.aadhaar,
         pan: staff.pan,
-        monthlySalary: staff.monthlySalary,
-        collectionTarget: staff.collectionTarget,
-        assignment: staff.assignment,
+        deviceId: staff.deviceId,
         moduleIds: staff.moduleAccess.map((item) => item.moduleId),
         status: nextActive ? 1 : 0,
       });

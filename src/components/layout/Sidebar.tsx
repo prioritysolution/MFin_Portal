@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useEffect, useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import {
   ChevronDown,
   LayoutDashboard,
@@ -10,16 +10,17 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import * as LucideIcons from "lucide-react";
-import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
+import { endpoints } from "@/lib/api/endpoints";
 import type { AuthUser } from "@/features/auth/types/auth";
 import type { MenuTreeNode } from "@/features/navigation/types/menu";
 import {
   clearMenuClientCache,
   fetchMenuClient,
   getStoredMenuForUser,
-  menusEqual,
 } from "@/features/navigation/services/menu-client";
-import { toSafeMenuHref } from "@/features/navigation/utils/safe-menu-route";
+import { toMenuLang } from "@/features/navigation/utils/menu-lang";
+import { sanitizeMenuRoute } from "@/features/navigation/utils/safe-menu-route";
 import { primaryNav } from "@/lib/nav";
 import { SidebarNavSkeleton } from "@/components/shared/skeletons/SidebarNavSkeleton";
 
@@ -36,7 +37,12 @@ type MenuLoadState =
   | { status: "unauthorized" }
   | { status: "error"; message: string };
 
-function resolveIcon(name: string | undefined): LucideIcon {
+function menuStateFromItems(items: MenuTreeNode[]): MenuLoadState {
+  if (items.length === 0) return { status: "empty" };
+  return { status: "ready", items };
+}
+
+function resolveIcon(name: string | null | undefined): LucideIcon {
   if (!name) return LayoutDashboard;
   const icons = LucideIcons as unknown as Record<string, LucideIcon>;
   return icons[name] ?? LayoutDashboard;
@@ -63,73 +69,58 @@ function isNodeActive(node: MenuTreeNode, pathname: string): boolean {
 
 export function Sidebar({ open, onClose, user }: SidebarProps) {
   const t = useTranslations("navigation");
-  const tErrors = useTranslations("errors");
+  const locale = useLocale();
+  const menuLang = toMenuLang(locale);
   const pathname = usePathname();
-  const router = useRouter();
+  // Always start as loading so SSR HTML matches the first client render.
+  // localStorage cache is applied only after mount (avoids hydration mismatch).
   const [menuState, setMenuState] = useState<MenuLoadState>({ status: "loading" });
   const [collapsedKeys, setCollapsedKeys] = useState<Record<string, boolean>>({});
   const [loggingOut, setLoggingOut] = useState(false);
 
-  // Paint from localStorage before browser paint (no hydration mismatch).
-  useLayoutEffect(() => {
-    const cached = getStoredMenuForUser(user.userId, user.orgId);
-    if (cached == null) return;
-    setMenuState(
-      cached.length === 0
-        ? { status: "empty" }
-        : { status: "ready", items: cached },
-    );
-  }, [user.orgId, user.userId]);
-
+  // Browser → BFF GET /api/menu?status=1&role_id=…&lang=HI → Laravel MenuTree.
   useEffect(() => {
     let cancelled = false;
 
-    async function refreshMenu() {
+    const cached = getStoredMenuForUser(user.userId, user.orgId, menuLang);
+    if (cached != null) {
+      setMenuState(menuStateFromItems(cached));
+    } else {
+      setMenuState({ status: "loading" });
+    }
+
+    void (async () => {
       const result = await fetchMenuClient({
         userId: user.userId,
         orgId: user.orgId,
-        force: true,
+        roleId: user.roleId,
+        lang: menuLang,
       });
       if (cancelled) return;
 
-      if (!result.ok) {
-        if (result.status === 401) {
-          setMenuState({ status: "unauthorized" });
-          router.replace("/login");
-          router.refresh();
-          return;
-        }
-        // Keep showing cached menu on network/server errors.
-        setMenuState((prev) => {
-          if (prev.status === "ready" || prev.status === "empty") return prev;
-          return {
-            status: "error",
-            message:
-              result.message === "network"
-                ? tErrors("network")
-                : result.message || tErrors("generic"),
-          };
-        });
+      if (result.ok) {
+        setMenuState(menuStateFromItems(result.items));
         return;
       }
 
-      setMenuState((prev) => {
-        if (result.items.length === 0) {
-          if (prev.status === "empty") return prev;
-          return { status: "empty" };
-        }
-        if (prev.status === "ready" && menusEqual(prev.items, result.items)) {
-          return prev;
-        }
-        return { status: "ready", items: result.items };
-      });
-    }
+      if (result.status === 401) {
+        setMenuState({ status: "unauthorized" });
+        return;
+      }
 
-    void refreshMenu();
+      const fallback = getStoredMenuForUser(user.userId, user.orgId, menuLang);
+      if (fallback != null) {
+        setMenuState(menuStateFromItems(fallback));
+        return;
+      }
+
+      setMenuState({ status: "error", message: result.message });
+    })();
+
     return () => {
       cancelled = true;
     };
-  }, [router, tErrors, user.orgId, user.userId]);
+  }, [menuLang, user.orgId, user.roleId, user.userId]);
 
   const activeNodeKey = useMemo(() => {
     if (menuState.status !== "ready") return null;
@@ -154,16 +145,14 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
   async function handleLogout() {
     setLoggingOut(true);
     try {
-      await fetch("/api/auth/logout", {
+      await fetch(endpoints.auth.logout, {
         method: "POST",
         headers: { Accept: "application/json" },
         credentials: "same-origin",
       });
     } finally {
       clearMenuClientCache();
-      router.replace("/login");
-      router.refresh();
-      setLoggingOut(false);
+      window.location.assign("/login");
     }
   }
 
@@ -256,6 +245,8 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
                 const isOpen = isExpanded(key);
                 const Icon = resolveIcon(item.icon);
                 const childCount = item.children.length;
+                const isLeaf = childCount === 0;
+                const leafHref = isLeaf ? sanitizeMenuRoute(item.route) : null;
 
                 return (
                   <div
@@ -267,31 +258,50 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
                     }`}
                   >
                     <div className="flex items-stretch">
-                      <button
-                        type="button"
-                        onClick={() => toggleNode(key)}
-                        className={`flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 text-left text-sm transition ${
-                          active
-                            ? "text-brand-ink"
-                            : "text-slate-700 hover:bg-surface-muted/80"
-                        }`}
-                        aria-expanded={isOpen}
-                      >
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand-ink">
-                          <Icon className="h-4 w-4" />
-                        </span>
-                        <span className="min-w-0 flex-1 truncate font-medium">
-                          {item.name}
-                        </span>
-                        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-500">
-                          {childCount}
-                        </span>
-                        <ChevronDown
-                          className={`h-4 w-4 shrink-0 text-muted-soft transition-transform duration-200 ${
-                            isOpen ? "rotate-180" : ""
+                      {leafHref ? (
+                        <Link
+                          href={leafHref}
+                          onClick={onClose}
+                          className={`flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 text-left text-sm transition ${
+                            active
+                              ? "text-brand-ink"
+                              : "text-slate-700 hover:bg-surface-muted/80"
                           }`}
-                        />
-                      </button>
+                        >
+                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand-ink">
+                            <Icon className="h-4 w-4" />
+                          </span>
+                          <span className="min-w-0 flex-1 truncate font-medium">
+                            {item.name}
+                          </span>
+                        </Link>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => toggleNode(key)}
+                          className={`flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 text-left text-sm transition ${
+                            active
+                              ? "text-brand-ink"
+                              : "text-slate-700 hover:bg-surface-muted/80"
+                          }`}
+                          aria-expanded={isOpen}
+                        >
+                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand-ink">
+                            <Icon className="h-4 w-4" />
+                          </span>
+                          <span className="min-w-0 flex-1 truncate font-medium">
+                            {item.name}
+                          </span>
+                          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-500">
+                            {childCount}
+                          </span>
+                          <ChevronDown
+                            className={`h-4 w-4 shrink-0 text-muted-soft transition-transform duration-200 ${
+                              isOpen ? "rotate-180" : ""
+                            }`}
+                          />
+                        </button>
+                      )}
                     </div>
 
                     {childCount > 0 ? (
@@ -308,32 +318,47 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
                                 pathname,
                               );
                               const ChildIcon = resolveIcon(child.icon);
-                              const href = toSafeMenuHref(child.route);
+                              const childHref = sanitizeMenuRoute(child.route);
+                              const itemClass = `flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] transition ${
+                                childActive
+                                  ? "bg-white font-semibold text-brand-ink shadow-sm"
+                                  : "text-slate-600 hover:bg-white/80 hover:text-slate-900"
+                              }`;
 
                               return (
                                 <li key={`${child.id}-${child.submenuId}`}>
-                                  <Link
-                                    href={href}
-                                    onClick={onClose}
-                                    className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] transition ${
-                                      childActive
-                                        ? "bg-white font-semibold text-brand-ink shadow-sm"
-                                        : "text-slate-600 hover:bg-white/80 hover:text-slate-900"
-                                    }`}
-                                  >
-                                    <span
-                                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
-                                        childActive
-                                          ? "bg-brand-soft text-brand-ink"
-                                          : "bg-blue-50 text-blue-600"
-                                      }`}
+                                  {childHref ? (
+                                    <Link
+                                      href={childHref}
+                                      onClick={onClose}
+                                      className={itemClass}
                                     >
-                                      <ChildIcon className="h-3.5 w-3.5" />
+                                      <span
+                                        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
+                                          childActive
+                                            ? "bg-brand-soft text-brand-ink"
+                                            : "bg-blue-50 text-blue-600"
+                                        }`}
+                                      >
+                                        <ChildIcon className="h-3.5 w-3.5" />
+                                      </span>
+                                      <span className="min-w-0 flex-1 truncate">
+                                        {child.name}
+                                      </span>
+                                    </Link>
+                                  ) : (
+                                    <span
+                                      className={`${itemClass} cursor-default opacity-60`}
+                                      title={t("routeUnavailable")}
+                                    >
+                                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-400">
+                                        <ChildIcon className="h-3.5 w-3.5" />
+                                      </span>
+                                      <span className="min-w-0 flex-1 truncate">
+                                        {child.name}
+                                      </span>
                                     </span>
-                                    <span className="min-w-0 flex-1 truncate">
-                                      {child.name}
-                                    </span>
-                                  </Link>
+                                  )}
                                 </li>
                               );
                             })}

@@ -12,12 +12,12 @@ Multilingual support is part of the architecture, not a later feature.
 ## Required stack
 
 - App Router + `next-intl`
-- Locale segment: `app/[locale]/...`
+- Locale segment: `app/[locale]/...` (internal only; public URLs have no `/en` prefix — `localePrefix: "never"`)
 - Locale config: `i18n/routing.ts` via `defineRouting`
 - Server request config: `i18n/request.ts` via `getRequestConfig`
 - Locale-aware navigation: project `i18n/navigation` helpers (`Link`, `redirect`, `useRouter`, `usePathname`)
 - Message catalogs: `messages/{locale}.json` (supported: `en`, `bn`, `hi`, `or`; default `en`)
-- Middleware/proxy wired for next-intl locale detection and prefix handling
+- Middleware/proxy wired for next-intl locale detection (`proxy.ts` on Next.js 16+) and unprefixed public URLs (`localePrefix: "never"`)
 
 ## Usage
 

@@ -19,6 +19,7 @@ import type {
   AuditLog,
   PaginationMeta,
 } from "@/features/security/audit-log/types/audit-log.types";
+import { AUDIT_LOG_DEFAULT_PER_PAGE } from "@/features/security/audit-log/types/audit-log.types";
 
 const DEFAULT_FILTERS: AuditLogFilterValues = {
   search: "",
@@ -53,7 +54,7 @@ export function AuditLogView() {
   const [appliedFilters, setAppliedFilters] =
     useState<AuditLogFilterValues>(DEFAULT_FILTERS);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  const [pageSize, setPageSize] = useState(AUDIT_LOG_DEFAULT_PER_PAGE);
   const [items, setItems] = useState<AuditLog[]>([]);
   const [meta, setMeta] = useState<PaginationMeta | null>(null);
   const [loading, setLoading] = useState(true);
@@ -90,8 +91,8 @@ export function AuditLogView() {
               ? undefined
               : Number(appliedFilters.action),
           menuName: appliedFilters.menuName.trim() || undefined,
-          dateFrom: appliedFilters.dateFrom || undefined,
-          dateTo: appliedFilters.dateTo || undefined,
+          fromDate: appliedFilters.dateFrom || undefined,
+          toDate: appliedFilters.dateTo || undefined,
         });
         if (cancelled) return;
         setItems(result.items);
@@ -100,7 +101,6 @@ export function AuditLogView() {
         if (cancelled) return;
         if (isAuditLogClientError(err) && err.status === 401) {
           router.replace("/login");
-          router.refresh();
           return;
         }
         setError(true);

@@ -5,6 +5,7 @@
 export type RoleDto = {
   id: number;
   role_name: string;
+  description: string | null;
   is_admin: boolean;
   status: number;
   created_by: number | null;
@@ -14,6 +15,7 @@ export type RoleDto = {
 export type Role = {
   id: number;
   roleName: string;
+  description: string;
   isAdmin: boolean;
   status: number;
   createdBy: number | null;
@@ -24,6 +26,7 @@ export type RoleListQuery = {
   page?: number;
   perPage?: number;
   roleId?: number;
+  /** Sent to Laravel as `keyword` (also accepts `role_name` / `search`). */
   keyword?: string;
   isAdmin?: number;
   status?: number;
@@ -52,12 +55,14 @@ export type RoleListResult = {
 
 export type RoleCreateInput = {
   roleName: string;
+  description?: string;
   isAdmin?: boolean;
   status?: number;
 };
 
 export type RoleCreateDto = {
   role_name: string;
+  description?: string;
   is_admin?: boolean;
   status?: number;
 };
@@ -65,6 +70,8 @@ export type RoleCreateDto = {
 export type RoleUpdateInput = {
   roleId: number;
   roleName: string;
+  /** Empty string clears description on Laravel. */
+  description?: string | null;
   isAdmin?: boolean;
   status?: number;
 };
@@ -72,10 +79,7 @@ export type RoleUpdateInput = {
 export type RoleUpdateDto = {
   role_id: number;
   role_name: string;
+  description?: string | null;
   is_admin?: boolean;
   status?: number;
-};
-
-export type RoleMutationResult = {
-  id: number;
 };

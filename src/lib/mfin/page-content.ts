@@ -1,6 +1,5 @@
 import generated from "@/lib/mfin/registry.generated.json";
 import type { MFinPageContent } from "@/lib/mfin/types";
-import { sidebarForModule } from "@/lib/mfin/module-nav";
 
 type GeneratedEntry = {
   slug: string;
@@ -603,7 +602,6 @@ function defaultContent(entry: GeneratedEntry): MFinPageContent {
     module: entry.module,
     title: entry.title.replace(/MasterMenu|Finance Ledger|Lending|MIS Report|Deposit|HR|User/g, "").trim() || entry.title,
     subtitle: subtitle || "eZi-Micro Core Banking module workspace",
-    sidebar: sidebarForModule(entry.module, entry.route),
     notes: subtitle ? [subtitle] : undefined,
   };
 }
@@ -651,7 +649,6 @@ function fallbackContent(route: string): MFinPageContent {
     module: pageModule,
     title: slugTitle(leaf),
     subtitle: `${slugTitle(parts[0] ?? "Module")} workspace — content mapped from MFin design pack`,
-    sidebar: sidebarForModule(pageModule, route),
     notes: ["Screen layout preserved from MFin_Pages reference PDFs."],
   };
 }
@@ -667,7 +664,6 @@ export function resolvePageContent(route: string): MFinPageContent | null {
         ...fallbackContent(normalized),
         ...override,
         route: normalized,
-        sidebar: override.sidebar ?? sidebarForModule(moduleFromPath(normalized), normalized),
       };
     }
     if (normalized.startsWith("/")) {
@@ -679,7 +675,6 @@ export function resolvePageContent(route: string): MFinPageContent | null {
   const base = {
     ...defaultContent(entry),
     route: normalized,
-    sidebar: sidebarForModule(entry.module, normalized),
   };
   const override = overrides[resolved] ?? overrides[normalized];
   if (!override) return base;
@@ -688,7 +683,7 @@ export function resolvePageContent(route: string): MFinPageContent | null {
     ...base,
     ...override,
     route: normalized,
-    sidebar: override.sidebar ?? base.sidebar,
+    sidebar: override.sidebar,
     metrics: override.metrics ?? base.metrics,
     table: override.table ?? base.table,
     form: override.form ?? base.form,

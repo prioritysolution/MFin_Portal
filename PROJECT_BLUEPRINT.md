@@ -235,22 +235,19 @@ Multilingual support is mandatory for reusable projects.
 - Centralize locale config in `i18n/routing.ts` (or equivalent next-intl routing module).
 - Use `i18n/request.ts` for server request configuration (`getRequestConfig`).
 - Use next-intl navigation helpers (`Link`, `redirect`, `useRouter`, `usePathname`) from the project’s `i18n/navigation` module — not raw `next/link` / `next/navigation` for locale-aware routes.
-- Wire next-intl middleware/proxy for locale detection and prefix handling.
+- Wire next-intl via `src/proxy.ts` (Next.js 16+; formerly `middleware.ts`) for locale detection and unprefixed public URLs.
 - Keep message catalogs under `messages/` with one JSON file per locale.
 
-Prefer locale-aware routing:
+Prefer locale-aware routing with an internal `[locale]` App Router segment.
+
+**Public URLs must not include a language prefix** (`localePrefix: "never"`). Locale is resolved from the `NEXT_LOCALE` cookie and `Accept-Language`, then rewritten internally to `/[locale]/...`.
+
+Example (what users see):
 
 ```text
-/[locale]/
-```
-
-Example:
-
-```text
-/en/dashboard
-/bn/dashboard
-/hi/dashboard
-/or/dashboard
+/login
+/dashboard
+/master/roles
 ```
 
 Centralize locale configuration with next-intl.
@@ -263,7 +260,10 @@ import { defineRouting } from "next-intl/routing";
 export const routing = defineRouting({
   locales: ["en", "bn", "hi", "or"],
   defaultLocale: "en",
-  localePrefix: "always",
+  localePrefix: "never",
+  localeCookie: {
+    maxAge: 60 * 60 * 24 * 365,
+  },
 });
 
 export type Locale = (typeof routing.locales)[number];

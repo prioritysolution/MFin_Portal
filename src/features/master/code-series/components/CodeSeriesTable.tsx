@@ -94,7 +94,7 @@ export function CodeSeriesTable({
         header: t("columns.sample"),
         cell: (row) => (
           <span className="font-mono text-sm font-semibold text-slate-800">
-            {row.formattedSample}
+            {row.genCode || row.formattedSample}
           </span>
         ),
       },

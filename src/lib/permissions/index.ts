@@ -12,8 +12,7 @@ const HEAD_OFFICE_PATH_PREFIXES = [
   "/master/rbi-policies",
   "/master/series",
   "/master/timings",
-  "/security/audit-log",
-  "/mis/audit-trail",
+  "/security/audit-logs",
 ] as const;
 
 export function isHeadOfficeUser(user: AuthUser): boolean {

@@ -38,7 +38,20 @@
     "filtersHeading": "ଫିଲ୍ଟର୍",
     "selectPlaceholder": "ବାଛନ୍ତୁ…",
     "selectSearch": "ଖୋଜନ୍ତୁ…",
-    "selectEmpty": "କୌଣସି ବିକଳ୍ପ ମିଳିଲା ନାହିଁ"
+    "selectEmpty": "କୌଣସି ବିକଳ୍ପ ମିଳିଲା ନାହିଁ",
+    "datePlaceholder": "ତାରିଖ ବାଛନ୍ତୁ…",
+    "dateClear": "ଖାଲି କରନ୍ତୁ",
+    "dateToday": "ଆଜି",
+    "calendarLabel": "କ୍ୟାଲେଣ୍ଡର୍",
+    "calendarPrevMonth": "ପୂର୍ବ ମାସ",
+    "calendarNextMonth": "ପର ମାସ",
+    "weekdayMo": "ସୋ",
+    "weekdayTu": "ମଙ୍ଗ",
+    "weekdayWe": "ବୁଧ",
+    "weekdayTh": "ଗୁରୁ",
+    "weekdayFr": "ଶୁକ୍ର",
+    "weekdaySa": "ଶନି",
+    "weekdaySu": "ରବି"
   },
   "navigation": {
     "dashboard": "ଏକ୍ଜିକ୍ୟୁଟିଭ୍ ଡ୍ୟାସବୋର୍ଡ",
@@ -59,15 +72,17 @@
     "menuEmpty": "ଆପଣଙ୍କ ଆକାଉଣ୍ଟ ପାଇଁ କୌଣସି ମେନୁ ଆଇଟମ୍ ନାହିଁ।",
     "menuUnauthorized": "ଆପଣଙ୍କ ସେସନ୍ ସମାପ୍ତ ହୋଇଛି। ଦୟାକରି ପୁନର୍ବାର ସାଇନ୍ ଇନ୍ କରନ୍ତୁ।",
     "menuError": "ମେନୁ ଲୋଡ୍ କରିହେଲା ନାହିଁ।",
+    "routeUnavailable": "ଏହି ପୃଷ୍ଠା ଏପର୍ଯ୍ୟନ୍ତ ଉପଲବ୍ଧ ନାହିଁ।",
     "branchLabel": "ବ୍ରାଞ୍ଚ {branch}"
   },
   "auth": {
     "staffPortal": "ଷ୍ଟାଫ୍ ପୋର୍ଟାଲ୍",
     "signInTitle": "କୋର୍ ବ୍ୟାଙ୍କିଂରେ ସାଇନ୍ ଇନ୍",
-    "signInSubtitle": "ଜାରି ରଖିବାକୁ ଆପଣଙ୍କ ଇଉଜର୍ କୋଡ୍ କିମ୍ବା ଇଉଜରନେମ୍ ଏବଂ ପାସୱାର୍ଡ ବ୍ୟବହାର କରନ୍ତୁ।",
-    "username": "ଇଉଜର୍ କୋଡ୍ / ଇଉଜରନେମ୍",
-    "usernamePlaceholder": "ଇଉଜର୍ କୋଡ୍ / ଇଉଜରନେମ୍",
+    "signInSubtitle": "ଜାରି ରଖିବାକୁ ଆପଣଙ୍କ ଇଉଜରନେମ୍ ଏବଂ ପାସୱାର୍ଡ ବ୍ୟବହାର କରନ୍ତୁ।",
+    "username": "ଇଉଜରନେମ୍",
+    "usernamePlaceholder": "ଇଉଜରନେମ୍",
     "password": "ପାସୱାର୍ଡ",
+    "passwordPlaceholder": "ଆପଣଙ୍କ ପାସୱାର୍ଡ ଲେଖନ୍ତୁ",
     "showPassword": "ପାସୱାର୍ଡ ଦେଖାନ୍ତୁ",
     "hidePassword": "ପାସୱାର୍ଡ ଲୁଚାନ୍ତୁ",
     "rememberDevice": "ଏହି ଡିଭାଇସ୍ ମନେ ରଖନ୍ତୁ",
@@ -76,7 +91,26 @@
     "signingIn": "ସାଇନ୍ ଇନ୍ ହେଉଛି…",
     "newStaffUser": "ନୂଆ ଷ୍ଟାଫ୍ ଉପଯୋଗକର୍ତ୍ତା?",
     "registerAccount": "ଆକାଉଣ୍ଟ ପଞ୍ଜିକରଣ",
-    "language": "ଭାଷା"
+    "language": "ଭାଷା",
+    "invalidCredentials": "ଅବୈଧ କ୍ରେଡେନ୍ସିଆଲ୍",
+    "brandName": "eZi-Micro",
+    "brandTagline": "କୋର୍ ବ୍ୟାଙ୍କିଂ ପୋର୍ଟାଲ୍",
+    "secureBadge": "RBI 2026 · ଏନକ୍ରିପ୍ଟେଡ୍ ଷ୍ଟାଫ୍ ସେସନ୍",
+    "heroTitle": "MFIN କାର୍ଯ୍ୟାବଳୀ ପାଇଁ ସୁରକ୍ଷିତ ଷ୍ଟାଫ୍ ପ୍ରବେଶ",
+    "heroBody": "ଆପଣଙ୍କ କର୍ମଚାରୀ ପରିଚୟ ସହିତ ପ୍ରମାଣୀକରଣ କରନ୍ତୁ। ସେସନ୍ ଅନୁଷ୍ଠାନିକ ସଫ୍ଟୱେର୍ ସମୟ ଏବଂ RBI କୋର୍ ବ୍ୟାଙ୍କିଂ ସୁରକ୍ଷା ନିର୍ଦ୍ଦେଶାବଳୀ ମାନେ।",
+    "highlightVaultTitle": "ବ୍ରାଞ୍ଚ ଭଲ୍ଟ ଏବଂ ଡେ କଣ୍ଟ୍ରୋଲ୍",
+    "highlightVaultBody": "ଦ୍ୱୈତ ହେଫାଜତ ନଗଦ, ଦିନ ଖୋଲିବା/ବନ୍ଦ, ଏବଂ GL 111000 ମିଳ।",
+    "highlightRbacTitle": "ମେକର୍-ଚେକର୍ ଏବଂ RBAC",
+    "highlightRbacBody": "RBI-ଅନୁକୂଳ ଦ୍ୱୈତ ଅନୁମୋଦନ ସହିତ ଦାୟିତ୍ୱ ପୃଥକୀକରଣ।",
+    "highlightMultiBranchTitle": "ମଲ୍ଟି-ବ୍ରାଞ୍ଚ କୋର୍ ବ୍ୟାଙ୍କିଂ",
+    "highlightMultiBranchBody": "କେନ୍ଦ୍ର ସଂଗ୍ରହ, ଯେକୌଣସି ଶାଖା ସେବା, ଏବଂ ଅଫଲାଇନ୍ Wi-Fi ସିଙ୍କ୍।",
+    "footer": "© {year} eZiMicro Financial Services Ltd · ଡିଜାଇନ୍ ଏବଂ ବିକାଶ Priority Solutions",
+    "localeEn": "English",
+    "localeHi": "हिन्दी",
+    "localeBn": "বাংলা",
+    "localeOr": "ଓଡ଼ିଆ",
+    "metaSignInTitle": "ସାଇନ୍ ଇନ୍ · eZi-Micro କୋର୍ ବ୍ୟାଙ୍କିଂ",
+    "metaSignInDescription": "eZi-Micro MFIN କୋର୍ ବ୍ୟାଙ୍କିଂ ପୋର୍ଟାଲରେ ସୁରକ୍ଷିତ ଷ୍ଟାଫ୍ ଲଗଇନ୍"
   },
   "errors": {
     "generic": "କିଛି ଭୁଲ୍ ହୋଇଛି। ଦୟାକରି ପୁନର୍ବାର ଚେଷ୍ଟା କରନ୍ତୁ।",
@@ -133,29 +167,79 @@
     },
     "workingHours": {
       "title": "ସଫ୍ଟୱେର୍ ଟାଇମିଂ ଓ ସେସନ୍",
-      "description": "ନିର୍ଦ୍ଧାରିତ ସଂସ୍ଥାଗତ ସମୟ ବାହାରେ ଅନନୁମୋଦିତ ଷ୍ଟାଫ୍ ଲଗଇନ୍ ରୋକନ୍ତୁ",
+      "description": "ସଂସ୍ଥାଗତ ଦିନ ଆରମ୍ଭ, ଦିନ ଶେଷ, ବ୍ୟାଚ୍ ଓ ସେସନ୍ ନିଷ୍କ୍ରିୟତା ସମୟ",
       "loading": "କାର୍ଯ୍ୟ ଘଣ୍ଟା ଲୋଡ୍ ହେଉଛି…",
       "loadErrorTitle": "କାର୍ଯ୍ୟ ଘଣ୍ଟା ଲୋଡ୍ କରିହେଲା ନାହିଁ",
       "emptyTitle": "କାର୍ଯ୍ୟ ଘଣ୍ଟା କନଫିଗର୍ ହୋଇନାହିଁ",
       "emptyMessage": "ଏହି ସଂସ୍ଥା ପାଇଁ କୌଣସି କାର୍ଯ୍ୟ ଘଣ୍ଟା କନଫିଗରେସନ୍ ନାହିଁ।",
+      "notConfiguredHint": "ଏପର୍ଯ୍ୟନ୍ତ କୌଣସି ଟାଇମିଂ ଧାଡ଼ି ନାହିଁ। ନିମ୍ନରେ ମାନ ଦେଇ ସଂରକ୍ଷଣ କରି ସଂସ୍ଥାଗତ କନଫିଗରେସନ୍ ତିଆରି କରନ୍ତୁ।",
       "save": "ଅପରେଟିଂ ଟାଇମିଂ ସଂରକ୍ଷଣ",
       "saving": "ସଂରକ୍ଷଣ ହେଉଛି…",
       "saveSuccess": "କାର୍ଯ୍ୟ ଘଣ୍ଟା ସଫଳତାର ସହିତ ଅଦ୍ୟତନ ହୋଇଛି।",
       "validationFailed": "ଫର୍ମ ଯାଞ୍ଚ କରି ହାଇଲାଇଟ୍ ହୋଇଥିବା କ୍ଷେତ୍ରଗୁଡ଼ିକ ଠିକ୍ କରନ୍ତୁ।",
-      "sectionTitle": "ବ୍ରାଞ୍ଚ କାର୍ଯ୍ୟ ଘଣ୍ଟା ଓ ସେସନ୍ ନିୟନ୍ତ୍ରଣ",
-      "sectionHint": "ନିର୍ଦ୍ଧାରିତ ସଂସ୍ଥାଗତ ସମୟ ବାହାରେ ଅନନୁମୋଦିତ ଷ୍ଟାଫ୍ ଲଗଇନ୍ ରୋକନ୍ତୁ।",
+      "sectionTitle": "ସଂସ୍ଥାଗତ ଟାଇମିଂ ଓ ସେସନ୍ ନିୟନ୍ତ୍ରଣ",
+      "sectionHint": "ଦିନ ଆରମ୍ଭ (SOD), ଦିନ ଶେଷ (EOD), ବ୍ୟାଚ୍ ଏକ୍ଜିକ୍ୟୁସନ୍ ଏବଂ ସେସନ୍ ନିଷ୍କ୍ରିୟତା ଟାଇମଆଉଟ୍ କନଫିଗର୍ କରନ୍ତୁ।",
       "fields": {
-        "openingTime": "ବ୍ରାଞ୍ଚ ଖୋଲିବା ସମୟ",
-        "closingTime": "ବ୍ରାଞ୍ଚ ବନ୍ଦ ହେବା ସମୟ",
-        "sessionTimeoutMin": "ସେସନ୍ ନିଷ୍କ୍ରିୟତା ଟାଇମଆଉଟ୍ (ମିନିଟ୍)",
-        "workingDaysDesc": "କାର୍ଯ୍ୟଦିନ ବିବରଣୀ",
-        "allowSundayLogin": "ରବିବାରରେ ସିଷ୍ଟମ୍ ଲଗଇନ୍ ଅନୁମତି ଦିଅନ୍ତୁ",
-        "lockoutHolidays": "ଜାତୀୟ ଓ ବ୍ୟାଙ୍କ ଛୁଟିରେ ବ୍ରାଞ୍ଚ ଲଗଇନ୍ ଲକ୍ କରନ୍ତୁ",
-        "allowOfflineCollection": "ବ୍ରାଞ୍ଚ ସମୟ ବାହାରେ ଫିଲ୍ଡ ଅଧିକାରୀଙ୍କ ମୋବାଇଲ୍ ଅଫଲାଇନ୍ ସଂଗ୍ରହ ଅନୁମତି ଦିଅନ୍ତୁ"
+        "sodTime": "ଦିନ ଆରମ୍ଭ (SOD)",
+        "eodTime": "ଦିନ ଶେଷ (EOD)",
+        "batchExeTime": "ବ୍ୟାଚ୍ ଏକ୍ଜିକ୍ୟୁସନ୍ ସମୟ",
+        "sessionIncTime": "ସେସନ୍ ନିଷ୍କ୍ରିୟତା ଟାଇମଆଉଟ୍"
+      },
+      "hints": {
+        "sessionIncTime": "୨୪-ଘଣ୍ଟା HH:mm ଅବଧି ବ୍ୟବହାର କରନ୍ତୁ (ଯଥା 00:30 = 30 ମିନିଟ୍)।"
       },
       "errors": {
-        "invalidOpening": "ଖୋଲିବା ସମୟ HH:mm AM/PM ରେ ଲେଖନ୍ତୁ (ଯଥା 08:00 AM)",
-        "invalidClosing": "ବନ୍ଦ ହେବା ସମୟ HH:mm AM/PM ରେ ଲେଖନ୍ତୁ (ଯଥା 07:30 PM)"
+        "invalidSod": "ଦିନ ଆରମ୍ଭ HH:mm AM/PM ରେ ଲେଖନ୍ତୁ (ଯଥା 08:00 AM)",
+        "invalidEod": "ଦିନ ଶେଷ HH:mm AM/PM ରେ ଲେଖନ୍ତୁ (ଯଥା 07:30 PM)",
+        "invalidBatch": "ବ୍ୟାଚ୍ ସମୟ HH:mm AM/PM ରେ ଲେଖନ୍ତୁ (ଯଥା 10:00 PM)",
+        "invalidSession": "ସେସନ୍ ଟାଇମଆଉଟ୍ HH:mm ରେ ଲେଖନ୍ତୁ (ଯଥା 00:30)"
+      }
+    },
+    "smsSettings": {
+      "title": "SMS ଓ WA ଗେଟୱେ",
+      "description": "SMS ଗେଟୱେ API କ୍ରେଡେନ୍ସିଆଲ୍ ଓ DLT ସେଣ୍ଡର୍ ହେଡର୍",
+      "loading": "SMS ସେଟିଂସ୍ ଲୋଡ୍ ହେଉଛି…",
+      "loadErrorTitle": "SMS ସେଟିଂସ୍ ଲୋଡ୍ କରିହେଲା ନାହିଁ",
+      "notConfiguredHint": "ଏପର୍ଯ୍ୟନ୍ତ କୌଣସି SMS ସେଟିଂସ୍ ନାହିଁ। ନିମ୍ନରେ କ୍ରେଡେନ୍ସିଆଲ୍ ଦେଇ ସଂରକ୍ଷଣ କରନ୍ତୁ।",
+      "save": "SMS ସେଟିଂସ୍ ସଂରକ୍ଷଣ",
+      "saving": "ସଂରକ୍ଷଣ ହେଉଛି…",
+      "saveSuccess": "SMS ସେଟିଂସ୍ ସଫଳତାର ସହିତ ଅଦ୍ୟତନ ହୋଇଛି।",
+      "validationFailed": "ଫର୍ମ ଯାଞ୍ଚ କରି ହାଇଲାଇଟ୍ ହୋଇଥିବା କ୍ଷେତ୍ରଗୁଡ଼ିକ ଠିକ୍ କରନ୍ତୁ।",
+      "sectionTitle": "SMS ଗେଟୱେ କ୍ରେଡେନ୍ସିଆଲ୍",
+      "sectionHint": "OTP ଓ ଟ୍ରାଞ୍ଜାକ୍ସନ୍ ବାର୍ତ୍ତା ପାଇଁ SMS ପ୍ରଦାନକାରୀ API କୀ, DLT ହେଡର୍ ଓ ଗେଟୱେ ଲଗଇନ୍ କନଫିଗର୍ କରନ୍ତୁ।",
+      "fields": {
+        "apiKey": "SMS API କୀ",
+        "headerKey": "DLT ହେଡର୍ / ସେଣ୍ଡର୍ ID",
+        "userName": "ଗେଟୱେ ଉପଯୋଗକର୍ତ୍ତା ନାମ",
+        "userPassword": "ଗେଟୱେ ପାସୱାର୍ଡ",
+        "isDefault": "ଡିଫଲ୍ଟ SMS ଗେଟୱେ ଭାବରେ ବ୍ୟବହାର କରନ୍ତୁ"
+      },
+      "hints": {
+        "headerKey": "ପଞ୍ଜୀକୃତ DLT ସେଣ୍ଡର୍ ID / ହେଡର୍ (ଯଥା PRIOMF)।"
+      }
+    },
+    "whatsAppSettings": {
+      "title": "WhatsApp Cloud API",
+      "description": "Meta WhatsApp Business Cloud API କ୍ରେଡେନ୍ସିଆଲ୍",
+      "loading": "WhatsApp ସେଟିଂସ୍ ଲୋଡ୍ ହେଉଛି…",
+      "loadErrorTitle": "WhatsApp ସେଟିଂସ୍ ଲୋଡ୍ କରିହେଲା ନାହିଁ",
+      "notConfiguredHint": "ଏପର୍ଯ୍ୟନ୍ତ କୌଣସି WhatsApp ସେଟିଂସ୍ ନାହିଁ। ନିମ୍ନରେ କ୍ରେଡେନ୍ସିଆଲ୍ ଦେଇ ସଂରକ୍ଷଣ କରନ୍ତୁ।",
+      "save": "WhatsApp ସେଟିଂସ୍ ସଂରକ୍ଷଣ",
+      "saving": "ସଂରକ୍ଷଣ ହେଉଛି…",
+      "saveSuccess": "WhatsApp ସେଟିଂସ୍ ସଫଳତାର ସହିତ ଅଦ୍ୟତନ ହୋଇଛି।",
+      "validationFailed": "ଫର୍ମ ଯାଞ୍ଚ କରି ହାଇଲାଇଟ୍ ହୋଇଥିବା କ୍ଷେତ୍ରଗୁଡ଼ିକ ଠିକ୍ କରନ୍ତୁ।",
+      "sectionTitle": "Meta WhatsApp Cloud API",
+      "sectionHint": "ସିଷ୍ଟମ୍ ୟୁଜର୍ ଆକ୍ସେସ୍ ଟୋକେନ୍, ଫୋନ୍ ନମ୍ବର୍ ID, WABA ID ଓ ବୈକଳ୍ପିକ ୱେବହୁକ୍ ଯାଞ୍ଚ କନଫିଗର୍ କରନ୍ତୁ।",
+      "fields": {
+        "accessToken": "ସିଷ୍ଟମ୍ ୟୁଜର୍ ଆକ୍ସେସ୍ ଟୋକେନ୍",
+        "phoneNumberId": "ଫୋନ୍ ନମ୍ବର୍ ID",
+        "wabaId": "WABA ID",
+        "webhookUrl": "ୱେବହୁକ୍ URL",
+        "verifyToken": "ୱେବହୁକ୍ ଭେରିଫାଏ ଟୋକେନ୍",
+        "isDefault": "ଡିଫଲ୍ଟ WhatsApp ଗେଟୱେ ଭାବରେ ବ୍ୟବହାର କରନ୍ତୁ"
+      },
+      "hints": {
+        "webhookUrl": "WhatsApp ୱେବହୁକ୍ ପାଇଁ ବୈକଳ୍ପିକ HTTPS କଲବ୍ୟାକ୍ URL।"
       }
     },
     "rbiLendingPolicy": {
@@ -207,7 +291,7 @@
       "deactivateSuccess": "କୋଡ୍ ସିରିଜ୍ ସଫଳତାର ସହିତ ନିଷ୍କ୍ରିୟ ହୋଇଛି।",
       "activateSuccess": "କୋଡ୍ ସିରିଜ୍ ସଫଳତାର ସହିତ ସକ୍ରିୟ ହୋଇଛି।",
       "cancel": "ବାତିଲ୍",
-      "sampleHint": "ବର୍ତ୍ତମାନ ଫର୍ମାଟ୍ ନମୁନା: {sample}",
+      "sampleHint": "ବର୍ତ୍ତମାନ ଜେନେରେଟେଡ୍ କୋଡ୍: {sample}",
       "statusActive": "ସକ୍ରିୟ",
       "statusInactive": "ନିଷ୍କ୍ରିୟ",
       "columns": {
@@ -216,7 +300,7 @@
         "nextCounter": "ପରବର୍ତ୍ତୀ କାଉଣ୍ଟର୍",
         "padding": "ପ୍ୟାଡିଂ ଡିଜିଟ୍",
         "suffix": "ସଫିକ୍ସ",
-        "sample": "ଲାଇଭ୍ ଫର୍ମାଟ୍ ନମୁନା",
+        "sample": "ଜେନେରେଟେଡ୍ କୋଡ୍",
         "status": "ସ୍ଥିତି",
         "actions": "କାର୍ଯ୍ୟ"
       },
@@ -262,7 +346,7 @@
       "statusInactive": "ନିଷ୍କ୍ରିୟ",
       "filters": {
         "search": "ସନ୍ଧାନ",
-        "searchPlaceholder": "ରୋଲ୍ ନାମ ଦ୍ୱାରା ଖୋଜନ୍ତୁ…",
+        "searchPlaceholder": "ରୋଲ୍ ନାମ କିମ୍ବା ବିବରଣୀ ଦ୍ୱାରା ଖୋଜନ୍ତୁ…",
         "status": "ସ୍ଥିତି",
         "statusAll": "ସବୁ",
         "isAdmin": "ଆଡମିନ୍ ରୋଲ୍",
@@ -273,6 +357,7 @@
       "columns": {
         "id": "ID",
         "roleName": "ରୋଲ୍ ନାମ",
+        "description": "ବିବରଣୀ",
         "isAdmin": "ଆଡମିନ୍",
         "status": "ସ୍ଥିତି",
         "createdAt": "ତିଆରି",
@@ -280,8 +365,174 @@
       },
       "fields": {
         "roleName": "ରୋଲ୍ ନାମ",
+        "description": "ବିବରଣୀ",
         "isAdmin": "ଆଡମିନିଷ୍ଟ୍ରେଟର୍ ରୋଲ୍",
         "status": "ସ୍ଥିତି"
+      }
+    },
+    "finYear": {
+      "title": "ଆର୍ଥିକ ବର୍ଷ ସେଟଅପ୍",
+      "description": "ହିସାବ ଅବଧି ପାଇଁ ଆର୍ଥିକ ବର୍ଷ ତିଆରି ଓ ପରିଚାଳନା କରନ୍ତୁ",
+      "add": "ଆର୍ଥିକ ବର୍ଷ ଯୋଗ କରନ୍ତୁ",
+      "edit": "ସମ୍ପାଦନା",
+      "deactivate": "ନିଷ୍କ୍ରିୟ କରନ୍ତୁ",
+      "activate": "ସକ୍ରିୟ କରନ୍ତୁ",
+      "deactivateSuccess": "ଆର୍ଥିକ ବର୍ଷ ସଫଳତାର ସହିତ ନିଷ୍କ୍ରିୟ ହୋଇଛି।",
+      "activateSuccess": "ଆର୍ଥିକ ବର୍ଷ ସଫଳତାର ସହିତ ସକ୍ରିୟ ହୋଇଛି।",
+      "createTitle": "ଆର୍ଥିକ ବର୍ଷ ଯୋଗ କରନ୍ତୁ",
+      "editTitle": "ଆର୍ଥିକ ବର୍ଷ ସମ୍ପାଦନା",
+      "save": "ଆର୍ଥିକ ବର୍ଷ ସଂରକ୍ଷଣ",
+      "saving": "ସଂରକ୍ଷଣ ହେଉଛି…",
+      "cancel": "ବାତିଲ୍",
+      "createSuccess": "ଆର୍ଥିକ ବର୍ଷ ସଫଳତାର ସହିତ ତିଆରି ହୋଇଛି।",
+      "updateSuccess": "ଆର୍ଥିକ ବର୍ଷ ସଫଳତାର ସହିତ ଅଦ୍ୟତନ ହୋଇଛି।",
+      "loadErrorTitle": "ଆର୍ଥିକ ବର୍ଷ ଲୋଡ୍ କରିହେଲା ନାହିଁ",
+      "emptyTitle": "କୌଣସି ଆର୍ଥିକ ବର୍ଷ ମିଳିଲା ନାହିଁ",
+      "emptyMessage": "ବର୍ତ୍ତମାନ ଫିଲ୍ଟର୍ ସହ ମେଳ ହେଉଥିବା କୌଣସି ଆର୍ଥିକ ବର୍ଷ ନାହିଁ।",
+      "tableCaption": "ଆର୍ଥିକ ବର୍ଷ ତାଲିକା",
+      "statusActive": "ସକ୍ରିୟ",
+      "statusInactive": "ନିଷ୍କ୍ରିୟ",
+      "filters": {
+        "search": "ସନ୍ଧାନ",
+        "searchPlaceholder": "ବର୍ଷ ନାମ ଦ୍ୱାରା ଖୋଜନ୍ତୁ…",
+        "status": "ସ୍ଥିତି",
+        "statusAll": "ସବୁ"
+      },
+      "columns": {
+        "id": "ଆଇଡି",
+        "yearName": "ବର୍ଷ ନାମ",
+        "startDate": "ଆରମ୍ଭ ତାରିଖ",
+        "endDate": "ଶେଷ ତାରିଖ",
+        "status": "ସ୍ଥିତି",
+        "actions": "କାର୍ଯ୍ୟ"
+      },
+      "fields": {
+        "yearName": "ବର୍ଷ ନାମ",
+        "startDate": "ଆରମ୍ଭ ତାରିଖ",
+        "endDate": "ଶେଷ ତାରିଖ",
+        "isActive": "ସକ୍ରିୟ ଆର୍ଥିକ ବର୍ଷ"
+      },
+      "hints": {
+        "endDate": "ଆରମ୍ଭ ତାରିଖ ପରେ ହେବା ଆବଶ୍ୟକ।",
+        "isActive": "ଏହି ବର୍ଷ ସକ୍ରିୟ କଲେ ଅନ୍ୟ ସମସ୍ତ ଆର୍ଥିକ ବର୍ଷ ନିଷ୍କ୍ରିୟ ହୋଇଯିବ।"
+      }
+    },
+    "holiday": {
+      "title": "ଛୁଟି କ୍ୟାଲେଣ୍ଡର୍",
+      "description": "ଆର୍ଥିକ ବର୍ଷ ଅନୁଯାୟୀ ଜାତୀୟ ଓ ପର୍ବ ଛୁଟି ପରିଚାଳନା କରନ୍ତୁ",
+      "add": "ଛୁଟି ଯୋଗ କରନ୍ତୁ",
+      "edit": "ସମ୍ପାଦନା",
+      "createTitle": "ଛୁଟି ଯୋଗ କରନ୍ତୁ",
+      "editTitle": "ଛୁଟି ସମ୍ପାଦନା",
+      "save": "ଛୁଟି ସଂରକ୍ଷଣ",
+      "saving": "ସଂରକ୍ଷଣ ହେଉଛି…",
+      "cancel": "ବାତିଲ୍",
+      "createSuccess": "ଛୁଟି ସଫଳତାର ସହିତ ତିଆରି ହୋଇଛି।",
+      "updateSuccess": "ଛୁଟି ସଫଳତାର ସହିତ ଅଦ୍ୟତନ ହୋଇଛି।",
+      "loadErrorTitle": "ଛୁଟି ଲୋଡ୍ କରିହେଲା ନାହିଁ",
+      "emptyTitle": "କୌଣସି ଛୁଟି ମିଳିଲା ନାହିଁ",
+      "emptyMessage": "ବର୍ତ୍ତମାନ ଫିଲ୍ଟର୍ ସହ ମେଳ ହେଉଥିବା କୌଣସି ଛୁଟି ନାହିଁ।",
+      "tableCaption": "ଛୁଟି ତାଲିକା",
+      "types": {
+        "national": "ଜାତୀୟ",
+        "festival": "ପର୍ବ"
+      },
+      "filters": {
+        "search": "ସନ୍ଧାନ",
+        "searchPlaceholder": "ଉଦ୍ଦେଶ୍ୟ ଦ୍ୱାରା ଖୋଜନ୍ତୁ…",
+        "year": "ଆର୍ଥିକ ବର୍ଷ",
+        "yearAll": "ସବୁ ବର୍ଷ",
+        "type": "ପ୍ରକାର",
+        "typeAll": "ସବୁ ପ୍ରକାର",
+        "fromDate": "ଆରମ୍ଭ ତାରିଖ",
+        "toDate": "ଶେଷ ତାରିଖ"
+      },
+      "columns": {
+        "holidayDate": "ତାରିଖ",
+        "purpose": "ଉଦ୍ଦେଶ୍ୟ",
+        "year": "ବର୍ଷ",
+        "type": "ପ୍ରକାର",
+        "actions": "କାର୍ଯ୍ୟ"
+      },
+      "fields": {
+        "year": "ଆର୍ଥିକ ବର୍ଷ",
+        "yearPlaceholder": "ଆର୍ଥିକ ବର୍ଷ ବାଛନ୍ତୁ",
+        "holidayDate": "ଛୁଟି ତାରିଖ",
+        "purpose": "ଉଦ୍ଦେଶ୍ୟ",
+        "holiType": "ଛୁଟି ପ୍ରକାର",
+        "holiTypePlaceholder": "ପ୍ରକାର ବାଛନ୍ତୁ"
+      }
+    },
+    "operationalDays": {
+      "title": "ବ୍ୟବସାୟିକ ସମୟ",
+      "description": "ଶାଖାର କାର୍ଯ୍ୟଦିବସ, ଖୋଲିବା ଓ ବନ୍ଦ ସମୟ କନଫିଗର୍ କରନ୍ତୁ",
+      "add": "କାର୍ଯ୍ୟଦିବସ ଯୋଗ କରନ୍ତୁ",
+      "edit": "ସମ୍ପାଦନା",
+      "deactivate": "ନିଷ୍କ୍ରିୟ କରନ୍ତୁ",
+      "activate": "ସକ୍ରିୟ କରନ୍ତୁ",
+      "deactivateSuccess": "କାର୍ଯ୍ୟଦିବସ ସଫଳତାର ସହିତ ନିଷ୍କ୍ରିୟ ହୋଇଛି।",
+      "activateSuccess": "କାର୍ଯ୍ୟଦିବସ ସଫଳତାର ସହିତ ସକ୍ରିୟ ହୋଇଛି।",
+      "createTitle": "କାର୍ଯ୍ୟଦିବସ ଯୋଗ କରନ୍ତୁ",
+      "editTitle": "କାର୍ଯ୍ୟଦିବସ ସମ୍ପାଦନା",
+      "save": "କାର୍ଯ୍ୟଦିବସ ସଂରକ୍ଷଣ",
+      "saving": "ସଂରକ୍ଷଣ ହେଉଛି…",
+      "cancel": "ବାତିଲ୍",
+      "createSuccess": "କାର୍ଯ୍ୟଦିବସ ସଫଳତାର ସହିତ ତିଆରି ହୋଇଛି।",
+      "updateSuccess": "କାର୍ଯ୍ୟଦିବସ ସଫଳତାର ସହିତ ଅଦ୍ୟତନ ହୋଇଛି।",
+      "loadErrorTitle": "କାର୍ଯ୍ୟଦିବସ ଲୋଡ୍ କରିହେଲା ନାହିଁ",
+      "emptyTitle": "କୌଣସି କାର୍ଯ୍ୟଦିବସ ମିଳିଲା ନାହିଁ",
+      "emptyMessage": "ବର୍ତ୍ତମାନ ଫିଲ୍ଟର୍ ସହ ମେଳ ହେଉଥିବା କୌଣସି କାର୍ଯ୍ୟଦିବସ ନାହିଁ।",
+      "tableCaption": "କାର୍ଯ୍ୟଦିବସ ତାଲିକା",
+      "statusActive": "ସକ୍ରିୟ",
+      "statusInactive": "ନିଷ୍କ୍ରିୟ",
+      "days": {
+        "1": "ସୋମବାର",
+        "2": "ମଙ୍ଗଳବାର",
+        "3": "ବୁଧବାର",
+        "4": "ଗୁରୁବାର",
+        "5": "ଶୁକ୍ରବାର",
+        "6": "ଶନିବାର",
+        "7": "ରବିବାର"
+      },
+      "labels": {
+        "operational": "କାର୍ଯ୍ୟକ୍ଷମ",
+        "nonOperational": "ବନ୍ଦ",
+        "halfDay": "ଅର୍ଦ୍ଧଦିବସ"
+      },
+      "filters": {
+        "branch": "ଶାଖା",
+        "branchAll": "ସମସ୍ତ ଶାଖା",
+        "dayOfWeek": "ଦିନ",
+        "dayAll": "ସମସ୍ତ ଦିନ",
+        "isOperational": "କାର୍ଯ୍ୟକ୍ଷମ",
+        "isOperationalAll": "ସବୁ",
+        "operationalYes": "ହଁ",
+        "operationalNo": "ନା",
+        "status": "ସ୍ଥିତି",
+        "statusAll": "ସବୁ"
+      },
+      "columns": {
+        "branch": "ଶାଖା",
+        "dayOfWeek": "ଦିନ",
+        "hours": "ସମୟ",
+        "isOperational": "କାର୍ଯ୍ୟକ୍ଷମ",
+        "isHalfDay": "ଅର୍ଦ୍ଧଦିବସ",
+        "status": "ସ୍ଥିତି",
+        "actions": "କାର୍ଯ୍ୟ"
+      },
+      "fields": {
+        "branch": "ଶାଖା",
+        "branchPlaceholder": "ସକ୍ରିୟ ଶାଖା ବାଛନ୍ତୁ",
+        "dayOfWeek": "ସପ୍ତାହର ଦିନ",
+        "dayOfWeekPlaceholder": "ଦିନ ବାଛନ୍ତୁ",
+        "openTime": "ଖୋଲିବା ସମୟ",
+        "closeTime": "ବନ୍ଦ ସମୟ",
+        "isOperational": "କାର୍ଯ୍ୟଦିବସ",
+        "isHalfDay": "ଅର୍ଦ୍ଧଦିବସ",
+        "isActive": "ସକ୍ରିୟ"
+      },
+      "hints": {
+        "time": "୨୪-ଘଣ୍ଟା ଫର୍ମାଟ୍ (HH:mm)। ଉଭୟ ସେଟ୍ ଥିଲେ ବନ୍ଦ ସମୟ ଖୋଲିବା ପରେ ହେବା ଉଚିତ।"
       }
     },
     "branch": {
@@ -343,6 +594,60 @@
         "isActive": "ସ୍ଥିତି"
       }
     },
+    "center": {
+      "title": "କେନ୍ଦ୍ର / କେନ୍ଦ୍ରା",
+      "description": "ସକ୍ରିୟ ଶାଖା ଅଧୀନରେ କେନ୍ଦ୍ର ତିଆରି ଓ ପରିଚାଳନା କରନ୍ତୁ",
+      "directoryTitle": "କେନ୍ଦ୍ର ଡିରେକ୍ଟୋରୀ",
+      "directoryDescription": "ଶାଖା ସହ ମ୍ୟାପ୍ ହୋଇଥିବା କେନ୍ଦ୍ର, ଠିକଣା ଓ ସ୍ଥିତି ସହିତ",
+      "add": "କେନ୍ଦ୍ର ଯୋଗ କରନ୍ତୁ",
+      "edit": "ସମ୍ପାଦନା",
+      "deactivate": "ନିଷ୍କ୍ରିୟ କରନ୍ତୁ",
+      "activate": "ସକ୍ରିୟ କରନ୍ତୁ",
+      "deactivateSuccess": "କେନ୍ଦ୍ର ସଫଳତାର ସହିତ ନିଷ୍କ୍ରିୟ ହୋଇଛି।",
+      "activateSuccess": "କେନ୍ଦ୍ର ସଫଳତାର ସହିତ ସକ୍ରିୟ ହୋଇଛି।",
+      "createTitle": "କେନ୍ଦ୍ର ଯୋଗ କରନ୍ତୁ",
+      "editTitle": "କେନ୍ଦ୍ର ସମ୍ପାଦନା",
+      "save": "କେନ୍ଦ୍ର ସଂରକ୍ଷଣ",
+      "saving": "ସଂରକ୍ଷଣ ହେଉଛି…",
+      "cancel": "ବାତିଲ୍",
+      "createSuccess": "କେନ୍ଦ୍ର ସଫଳତାର ସହିତ ତିଆରି ହୋଇଛି।",
+      "updateSuccess": "କେନ୍ଦ୍ର ସଫଳତାର ସହିତ ଅଦ୍ୟତନ ହୋଇଛି।",
+      "loadErrorTitle": "କେନ୍ଦ୍ର ଲୋଡ୍ କରିହେଲା ନାହିଁ",
+      "emptyTitle": "କୌଣସି କେନ୍ଦ୍ର ମିଳିଲା ନାହିଁ",
+      "emptyMessage": "ବର୍ତ୍ତମାନ ଫିଲ୍ଟର୍ ସହ ମେଳ ହେଉଥିବା କୌଣସି କେନ୍ଦ୍ର ନାହିଁ।",
+      "tableCaption": "କେନ୍ଦ୍ର ତାଲିକା",
+      "statusActive": "ସକ୍ରିୟ",
+      "statusInactive": "ନିଷ୍କ୍ରିୟ",
+      "stats": {
+        "total": "ମୋଟ କେନ୍ଦ୍ର",
+        "active": "ସକ୍ରିୟ"
+      },
+      "filters": {
+        "search": "ସନ୍ଧାନ",
+        "searchPlaceholder": "ନାମ କିମ୍ବା ଠିକଣା ଦ୍ୱାରା ଖୋଜନ୍ତୁ…",
+        "branch": "ଶାଖା",
+        "branchAll": "ସବୁ ଶାଖା",
+        "status": "ସ୍ଥିତି",
+        "statusAll": "ସବୁ"
+      },
+      "columns": {
+        "centerName": "କେନ୍ଦ୍ର ନାମ",
+        "branch": "ଶାଖା",
+        "address": "ଠିକଣା",
+        "status": "ସ୍ଥିତି",
+        "actions": "କାର୍ଯ୍ୟ"
+      },
+      "fields": {
+        "branch": "ଶାଖା",
+        "branchPlaceholder": "ସକ୍ରିୟ ଶାଖା ବାଛନ୍ତୁ",
+        "centerName": "କେନ୍ଦ୍ର ନାମ",
+        "centerAddress": "ଠିକଣା",
+        "isActive": "ସକ୍ରିୟ କେନ୍ଦ୍ର"
+      },
+      "hints": {
+        "centerAddress": "ଐଚ୍ଛିକ। ସର୍ବାଧିକ ୨୫୫ ଅକ୍ଷର।"
+      }
+    },
     "staff": {
       "title": "ଷ୍ଟାଫ୍ ମାଷ୍ଟର୍",
       "description": "କର୍ମଚାରୀ, ପଦବୀ ଓ ମଡ୍ୟୁଲ୍ ଆକ୍ସେସ୍ ପରିଚାଳନା କରନ୍ତୁ",
@@ -380,12 +685,13 @@
         "fullName": "ନାମ",
         "designation": "ପଦବୀ",
         "mobile": "ମୋବାଇଲ୍",
-        "assignment": "ଆସାଇନମେଣ୍ଟ",
+        "shortName": "ସଂକ୍ଷିପ୍ତ ନାମ",
         "status": "ସ୍ଥିତି",
         "actions": "କାର୍ଯ୍ୟ"
       },
       "fields": {
         "fullName": "ପୂର୍ଣ୍ଣ ନାମ",
+        "shortName": "ସଂକ୍ଷିପ୍ତ ନାମ",
         "employeeCode": "କର୍ମଚାରୀ କୋଡ୍",
         "branch": "ଶାଖା",
         "designation": "ପଦବୀ",
@@ -394,9 +700,9 @@
         "joinDate": "ଯୋଗଦାନ ତାରିଖ",
         "aadhaar": "ଆଧାର",
         "pan": "ପ୍ୟାନ୍",
-        "monthlySalary": "ମାସିକ ବେତନ",
-        "collectionTarget": "ସଂଗ୍ରହ ଲକ୍ଷ୍ୟ",
-        "assignment": "ଆସାଇନମେଣ୍ଟ",
+        "deviceId": "ଡିଭାଇସ୍ ଆଇଡି",
+        "userName": "ଉପଯୋଗକର୍ତ୍ତା ନାମ",
+        "userPass": "ପାସୱାର୍ଡ",
         "status": "ସ୍ଥିତି",
         "moduleAccess": "ମଡ୍ୟୁଲ୍ ଆକ୍ସେସ୍",
         "none": "କିଛି ନୁହେଁ"
@@ -417,6 +723,7 @@
       "actions": {
         "create": "ତିଆରି",
         "update": "ଅଦ୍ୟତନ",
+        "delete": "ଲିଭାନ୍ତୁ",
         "login": "ଲଗଇନ୍",
         "logout": "ଲଗଆଉଟ୍"
       },

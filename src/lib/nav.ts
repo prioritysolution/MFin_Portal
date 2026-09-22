@@ -250,7 +250,7 @@ export const mainModules: NavItem[] = [
       { label: "My Profile", href: "/profile", icon: UserCircle2 },
       {
         label: "Security Audit Log",
-        href: "/security/audit-log",
+        href: "/security/audit-logs",
         icon: ShieldCheck,
       },
       { label: "Employee Directory", href: "/security/users", icon: UsersRound },

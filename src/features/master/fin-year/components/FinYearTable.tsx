@@ -1,0 +1,140 @@
+"use client";
+
+import { useMemo } from "react";
+import { useTranslations } from "next-intl";
+import { Ban, CircleCheck, Pencil } from "lucide-react";
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import type {
+  FinYear,
+  PaginationMeta,
+} from "@/features/master/fin-year/types/fin-year.types";
+
+type FinYearTableProps = {
+  items: FinYear[];
+  meta: PaginationMeta | null;
+  page: number;
+  pageSize: number;
+  loading: boolean;
+  error: boolean;
+  errorMessage?: string;
+  statusBusyId?: number | null;
+  onRetry: () => void;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
+  onEdit: (row: FinYear) => void;
+  onToggleActive: (row: FinYear) => void;
+};
+
+export function FinYearTable({
+  items,
+  meta,
+  page,
+  pageSize,
+  loading,
+  error,
+  errorMessage,
+  onRetry,
+  onPageChange,
+  onPageSizeChange,
+  onEdit,
+  onToggleActive,
+  statusBusyId = null,
+}: FinYearTableProps) {
+  const t = useTranslations("master.finYear");
+
+  const columns = useMemo<DataTableColumn<FinYear>[]>(
+    () => [
+      {
+        id: "yearId",
+        header: t("columns.id"),
+        cell: (row) => (
+          <span className="font-mono text-slate-700">{row.yearId}</span>
+        ),
+      },
+      {
+        id: "yearName",
+        header: t("columns.yearName"),
+        cell: (row) => (
+          <span className="font-medium text-slate-800">{row.yearName}</span>
+        ),
+      },
+      {
+        id: "startDate",
+        header: t("columns.startDate"),
+        cell: (row) => (
+          <span className="font-mono text-xs text-slate-700">{row.startDate}</span>
+        ),
+      },
+      {
+        id: "endDate",
+        header: t("columns.endDate"),
+        cell: (row) => (
+          <span className="font-mono text-xs text-slate-700">{row.endDate}</span>
+        ),
+      },
+      {
+        id: "isActive",
+        header: t("columns.status"),
+        cell: (row) => (
+          <Badge tone={row.isActive ? "success" : "neutral"} caps>
+            {row.isActive ? t("statusActive") : t("statusInactive")}
+          </Badge>
+        ),
+      },
+    ],
+    [t],
+  );
+
+  return (
+    <DataTable<FinYear>
+      data={items}
+      columns={columns}
+      getRowKey={(row) => String(row.yearId)}
+      loading={loading}
+      error={error}
+      errorTitle={t("loadErrorTitle")}
+      errorMessage={errorMessage}
+      onRetry={onRetry}
+      emptyTitle={t("emptyTitle")}
+      emptyMessage={t("emptyMessage")}
+      minWidth="880px"
+      caption={t("tableCaption")}
+      rowActions={{
+        header: t("columns.actions"),
+        render: (row) => (
+          <div className="flex items-center gap-1.5">
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              icon={Pencil}
+              tooltip={t("edit")}
+              onClick={() => onEdit(row)}
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              icon={row.isActive ? Ban : CircleCheck}
+              tooltip={row.isActive ? t("deactivate") : t("activate")}
+              disabled={statusBusyId === row.yearId}
+              onClick={() => onToggleActive(row)}
+            />
+          </div>
+        ),
+      }}
+      pagination={{
+        page,
+        pageSize,
+        total: meta?.total ?? items.length,
+        totalPages: meta?.lastPage,
+        pageSizeOptions: [20, 50, 100, 200],
+        onPageChange,
+        onPageSizeChange,
+      }}
+    />
+  );
+}

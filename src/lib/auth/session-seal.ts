@@ -25,6 +25,14 @@ export type SealedSessionPayload = {
     branchCode: string;
     branchName: string;
     isHead: boolean;
+    roleId: number | null;
+    roleName: string | null;
+    isAdmin: boolean;
+    roles: Array<{
+      roleId: number;
+      roleName: string;
+      isAdmin: boolean;
+    }>;
   };
 };
 
@@ -102,6 +110,15 @@ export async function unsealSessionPayload(
     ) {
       return null;
     }
+    // Backfill role fields for sessions sealed before role_id was stored.
+    parsed.user.roleId =
+      typeof parsed.user.roleId === "number" ? parsed.user.roleId : null;
+    parsed.user.roleName =
+      typeof parsed.user.roleName === "string" ? parsed.user.roleName : null;
+    parsed.user.isAdmin = parsed.user.isAdmin === true;
+    parsed.user.roles = Array.isArray(parsed.user.roles)
+      ? parsed.user.roles
+      : [];
     return parsed;
   } catch {
     return null;

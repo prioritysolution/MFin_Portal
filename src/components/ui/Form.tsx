@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Select, type SelectOption } from "@/components/ui/Select";
 import { Checkbox } from "@/components/ui/Checkbox";
+import { DatePicker } from "@/components/ui/DatePicker";
 
 /** @deprecated Use `controlClass` from `@/components/ui/Input`. */
 export { controlClass as formControlClass } from "@/components/ui/Input";
@@ -163,6 +164,47 @@ export function SelectField({
         searchPlaceholder={searchPlaceholder}
         emptyMessage={emptyMessage}
         aria-label={label}
+      />
+    </FormField>
+  );
+}
+
+type DateFieldProps = {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  required?: boolean;
+  error?: string;
+  hint?: string;
+  disabled?: boolean;
+  min?: string;
+  max?: string;
+};
+
+export function DateField({
+  label,
+  value,
+  onChange,
+  placeholder,
+  required,
+  error,
+  hint,
+  disabled,
+  min,
+  max,
+}: DateFieldProps) {
+  return (
+    <FormField label={label} required={required} error={error} hint={hint}>
+      <DatePicker
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        disabled={disabled}
+        min={min}
+        max={max}
+        aria-label={label}
+        aria-invalid={error ? true : undefined}
       />
     </FormField>
   );

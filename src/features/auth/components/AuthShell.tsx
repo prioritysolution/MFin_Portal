@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import {
   Building2,
@@ -10,24 +10,6 @@ import {
   ShieldCheck,
   Vault,
 } from "lucide-react";
-
-const highlights = [
-  {
-    icon: Vault,
-    title: "Branch Vault & Day Controls",
-    body: "Dual-custody cash, day open/close, and GL 111000 reconciliation.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Maker-Checker & RBAC",
-    body: "Segregation of duties with RBI-aligned dual authorization.",
-  },
-  {
-    icon: Building2,
-    title: "Multi-Branch Core Banking",
-    body: "Kendra collections, any-branch service, and offline Wi-Fi sync.",
-  },
-];
 
 type AuthShellProps = {
   children: ReactNode;
@@ -42,6 +24,27 @@ export function AuthShell({
   subtitle,
   wide = false,
 }: AuthShellProps) {
+  const t = useTranslations("auth");
+  const year = new Date().getFullYear();
+
+  const highlights = [
+    {
+      icon: Vault,
+      title: t("highlightVaultTitle"),
+      body: t("highlightVaultBody"),
+    },
+    {
+      icon: ShieldCheck,
+      title: t("highlightRbacTitle"),
+      body: t("highlightRbacBody"),
+    },
+    {
+      icon: Building2,
+      title: t("highlightMultiBranchTitle"),
+      body: t("highlightMultiBranchBody"),
+    },
+  ] as const;
+
   return (
     <div className="auth-shell flex min-h-dvh flex-col lg:flex-row">
       <aside className="auth-aside relative flex flex-col overflow-hidden px-6 py-8 text-white sm:px-8 lg:w-[46%] lg:justify-between lg:px-11 lg:py-12">
@@ -55,26 +58,24 @@ export function AuthShell({
             </span>
             <span>
               <span className="block text-lg font-semibold tracking-tight">
-                eZi-Micro
+                {t("brandName")}
               </span>
               <span className="block text-[10px] font-medium uppercase tracking-[0.18em] text-white/55">
-                Core Banking Portal
+                {t("brandTagline")}
               </span>
             </span>
           </Link>
 
           <div className="mt-9 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-medium tracking-wide text-emerald-200/90 backdrop-blur-sm">
             <Lock className="h-3 w-3" />
-            RBI 2026 · Encrypted staff session
+            {t("secureBadge")}
           </div>
 
           <h1 className="mt-5 max-w-md text-[1.75rem] font-semibold tracking-tight text-white sm:text-[2rem] sm:leading-tight">
-            Secure staff access to MFIN operations
+            {t("heroTitle")}
           </h1>
           <p className="mt-3 max-w-md text-sm leading-6 text-slate-300/90">
-            Authenticate with your employee credentials. Sessions respect
-            institutional software timings and RBI Core Banking Security
-            Guidelines.
+            {t("heroBody")}
           </p>
 
           <ul className="mt-9 hidden space-y-3 lg:block">
@@ -100,8 +101,7 @@ export function AuthShell({
         </div>
 
         <p className="relative z-10 mt-8 text-[11px] leading-5 text-white/40 lg:mt-0">
-          © {new Date().getFullYear()} eZiMicro Financial Services Ltd · Design
-          & Developed By Priority Solutions
+          {t("footer", { year })}
         </p>
       </aside>
 
@@ -113,7 +113,7 @@ export function AuthShell({
           <div className="auth-card overflow-hidden rounded-[1.25rem] border border-slate-200/80 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04),0_20px_48px_-12px_rgba(15,23,42,0.12)]">
             <div className="border-b border-slate-100 bg-gradient-to-b from-slate-50/80 to-white px-5 py-5 sm:px-7 sm:py-6">
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-ink">
-                Staff portal
+                {t("staffPortal")}
               </p>
               <h2 className="mt-1.5 text-xl font-semibold tracking-tight text-slate-900 sm:text-[1.35rem]">
                 {title}
@@ -134,35 +134,38 @@ export const authFieldClass =
 export const authSelectClass = `${authFieldClass} auth-select cursor-pointer pr-10`;
 
 const languages = [
-  { value: "en", label: "English" },
-  { value: "hi", label: "Hindi" },
-  { value: "bn", label: "Bengali" },
-  { value: "or", label: "Odia" },
-];
+  { value: "en", labelKey: "localeEn" },
+  { value: "hi", labelKey: "localeHi" },
+  { value: "bn", labelKey: "localeBn" },
+  { value: "or", labelKey: "localeOr" },
+] as const;
 
 export function AuthLanguageSelect() {
   const router = useRouter();
   const pathname = usePathname();
   const locale = useLocale();
+  const t = useTranslations("auth");
 
   return (
     <label className="auth-field-group block text-sm">
       <span className="auth-label mb-1.5 block font-medium text-slate-700">
-        Language
+        {t("language")}
       </span>
       <span className="relative block">
-        <Languages className="pointer-events-none absolute top-1/2 left-3.5 z-10 h-4 w-4 -translate-y-1/2 text-slate-400" />
+        <Languages className="pointer-events-none absolute top-1/2 start-3.5 z-10 h-4 w-4 -translate-y-1/2 text-slate-400" />
         <select
           name="language"
           value={locale}
           onChange={(event) => {
-            router.replace(pathname, { locale: event.target.value });
+            const nextLocale = event.target.value;
+            router.replace(pathname, { locale: nextLocale });
+            router.refresh();
           }}
-          className={`${authSelectClass} pl-10`}
+          className={`${authSelectClass} ps-10`}
         >
           {languages.map((lang) => (
             <option key={lang.value} value={lang.value}>
-              {lang.label}
+              {t(lang.labelKey)}
             </option>
           ))}
         </select>

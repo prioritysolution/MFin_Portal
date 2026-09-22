@@ -30,7 +30,7 @@ Update this document whenever a phase completes, an API is integrated, or an arc
 |------|--------|--------|
 | App foundation (`src/`, App Router, next-intl) | **Done** | Locales: `en`, `bn`, `hi`, `or` |
 | Auth BFF (login / logout / sealed session) | **Done** | Bearer never in browser |
-| MenuTree + localStorage cache | **Done** | Instant paint; refresh compare; clear on logout |
+| MenuTree + localStorage cache | **Done** | Server-loaded in app layout via session Bearer → Laravel `MenuTree`; localStorage fallback; clear on logout |
 | Master APIs (Org, Roles, Code Series, Timings, RBI, Branch, Staff) | **Done** | Via `/api/master/*` BFF |
 | Audit Log | **Done** | `/api/security/audit-log` + MIS audit trail route |
 | Shared UI (DataTable, forms, skeletons, tooltip) | **Done** | Loading = skeletons; icon actions + project tooltips |
@@ -68,8 +68,9 @@ Update this document whenever a phase completes, an API is integrated, or an arc
 
 | Item | Result |
 |------|--------|
-| MenuTree BFF | `/api/menu` → Laravel `MenuTree` |
-| localStorage menu cache | Keyed by `userId` + `orgId`; show immediately; background refresh; update only if changed |
+| MenuTree BFF | `/api/menu` → Laravel `GET /api/MenuTree` (`status`, optional server `role_id`) |
+| Server menu load | App layout calls `fetchMenuTree` with session token (same as Postman) |
+| localStorage menu cache | Keyed by `userId` + `orgId`; fallback if SSR empty; clear on logout |
 | Logout / 401 | Clears memory + localStorage menu |
 | Safe menu routes | Allowlist relative paths only (`/…`); reject `http(s):`, `//`, `javascript:` |
 
@@ -83,7 +84,7 @@ Update this document whenever a phase completes, an API is integrated, or an arc
 | Roles | `/master/roles` | `/api/master/roles` | RoleList / Add / Edit |
 | RBI lending policy | `/master/rbi-policies` | `/api/master/rbi-lending-policy` | RbiLendingPolicyGet / Update |
 | Branch (Kendra Branch Master tab) | `/master/kendra-jlg` | `/api/master/branch` | BranchList / Add / Edit |
-| Staff | `/master/staff` | `/api/master/staff` (+ lookups) | StaffList / Add / Edit + designations / modules |
+| Staff | `/master/staff` | `/api/master/staff` (+ lookups) | StaffList / Add / Edit + designations / modules (`short_name`, `device_id`, `user_id`; create requires `user_name` / `user_pass`) |
 | States (org form) | (embedded) | `/api/master/states` | StateList |
 | Audit log | `/security/...`, `/mis/audit-trail` | `/api/security/audit-log` | AuditLogList (GET) |
 
@@ -167,6 +168,12 @@ Use this section like lightweight ADRs. Do not reverse these without updating th
 **Decision:** Remove duplicate header Save; keep footer/card Save.  
 **Reason:** Avoid duplicate primary actions and clutter.  
 **Consequence:** Modal forms keep footer actions only (already the pattern).
+
+### D-10 — No locale prefix in public URLs
+
+**Decision:** `localePrefix: "never"` — language lives in `NEXT_LOCALE` cookie, not `/en/...` paths.  
+**Reason:** Client preference; also prevents stacked locale bugs (`/or/bn/login`).  
+**Consequence:** Use `src/proxy.ts` (Next.js 16 renamed middleware → proxy). Prefixed URLs redirect to clean paths; next-intl rewrites internally (e.g. `/login` → `/en/login` in logs only).
 
 ---
 

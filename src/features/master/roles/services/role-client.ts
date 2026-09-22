@@ -8,7 +8,6 @@ import type {
   RoleCreateInput,
   RoleListQuery,
   RoleListResult,
-  RoleMutationResult,
   RoleUpdateInput,
 } from "@/features/master/roles/types/role.types";
 
@@ -96,9 +95,7 @@ export async function fetchRoleList(
   );
 }
 
-export async function createRole(
-  input: RoleCreateInput,
-): Promise<RoleMutationResult> {
+export async function createRole(input: RoleCreateInput): Promise<Role> {
   const response = await fetch("/api/master/roles", {
     method: "POST",
     headers: {
@@ -108,14 +105,12 @@ export async function createRole(
     credentials: "same-origin",
     body: JSON.stringify({ action: "create", ...input }),
   });
-  const data = await parseEnvelope<RoleMutationResult>(response);
+  const data = await parseEnvelope<Role>(response);
   clearDedupe();
   return data;
 }
 
-export async function updateRole(
-  input: RoleUpdateInput,
-): Promise<RoleMutationResult> {
+export async function updateRole(input: RoleUpdateInput): Promise<Role> {
   const response = await fetch("/api/master/roles", {
     method: "POST",
     headers: {
@@ -125,7 +120,7 @@ export async function updateRole(
     credentials: "same-origin",
     body: JSON.stringify({ action: "update", ...input }),
   });
-  const data = await parseEnvelope<RoleMutationResult>(response);
+  const data = await parseEnvelope<Role>(response);
   clearDedupe();
   return data;
 }

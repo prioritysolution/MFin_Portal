@@ -14,7 +14,6 @@ import {
   paginationMetaDtoSchema,
   roleCreateInputSchema,
   roleDtoSchema,
-  roleMutationResultSchema,
   roleUpdateInputSchema,
 } from "@/features/master/roles/schemas/role.schema";
 import type {
@@ -22,11 +21,13 @@ import type {
   RoleDto,
   RoleListQuery,
   RoleListResult,
-  RoleMutationResult,
 } from "@/features/master/roles/types/role.types";
 import type { LaravelResponse } from "@/types/api";
 
-/** Documented aliases: `role_name` / `keyword`. Canonical for this BFF. */
+/**
+ * Documented search aliases: `keyword` / `role_name` / `search`.
+ * BFF always sends `keyword`.
+ */
 export const ROLE_SEARCH_PARAM = "keyword" as const;
 
 async function requireAccessToken(): Promise<string> {
@@ -52,6 +53,16 @@ async function withUnauthorizedClear<T>(run: () => Promise<T>): Promise<T> {
   }
 }
 
+function parseRoleRow(row: unknown): Role | null {
+  const parsed = roleDtoSchema.safeParse(row);
+  if (!parsed.success) return null;
+  return mapRoleDto({
+    ...parsed.data,
+    description: parsed.data.description ?? null,
+    created_by: parsed.data.created_by ?? null,
+  });
+}
+
 export async function listRoles(
   query: RoleListQuery = {},
 ): Promise<RoleListResult> {
@@ -64,7 +75,7 @@ export async function listRoles(
         expectEnvelope: false,
         searchParams: {
           page: query.page ?? 1,
-          per_page: query.perPage ?? 20,
+          per_page: query.perPage ?? 50,
           role_id: query.roleId,
           [ROLE_SEARCH_PARAM]: query.keyword,
           is_admin: query.isAdmin,
@@ -96,8 +107,8 @@ export async function listRoles(
 
     const rows = Array.isArray(payload.data) ? payload.data : [];
     const items = rows.flatMap((row) => {
-      const parsed = roleDtoSchema.safeParse(row);
-      return parsed.success ? [mapRoleDto(parsed.data)] : [];
+      const role = parseRoleRow(row);
+      return role ? [role] : [];
     });
 
     let meta: RoleListResult["meta"] = null;
@@ -112,7 +123,7 @@ export async function listRoles(
   });
 }
 
-export async function createRole(input: unknown): Promise<RoleMutationResult> {
+export async function createRole(input: unknown): Promise<Role> {
   const validated = roleCreateInputSchema.safeParse(input);
   if (!validated.success) {
     throw new ApiError({
@@ -126,25 +137,25 @@ export async function createRole(input: unknown): Promise<RoleMutationResult> {
   return withUnauthorizedClear(async () => {
     const token = await requireAccessToken();
     const body = mapRoleCreateToDto(validated.data);
-    const data = await api.post<{ id: number }>(endpoints.role.add, body, {
+    const data = await api.post<RoleDto>(endpoints.role.add, body, {
       accessToken: token,
       expectEnvelope: true,
     });
 
-    const parsed = roleMutationResultSchema.safeParse(data);
-    if (!parsed.success) {
+    const role = parseRoleRow(data);
+    if (!role) {
       throw new ApiError({
         message: "Role create response shape was unexpected",
         status: 500,
         code: "UNEXPECTED",
-        details: parsed.error.flatten(),
+        details: data,
       });
     }
-    return parsed.data;
+    return role;
   });
 }
 
-export async function updateRole(input: unknown): Promise<RoleMutationResult> {
+export async function updateRole(input: unknown): Promise<Role> {
   const validated = roleUpdateInputSchema.safeParse(input);
   if (!validated.success) {
     throw new ApiError({
@@ -158,21 +169,21 @@ export async function updateRole(input: unknown): Promise<RoleMutationResult> {
   return withUnauthorizedClear(async () => {
     const token = await requireAccessToken();
     const body = mapRoleUpdateToDto(validated.data);
-    const data = await api.post<{ id: number }>(endpoints.role.edit, body, {
+    const data = await api.post<RoleDto>(endpoints.role.edit, body, {
       accessToken: token,
       expectEnvelope: true,
     });
 
-    const parsed = roleMutationResultSchema.safeParse(data);
-    if (!parsed.success) {
+    const role = parseRoleRow(data);
+    if (!role) {
       throw new ApiError({
         message: "Role update response shape was unexpected",
         status: 500,
         code: "UNEXPECTED",
-        details: parsed.error.flatten(),
+        details: data,
       });
     }
-    return parsed.data;
+    return role;
   });
 }
 

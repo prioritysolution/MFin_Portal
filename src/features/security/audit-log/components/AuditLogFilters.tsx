@@ -70,6 +70,10 @@ export function AuditLogFilters({
                 label: t("actions.update"),
               },
               {
+                value: String(AUDIT_ACTIONS.delete),
+                label: t("actions.delete"),
+              },
+              {
                 value: String(AUDIT_ACTIONS.login),
                 label: t("actions.login"),
               },

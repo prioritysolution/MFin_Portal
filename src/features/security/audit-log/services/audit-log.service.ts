@@ -17,13 +17,17 @@ import type {
   AuditLogListQuery,
   AuditLogListResult,
 } from "@/features/security/audit-log/types/audit-log.types";
+import {
+  AUDIT_LOG_DEFAULT_PER_PAGE,
+  AUDIT_LOG_MAX_PER_PAGE,
+} from "@/features/security/audit-log/types/audit-log.types";
 import type { LaravelResponse } from "@/types/api";
 
-/** Live-verified search param (preferred over `keyword`). */
-export const AUDIT_LOG_SEARCH_PARAM = "search" as const;
-/** Live-verified date range aliases (`date_from` / `date_to`). */
-export const AUDIT_LOG_DATE_FROM_PARAM = "date_from" as const;
-export const AUDIT_LOG_DATE_TO_PARAM = "date_to" as const;
+function clampPerPage(value: number | undefined): number {
+  const raw = value ?? AUDIT_LOG_DEFAULT_PER_PAGE;
+  if (!Number.isFinite(raw) || raw < 1) return AUDIT_LOG_DEFAULT_PER_PAGE;
+  return Math.min(Math.floor(raw), AUDIT_LOG_MAX_PER_PAGE);
+}
 
 async function requireAccessToken(): Promise<string> {
   const token = await getAccessToken();
@@ -48,6 +52,11 @@ async function withUnauthorizedClear<T>(run: () => Promise<T>): Promise<T> {
   }
 }
 
+/**
+ * Laravel: GET /api/AuditLogList
+ * Query: page, per_page, audit_id, user_id, menu_name, table_name,
+ *        record_id, action, keyword|search, from_date, to_date
+ */
 export async function listAuditLogs(
   query: AuditLogListQuery = {},
 ): Promise<AuditLogListResult> {
@@ -60,15 +69,16 @@ export async function listAuditLogs(
         expectEnvelope: false,
         searchParams: {
           page: query.page ?? 1,
-          per_page: query.perPage ?? 20,
+          per_page: clampPerPage(query.perPage),
           audit_id: query.auditId,
           user_id: query.userId,
-          [AUDIT_LOG_SEARCH_PARAM]: query.search,
-          action: query.action,
           menu_name: query.menuName,
           table_name: query.tableName,
-          [AUDIT_LOG_DATE_FROM_PARAM]: query.dateFrom,
-          [AUDIT_LOG_DATE_TO_PARAM]: query.dateTo,
+          record_id: query.recordId,
+          action: query.action,
+          search: query.search,
+          from_date: query.fromDate,
+          to_date: query.toDate,
         },
       },
     );

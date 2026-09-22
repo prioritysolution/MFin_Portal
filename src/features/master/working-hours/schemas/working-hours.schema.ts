@@ -9,19 +9,13 @@ const hhmmSchema = z
   .trim()
   .refine(isValidHhmm, { message: "Time must be HH:mm" });
 
-/** Loose runtime check for WorkingHoursGet / Update response data. */
+/** Runtime check for WorkingHoursGet / Update response data. */
 export const workingHoursDtoSchema = z.object({
-  timing_id: z.number(),
-  opening_time: z.string(),
-  closing_time: z.string(),
-  session_timeout_min: z.number(),
-  working_days_desc: z.string().nullable().optional(),
-  allow_sunday_login: z.boolean(),
-  lockout_holidays: z.boolean(),
-  allow_offline_collection: z.boolean(),
-  updated_by: z.number().nullable().optional(),
-  created_at: z.string(),
-  updated_at: z.string(),
+  id: z.number(),
+  sod_time: z.string(),
+  eod_time: z.string(),
+  batch_exe_time: z.string().nullable().optional(),
+  session_inc_time: z.string(),
 });
 
 /**
@@ -30,27 +24,28 @@ export const workingHoursDtoSchema = z.object({
  */
 export const workingHoursUpdateInputSchema = z
   .object({
-    openingTime: hhmmSchema,
-    closingTime: hhmmSchema,
-    sessionTimeoutMin: z
-      .number()
-      .int()
-      .min(1, "Session timeout must be at least 1 minute")
-      .max(1440, "Session timeout must be at most 1440 minutes"),
-    workingDaysDesc: z.string().nullable().optional(),
-    allowSundayLogin: z.boolean().optional(),
-    lockoutHolidays: z.boolean().optional(),
-    allowOfflineCollection: z.boolean().optional(),
+    sodTime: hhmmSchema,
+    eodTime: hhmmSchema,
+    batchExeTime: z
+      .string()
+      .trim()
+      .nullable()
+      .optional()
+      .refine(
+        (value) => value == null || value === "" || isValidHhmm(value),
+        { message: "Time must be HH:mm" },
+      ),
+    sessionIncTime: hhmmSchema,
   })
   .superRefine((value, ctx) => {
-    const openMins = hhmmToMinutes(value.openingTime);
-    const closeMins = hhmmToMinutes(value.closingTime);
-    if (openMins == null || closeMins == null) return;
-    if (closeMins <= openMins) {
+    const sodMins = hhmmToMinutes(value.sodTime);
+    const eodMins = hhmmToMinutes(value.eodTime);
+    if (sodMins == null || eodMins == null) return;
+    if (eodMins <= sodMins) {
       ctx.addIssue({
         code: "custom",
-        path: ["closingTime"],
-        message: "Closing time must be later than opening time",
+        path: ["eodTime"],
+        message: "End of day must be later than start of day",
       });
     }
   });

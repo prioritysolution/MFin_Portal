@@ -1,7 +1,9 @@
 /**
  * Browser-safe AuditLog helpers — BFF only, never Laravel token.
+ * Browser → GET /api/security/audit-log → Laravel GET /api/AuditLogList
  */
 
+import { endpoints } from "@/lib/api/endpoints";
 import { dedupeRequest } from "@/lib/client/request-dedupe";
 import type {
   AuditLogListQuery,
@@ -68,12 +70,13 @@ function listQueryKey(query: AuditLogListQuery): string {
   if (query.perPage != null) params.set("per_page", String(query.perPage));
   if (query.auditId != null) params.set("audit_id", String(query.auditId));
   if (query.userId != null) params.set("user_id", String(query.userId));
-  if (query.search) params.set("search", query.search);
-  if (query.action != null) params.set("action", String(query.action));
   if (query.menuName) params.set("menu_name", query.menuName);
   if (query.tableName) params.set("table_name", query.tableName);
-  if (query.dateFrom) params.set("date_from", query.dateFrom);
-  if (query.dateTo) params.set("date_to", query.dateTo);
+  if (query.recordId != null) params.set("record_id", String(query.recordId));
+  if (query.action != null) params.set("action", String(query.action));
+  if (query.search) params.set("search", query.search);
+  if (query.fromDate) params.set("from_date", query.fromDate);
+  if (query.toDate) params.set("to_date", query.toDate);
   return params.toString() || "default";
 }
 
@@ -85,11 +88,12 @@ export async function fetchAuditLogList(
     `security:audit-log:${qs}`,
     async () => {
       const response = await fetch(
-        `/api/security/audit-log${qs === "default" ? "" : `?${qs}`}`,
+        `${endpoints.bff.auditLog}${qs === "default" ? "" : `?${qs}`}`,
         {
           method: "GET",
           headers: { Accept: "application/json" },
           credentials: "same-origin",
+          cache: "no-store",
         },
       );
       return parseEnvelope<AuditLogListResult>(response);

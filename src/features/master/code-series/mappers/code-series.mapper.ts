@@ -6,20 +6,27 @@ import type {
   PaginationMetaDto,
 } from "@/features/master/code-series/types/code-series.types";
 
-export function mapCodeSeriesDto(dto: {
+type CodeSeriesDtoLike = {
   series_id: number;
   module_key: string;
   module_name: string;
   prefix: string;
   next_counter: number;
   padding_digits: number;
-  suffix: string;
+  suffix?: string | null;
+  gen_code?: string;
   formatted_sample: string;
   status: number;
+  created_by?: number | null;
   updated_by?: number | null;
   created_at: string;
   updated_at: string;
-}): CodeSeries {
+};
+
+export function mapCodeSeriesDto(dto: CodeSeriesDtoLike): CodeSeries {
+  const formattedSample = dto.formatted_sample;
+  const genCode = dto.gen_code?.trim() || formattedSample;
+
   return {
     seriesId: dto.series_id,
     moduleKey: dto.module_key,
@@ -27,10 +34,11 @@ export function mapCodeSeriesDto(dto: {
     prefix: dto.prefix,
     nextCounter: dto.next_counter,
     paddingDigits: dto.padding_digits,
-    suffix: dto.suffix,
-    formattedSample: dto.formatted_sample,
+    suffix: dto.suffix ?? "",
+    genCode,
+    formattedSample,
     status: dto.status,
-    updatedBy: dto.updated_by ?? null,
+    createdBy: dto.created_by ?? dto.updated_by ?? null,
     createdAt: dto.created_at,
     updatedAt: dto.updated_at,
   };

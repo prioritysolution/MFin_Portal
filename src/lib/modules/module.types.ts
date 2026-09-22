@@ -8,8 +8,13 @@ export type ModuleId =
   | "master.codeSeries"
   | "master.workingHours"
   | "master.roles"
+  | "master.finYear"
+  | "master.holiday"
+  | "master.operationalDays"
   | "master.branch"
+  | "master.center"
   | "master.staff"
+  | "master.smsSettings"
   | "security.auditLog";
 
 export type ModulePageMeta = {
@@ -89,6 +94,27 @@ export const masterModulePages = {
     titleKey: "title",
     descriptionKey: "description",
   }),
+  finYear: new ModulePage({
+    id: "master.finYear",
+    route: "/master/fiscal-year",
+    messageNamespace: "master.finYear",
+    titleKey: "title",
+    descriptionKey: "description",
+  }),
+  holiday: new ModulePage({
+    id: "master.holiday",
+    route: "/master/holiday-calendar",
+    messageNamespace: "master.holiday",
+    titleKey: "title",
+    descriptionKey: "description",
+  }),
+  operationalDays: new ModulePage({
+    id: "master.operationalDays",
+    route: "/master/business-hours",
+    messageNamespace: "master.operationalDays",
+    titleKey: "title",
+    descriptionKey: "description",
+  }),
   branch: new ModulePage({
     id: "master.branch",
     route: "/master/kendra-jlg",
@@ -96,10 +122,24 @@ export const masterModulePages = {
     titleKey: "title",
     descriptionKey: "description",
   }),
+  center: new ModulePage({
+    id: "master.center",
+    route: "/master/kendra-jlg",
+    messageNamespace: "master.center",
+    titleKey: "title",
+    descriptionKey: "description",
+  }),
   staff: new ModulePage({
     id: "master.staff",
     route: "/master/staff",
     messageNamespace: "master.staff",
+    titleKey: "title",
+    descriptionKey: "description",
+  }),
+  smsSettings: new ModulePage({
+    id: "master.smsSettings",
+    route: "/master/gateway",
+    messageNamespace: "master.smsSettings",
     titleKey: "title",
     descriptionKey: "description",
   }),
@@ -111,7 +151,7 @@ export type MasterModulePageKey = keyof typeof masterModulePages;
 export const securityModulePages = {
   auditLog: new ModulePage({
     id: "security.auditLog",
-    route: "/security/audit-log",
+    route: "/security/audit-logs",
     messageNamespace: "security.auditLog",
     titleKey: "title",
     descriptionKey: "description",
