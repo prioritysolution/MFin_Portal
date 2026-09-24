@@ -20,6 +20,12 @@ export const endpoints = {
     holiday: "/api/master/holiday",
     center: "/api/master/center",
     operationalDays: "/api/master/operational-days",
+    roleMenu: "/api/master/role-menu",
+    acctCategory: "/api/master/acct-category",
+    acctHead: "/api/master/acct-head",
+    acctLedger: "/api/master/acct-ledger",
+    acctSubledger: "/api/master/acct-subledger",
+    acctSubledgerBranch: "/api/master/acct-subledger-branch",
   },
   menuTree: "/api/MenuTree",
   stateList: "/api/StateList",
@@ -27,6 +33,35 @@ export const endpoints = {
     list: "/api/RoleList",
     add: "/api/RoleAdd",
     edit: "/api/RoleEdit",
+  },
+  roleMenu: {
+    get: "/api/RoleMenuGet",
+    assign: "/api/RoleMenuAssign",
+  },
+  acctCategory: {
+    list: "/api/AcctCategoryList",
+    add: "/api/AcctCategoryAdd",
+    edit: "/api/AcctCategoryEdit",
+  },
+  acctHead: {
+    list: "/api/AcctHeadList",
+    add: "/api/AcctHeadAdd",
+    edit: "/api/AcctHeadEdit",
+  },
+  acctLedger: {
+    list: "/api/AcctLedgerList",
+    add: "/api/AcctLedgerAdd",
+    edit: "/api/AcctLedgerEdit",
+  },
+  acctSubledger: {
+    list: "/api/AcctSubledgerList",
+    add: "/api/AcctSubledgerAdd",
+    edit: "/api/AcctSubledgerEdit",
+  },
+  acctSubledgerBranch: {
+    list: "/api/AcctSubledgerBranchList",
+    add: "/api/AcctSubledgerBranchAdd",
+    edit: "/api/AcctSubledgerBranchEdit",
   },
   org: {
     get: "/api/OrgGet",

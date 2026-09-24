@@ -2,6 +2,7 @@ import "server-only";
 
 import { NextResponse } from "next/server";
 import { ApiError, isApiError, type ApiErrorCode } from "@/lib/api/errors";
+import { isProductionEnv } from "@/lib/config/env";
 
 const SAFE_MESSAGE: Record<ApiErrorCode, string> = {
   UNAUTHORIZED: "Unauthorized",
@@ -85,9 +86,24 @@ function clientMessageFor(error: ApiError): string {
   return SAFE_MESSAGE[error.code] ?? SAFE_MESSAGE.UNEXPECTED;
 }
 
+/**
+ * Non-production only: expose which Laravel API failed so Network-tab shares
+ * are useful for backend debugging. Never include tokens or full payloads.
+ */
+function debugUpstream(error: ApiError): Record<string, unknown> | undefined {
+  if (isProductionEnv() || !error.upstream) return undefined;
+  return {
+    laravelPath: error.upstream.path,
+    method: error.upstream.method,
+    upstreamStatus: error.upstream.status ?? error.status,
+    upstreamMessage: error.upstream.message ?? error.message,
+  };
+}
+
 /** Canonical BFF error JSON — never forwards raw upstream payloads. */
 export function toBffErrorResponse(error: unknown): NextResponse {
   if (isApiError(error)) {
+    const debug = debugUpstream(error);
     return NextResponse.json(
       {
         success: false,
@@ -98,6 +114,7 @@ export function toBffErrorResponse(error: unknown): NextResponse {
             ? sanitizeClientErrors(error.details)
             : null,
         data: null,
+        ...(debug ? { debug } : {}),
       },
       { status: error.status || 500 },
     );

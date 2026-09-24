@@ -38,6 +38,8 @@
     "filtersHeading": "फ़िल्टर",
     "selectPlaceholder": "चुनें…",
     "selectSearch": "खोजें…",
+    "themeToDark": "डार्क मोड पर जाएँ",
+    "themeToLight": "लाइट मोड पर जाएँ",
     "selectEmpty": "कोई विकल्प नहीं मिला",
     "datePlaceholder": "तिथि चुनें…",
     "dateClear": "साफ़ करें",
@@ -73,7 +75,19 @@
     "menuUnauthorized": "आपका सत्र समाप्त हो गया है। कृपया फिर से साइन इन करें।",
     "menuError": "मेनू लोड नहीं हो सका।",
     "routeUnavailable": "यह पेज अभी उपलब्ध नहीं है।",
-    "branchLabel": "शाखा {branch}"
+    "branchLabel": "शाखा {branch}",
+    "quickSearch": {
+      "open": "त्वरित खोज खोलें",
+      "close": "बंद करें",
+      "title": "त्वरित खोज",
+      "placeholder": "त्वरित खोज या कमांड…",
+      "shortcutWin": "Ctrl K",
+      "shortcutMac": "⌘ K",
+      "results": "खोज परिणाम",
+      "empty": "पेज और मेनू आइटम खोजने के लिए टाइप करें।",
+      "noResults": "कोई मेल नहीं मिला।",
+      "hintFooter": "↑↓ घुमाएँ · Enter खोलें · Esc बंद"
+    }
   },
   "auth": {
     "staffPortal": "स्टाफ़ पोर्टल",
@@ -327,6 +341,7 @@
       "description": "एक्सेस नियंत्रण के लिए सिस्टम रोल बनाएँ और प्रबंधित करें",
       "add": "रोल जोड़ें",
       "edit": "संपादित करें",
+      "permissions": "अनुमतियाँ",
       "deactivate": "निष्क्रिय करें",
       "activate": "सक्रिय करें",
       "deactivateSuccess": "रोल सफलतापूर्वक निष्क्रिय किया गया।",
@@ -368,6 +383,37 @@
         "description": "विवरण",
         "isAdmin": "एडमिनिस्ट्रेटर रोल",
         "status": "स्थिति"
+      },
+      "menuPermissions": {
+        "title": "मेनू अनुमतियाँ",
+        "subtitle": "{roleName} के लिए मेनू एक्सेस कॉन्फ़िगर करें",
+        "search": "मेनू खोजें",
+        "searchPlaceholder": "नाम या रूट से खोजें…",
+        "assignedCount": "{count} प्रदान",
+        "selectAll": "दिखाई देने वाले प्रदान करें",
+        "clearAll": "दिखाई देने वाले हटाएँ",
+        "loading": "मेनू अनुमतियाँ लोड हो रही हैं…",
+        "empty": "वर्तमान खोज से मेल खाने वाला कोई मेनू नहीं है।",
+        "save": "अनुमतियाँ सहेजें",
+        "saving": "सहेजा जा रहा है…",
+        "saveSuccess": "रोल मेनू अनुमतियाँ सफलतापूर्वक सहेजी गईं।",
+        "mainMenu": "मुख्य मेनू",
+        "submenuCount": "{count} सबमेनू",
+        "groupGranted": "{granted}/{total} प्रदान",
+        "grantGroup": "सभी प्रदान करें",
+        "columns": {
+          "menu": "मेनू",
+          "grant": "प्रदान"
+        },
+        "perms": {
+          "create": "बनाएँ",
+          "read": "पढ़ें",
+          "edit": "संपादित",
+          "delete": "हटाएँ",
+          "approve": "अनुमोदन",
+          "reverse": "रिवर्स",
+          "print": "प्रिंट"
+        }
       }
     },
     "finYear": {
@@ -533,6 +579,252 @@
       },
       "hints": {
         "time": "24-घंटे प्रारूप (HH:mm)। दोनों सेट होने पर बंद होने का समय खुलने के बाद होना चाहिए।"
+      }
+    },
+    "acctCategory": {
+      "title": "खाता श्रेणियाँ",
+      "description": "चार्ट ऑफ अकाउंट्स श्रेणी कोड और प्रकार प्रबंधित करें",
+      "add": "श्रेणी जोड़ें",
+      "edit": "संपादित करें",
+      "createTitle": "खाता श्रेणी जोड़ें",
+      "editTitle": "खाता श्रेणी संपादित करें",
+      "save": "श्रेणी सहेजें",
+      "saving": "सहेजा जा रहा है…",
+      "cancel": "रद्द करें",
+      "createSuccess": "खाता श्रेणी सफलतापूर्वक बनाई गई।",
+      "updateSuccess": "खाता श्रेणी सफलतापूर्वक अपडेट हुई।",
+      "loadErrorTitle": "खाता श्रेणियाँ लोड नहीं हो सकीं",
+      "emptyTitle": "कोई खाता श्रेणी नहीं मिली",
+      "emptyMessage": "वर्तमान फ़िल्टर से मेल खाने वाली कोई श्रेणी नहीं है।",
+      "tableCaption": "खाता श्रेणी सूची",
+      "types": {
+        "AS": "संपत्ति (AS)",
+        "LI": "दायित्व (LI)",
+        "EQ": "इक्विटी (EQ)",
+        "IN": "आय (IN)",
+        "EX": "व्यय (EX)"
+      },
+      "filters": {
+        "search": "खोजें",
+        "searchPlaceholder": "नाम या कोड से खोजें…",
+        "categoryType": "प्रकार",
+        "categoryTypeAll": "सभी प्रकार"
+      },
+      "columns": {
+        "categCode": "कोड",
+        "categName": "श्रेणी नाम",
+        "categoryType": "प्रकार",
+        "headCount": "हेड",
+        "actions": "क्रियाएँ"
+      },
+      "fields": {
+        "categName": "श्रेणी नाम",
+        "categCode": "श्रेणी कोड",
+        "categoryType": "श्रेणी प्रकार",
+        "categoryTypePlaceholder": "प्रकार चुनें",
+        "categoryTypeNone": "कोई नहीं"
+      },
+      "hints": {
+        "categCode": "वैकल्पिक। खाली छोड़ने पर कोड सीरीज़ से स्वतः बनेगा।"
+      }
+    },
+    "acctHead": {
+      "title": "खाता मुख्य हेड",
+      "description": "श्रेणियों से जुड़े चार्ट ऑफ अकाउंट्स मुख्य हेड प्रबंधित करें",
+      "add": "मुख्य हेड जोड़ें",
+      "edit": "संपादित करें",
+      "deactivate": "निष्क्रिय करें",
+      "activate": "सक्रिय करें",
+      "deactivateSuccess": "खाता मुख्य हेड सफलतापूर्वक निष्क्रिय किया गया।",
+      "activateSuccess": "खाता मुख्य हेड सफलतापूर्वक सक्रिय किया गया।",
+      "createTitle": "खाता मुख्य हेड जोड़ें",
+      "editTitle": "खाता मुख्य हेड संपादित करें",
+      "save": "मुख्य हेड सहेजें",
+      "saving": "सहेजा जा रहा है…",
+      "cancel": "रद्द करें",
+      "createSuccess": "खाता मुख्य हेड सफलतापूर्वक बनाया गया।",
+      "updateSuccess": "खाता मुख्य हेड सफलतापूर्वक अपडेट किया गया।",
+      "loadErrorTitle": "खाता मुख्य हेड लोड नहीं हो सके",
+      "emptyTitle": "कोई खाता मुख्य हेड नहीं मिला",
+      "emptyMessage": "वर्तमान फ़िल्टर से मेल खाने वाला कोई मुख्य हेड नहीं है।",
+      "tableCaption": "खाता मुख्य हेड सूची",
+      "statusActive": "सक्रिय",
+      "statusInactive": "निष्क्रिय",
+      "filters": {
+        "search": "खोजें",
+        "searchPlaceholder": "नाम या कोड से खोजें…",
+        "category": "श्रेणी",
+        "categoryAll": "सभी श्रेणियाँ",
+        "status": "स्थिति",
+        "statusAll": "सभी स्थितियाँ"
+      },
+      "columns": {
+        "mainhdCode": "कोड",
+        "mainhdName": "हेड नाम",
+        "category": "श्रेणी",
+        "categoryType": "प्रकार",
+        "status": "स्थिति",
+        "actions": "क्रियाएँ"
+      },
+      "fields": {
+        "mainhdName": "हेड नाम",
+        "mainhdCode": "हेड कोड",
+        "categId": "श्रेणी",
+        "categIdPlaceholder": "श्रेणी चुनें",
+        "isActive": "सक्रिय"
+      },
+      "hints": {
+        "mainhdCode": "वैकल्पिक। खाली छोड़ने पर कोड सीरीज़ से स्वतः बनेगा।"
+      }
+    },
+    "acctLedger": {
+      "title": "खाता लेजर",
+      "description": "मुख्य हेड से जुड़े चार्ट ऑफ अकाउंट्स लेजर प्रबंधित करें",
+      "add": "लेजर जोड़ें",
+      "edit": "संपादित करें",
+      "deactivate": "निष्क्रिय करें",
+      "activate": "सक्रिय करें",
+      "deactivateSuccess": "खाता लेजर सफलतापूर्वक निष्क्रिय किया गया।",
+      "activateSuccess": "खाता लेजर सफलतापूर्वक सक्रिय किया गया।",
+      "createTitle": "खाता लेजर जोड़ें",
+      "editTitle": "खाता लेजर संपादित करें",
+      "save": "लेजर सहेजें",
+      "saving": "सहेजा जा रहा है…",
+      "cancel": "रद्द करें",
+      "createSuccess": "खाता लेजर सफलतापूर्वक बनाया गया।",
+      "updateSuccess": "खाता लेजर सफलतापूर्वक अपडेट किया गया।",
+      "loadErrorTitle": "खाता लेजर लोड नहीं हो सके",
+      "emptyTitle": "कोई खाता लेजर नहीं मिला",
+      "emptyMessage": "वर्तमान फ़िल्टर से मेल खाने वाला कोई लेजर नहीं है।",
+      "tableCaption": "खाता लेजर सूची",
+      "statusActive": "सक्रिय",
+      "statusInactive": "निष्क्रिय",
+      "filters": {
+        "search": "खोजें",
+        "searchPlaceholder": "नाम या कोड से खोजें…",
+        "mainHead": "मुख्य हेड",
+        "mainHeadAll": "सभी मुख्य हेड",
+        "ledgerType": "प्रकार",
+        "ledgerTypePlaceholder": "A",
+        "status": "स्थिति",
+        "statusAll": "सभी स्थितियाँ"
+      },
+      "columns": {
+        "ledgerCode": "कोड",
+        "ledgerName": "लेजर नाम",
+        "ledgerType": "प्रकार",
+        "mainHead": "मुख्य हेड",
+        "category": "श्रेणी",
+        "subledgerCount": "सब-लेजर",
+        "status": "स्थिति",
+        "actions": "क्रियाएँ"
+      },
+      "fields": {
+        "ledgerName": "लेजर नाम",
+        "ledgerCode": "लेजर कोड",
+        "mainhdId": "मुख्य हेड",
+        "mainhdIdPlaceholder": "मुख्य हेड चुनें",
+        "ledgerType": "लेजर प्रकार",
+        "isActive": "सक्रिय"
+      },
+      "hints": {
+        "ledgerCode": "वैकल्पिक। खाली छोड़ने पर कोड सीरीज़ से स्वतः बनेगा।",
+        "ledgerType": "वैकल्पिक एक अक्षर (जैसे A)।"
+      }
+    },
+    "acctSubledger": {
+      "title": "खाता सब-लेजर",
+      "description": "लेजर से जुड़े चार्ट ऑफ अकाउंट्स सब-लेजर प्रबंधित करें",
+      "add": "सब-लेजर जोड़ें",
+      "edit": "संपादित करें",
+      "deactivate": "निष्क्रिय करें",
+      "activate": "सक्रिय करें",
+      "deactivateSuccess": "खाता सब-लेजर सफलतापूर्वक निष्क्रिय किया गया।",
+      "activateSuccess": "खाता सब-लेजर सफलतापूर्वक सक्रिय किया गया।",
+      "createTitle": "खाता सब-लेजर जोड़ें",
+      "editTitle": "खाता सब-लेजर संपादित करें",
+      "save": "सब-लेजर सहेजें",
+      "saving": "सहेजा जा रहा है…",
+      "cancel": "रद्द करें",
+      "createSuccess": "खाता सब-लेजर सफलतापूर्वक बनाया गया।",
+      "updateSuccess": "खाता सब-लेजर सफलतापूर्वक अपडेट किया गया।",
+      "loadErrorTitle": "खाता सब-लेजर लोड नहीं हो सके",
+      "emptyTitle": "कोई खाता सब-लेजर नहीं मिला",
+      "emptyMessage": "वर्तमान फ़िल्टर से मेल खाने वाला कोई सब-लेजर नहीं है।",
+      "tableCaption": "खाता सब-लेजर सूची",
+      "statusActive": "सक्रिय",
+      "statusInactive": "निष्क्रिय",
+      "filters": {
+        "search": "खोजें",
+        "searchPlaceholder": "नाम या कोड से खोजें…",
+        "ledger": "लेजर",
+        "ledgerAll": "सभी लेजर",
+        "status": "स्थिति",
+        "statusAll": "सभी स्थितियाँ"
+      },
+      "columns": {
+        "subledgCode": "कोड",
+        "subledgName": "सब-लेजर नाम",
+        "ledger": "लेजर",
+        "mainHead": "मुख्य हेड",
+        "branchCount": "शाखाएँ",
+        "status": "स्थिति",
+        "actions": "क्रियाएँ"
+      },
+      "fields": {
+        "subledgName": "सब-लेजर नाम",
+        "subledgCode": "सब-लेजर कोड",
+        "ledgerId": "लेजर",
+        "ledgerIdPlaceholder": "लेजर चुनें",
+        "isActive": "सक्रिय"
+      },
+      "hints": {
+        "subledgCode": "वैकल्पिक। खाली छोड़ने पर कोड सीरीज़ से स्वतः बनेगा।"
+      }
+    },
+    "acctSubledgerBranch": {
+      "title": "सब-लेजर शाखाएँ",
+      "description": "खाता सब-लेजर को संगठन शाखाओं से मैप करें",
+      "add": "मैपिंग जोड़ें",
+      "edit": "संपादित करें",
+      "deactivate": "निष्क्रिय करें",
+      "activate": "सक्रिय करें",
+      "deactivateSuccess": "सब-लेजर शाखा मैपिंग सफलतापूर्वक निष्क्रिय की गई।",
+      "activateSuccess": "सब-लेजर शाखा मैपिंग सफलतापूर्वक सक्रिय की गई।",
+      "createTitle": "सब-लेजर शाखा मैपिंग जोड़ें",
+      "editTitle": "सब-लेजर शाखा मैपिंग संपादित करें",
+      "save": "मैपिंग सहेजें",
+      "saving": "सहेजा जा रहा है…",
+      "cancel": "रद्द करें",
+      "createSuccess": "सब-लेजर शाखा मैपिंग सफलतापूर्वक बनाई गई।",
+      "updateSuccess": "सब-लेजर शाखा मैपिंग सफलतापूर्वक अपडेट की गई।",
+      "loadErrorTitle": "सब-लेजर शाखा मैपिंग लोड नहीं हो सकीं",
+      "emptyTitle": "कोई मैपिंग नहीं मिली",
+      "emptyMessage": "वर्तमान फ़िल्टर से मेल खाने वाली कोई मैपिंग नहीं है।",
+      "tableCaption": "सब-लेजर शाखा मैपिंग सूची",
+      "statusActive": "सक्रिय",
+      "statusInactive": "निष्क्रिय",
+      "filters": {
+        "subledger": "सब-लेजर",
+        "subledgerAll": "सभी सब-लेजर",
+        "branch": "शाखा",
+        "branchAll": "सभी शाखाएँ",
+        "status": "स्थिति",
+        "statusAll": "सभी स्थितियाँ"
+      },
+      "columns": {
+        "branch": "शाखा",
+        "subledger": "सब-लेजर",
+        "ledger": "लेजर",
+        "status": "स्थिति",
+        "actions": "क्रियाएँ"
+      },
+      "fields": {
+        "branchId": "शाखा",
+        "branchIdPlaceholder": "शाखा चुनें",
+        "subledgId": "सब-लेजर",
+        "subledgIdPlaceholder": "सब-लेजर चुनें",
+        "isActive": "सक्रिय"
       }
     },
     "branch": {
@@ -756,6 +1048,50 @@
         "userAgent": "यूज़र एजेंट",
         "oldValues": "पुराने मान",
         "newValues": "नए मान"
+      }
+    },
+    "loginSettings": {
+      "title": "लॉगिन और पासवर्ड नीति",
+      "description": "सभी उपयोगकर्ताओं के लिए प्रयास सीमा, खाता लॉक और पासवर्ड नियम",
+      "save": "नियम सहेजें",
+      "pendingApi": "लॉगिन सुरक्षा API जुड़ने तक ये नियम इसी स्क्रीन पर रहते हैं। सहेजना मान जाँचता है और सर्वर पर नहीं रखता।",
+      "validatedNotice": "नियम सही हैं। लॉगिन सुरक्षा API जुड़ने पर ये सहेजे जाएँगे।",
+      "attempts": {
+        "title": "लॉगिन प्रयास नियम",
+        "description": "कितनी गलत साइन-इन अनुमति है, खाता कितनी देर लॉक रहेगा, और रोज काउंटर कब शून्य होगा।",
+        "maxAttempts": "अधिकतम प्रयास",
+        "maxAttemptsHint": "खाता लॉक होने से पहले कितनी गलत साइन-इन हो सकती हैं।",
+        "lockMinutes": "लॉक अवधि (मिनट)",
+        "lockMinutesHint": "सीमा पूरी होने के बाद खाता कितने मिनट लॉक रहेगा।",
+        "dailyResetTime": "दैनिक रीसेट समय",
+        "dailyResetTimeHint": "हर दिन वह समय जब प्रयास काउंटर शून्य हो जाता है।"
+      },
+      "password": {
+        "title": "पासवर्ड नीति",
+        "description": "प्रशासक लंबाई, जटिलता, पुन: उपयोग और समाप्ति तय करता है।",
+        "minLength": "न्यूनतम अक्षर",
+        "minLengthHint": "उपयोगकर्ता जितने कम अक्षर का पासवर्ड रख सकता है।",
+        "maxLength": "अधिकतम अक्षर",
+        "maxLengthHint": "उपयोगकर्ता जितने अधिक अक्षर का पासवर्ड रख सकता है। यह न्यूनतम से कम नहीं होना चाहिए।",
+        "complexity": "जटिलता",
+        "requireUppercase": "बड़ा अक्षर आवश्यक",
+        "requireLowercase": "छोटा अक्षर आवश्यक",
+        "requireDigit": "अंक आवश्यक",
+        "requireSpecial": "विशेष चिह्न आवश्यक",
+        "uniquePasswordCount": "हाल के अनोखे पासवर्ड",
+        "uniquePasswordCountHint": "पिछले कितने पासवर्ड दोबारा नहीं चलेंगे। पुन: उपयोग के लिए 0 लिखें।",
+        "expirationEnabled": "पासवर्ड की समाप्ति",
+        "expirationDays": "समाप्ति (दिन)",
+        "expirationDaysHint": "कितने दिन बाद नया पासवर्ड चुनना होगा।"
+      },
+      "errors": {
+        "maxAttempts": "1 से 20 तक पूर्ण संख्या लिखें।",
+        "lockMinutes": "1 से 1440 मिनट तक लॉक समय लिखें।",
+        "dailyResetTime": "दिन का सही समय चुनें।",
+        "minLength": "6 से 64 तक न्यूनतम लंबाई लिखें।",
+        "maxLength": "अधिकतम लंबाई 6 से 128 तक हो और न्यूनतम से कम न हो।",
+        "uniquePasswordCount": "0 से 24 तक बताएँ कि हाल के कितने पासवर्ड बंद रहेंगे।",
+        "expirationDays": "1 से 365 दिन तक समाप्ति लिखें।"
       }
     }
   }

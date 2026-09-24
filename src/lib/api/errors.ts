@@ -8,11 +8,20 @@ export type ApiErrorCode =
   | "SERVER"
   | "UNEXPECTED";
 
+/** Laravel upstream context — attached for server logs / non-prod BFF debug. */
+export type ApiErrorUpstream = {
+  path: string;
+  method: string;
+  status?: number;
+  message?: string;
+};
+
 export type ApiErrorInit = {
   message: string;
   status: number;
   code: ApiErrorCode;
   details?: unknown;
+  upstream?: ApiErrorUpstream;
 };
 
 /**
@@ -23,13 +32,15 @@ export class ApiError extends Error {
   readonly status: number;
   readonly code: ApiErrorCode;
   readonly details?: unknown;
+  readonly upstream?: ApiErrorUpstream;
 
-  constructor({ message, status, code, details }: ApiErrorInit) {
+  constructor({ message, status, code, details, upstream }: ApiErrorInit) {
     super(message);
     this.name = "ApiError";
     this.status = status;
     this.code = code;
     this.details = details;
+    this.upstream = upstream;
   }
 
   get isUnauthorized(): boolean {
@@ -59,20 +70,28 @@ export function mapStatusToApiErrorCode(status: number): ApiErrorCode {
   return "UNEXPECTED";
 }
 
-export function toNetworkApiError(cause?: unknown): ApiError {
+export function toNetworkApiError(
+  cause?: unknown,
+  upstream?: ApiErrorUpstream,
+): ApiError {
   return new ApiError({
     message: "Network request failed",
     status: 0,
     code: "NETWORK",
     details: cause,
+    upstream,
   });
 }
 
-export function toTimeoutApiError(cause?: unknown): ApiError {
+export function toTimeoutApiError(
+  cause?: unknown,
+  upstream?: ApiErrorUpstream,
+): ApiError {
   return new ApiError({
     message: "Request timed out",
     status: 408,
     code: "TIMEOUT",
     details: cause,
+    upstream,
   });
 }

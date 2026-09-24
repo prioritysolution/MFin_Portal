@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   Vault,
 } from "lucide-react";
+import { ThemeToggle } from "@/features/theme/ThemeToggle";
 
 type AuthShellProps = {
   children: ReactNode;
@@ -106,6 +107,9 @@ export function AuthShell({
       </aside>
 
       <main className="auth-main relative flex flex-1 flex-col justify-center px-4 py-8 sm:px-8 lg:px-12 lg:py-10">
+        <div className="absolute end-4 top-4 z-20 sm:end-8 sm:top-6">
+          <ThemeToggle />
+        </div>
         <div className="auth-main-pattern pointer-events-none absolute inset-0" aria-hidden />
         <div
           className={`relative z-10 mx-auto w-full ${wide ? "max-w-[540px]" : "max-w-[440px]"}`}

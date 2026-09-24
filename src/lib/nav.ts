@@ -8,6 +8,7 @@ import {
   BarChart3,
   UsersRound,
   ShieldCheck,
+  KeyRound,
   Vault,
   UserRoundPlus,
   FileSpreadsheet,
@@ -244,7 +245,7 @@ export const mainModules: NavItem[] = [
     label: "User Management & Security",
     href: "/security",
     icon: ShieldCheck,
-    badge: "6",
+    badge: "7",
     tone: "slate",
     children: [
       { label: "My Profile", href: "/profile", icon: UserCircle2 },
@@ -252,6 +253,11 @@ export const mainModules: NavItem[] = [
         label: "Security Audit Log",
         href: "/security/audit-logs",
         icon: ShieldCheck,
+      },
+      {
+        label: "Login & Password Policy",
+        href: "/security/login-settings",
+        icon: KeyRound,
       },
       { label: "Employee Directory", href: "/security/users", icon: UsersRound },
       { label: "Security Role Master", href: "/security/roles", icon: Shield },

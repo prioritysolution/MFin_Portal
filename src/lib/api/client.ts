@@ -121,6 +121,35 @@ function isLaravelEnvelope(value: unknown): value is LaravelResponse<unknown> {
   );
 }
 
+function extractMessage(payload: unknown, fallback: string): string {
+  if (isLaravelEnvelope(payload) && typeof payload.message === "string") {
+    return payload.message;
+  }
+  if (
+    typeof payload === "object" &&
+    payload !== null &&
+    "message" in payload &&
+    typeof (payload as { message: unknown }).message === "string"
+  ) {
+    return (payload as { message: string }).message;
+  }
+  return fallback;
+}
+
+function logLaravelFailure(info: {
+  method: string;
+  path: string;
+  status?: number;
+  message?: string;
+}): void {
+  if (env.NEXT_PUBLIC_APP_ENV === "production") return;
+  console.error(
+    `[laravel] ${info.method} ${info.path}` +
+      (info.status != null ? ` → ${info.status}` : "") +
+      (info.message ? ` — ${info.message}` : ""),
+  );
+}
+
 /**
  * Central HTTP client for Laravel backend communication.
  *
@@ -145,6 +174,7 @@ export async function apiClient<TResponse>(
     expectEnvelope = true,
   } = options;
 
+  const laravelPath = toApiPath(path);
   const url = buildUrl(path, searchParams, baseUrl);
   const { signal: requestSignal, cleanup } = createAbortSignal(
     timeoutMs,
@@ -176,31 +206,49 @@ export async function apiClient<TResponse>(
     const payload = await parseResponseBody(response);
 
     if (!response.ok) {
-      const message =
-        isLaravelEnvelope(payload) && typeof payload.message === "string"
-          ? payload.message
-          : typeof payload === "object" &&
-              payload !== null &&
-              "message" in payload &&
-              typeof (payload as { message: unknown }).message === "string"
-            ? (payload as { message: string }).message
-            : `Request failed with status ${response.status}`;
-
+      const message = extractMessage(
+        payload,
+        `Request failed with status ${response.status}`,
+      );
+      logLaravelFailure({
+        method,
+        path: laravelPath,
+        status: response.status,
+        message,
+      });
       throw new ApiError({
         message,
         status: response.status,
         code: mapStatusToApiErrorCode(response.status),
         details: isLaravelEnvelope(payload) ? payload.errors : payload,
+        upstream: {
+          path: laravelPath,
+          method,
+          status: response.status,
+          message,
+        },
       });
     }
 
     if (expectEnvelope && isLaravelEnvelope(payload)) {
       if (!payload.success) {
+        logLaravelFailure({
+          method,
+          path: laravelPath,
+          status: response.status,
+          message: payload.message,
+        });
         throw new ApiError({
           message: payload.message || "Request failed",
           status: response.status,
           code: mapStatusToApiErrorCode(response.status || 400),
           details: payload.errors,
+          upstream: {
+            path: laravelPath,
+            method,
+            status: response.status,
+            message: payload.message,
+          },
         });
       }
       return payload.data as TResponse;
@@ -217,15 +265,18 @@ export async function apiClient<TResponse>(
       (error.name === "TimeoutError" || error.name === "AbortError")
     ) {
       if (error.name === "TimeoutError" || signal?.aborted !== true) {
-        throw toTimeoutApiError(error);
+        logLaravelFailure({ method, path: laravelPath, message: "timeout" });
+        throw toTimeoutApiError(error, { path: laravelPath, method });
       }
     }
 
     if (error instanceof TypeError) {
-      throw toNetworkApiError(error);
+      logLaravelFailure({ method, path: laravelPath, message: "network" });
+      throw toNetworkApiError(error, { path: laravelPath, method });
     }
 
-    throw toNetworkApiError(error);
+    logLaravelFailure({ method, path: laravelPath, message: "network" });
+    throw toNetworkApiError(error, { path: laravelPath, method });
   } finally {
     cleanup();
   }

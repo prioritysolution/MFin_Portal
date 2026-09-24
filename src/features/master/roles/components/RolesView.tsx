@@ -14,6 +14,7 @@ import {
 } from "@/features/master/roles/components/RolesFilters";
 import { RolesTable } from "@/features/master/roles/components/RolesTable";
 import { RolesForm } from "@/features/master/roles/components/RolesForm";
+import { RoleMenuPermissionsModal } from "@/features/master/role-menu";
 import {
   createRole,
   fetchRoleList,
@@ -64,6 +65,7 @@ export function RolesView() {
   const [formOpen, setFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<"create" | "edit">("create");
   const [editing, setEditing] = useState<Role | null>(null);
+  const [permissionsRole, setPermissionsRole] = useState<Role | null>(null);
   const [saving, setSaving] = useState(false);
   const [statusBusyId, setStatusBusyId] = useState<number | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
@@ -139,6 +141,11 @@ export function RolesView() {
     setEditing(role);
     setFormError(null);
     setFormOpen(true);
+  }
+
+  function openPermissions(role: Role) {
+    setPermissionsRole(role);
+    setSuccessMessage(null);
   }
 
   async function handleCreate(input: RoleCreateInput) {
@@ -253,6 +260,7 @@ export function RolesView() {
           setPage(1);
         }}
         onEdit={openEdit}
+        onPermissions={openPermissions}
         onToggleStatus={handleToggleStatus}
       />
 
@@ -269,6 +277,13 @@ export function RolesView() {
         }}
         onSubmitCreate={handleCreate}
         onSubmitUpdate={handleUpdate}
+      />
+
+      <RoleMenuPermissionsModal
+        open={permissionsRole != null}
+        role={permissionsRole}
+        onClose={() => setPermissionsRole(null)}
+        onSaved={() => setSuccessMessage(t("menuPermissions.saveSuccess"))}
       />
     </ModulePageShell>
   );

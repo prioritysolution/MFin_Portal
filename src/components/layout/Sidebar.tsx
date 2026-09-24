@@ -62,6 +62,18 @@ function isChildActive(route: string | null, pathname: string): boolean {
   return pathname === route || pathname.startsWith(`${route}/`);
 }
 
+function isDashboardMenuItem(item: MenuTreeNode): boolean {
+  const name = item.name.trim().toLowerCase();
+  return (
+    name === "dashboard" ||
+    name === "executive dashboard" ||
+    name === "executive dashbord" ||
+    item.route === "/" ||
+    item.route === "/dashboard" ||
+    item.route === "/home"
+  );
+}
+
 function isNodeActive(node: MenuTreeNode, pathname: string): boolean {
   if (node.route && isChildActive(node.route, pathname)) return true;
   return node.children.some((child) => isChildActive(child.route, pathname));
@@ -239,7 +251,7 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
 
           {menuState.status === "ready" ? (
             <nav className="space-y-1.5">
-              {menuState.items.map((item) => {
+              {menuState.items.filter((item) => !isDashboardMenuItem(item)).map((item) => {
                 const key = String(item.id);
                 const active = isNodeActive(item, pathname);
                 const isOpen = isExpanded(key);

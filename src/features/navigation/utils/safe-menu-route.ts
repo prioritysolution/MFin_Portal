@@ -26,6 +26,7 @@ export function sanitizeMenuRoute(
   }
 
   const pathOnly = trimmed.split(/[?#]/, 1)[0] ?? "";
+  if (pathOnly === "/") return "/";
   if (!INTERNAL_PATH.test(pathOnly)) return null;
   return pathOnly;
 }

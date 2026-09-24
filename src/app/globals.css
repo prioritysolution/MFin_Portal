@@ -644,3 +644,194 @@ select:disabled,
   background-position: right 0.875rem center;
   background-size: 1rem;
 }
+
+/* Dark theme — token swap plus light-only utility remaps. */
+html.dark {
+  color-scheme: dark;
+  --background: #0b1220;
+  --foreground: #e7eef8;
+  --surface: #121c2e;
+  --surface-muted: #182536;
+  --border: #2a3a50;
+  --border-strong: #3b4d66;
+  --muted: #a8b6c8;
+  --muted-soft: #7d8da3;
+  --brand-soft: #14532d;
+  --brand-ink: #86efac;
+  --brand-dark: #071018;
+  --accent-blue-soft: #1e3a5f;
+  --accent-amber-soft: #422006;
+  --accent-violet-soft: #2e1065;
+  --accent-rose-soft: #4c0519;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.35), 0 10px 28px rgba(0, 0, 0, 0.32);
+}
+
+html.dark .bg-white,
+html.dark .bg-white\/90,
+html.dark .bg-white\/80,
+html.dark .bg-white\/70 {
+  background-color: var(--surface);
+}
+
+html.dark .bg-slate-50,
+html.dark .bg-gray-50,
+html.dark .bg-slate-50\/80,
+html.dark .from-slate-50\/80 {
+  background-color: var(--surface-muted);
+}
+
+html.dark .to-white {
+  --tw-gradient-to: var(--surface);
+}
+
+html.dark .bg-slate-100,
+html.dark .bg-gray-100 {
+  background-color: #1c2b40;
+}
+
+html.dark .text-slate-900,
+html.dark .text-slate-800,
+html.dark .text-gray-900,
+html.dark .text-gray-800 {
+  color: #f1f5f9;
+}
+
+html.dark .text-slate-700,
+html.dark .text-slate-600,
+html.dark .text-gray-700,
+html.dark .text-gray-600 {
+  color: #d5deea;
+}
+
+html.dark .text-slate-500,
+html.dark .text-gray-500 {
+  color: #a8b6c8;
+}
+
+html.dark .border-slate-200,
+html.dark .border-slate-100,
+html.dark .border-gray-200,
+html.dark .border-gray-100,
+html.dark .border-slate-200\/80,
+html.dark .border-slate-200\/90,
+html.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--border);
+}
+
+html.dark .border-slate-300,
+html.dark .hover\:border-slate-300:hover {
+  border-color: var(--border-strong);
+}
+
+html.dark .hover\:bg-white:hover,
+html.dark .hover\:bg-slate-50:hover,
+html.dark .hover\:bg-slate-100:hover,
+html.dark .hover\:bg-gray-50:hover,
+html.dark .hover\:bg-gray-100:hover {
+  background-color: #223044;
+}
+
+html.dark .bg-rose-50 {
+  background-color: #3f1d28;
+}
+html.dark .border-rose-200 {
+  border-color: #9f1239;
+}
+html.dark .text-rose-700,
+html.dark .text-rose-800 {
+  color: #fecdd3;
+}
+
+html.dark .bg-emerald-50,
+html.dark .bg-green-50 {
+  background-color: #052e1c;
+}
+html.dark .text-emerald-700,
+html.dark .text-emerald-800,
+html.dark .text-green-700 {
+  color: #a7f3d0;
+}
+
+html.dark .bg-amber-50,
+html.dark .bg-yellow-50 {
+  background-color: #3b2a0b;
+}
+html.dark .text-amber-700,
+html.dark .text-amber-800,
+html.dark .text-yellow-800 {
+  color: #fde68a;
+}
+
+html.dark .bg-blue-50,
+html.dark .bg-sky-50 {
+  background-color: #0f2744;
+}
+html.dark .text-blue-700,
+html.dark .text-blue-800,
+html.dark .text-sky-700 {
+  color: #bfdbfe;
+}
+
+html.dark .bg-violet-50,
+html.dark .bg-purple-50 {
+  background-color: #2e1065;
+}
+html.dark .text-violet-700,
+html.dark .text-purple-700 {
+  color: #ddd6fe;
+}
+
+html.dark .btn-secondary,
+html.dark .btn-ghost,
+html.dark .btn-soft {
+  background: var(--surface-muted);
+  color: #e2e8f0;
+  border-color: var(--border);
+}
+
+html.dark .btn-ghost:hover:not(:disabled),
+html.dark .btn-secondary:hover:not(:disabled),
+html.dark .btn-soft:hover:not(:disabled) {
+  background: #223044;
+}
+
+html.dark .btn-amber {
+  background: #3b2a0b;
+  color: #fde68a;
+  border-color: #92400e;
+}
+
+html.dark .scrollbar-thin {
+  scrollbar-color: #3b4d66 transparent;
+}
+
+html.dark .scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #3b4d66;
+}
+
+html.dark .auth-shell {
+  background: #0b1220;
+}
+
+html.dark .auth-main {
+  background: linear-gradient(180deg, #0f1928 0%, #0b1220 100%);
+}
+
+html.dark .auth-main-pattern {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+}
+
+html.dark .auth-aside .text-slate-400,
+html.dark .auth-aside .text-slate-300,
+html.dark .bg-brand-dark .text-slate-400,
+html.dark .bg-brand-dark .text-slate-500,
+html.dark .bg-brand-dark .text-slate-300 {
+  color: #cbd5e1;
+}
+
+html.dark input,
+html.dark textarea,
+html.dark select {
+  color-scheme: dark;
+}

@@ -11,11 +11,17 @@ export type ModuleId =
   | "master.finYear"
   | "master.holiday"
   | "master.operationalDays"
+  | "master.acctCategory"
+  | "master.acctHead"
+  | "master.acctLedger"
+  | "master.acctSubledger"
+  | "master.acctSubledgerBranch"
   | "master.branch"
   | "master.center"
   | "master.staff"
   | "master.smsSettings"
-  | "security.auditLog";
+  | "security.auditLog"
+  | "security.loginSettings";
 
 export type ModulePageMeta = {
   /** Stable module id used for registry / analytics. */
@@ -115,6 +121,41 @@ export const masterModulePages = {
     titleKey: "title",
     descriptionKey: "description",
   }),
+  acctCategory: new ModulePage({
+    id: "master.acctCategory",
+    route: "/master/account-categories",
+    messageNamespace: "master.acctCategory",
+    titleKey: "title",
+    descriptionKey: "description",
+  }),
+  acctHead: new ModulePage({
+    id: "master.acctHead",
+    route: "/master/account-heads",
+    messageNamespace: "master.acctHead",
+    titleKey: "title",
+    descriptionKey: "description",
+  }),
+  acctLedger: new ModulePage({
+    id: "master.acctLedger",
+    route: "/master/account-ledgers",
+    messageNamespace: "master.acctLedger",
+    titleKey: "title",
+    descriptionKey: "description",
+  }),
+  acctSubledger: new ModulePage({
+    id: "master.acctSubledger",
+    route: "/master/account-subledgers",
+    messageNamespace: "master.acctSubledger",
+    titleKey: "title",
+    descriptionKey: "description",
+  }),
+  acctSubledgerBranch: new ModulePage({
+    id: "master.acctSubledgerBranch",
+    route: "/master/account-subledger-branches",
+    messageNamespace: "master.acctSubledgerBranch",
+    titleKey: "title",
+    descriptionKey: "description",
+  }),
   branch: new ModulePage({
     id: "master.branch",
     route: "/master/kendra-jlg",
@@ -153,6 +194,13 @@ export const securityModulePages = {
     id: "security.auditLog",
     route: "/security/audit-logs",
     messageNamespace: "security.auditLog",
+    titleKey: "title",
+    descriptionKey: "description",
+  }),
+  loginSettings: new ModulePage({
+    id: "security.loginSettings",
+    route: "/security/login-settings",
+    messageNamespace: "security.loginSettings",
     titleKey: "title",
     descriptionKey: "description",
   }),

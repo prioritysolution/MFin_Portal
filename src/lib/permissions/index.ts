@@ -13,6 +13,7 @@ const HEAD_OFFICE_PATH_PREFIXES = [
   "/master/series",
   "/master/timings",
   "/security/audit-logs",
+  "/security/login-settings",
 ] as const;
 
 export function isHeadOfficeUser(user: AuthUser): boolean {

@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { Ban, CircleCheck, Pencil } from "lucide-react";
+import { Ban, CircleCheck, Pencil, Shield } from "lucide-react";
 import { DataTable } from "@/components/shared/DataTable";
 import type { DataTableColumn } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/Badge";
@@ -25,6 +25,7 @@ type RolesTableProps = {
   onPageChange: (page: number) => void;
   onPageSizeChange: (pageSize: number) => void;
   onEdit: (row: Role) => void;
+  onPermissions: (row: Role) => void;
   onToggleStatus: (row: Role) => void;
 };
 
@@ -40,6 +41,7 @@ export function RolesTable({
   onPageChange,
   onPageSizeChange,
   onEdit,
+  onPermissions,
   onToggleStatus,
   statusBusyId = null,
 }: RolesTableProps) {
@@ -126,6 +128,14 @@ export function RolesTable({
                 icon={Pencil}
                 tooltip={t("edit")}
                 onClick={() => onEdit(row)}
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                icon={Shield}
+                tooltip={t("permissions")}
+                onClick={() => onPermissions(row)}
               />
               <Button
                 type="button"

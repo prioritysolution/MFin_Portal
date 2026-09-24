@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { useLocale } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { Menu, Search, ChevronDown } from "lucide-react";
+import { Menu, ChevronDown } from "lucide-react";
 import type { AppLocale } from "@/i18n/routing";
 import type { AuthUser } from "@/features/auth/types/auth";
+import { QuickSearch } from "@/features/navigation/components/QuickSearch";
+import { ThemeToggle } from "@/features/theme/ThemeToggle";
 
 type HeaderProps = {
   onMenuClick: () => void;
@@ -67,6 +69,26 @@ const pageTitles: Record<string, { title: string; subtitle: string }> = {
   "/master/business-hours": {
     title: "Business Hours",
     subtitle: "Branch operational days · Open & close times · Half-day flags",
+  },
+  "/master/account-categories": {
+    title: "Account Categories",
+    subtitle: "COA category master · Code series · Head counts",
+  },
+  "/master/account-heads": {
+    title: "Account Main Heads",
+    subtitle: "COA main heads · Category link · Active status",
+  },
+  "/master/account-ledgers": {
+    title: "Account Ledgers",
+    subtitle: "COA ledgers · Main head link · Sub-ledger counts",
+  },
+  "/master/account-subledgers": {
+    title: "Account Subledgers",
+    subtitle: "COA subledgers · Ledger link · Branch counts",
+  },
+  "/master/account-subledger-branches": {
+    title: "Subledger Branches",
+    subtitle: "Map subledgers to organization branches",
   },
   "/master/gateway": {
     title: "SMS & WA Gateway",
@@ -273,6 +295,10 @@ const pageTitles: Record<string, { title: string; subtitle: string }> = {
     title: "Audit & Security",
     subtitle: "Operator · IP · Entity change · Login activity",
   },
+  "/security/login-settings": {
+    title: "Login & Password Policy",
+    subtitle: "Attempt limits · Lock time · Daily reset · Password rules",
+  },
   "/customer-kyc": {
     title: "Borrower Profiles, Group Affiliations & KYC Vault",
     subtitle:
@@ -356,20 +382,13 @@ export function Header({ onMenuClick, user }: HeaderProps) {
               <Menu className="h-4 w-4" />
             </button>
 
-            <label className="relative hidden min-w-0 flex-1 sm:block md:max-w-md">
-              <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-soft" />
-              <input
-                type="search"
-                placeholder="Quick search or command..."
-                className="w-full rounded-2xl border border-border bg-surface-muted py-2.5 pr-14 pl-10 text-sm text-slate-800 outline-none transition placeholder:text-muted-soft focus:border-brand/40 focus:bg-white focus:ring-4 focus:ring-brand/10"
-              />
-              <kbd className="pointer-events-none absolute top-1/2 right-2.5 hidden -translate-y-1/2 rounded-md border border-border bg-white px-1.5 py-0.5 text-[10px] font-medium text-muted-soft lg:inline">
-                Ctrl K
-              </kbd>
-            </label>
+            <div className="relative hidden min-w-0 flex-1 sm:block md:max-w-md">
+              <QuickSearch user={user} showShortcut />
+            </div>
           </div>
 
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+            <ThemeToggle />
             <div className="relative">
               <button
                 type="button"
@@ -432,14 +451,9 @@ export function Header({ onMenuClick, user }: HeaderProps) {
         <hr className="border-0 border-t border-border" />
 
         <div className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-          <label className="relative block w-full sm:hidden">
-            <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-soft" />
-            <input
-              type="search"
-              placeholder="Quick search or command..."
-              className="w-full rounded-2xl border border-border bg-surface-muted py-2.5 pr-4 pl-10 text-sm text-slate-800 outline-none transition placeholder:text-muted-soft focus:border-brand/40 focus:bg-white focus:ring-4 focus:ring-brand/10"
-            />
-          </label>
+          <div className="block w-full sm:hidden">
+            <QuickSearch user={user} showShortcut={false} />
+          </div>
 
           <div className="min-w-0">
             <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-soft">

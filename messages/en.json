@@ -38,6 +38,8 @@
     "filtersHeading": "Filters",
     "selectPlaceholder": "Select…",
     "selectSearch": "Search…",
+    "themeToDark": "Switch to dark mode",
+    "themeToLight": "Switch to light mode",
     "selectEmpty": "No options found",
     "datePlaceholder": "Select date…",
     "dateClear": "Clear",
@@ -73,7 +75,19 @@
     "menuUnauthorized": "Your session has expired. Please sign in again.",
     "menuError": "Unable to load the menu.",
     "routeUnavailable": "This page is not available yet.",
-    "branchLabel": "Branch {branch}"
+    "branchLabel": "Branch {branch}",
+    "quickSearch": {
+      "open": "Open quick search",
+      "close": "Close",
+      "title": "Quick search",
+      "placeholder": "Quick search or command…",
+      "shortcutWin": "Ctrl K",
+      "shortcutMac": "⌘ K",
+      "results": "Search results",
+      "empty": "Type to search pages and menu items.",
+      "noResults": "No matching pages found.",
+      "hintFooter": "↑↓ to move · Enter to open · Esc to close"
+    }
   },
   "auth": {
     "staffPortal": "Staff portal",
@@ -327,6 +341,7 @@
       "description": "Create and manage system roles used for access control",
       "add": "Add Role",
       "edit": "Edit",
+      "permissions": "Permissions",
       "deactivate": "Deactivate",
       "activate": "Activate",
       "deactivateSuccess": "Role deactivated successfully.",
@@ -368,6 +383,37 @@
         "description": "Description",
         "isAdmin": "Administrator role",
         "status": "Status"
+      },
+      "menuPermissions": {
+        "title": "Menu Permissions",
+        "subtitle": "Configure menu access for {roleName}",
+        "search": "Search menus",
+        "searchPlaceholder": "Search by name or route…",
+        "assignedCount": "{count} granted",
+        "selectAll": "Grant visible",
+        "clearAll": "Clear visible",
+        "loading": "Loading menu permissions…",
+        "empty": "No menus match the current search.",
+        "save": "Save Permissions",
+        "saving": "Saving…",
+        "saveSuccess": "Role menu permissions saved successfully.",
+        "mainMenu": "Main menu",
+        "submenuCount": "{count} submenus",
+        "groupGranted": "{granted}/{total} granted",
+        "grantGroup": "Grant all",
+        "columns": {
+          "menu": "Menu",
+          "grant": "Grant"
+        },
+        "perms": {
+          "create": "Create",
+          "read": "Read",
+          "edit": "Edit",
+          "delete": "Delete",
+          "approve": "Approve",
+          "reverse": "Reverse",
+          "print": "Print"
+        }
       }
     },
     "finYear": {
@@ -533,6 +579,252 @@
       },
       "hints": {
         "time": "24-hour format (HH:mm). Close must be after open when both are set."
+      }
+    },
+    "acctCategory": {
+      "title": "Account Categories",
+      "description": "Manage chart-of-accounts category codes and types",
+      "add": "Add Category",
+      "edit": "Edit",
+      "createTitle": "Add Account Category",
+      "editTitle": "Edit Account Category",
+      "save": "Save Category",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "createSuccess": "Account category created successfully.",
+      "updateSuccess": "Account category updated successfully.",
+      "loadErrorTitle": "Unable to load account categories",
+      "emptyTitle": "No account categories found",
+      "emptyMessage": "No account categories match the current filters.",
+      "tableCaption": "Account categories list",
+      "types": {
+        "AS": "Assets (AS)",
+        "LI": "Liabilities (LI)",
+        "EQ": "Equity (EQ)",
+        "IN": "Income (IN)",
+        "EX": "Expenditure (EX)"
+      },
+      "filters": {
+        "search": "Search",
+        "searchPlaceholder": "Search by name or code…",
+        "categoryType": "Type",
+        "categoryTypeAll": "All types"
+      },
+      "columns": {
+        "categCode": "Code",
+        "categName": "Category name",
+        "categoryType": "Type",
+        "headCount": "Heads",
+        "actions": "Actions"
+      },
+      "fields": {
+        "categName": "Category name",
+        "categCode": "Category code",
+        "categoryType": "Category type",
+        "categoryTypePlaceholder": "Select type",
+        "categoryTypeNone": "None"
+      },
+      "hints": {
+        "categCode": "Optional. Leave blank to auto-generate from code series."
+      }
+    },
+    "acctHead": {
+      "title": "Account Main Heads",
+      "description": "Manage chart-of-accounts main heads linked to categories",
+      "add": "Add Main Head",
+      "edit": "Edit",
+      "deactivate": "Deactivate",
+      "activate": "Activate",
+      "deactivateSuccess": "Account main head deactivated successfully.",
+      "activateSuccess": "Account main head activated successfully.",
+      "createTitle": "Add Account Main Head",
+      "editTitle": "Edit Account Main Head",
+      "save": "Save Main Head",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "createSuccess": "Account main head created successfully.",
+      "updateSuccess": "Account main head updated successfully.",
+      "loadErrorTitle": "Unable to load account main heads",
+      "emptyTitle": "No account main heads found",
+      "emptyMessage": "No account main heads match the current filters.",
+      "tableCaption": "Account main heads list",
+      "statusActive": "Active",
+      "statusInactive": "Inactive",
+      "filters": {
+        "search": "Search",
+        "searchPlaceholder": "Search by name or code…",
+        "category": "Category",
+        "categoryAll": "All categories",
+        "status": "Status",
+        "statusAll": "All statuses"
+      },
+      "columns": {
+        "mainhdCode": "Code",
+        "mainhdName": "Head name",
+        "category": "Category",
+        "categoryType": "Type",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "fields": {
+        "mainhdName": "Head name",
+        "mainhdCode": "Head code",
+        "categId": "Category",
+        "categIdPlaceholder": "Select category",
+        "isActive": "Active"
+      },
+      "hints": {
+        "mainhdCode": "Optional. Leave blank to auto-generate from code series."
+      }
+    },
+    "acctLedger": {
+      "title": "Account Ledgers",
+      "description": "Manage chart-of-accounts ledgers linked to main heads",
+      "add": "Add Ledger",
+      "edit": "Edit",
+      "deactivate": "Deactivate",
+      "activate": "Activate",
+      "deactivateSuccess": "Account ledger deactivated successfully.",
+      "activateSuccess": "Account ledger activated successfully.",
+      "createTitle": "Add Account Ledger",
+      "editTitle": "Edit Account Ledger",
+      "save": "Save Ledger",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "createSuccess": "Account ledger created successfully.",
+      "updateSuccess": "Account ledger updated successfully.",
+      "loadErrorTitle": "Unable to load account ledgers",
+      "emptyTitle": "No account ledgers found",
+      "emptyMessage": "No account ledgers match the current filters.",
+      "tableCaption": "Account ledgers list",
+      "statusActive": "Active",
+      "statusInactive": "Inactive",
+      "filters": {
+        "search": "Search",
+        "searchPlaceholder": "Search by name or code…",
+        "mainHead": "Main head",
+        "mainHeadAll": "All main heads",
+        "ledgerType": "Type",
+        "ledgerTypePlaceholder": "A",
+        "status": "Status",
+        "statusAll": "All statuses"
+      },
+      "columns": {
+        "ledgerCode": "Code",
+        "ledgerName": "Ledger name",
+        "ledgerType": "Type",
+        "mainHead": "Main head",
+        "category": "Category",
+        "subledgerCount": "Sub-ledgers",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "fields": {
+        "ledgerName": "Ledger name",
+        "ledgerCode": "Ledger code",
+        "mainhdId": "Main head",
+        "mainhdIdPlaceholder": "Select main head",
+        "ledgerType": "Ledger type",
+        "isActive": "Active"
+      },
+      "hints": {
+        "ledgerCode": "Optional. Leave blank to auto-generate from code series.",
+        "ledgerType": "Optional single character (e.g. A)."
+      }
+    },
+    "acctSubledger": {
+      "title": "Account Subledgers",
+      "description": "Manage chart-of-accounts subledgers linked to ledgers",
+      "add": "Add Subledger",
+      "edit": "Edit",
+      "deactivate": "Deactivate",
+      "activate": "Activate",
+      "deactivateSuccess": "Account subledger deactivated successfully.",
+      "activateSuccess": "Account subledger activated successfully.",
+      "createTitle": "Add Account Subledger",
+      "editTitle": "Edit Account Subledger",
+      "save": "Save Subledger",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "createSuccess": "Account subledger created successfully.",
+      "updateSuccess": "Account subledger updated successfully.",
+      "loadErrorTitle": "Unable to load account subledgers",
+      "emptyTitle": "No account subledgers found",
+      "emptyMessage": "No account subledgers match the current filters.",
+      "tableCaption": "Account subledgers list",
+      "statusActive": "Active",
+      "statusInactive": "Inactive",
+      "filters": {
+        "search": "Search",
+        "searchPlaceholder": "Search by name or code…",
+        "ledger": "Ledger",
+        "ledgerAll": "All ledgers",
+        "status": "Status",
+        "statusAll": "All statuses"
+      },
+      "columns": {
+        "subledgCode": "Code",
+        "subledgName": "Subledger name",
+        "ledger": "Ledger",
+        "mainHead": "Main head",
+        "branchCount": "Branches",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "fields": {
+        "subledgName": "Subledger name",
+        "subledgCode": "Subledger code",
+        "ledgerId": "Ledger",
+        "ledgerIdPlaceholder": "Select ledger",
+        "isActive": "Active"
+      },
+      "hints": {
+        "subledgCode": "Optional. Leave blank to auto-generate from code series."
+      }
+    },
+    "acctSubledgerBranch": {
+      "title": "Subledger Branches",
+      "description": "Map account subledgers to organization branches",
+      "add": "Add Mapping",
+      "edit": "Edit",
+      "deactivate": "Deactivate",
+      "activate": "Activate",
+      "deactivateSuccess": "Subledger branch mapping deactivated successfully.",
+      "activateSuccess": "Subledger branch mapping activated successfully.",
+      "createTitle": "Add Subledger Branch Mapping",
+      "editTitle": "Edit Subledger Branch Mapping",
+      "save": "Save Mapping",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "createSuccess": "Subledger branch mapping created successfully.",
+      "updateSuccess": "Subledger branch mapping updated successfully.",
+      "loadErrorTitle": "Unable to load subledger branch mappings",
+      "emptyTitle": "No mappings found",
+      "emptyMessage": "No subledger branch mappings match the current filters.",
+      "tableCaption": "Subledger branch mappings list",
+      "statusActive": "Active",
+      "statusInactive": "Inactive",
+      "filters": {
+        "subledger": "Subledger",
+        "subledgerAll": "All subledgers",
+        "branch": "Branch",
+        "branchAll": "All branches",
+        "status": "Status",
+        "statusAll": "All statuses"
+      },
+      "columns": {
+        "branch": "Branch",
+        "subledger": "Subledger",
+        "ledger": "Ledger",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "fields": {
+        "branchId": "Branch",
+        "branchIdPlaceholder": "Select branch",
+        "subledgId": "Subledger",
+        "subledgIdPlaceholder": "Select subledger",
+        "isActive": "Active"
       }
     },
     "branch": {
@@ -756,6 +1048,50 @@
         "userAgent": "User agent",
         "oldValues": "Old values",
         "newValues": "New values"
+      }
+    },
+    "loginSettings": {
+      "title": "Login & Password Policy",
+      "description": "Attempt limits, account lock, and password rules for all users",
+      "save": "Save rules",
+      "pendingApi": "These rules stay on this screen until the login security API is connected. Saving checks the values and does not store them on the server.",
+      "validatedNotice": "Rules look valid. They will be stored when the login security API is connected.",
+      "attempts": {
+        "title": "Login attempt rules",
+        "description": "How many failed sign-ins are allowed, how long the account stays locked, and when the daily counter resets.",
+        "maxAttempts": "Maximum attempts",
+        "maxAttemptsHint": "Failed sign-ins allowed before the account locks.",
+        "lockMinutes": "Lock duration (minutes)",
+        "lockMinutesHint": "How long the account stays locked after the limit is reached.",
+        "dailyResetTime": "Daily reset time",
+        "dailyResetTimeHint": "Time each day when the attempt counter returns to zero."
+      },
+      "password": {
+        "title": "Password policy",
+        "description": "Length, complexity, reuse, and expiry set by the administrator.",
+        "minLength": "Minimum characters",
+        "minLengthHint": "Shortest password a user may set.",
+        "maxLength": "Maximum characters",
+        "maxLengthHint": "Longest password a user may set. Must be at least the minimum.",
+        "complexity": "Complexity",
+        "requireUppercase": "Require an uppercase letter",
+        "requireLowercase": "Require a lowercase letter",
+        "requireDigit": "Require a number",
+        "requireSpecial": "Require a special character",
+        "uniquePasswordCount": "Unique recent passwords",
+        "uniquePasswordCountHint": "How many previous passwords a user cannot reuse. Use 0 to allow reuse.",
+        "expirationEnabled": "Passwords expire",
+        "expirationDays": "Expire after (days)",
+        "expirationDaysHint": "Days until a user must choose a new password."
+      },
+      "errors": {
+        "maxAttempts": "Enter a whole number from 1 to 20.",
+        "lockMinutes": "Enter a lock time from 1 to 1440 minutes.",
+        "dailyResetTime": "Choose a valid time of day.",
+        "minLength": "Enter a minimum length from 6 to 64.",
+        "maxLength": "Maximum length must be from 6 to 128 and at least the minimum.",
+        "uniquePasswordCount": "Enter how many recent passwords to block, from 0 to 24.",
+        "expirationDays": "Enter an expiry from 1 to 365 days."
       }
     }
   }
