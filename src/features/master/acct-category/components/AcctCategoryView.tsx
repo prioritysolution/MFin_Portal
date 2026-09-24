@@ -6,7 +6,7 @@ import { Plus } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { ModulePageShell } from "@/components/shared/ModulePageShell";
 import { Button } from "@/components/ui/Button";
-import { Alert } from "@/components/ui/Alert";
+import { PageToast, useToastText } from "@/components/ui/PageToast";
 import { masterModulePages } from "@/lib/modules/module.types";
 import {
   AcctCategoryFilters,
@@ -66,7 +66,7 @@ export function AcctCategoryView() {
   const [editing, setEditing] = useState<AcctCategory | null>(null);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useToastText();
 
   useEffect(() => {
     if (filtersEqual(filters, appliedFilters)) return;
@@ -177,17 +177,8 @@ export function AcctCategoryView() {
   }
 
   return (
-    <ModulePageShell
-      page={pageMeta}
-      actions={
-        <Button type="button" icon={Plus} onClick={openCreate}>
-          {t("add")}
-        </Button>
-      }
-    >
-      {successMessage ? (
-        <Alert tone="success">{successMessage}</Alert>
-      ) : null}
+    <ModulePageShell page={pageMeta}>
+      <PageToast message={successMessage} />
 
       <AcctCategoryFilters
         values={filters}
@@ -215,6 +206,11 @@ export function AcctCategoryView() {
           setPage(1);
         }}
         onEdit={openEdit}
+        headerActions={
+          <Button type="button" icon={Plus} onClick={openCreate}>
+            {t("add")}
+          </Button>
+        }
       />
 
       <AcctCategoryForm

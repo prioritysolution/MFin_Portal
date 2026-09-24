@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { ArrowLeft, KeyRound } from "lucide-react";
-import {
-  AuthLanguageSelect,
-  authFieldClass,
-} from "@/features/auth/components/AuthShell";
+import { AuthLanguageSelect } from "@/features/auth/components/AuthShell";
+import { forgotPasswordFormSchema } from "@/features/auth/schemas/auth-form.schema";
+import { Alert } from "@/components/ui/Alert";
+import { TextField } from "@/components/ui/Form";
 import { Link } from "@/i18n/navigation";
 
 /**
@@ -13,10 +14,18 @@ import { Link } from "@/i18n/navigation";
  * No Laravel reset API is documented yet — do not simulate OTP/API success.
  */
 export function ForgotPasswordForm() {
-  const [email, setEmail] = useState("");
+  const t = useTranslations("auth");
+  const [identifier, setIdentifier] = useState("");
+  const [fieldError, setFieldError] = useState<string | undefined>();
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const parsed = forgotPasswordFormSchema.safeParse({ identifier });
+    if (!parsed.success) {
+      setFieldError(t("errors.identifier"));
+      return;
+    }
+    setFieldError(undefined);
   }
 
   return (
@@ -24,42 +33,31 @@ export function ForgotPasswordForm() {
       <AuthLanguageSelect />
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <p className="text-sm leading-6 text-slate-500">
-          Enter your registered employee email or Emp ID. Password reset will be
-          available once the Laravel API is documented.
-        </p>
+        <p className="text-sm leading-6 text-slate-500">{t("forgotHint")}</p>
 
-        <div className="rounded-xl border border-amber-200/80 bg-amber-50 px-3.5 py-3 text-xs leading-5 text-amber-950">
-          Forgot-password API is not available yet. This page is UI-only.
-        </div>
+        <Alert tone="warning">{t("forgotPendingApi")}</Alert>
 
-        <label className="block text-sm">
-          <span className="mb-1.5 block font-medium text-slate-700">
-            Employee Email / Emp ID
-          </span>
-          <input
-            type="text"
-            required
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            className={authFieldClass}
-          />
-        </label>
+        <TextField
+          label={t("forgotIdentifier")}
+          required
+          value={identifier}
+          error={fieldError}
+          onChange={setIdentifier}
+        />
 
         <button
           type="submit"
-          disabled
           className="btn btn-primary w-full justify-center py-3"
         >
           <KeyRound className="h-4 w-4" />
-          Send Reset OTP
+          {t("sendReset")}
         </button>
       </form>
 
       <p className="text-center text-sm text-muted">
-        Remembered your password?{" "}
+        {t("rememberedPassword")}{" "}
         <Link href="/login" className="font-semibold text-brand-ink hover:underline">
-          Sign in
+          {t("signIn")}
         </Link>
       </p>
 
@@ -68,7 +66,7 @@ export function ForgotPasswordForm() {
         className="inline-flex w-full items-center justify-center gap-2 text-sm font-semibold text-brand-ink hover:underline"
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to Sign In
+        {t("backToSignIn")}
       </Link>
     </div>
   );

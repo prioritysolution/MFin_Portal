@@ -1,8 +1,78 @@
 "use client";
 
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/Badge";
-import { MisReportShell, MisTableCard } from "@/features/mis/components/MisReportShell";
+import { MisReportShell } from "@/features/mis/components/MisReportShell";
 import { formatInr, npaRows } from "@/features/mis/components/mis-data";
+
+type NpaRow = (typeof npaRows)[number];
+
+const columns: DataTableColumn<NpaRow>[] = [
+  {
+    id: "loan",
+    header: "Loan A/c",
+    className: "font-semibold text-slate-900",
+    cell: (row) => row.loan,
+  },
+  {
+    id: "borrower",
+    header: "Borrower",
+    className: "font-medium text-slate-800",
+    cell: (row) => row.borrower,
+  },
+  {
+    id: "branch",
+    header: "Branch",
+    className: "text-slate-600",
+    cell: (row) => row.branch,
+  },
+  {
+    id: "outstanding",
+    header: "Outstanding",
+    align: "end",
+    className: "font-semibold text-slate-900",
+    cell: (row) => formatInr(row.outstanding),
+  },
+  {
+    id: "dpd",
+    header: "DPD",
+    align: "center",
+    className: "font-semibold text-rose-600",
+    cell: (row) => row.dpd,
+  },
+  {
+    id: "class",
+    header: "Class",
+    cell: (row) => (
+      <Badge
+        tone={
+          row.class === "Loss"
+            ? "danger"
+            : row.class === "Doubtful"
+              ? "warning"
+              : "amber"
+        }
+        caps={false}
+      >
+        {row.class}
+      </Badge>
+    ),
+  },
+  {
+    id: "provisionPct",
+    header: "Prov %",
+    align: "end",
+    cell: (row) => `${row.provisionPct}%`,
+  },
+  {
+    id: "provision",
+    header: "Provision",
+    align: "end",
+    className: "font-semibold text-amber-700",
+    cell: (row) => formatInr(row.provision),
+  },
+];
 
 export function MisNpaProvisioningView() {
   const outstanding = npaRows.reduce((sum, row) => sum + row.outstanding, 0);
@@ -40,66 +110,14 @@ export function MisNpaProvisioningView() {
         },
       ]}
     >
-      <MisTableCard
+      <DataTable
         title="NPA Asset Register"
-        subtitle="Classification · DPD · Provision %"
-      >
-        <div className="table-scroll">
-          <table className="w-full min-w-[920px] text-left text-sm">
-            <thead>
-              <tr className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-soft">
-                <th className="pb-3 pr-3">Loan A/c</th>
-                <th className="pb-3 pr-3">Borrower</th>
-                <th className="pb-3 pr-3">Branch</th>
-                <th className="pb-3 pr-3 text-right">Outstanding</th>
-                <th className="pb-3 pr-3 text-center">DPD</th>
-                <th className="pb-3 pr-3">Class</th>
-                <th className="pb-3 pr-3 text-right">Prov %</th>
-                <th className="pb-3 text-right">Provision</th>
-              </tr>
-            </thead>
-            <tbody>
-              {npaRows.map((row) => (
-                <tr key={row.loan} className="border-t border-border/70">
-                  <td className="py-3.5 pr-3 font-semibold text-slate-900">
-                    {row.loan}
-                  </td>
-                  <td className="py-3.5 pr-3 font-medium text-slate-800">
-                    {row.borrower}
-                  </td>
-                  <td className="py-3.5 pr-3 text-slate-600">{row.branch}</td>
-                  <td className="py-3.5 pr-3 text-right font-semibold text-slate-900">
-                    {formatInr(row.outstanding)}
-                  </td>
-                  <td className="py-3.5 pr-3 text-center font-semibold text-rose-600">
-                    {row.dpd}
-                  </td>
-                  <td className="py-3.5 pr-3">
-                    <Badge
-                      tone={
-                        row.class === "Loss"
-                          ? "danger"
-                          : row.class === "Doubtful"
-                            ? "warning"
-                            : "amber"
-                      }
-                      caps={false}
-                    >
-                      {row.class}
-                    </Badge>
-                  </td>
-                  <td className="py-3.5 pr-3 text-right text-slate-700">
-                    {row.provisionPct}%
-                  </td>
-                  <td className="py-3.5 text-right font-semibold text-amber-700">
-                    {formatInr(row.provision)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </MisTableCard>
+        description="Classification · DPD · Provision %"
+        data={npaRows}
+        columns={columns}
+        getRowKey={(row) => row.loan}
+        minWidth="920px"
+      />
     </MisReportShell>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Ban, CircleCheck, Pencil } from "lucide-react";
 import { DataTable } from "@/components/shared/DataTable";
@@ -26,6 +26,7 @@ type FinYearTableProps = {
   onPageSizeChange: (pageSize: number) => void;
   onEdit: (row: FinYear) => void;
   onToggleActive: (row: FinYear) => void;
+  headerActions?: ReactNode;
 };
 
 export function FinYearTable({
@@ -42,6 +43,7 @@ export function FinYearTable({
   onEdit,
   onToggleActive,
   statusBusyId = null,
+  headerActions,
 }: FinYearTableProps) {
   const t = useTranslations("master.finYear");
 
@@ -90,6 +92,9 @@ export function FinYearTable({
 
   return (
     <DataTable<FinYear>
+      title={t("title")}
+      description={t("description")}
+      actions={headerActions}
       data={items}
       columns={columns}
       getRowKey={(row) => String(row.yearId)}
@@ -105,7 +110,7 @@ export function FinYearTable({
       rowActions={{
         header: t("columns.actions"),
         render: (row) => (
-          <div className="flex items-center gap-1.5">
+          <div className="inline-flex items-center gap-1.5">
             <Button
               type="button"
               variant="secondary"
@@ -116,7 +121,7 @@ export function FinYearTable({
             />
             <Button
               type="button"
-              variant="secondary"
+              variant={row.isActive ? "warning" : "success"}
               size="sm"
               icon={row.isActive ? Ban : CircleCheck}
               tooltip={row.isActive ? t("deactivate") : t("activate")}

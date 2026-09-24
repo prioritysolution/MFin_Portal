@@ -6,7 +6,7 @@ import { Plus } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { ModulePageShell } from "@/components/shared/ModulePageShell";
 import { Button } from "@/components/ui/Button";
-import { Alert } from "@/components/ui/Alert";
+import { PageToast, useToastText } from "@/components/ui/PageToast";
 import { masterModulePages } from "@/lib/modules/module.types";
 import {
   OperationalDayFilters,
@@ -81,7 +81,7 @@ export function OperationalDaysView() {
   const [saving, setSaving] = useState(false);
   const [statusBusyId, setStatusBusyId] = useState<number | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useToastText();
 
   const dayOptions = useMemo(
     () =>
@@ -304,17 +304,8 @@ export function OperationalDaysView() {
   }
 
   return (
-    <ModulePageShell
-      page={pageMeta}
-      actions={
-        <Button type="button" icon={Plus} onClick={openCreate}>
-          {t("add")}
-        </Button>
-      }
-    >
-      {successMessage ? (
-        <Alert tone="success">{successMessage}</Alert>
-      ) : null}
+    <ModulePageShell page={pageMeta}>
+      <PageToast message={successMessage} />
 
       <OperationalDayFilters
         values={filters}
@@ -346,6 +337,11 @@ export function OperationalDaysView() {
         }}
         onEdit={openEdit}
         onToggleStatus={(row) => void handleToggleStatus(row)}
+        headerActions={
+          <Button type="button" icon={Plus} onClick={openCreate}>
+            {t("add")}
+          </Button>
+        }
       />
 
       <OperationalDayForm

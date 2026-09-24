@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Ban, CircleCheck, Pencil } from "lucide-react";
 import { DataTable } from "@/components/shared/DataTable";
@@ -26,6 +26,7 @@ type AcctSubledgerBranchTableProps = {
   onPageSizeChange: (pageSize: number) => void;
   onEdit: (row: AcctSubledgerBranch) => void;
   onToggleStatus: (row: AcctSubledgerBranch) => void;
+  headerActions?: ReactNode;
 };
 
 function nameCodeCell(name: string | null, code: string | null) {
@@ -54,6 +55,7 @@ export function AcctSubledgerBranchTable({
   onPageSizeChange,
   onEdit,
   onToggleStatus,
+  headerActions,
 }: AcctSubledgerBranchTableProps) {
   const t = useTranslations("master.acctSubledgerBranch");
 
@@ -94,6 +96,9 @@ export function AcctSubledgerBranchTable({
 
   return (
     <DataTable<AcctSubledgerBranch>
+      title={t("title")}
+      description={t("description")}
+      actions={headerActions}
       data={items}
       columns={columns}
       getRowKey={(row) => String(row.id)}

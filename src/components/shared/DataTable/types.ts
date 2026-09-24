@@ -56,6 +56,12 @@ export type DataTableProps<T> = {
   pagination?: DataTablePaginationConfig;
   selection?: DataTableSelectionConfig<T>;
   rowActions?: DataTableRowActions<T>;
+  /** Heading shown above the rows, inside the same card. */
+  title?: ReactNode;
+  /** Supporting line under the heading. */
+  description?: ReactNode;
+  /** Actions on the right of the card heading, such as Add. */
+  actions?: ReactNode;
   /** Extra class on the outer card/section. */
   className?: string;
   /** Minimum table width for horizontal scroll (CSS length). */

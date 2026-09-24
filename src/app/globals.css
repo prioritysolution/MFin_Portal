@@ -126,6 +126,235 @@ body {
   animation-duration: 200ms;
 }
 
+@keyframes toast-layer-in {
+  0% {
+    opacity: 0;
+    transform: translateX(46%) translateY(-10px) scale(0.9) rotate(8deg);
+  }
+  70% {
+    opacity: 1;
+    transform: translateX(-1.5%) translateY(0) scale(1.03) rotate(-1deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) translateY(0) scale(1) rotate(0deg);
+  }
+}
+
+@keyframes toast-layer-out {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+  28% {
+    opacity: 1;
+    transform: translateY(-8px) scale(1.03) rotate(7deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(78%) translateY(22px) scale(0.78) rotate(16deg);
+  }
+}
+
+@keyframes toast-icon-pop {
+  0% {
+    transform: scale(0.35) rotate(-12deg);
+  }
+  55% {
+    transform: scale(1.18) rotate(4deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes toast-life {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes toast-glow {
+  0% {
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  }
+  40% {
+    box-shadow:
+      0 10px 28px rgba(15, 23, 42, 0.12),
+      0 0 0 6px var(--toast-glow, transparent);
+  }
+  100% {
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  }
+}
+
+@keyframes toast-ring {
+  0% {
+    transform: scale(0.55);
+    opacity: 0.75;
+  }
+  100% {
+    transform: scale(1.85);
+    opacity: 0;
+  }
+}
+
+@keyframes toast-sheen {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(220%);
+  }
+}
+
+.toast-stack {
+  display: grid;
+  padding-bottom: 1.35rem;
+  perspective: 880px;
+}
+
+.toast-card {
+  grid-area: 1 / 1;
+  transform-origin: top center;
+  transition:
+    transform 460ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 460ms ease,
+    filter 460ms ease;
+}
+
+.toast-card[data-depth="0"] {
+  z-index: 4;
+  transform: translateY(0) scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.toast-card--fresh[data-depth="0"] {
+  animation:
+    toast-layer-in 560ms cubic-bezier(0.22, 1.2, 0.36, 1) backwards,
+    toast-glow 900ms ease-out 80ms both;
+}
+
+.toast-card[data-depth="1"] {
+  z-index: 3;
+  transform: translateY(12px) scale(0.955) rotateX(10deg);
+  opacity: 0.78;
+  filter: saturate(0.8);
+  pointer-events: none;
+}
+
+.toast-card[data-depth="2"] {
+  z-index: 2;
+  transform: translateY(22px) scale(0.91) rotateX(14deg);
+  opacity: 0.48;
+  filter: saturate(0.65);
+  pointer-events: none;
+}
+
+.toast-card[data-depth="3"] {
+  z-index: 1;
+  transform: translateY(30px) scale(0.86) rotateX(16deg);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.toast-card--leaving {
+  z-index: 6;
+  transform-origin: 88% 0;
+  pointer-events: none;
+  animation: toast-layer-out 480ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.toast-card--fresh[data-depth="0"] .toast-icon {
+  animation: toast-icon-pop 560ms cubic-bezier(0.22, 1.45, 0.36, 1) both;
+}
+
+.toast-card--fresh[data-depth="0"] .toast-ring {
+  animation: toast-ring 780ms ease-out 120ms both;
+}
+
+.toast-card--fresh[data-depth="0"] .toast-sheen {
+  animation: toast-sheen 700ms ease-out 160ms both;
+}
+
+.toast-life {
+  transform-origin: left center;
+  animation: toast-life var(--toast-life, 4200ms) linear forwards;
+}
+
+.toast-card--success {
+  --toast-glow: rgba(16, 185, 129, 0.28);
+  background: #ecfdf5;
+  border-color: #34d399;
+  color: #065f46;
+}
+.toast-card--success .toast-icon,
+.toast-card--success .toast-life {
+  background: #059669;
+  color: #fff;
+}
+
+.toast-card--error {
+  --toast-glow: rgba(244, 63, 94, 0.28);
+  background: #fff1f2;
+  border-color: #fb7185;
+  color: #9f1239;
+}
+.toast-card--error .toast-icon,
+.toast-card--error .toast-life {
+  background: #e11d48;
+  color: #fff;
+}
+
+.toast-card--warning {
+  --toast-glow: rgba(245, 158, 11, 0.32);
+  background: #fffbeb;
+  border-color: #fbbf24;
+  color: #92400e;
+}
+.toast-card--warning .toast-icon,
+.toast-card--warning .toast-life {
+  background: #d97706;
+  color: #fff;
+}
+
+.toast-card--info {
+  --toast-glow: rgba(37, 99, 235, 0.28);
+  background: #eff6ff;
+  border-color: #60a5fa;
+  color: #1e3a8a;
+}
+.toast-card--info .toast-icon,
+.toast-card--info .toast-life {
+  background: #2563eb;
+  color: #fff;
+}
+
+html.dark .toast-card--success {
+  background: #052e1c;
+  border-color: #34d399;
+  color: #a7f3d0;
+}
+html.dark .toast-card--error {
+  background: #3f1d28;
+  border-color: #fb7185;
+  color: #fecdd3;
+}
+html.dark .toast-card--warning {
+  background: #3b2a0b;
+  border-color: #fbbf24;
+  color: #fde68a;
+}
+html.dark .toast-card--info {
+  background: #0f2744;
+  border-color: #60a5fa;
+  color: #bfdbfe;
+}
+
 @keyframes modal-panel-enter {
   from {
     opacity: 0;
@@ -144,8 +373,15 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .page-transition,
   .page-transition--loading,
-  .modal-panel {
+  .modal-panel,
+  .toast-card,
+  .toast-card--leaving,
+  .toast-icon,
+  .toast-ring,
+  .toast-sheen,
+  .toast-life {
     animation: none;
+    transition: none;
   }
 }
 
@@ -393,9 +629,126 @@ body {
   .error-state-icon,
   .error-state-dot,
   .error-state-status-dot,
-  .error-state-retry svg {
+  .error-state-retry svg,
+  .not-found-card,
+  .not-found-digit,
+  .not-found-orb,
+  .not-found-orbit,
+  .not-found-blob,
+  .not-found-copy,
+  .not-found-action {
     animation: none;
   }
+}
+
+@keyframes not-found-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes not-found-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes not-found-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.not-found-card {
+  animation: not-found-enter 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.not-found-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.not-found-digit {
+  font-size: clamp(4.5rem, 12vw, 6.5rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.06em;
+  color: var(--brand-ink);
+  animation: not-found-float 3s ease-in-out infinite;
+}
+
+.not-found-digit--right {
+  animation-delay: 0.35s;
+}
+
+.not-found-orb {
+  position: relative;
+  display: grid;
+  width: 5.5rem;
+  height: 5.5rem;
+  place-items: center;
+  animation: not-found-float 3s ease-in-out 0.15s infinite;
+}
+
+.not-found-orbit {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 1.5px dashed color-mix(in srgb, var(--brand) 55%, transparent);
+  animation: not-found-spin 10s linear infinite;
+}
+
+.not-found-orb-core {
+  display: grid;
+  width: 3.5rem;
+  height: 3.5rem;
+  place-items: center;
+  border-radius: 1rem;
+  background: var(--brand-soft);
+  color: var(--brand-ink);
+  box-shadow: 0 10px 24px -12px color-mix(in srgb, var(--brand) 70%, transparent);
+}
+
+.not-found-blob {
+  position: absolute;
+  border-radius: 9999px;
+  pointer-events: none;
+  filter: blur(24px);
+}
+
+.not-found-blob--one {
+  top: -2.5rem;
+  right: -2rem;
+  width: 8rem;
+  height: 8rem;
+  background: color-mix(in srgb, var(--brand-soft) 80%, transparent);
+}
+
+.not-found-blob--two {
+  bottom: -3rem;
+  left: -2.5rem;
+  width: 9rem;
+  height: 9rem;
+  background: color-mix(in srgb, var(--accent-blue-soft) 80%, transparent);
+}
+
+.not-found-copy {
+  animation: not-found-enter 520ms cubic-bezier(0.22, 1, 0.36, 1) 80ms both;
+}
+
+.not-found-action {
+  animation: not-found-enter 560ms cubic-bezier(0.22, 1, 0.36, 1) 140ms both;
 }
 
 .table-scroll {
@@ -834,4 +1187,22 @@ html.dark input,
 html.dark textarea,
 html.dark select {
   color-scheme: dark;
+}
+
+/* Focused controls used a light fill (`focus:bg-white`) that the base remap misses. */
+html.dark .focus\:bg-white:focus,
+html.dark .focus\:bg-white:focus-visible {
+  background-color: var(--surface);
+}
+
+html.dark input:-webkit-autofill,
+html.dark input:-webkit-autofill:hover,
+html.dark input:-webkit-autofill:focus,
+html.dark textarea:-webkit-autofill,
+html.dark textarea:-webkit-autofill:hover,
+html.dark textarea:-webkit-autofill:focus,
+html.dark select:-webkit-autofill {
+  -webkit-text-fill-color: #f1f5f9;
+  caret-color: #f1f5f9;
+  box-shadow: 0 0 0 1000px var(--surface-muted) inset;
 }

@@ -2,9 +2,69 @@
 
 import { useMemo, useState } from "react";
 import { Search, UserPlus } from "lucide-react";
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { staffDirectory } from "@/features/hr/components/hr-data";
+import {
+  staffDirectory,
+  type StaffMember,
+} from "@/features/hr/components/hr-data";
+
+const staffColumns: DataTableColumn<StaffMember>[] = [
+  {
+    id: "empId",
+    header: "Emp ID",
+    cell: (row) => (
+      <span className="font-semibold text-blue-600">{row.empId}</span>
+    ),
+  },
+  {
+    id: "name",
+    header: "Name",
+    cell: (row) => (
+      <span className="font-semibold text-slate-900">{row.name}</span>
+    ),
+  },
+  {
+    id: "role",
+    header: "Role",
+    cell: (row) => row.role,
+  },
+  {
+    id: "branch",
+    header: "Branch",
+    cell: (row) => <span className="text-slate-600">{row.branch}</span>,
+  },
+  {
+    id: "mobile",
+    header: "Mobile",
+    cell: (row) => <span className="text-slate-600">{row.mobile}</span>,
+  },
+  {
+    id: "joined",
+    header: "Joined",
+    cell: (row) => <span className="text-slate-600">{row.joined}</span>,
+  },
+  {
+    id: "status",
+    header: "Status",
+    cell: (row) => (
+      <Badge
+        tone={
+          row.status === "Active"
+            ? "success"
+            : row.status === "On Leave"
+              ? "warning"
+              : "info"
+        }
+        caps={false}
+      >
+        {row.status}
+      </Badge>
+    ),
+  },
+];
 
 export function HrStaffDirectoryView() {
   const [query, setQuery] = useState("");
@@ -77,51 +137,12 @@ export function HrStaffDirectoryView() {
           </div>
         </div>
 
-        <div className="table-scroll">
-          <table className="w-full min-w-[900px] text-left text-sm">
-            <thead>
-              <tr className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-soft">
-                <th className="pb-3 pr-3">Emp ID</th>
-                <th className="pb-3 pr-3">Name</th>
-                <th className="pb-3 pr-3">Role</th>
-                <th className="pb-3 pr-3">Branch</th>
-                <th className="pb-3 pr-3">Mobile</th>
-                <th className="pb-3 pr-3">Joined</th>
-                <th className="pb-3">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((row) => (
-                <tr key={row.empId} className="border-t border-border/70">
-                  <td className="py-3.5 pr-3 font-semibold text-blue-600">
-                    {row.empId}
-                  </td>
-                  <td className="py-3.5 pr-3 font-semibold text-slate-900">
-                    {row.name}
-                  </td>
-                  <td className="py-3.5 pr-3 text-slate-700">{row.role}</td>
-                  <td className="py-3.5 pr-3 text-slate-600">{row.branch}</td>
-                  <td className="py-3.5 pr-3 text-slate-600">{row.mobile}</td>
-                  <td className="py-3.5 pr-3 text-slate-600">{row.joined}</td>
-                  <td className="py-3.5">
-                    <Badge
-                      tone={
-                        row.status === "Active"
-                          ? "success"
-                          : row.status === "On Leave"
-                            ? "warning"
-                            : "info"
-                      }
-                      caps={false}
-                    >
-                      {row.status}
-                    </Badge>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          data={filtered}
+          columns={staffColumns}
+          getRowKey={(row) => row.empId}
+          minWidth="900px"
+        />
       </section>
     </div>
   );

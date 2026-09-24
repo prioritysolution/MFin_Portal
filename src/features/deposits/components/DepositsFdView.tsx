@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { Landmark, Search, UserPlus } from "lucide-react";
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { OpenDepositAccountModal } from "@/features/deposits/components/DepositModals";
@@ -9,6 +11,7 @@ import {
   accountsByProduct,
   formatInr,
   metricToneClass,
+  type DepositAccount,
 } from "@/features/deposits/components/deposits-data";
 
 export function DepositsFdView() {
@@ -29,6 +32,64 @@ export function DepositsFdView() {
 
   const totalBalance = accounts.reduce((sum, row) => sum + row.balance, 0);
   const matured = accounts.filter((row) => row.status === "Matured").length;
+
+  const columns: DataTableColumn<DepositAccount>[] = [
+      {
+        id: "account",
+        header: "Account No.",
+        className: "font-semibold text-slate-900",
+        cell: (row) => row.account,
+      },
+      {
+        id: "member",
+        header: "Member",
+        className: "font-medium text-slate-800",
+        cell: (row) => row.member,
+      },
+      {
+        id: "group",
+        header: "Group",
+        className: "text-slate-600",
+        cell: (row) => row.group,
+      },
+      {
+        id: "principal",
+        header: "Principal",
+        align: "end",
+        className: "font-semibold text-emerald-700",
+        cell: (row) => formatInr(row.balance),
+      },
+      {
+        id: "rate",
+        header: "Rate",
+        className: "text-slate-700",
+        cell: (row) => `${row.rate}% p.a.`,
+      },
+      {
+        id: "opened",
+        header: "Opened",
+        className: "text-slate-700",
+        cell: (row) => row.openedOn,
+      },
+      {
+        id: "maturity",
+        header: "Maturity",
+        className: "text-slate-700",
+        cell: (row) => row.maturityDate,
+      },
+      {
+        id: "status",
+        header: "Status",
+        cell: (row) => (
+          <Badge
+            tone={row.status === "Matured" ? "warning" : "success"}
+            caps={false}
+          >
+            {row.status}
+          </Badge>
+        ),
+      },
+  ];
 
   return (
     <div className="flex min-w-0 flex-col gap-4 sm:gap-5">
@@ -80,74 +141,31 @@ export function DepositsFdView() {
         ))}
       </div>
 
-      <section className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5">
-        <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <h2 className="inline-flex items-center gap-2 text-base font-semibold text-slate-900">
-              <Landmark className="h-4 w-4 text-slate-500" />
-              Term Deposit Register
-            </h2>
-            <p className="mt-1 text-sm text-muted">
-              Principal, rate, tenure, and maturity status
-            </p>
-          </div>
-          <div className="relative w-full max-w-xs">
-            <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-soft" />
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Filter records..."
-              className="w-full rounded-xl border border-border bg-surface-muted py-2.5 pr-3 pl-9 text-sm outline-none focus:border-brand/40 focus:bg-white focus:ring-4 focus:ring-brand/10"
-            />
-          </div>
+      <div className="flex justify-end">
+        <div className="relative w-full max-w-xs">
+          <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-soft" />
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Filter records..."
+            className="w-full rounded-xl border border-border bg-surface-muted py-2.5 pr-3 pl-9 text-sm outline-none focus:border-brand/40 focus:bg-white focus:ring-4 focus:ring-brand/10"
+          />
         </div>
+      </div>
 
-        <div className="table-scroll">
-          <table className="w-full min-w-[980px] text-left text-sm">
-            <thead>
-              <tr className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-soft">
-                <th className="pb-3 pr-3">Account No.</th>
-                <th className="pb-3 pr-3">Member</th>
-                <th className="pb-3 pr-3">Group</th>
-                <th className="pb-3 pr-3 text-right">Principal</th>
-                <th className="pb-3 pr-3">Rate</th>
-                <th className="pb-3 pr-3">Opened</th>
-                <th className="pb-3 pr-3">Maturity</th>
-                <th className="pb-3">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((row) => (
-                <tr key={row.account} className="border-t border-border/70">
-                  <td className="py-3.5 pr-3 font-semibold text-slate-900">
-                    {row.account}
-                  </td>
-                  <td className="py-3.5 pr-3 font-medium text-slate-800">
-                    {row.member}
-                  </td>
-                  <td className="py-3.5 pr-3 text-slate-600">{row.group}</td>
-                  <td className="py-3.5 pr-3 text-right font-semibold text-emerald-700">
-                    {formatInr(row.balance)}
-                  </td>
-                  <td className="py-3.5 pr-3 text-slate-700">{row.rate}% p.a.</td>
-                  <td className="py-3.5 pr-3 text-slate-700">{row.openedOn}</td>
-                  <td className="py-3.5 pr-3 text-slate-700">
-                    {row.maturityDate}
-                  </td>
-                  <td className="py-3.5">
-                    <Badge
-                      tone={row.status === "Matured" ? "warning" : "success"}
-                      caps={false}
-                    >
-                      {row.status}
-                    </Badge>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      <DataTable
+        data={filtered}
+        columns={columns}
+        getRowKey={(row) => row.account}
+        minWidth="980px"
+        title={
+          <span className="inline-flex items-center gap-2">
+            <Landmark className="h-4 w-4 text-slate-500" />
+            Term Deposit Register
+          </span>
+        }
+        description="Principal, rate, tenure, and maturity status"
+      />
 
       <OpenDepositAccountModal
         open={openModal}

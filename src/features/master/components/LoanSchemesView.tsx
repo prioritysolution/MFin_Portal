@@ -10,6 +10,8 @@ import {
   Table2,
   X,
 } from "lucide-react";
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
 
 type CalcEngine = "reduced" | "flat" | "special" | "balloon" | "manual";
 
@@ -309,6 +311,154 @@ export function LoanSchemesView() {
     setModalOpen(false);
   }
 
+  const scheduleColumns: DataTableColumn<(typeof calc.rows)[number]>[] = [
+    {
+      id: "inst",
+      header: "Inst #",
+      cell: (row) => <span className="font-medium">{row.inst}</span>,
+    },
+    {
+      id: "opening",
+      header: "Opening Balance",
+      cell: (row) => formatInrExact(row.opening),
+    },
+    {
+      id: "principal",
+      header: "Principal",
+      cell: (row) => (
+        <span className="text-emerald-400">{formatInrExact(row.principal)}</span>
+      ),
+    },
+    {
+      id: "interest",
+      header: "Interest",
+      cell: (row) => (
+        <span className="text-amber-300">{formatInrExact(row.interest)}</span>
+      ),
+    },
+    {
+      id: "totalDue",
+      header: "Total Due",
+      cell: (row) => (
+        <span className="font-semibold">{formatInrExact(row.totalDue)}</span>
+      ),
+    },
+    {
+      id: "closing",
+      header: "Closing Balance",
+      cell: (row) => formatInrExact(row.closing),
+    },
+  ];
+
+  const schemeColumns: DataTableColumn<SchemeRow>[] = [
+    {
+      id: "code",
+      header: "Scheme Code",
+      cell: (scheme) => (
+        <span className="font-mono text-xs font-semibold text-blue-700">
+          {scheme.code}
+        </span>
+      ),
+    },
+    {
+      id: "name",
+      header: "Loan Scheme Name",
+      cell: (scheme) => (
+        <span className="font-medium text-slate-800">{scheme.name}</span>
+      ),
+    },
+    {
+      id: "rate",
+      header: "Interest Rate",
+      cell: (scheme) => scheme.rate,
+    },
+    {
+      id: "engine",
+      header: "Calculation Engine",
+      cell: (scheme) => scheme.engine,
+    },
+    {
+      id: "frequency",
+      header: "Frequency",
+      cell: (scheme) => scheme.frequency,
+    },
+    {
+      id: "min",
+      header: "Min Limit",
+      cell: (scheme) => (
+        <span className="font-mono text-[13px]">{scheme.min}</span>
+      ),
+    },
+    {
+      id: "max",
+      header: "Max Limit",
+      cell: (scheme) => (
+        <span className="font-mono text-[13px]">{scheme.max}</span>
+      ),
+    },
+    {
+      id: "fee",
+      header: "Fee + GST",
+      cell: (scheme) => scheme.fee,
+    },
+    {
+      id: "status",
+      header: "Status",
+      cell: (scheme) => (
+        <span
+          className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+            scheme.status === "Active"
+              ? "bg-brand-soft text-brand-ink"
+              : "bg-slate-100 text-slate-500"
+          }`}
+        >
+          {scheme.status}
+        </span>
+      ),
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: (scheme) => (
+        <div className="flex flex-wrap gap-1.5">
+          <button
+            type="button"
+            className="inline-flex items-center gap-1 rounded-lg border border-blue-300 bg-white px-2 py-1.5 text-[11px] font-semibold text-blue-700"
+          >
+            <Table2 className="h-3.5 w-3.5" />
+            Amortization Table
+          </button>
+          <button
+            type="button"
+            onClick={() =>
+              setSchemes((prev) =>
+                prev.map((row) =>
+                  row.code === scheme.code
+                    ? {
+                        ...row,
+                        status: row.status === "Active" ? "Inactive" : "Active",
+                      }
+                    : row,
+                ),
+              )
+            }
+            className="inline-flex items-center gap-1 rounded-lg border border-border bg-surface-muted px-2 py-1.5 text-[11px] font-semibold text-slate-600"
+          >
+            <Power className="h-3.5 w-3.5" />
+            Toggle Status
+          </button>
+          <button
+            type="button"
+            className="inline-flex items-center gap-1 rounded-lg border border-border bg-surface-muted px-2 py-1.5 text-[11px] font-semibold text-slate-600"
+          >
+            <Pencil className="h-3.5 w-3.5" />
+            Edit
+          </button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="flex min-w-0 flex-col gap-4 sm:gap-5">
       <div className="flex justify-end">
@@ -423,45 +573,12 @@ export function LoanSchemesView() {
               Amortization breakdown
             </button>
           </div>
-          <div className="table-scroll rounded-xl border border-slate-700">
-            <table className="w-full min-w-[720px] text-left text-sm">
-              <thead>
-                <tr className="bg-slate-800 text-[11px] uppercase tracking-[0.12em] text-slate-300">
-                  <th className="px-3 py-2.5 font-semibold">Inst #</th>
-                  <th className="px-3 py-2.5 font-semibold">Opening Balance</th>
-                  <th className="px-3 py-2.5 font-semibold">Principal</th>
-                  <th className="px-3 py-2.5 font-semibold">Interest</th>
-                  <th className="px-3 py-2.5 font-semibold">Total Due</th>
-                  <th className="px-3 py-2.5 font-semibold">Closing Balance</th>
-                </tr>
-              </thead>
-              <tbody>
-                {calc.rows.map((row) => (
-                  <tr
-                    key={row.inst}
-                    className="border-t border-slate-700/80 text-slate-200"
-                  >
-                    <td className="px-3 py-2.5 font-medium">{row.inst}</td>
-                    <td className="px-3 py-2.5">
-                      {formatInrExact(row.opening)}
-                    </td>
-                    <td className="px-3 py-2.5 text-emerald-400">
-                      {formatInrExact(row.principal)}
-                    </td>
-                    <td className="px-3 py-2.5 text-amber-300">
-                      {formatInrExact(row.interest)}
-                    </td>
-                    <td className="px-3 py-2.5 font-semibold">
-                      {formatInrExact(row.totalDue)}
-                    </td>
-                    <td className="px-3 py-2.5">
-                      {formatInrExact(row.closing)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            data={calc.rows}
+            columns={scheduleColumns}
+            getRowKey={(row) => String(row.inst)}
+            minWidth="720px"
+          />
         </div>
       </section>
 
@@ -488,102 +605,12 @@ export function LoanSchemesView() {
           </label>
         </div>
 
-        <div className="table-scroll">
-          <table className="w-full min-w-[1100px] text-left text-sm">
-            <thead>
-              <tr className="border-b border-border text-[11px] uppercase tracking-[0.12em] text-muted-soft">
-                <th className="pb-3 pr-3 font-semibold">Scheme Code</th>
-                <th className="pb-3 pr-3 font-semibold">Loan Scheme Name</th>
-                <th className="pb-3 pr-3 font-semibold">Interest Rate</th>
-                <th className="pb-3 pr-3 font-semibold">Calculation Engine</th>
-                <th className="pb-3 pr-3 font-semibold">Frequency</th>
-                <th className="pb-3 pr-3 font-semibold">Min Limit</th>
-                <th className="pb-3 pr-3 font-semibold">Max Limit</th>
-                <th className="pb-3 pr-3 font-semibold">Fee + GST</th>
-                <th className="pb-3 pr-3 font-semibold">Status</th>
-                <th className="pb-3 font-semibold">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredSchemes.map((scheme) => (
-                <tr
-                  key={scheme.code}
-                  className="border-b border-border/70 last:border-0"
-                >
-                  <td className="py-3.5 pr-3 font-mono text-xs font-semibold text-blue-700">
-                    {scheme.code}
-                  </td>
-                  <td className="py-3.5 pr-3 font-medium text-slate-800">
-                    {scheme.name}
-                  </td>
-                  <td className="py-3.5 pr-3 text-slate-700">{scheme.rate}</td>
-                  <td className="py-3.5 pr-3 text-slate-700">{scheme.engine}</td>
-                  <td className="py-3.5 pr-3 text-slate-700">
-                    {scheme.frequency}
-                  </td>
-                  <td className="py-3.5 pr-3 font-mono text-[13px] text-slate-700">
-                    {scheme.min}
-                  </td>
-                  <td className="py-3.5 pr-3 font-mono text-[13px] text-slate-700">
-                    {scheme.max}
-                  </td>
-                  <td className="py-3.5 pr-3 text-slate-700">{scheme.fee}</td>
-                  <td className="py-3.5 pr-3">
-                    <span
-                      className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
-                        scheme.status === "Active"
-                          ? "bg-brand-soft text-brand-ink"
-                          : "bg-slate-100 text-slate-500"
-                      }`}
-                    >
-                      {scheme.status}
-                    </span>
-                  </td>
-                  <td className="py-3.5">
-                    <div className="flex flex-wrap gap-1.5">
-                      <button
-                        type="button"
-                        className="inline-flex items-center gap-1 rounded-lg border border-blue-300 bg-white px-2 py-1.5 text-[11px] font-semibold text-blue-700"
-                      >
-                        <Table2 className="h-3.5 w-3.5" />
-                        Amortization Table
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setSchemes((prev) =>
-                            prev.map((row) =>
-                              row.code === scheme.code
-                                ? {
-                                    ...row,
-                                    status:
-                                      row.status === "Active"
-                                        ? "Inactive"
-                                        : "Active",
-                                  }
-                                : row,
-                            ),
-                          )
-                        }
-                        className="inline-flex items-center gap-1 rounded-lg border border-border bg-surface-muted px-2 py-1.5 text-[11px] font-semibold text-slate-600"
-                      >
-                        <Power className="h-3.5 w-3.5" />
-                        Toggle Status
-                      </button>
-                      <button
-                        type="button"
-                        className="inline-flex items-center gap-1 rounded-lg border border-border bg-surface-muted px-2 py-1.5 text-[11px] font-semibold text-slate-600"
-                      >
-                        <Pencil className="h-3.5 w-3.5" />
-                        Edit
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          data={filteredSchemes}
+          columns={schemeColumns}
+          getRowKey={(scheme) => scheme.code}
+          minWidth="1100px"
+        />
       </section>
 
       {modalOpen ? (

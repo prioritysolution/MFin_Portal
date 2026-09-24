@@ -17,6 +17,8 @@ import {
   Vault,
   X,
 } from "lucide-react";
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
 
 const branches = [
   "Kolkata Shyambazar Hub Branch",
@@ -103,6 +105,124 @@ const anyBranchRows = [
     mode: "Cash",
     amount: 3017.49,
     status: "Pending Clear",
+  },
+];
+
+const transferColumns: DataTableColumn<(typeof transferRows)[number]>[] = [
+  {
+    id: "id",
+    header: "Transit ID",
+    cell: (row) => (
+      <span className="font-semibold text-slate-900">{row.id}</span>
+    ),
+  },
+  {
+    id: "courier",
+    header: "Courier / Vehicle",
+    cell: (row) => (
+      <>
+        <p className="font-medium text-slate-800">{row.courier}</p>
+        <p className="text-xs text-muted">{row.vehicle}</p>
+      </>
+    ),
+  },
+  {
+    id: "escort",
+    header: "Escort",
+    cell: (row) => (
+      <>
+        <p className="font-medium text-slate-800">{row.escort}</p>
+        <p className="text-xs text-muted">{row.escortId}</p>
+      </>
+    ),
+  },
+  {
+    id: "route",
+    header: "Route",
+    cell: (row) => (
+      <span>
+        {row.from} → {row.to}
+      </span>
+    ),
+  },
+  {
+    id: "amount",
+    header: "Amount",
+    align: "end",
+    cell: (row) => (
+      <span className="font-semibold text-slate-900">{formatInr(row.amount)}</span>
+    ),
+  },
+  {
+    id: "status",
+    header: "Status",
+    cell: (row) => (
+      <span
+        className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+          row.status === "Reconciled"
+            ? "bg-emerald-50 text-emerald-700"
+            : "bg-amber-50 text-amber-800"
+        }`}
+      >
+        {row.status === "Reconciled" ? "✓ Reconciled" : row.status}
+      </span>
+    ),
+  },
+];
+
+const anyBranchColumns: DataTableColumn<(typeof anyBranchRows)[number]>[] = [
+  {
+    id: "customer",
+    header: "Customer",
+    cell: (row) => (
+      <>
+        <p className="font-semibold text-slate-900">{row.customer}</p>
+        <p className="text-xs text-muted">{row.name}</p>
+      </>
+    ),
+  },
+  {
+    id: "branches",
+    header: "Home / Serving",
+    cell: (row) => (
+      <>
+        <p>{row.homeBranch}</p>
+        <p className="text-xs text-muted">Serving: {row.serving}</p>
+      </>
+    ),
+  },
+  {
+    id: "type",
+    header: "Type",
+    cell: (row) => row.type,
+  },
+  {
+    id: "mode",
+    header: "Mode",
+    cell: (row) => row.mode,
+  },
+  {
+    id: "amount",
+    header: "Amount",
+    align: "end",
+    cell: (row) => (
+      <span className="font-semibold">{formatInr(row.amount)}</span>
+    ),
+  },
+  {
+    id: "status",
+    header: "Status",
+    cell: (row) => (
+      <span
+        className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+          row.status === "Posted"
+            ? "bg-emerald-50 text-emerald-700"
+            : "bg-amber-50 text-amber-800"
+        }`}
+      >
+        {row.status}
+      </span>
+    ),
   },
 ];
 
@@ -591,54 +711,12 @@ export function BranchVaultMasterView() {
             </button>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-left text-sm">
-              <thead className="border-b border-border text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-soft">
-                <tr>
-                  <th className="px-3 py-3">Transit ID</th>
-                  <th className="px-3 py-3">Courier / Vehicle</th>
-                  <th className="px-3 py-3">Escort</th>
-                  <th className="px-3 py-3">Route</th>
-                  <th className="px-3 py-3 text-right">Amount</th>
-                  <th className="px-3 py-3">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {transferRows.map((row) => (
-                  <tr key={row.id} className="border-b border-border/70">
-                    <td className="px-3 py-3 font-semibold text-slate-900">
-                      {row.id}
-                    </td>
-                    <td className="px-3 py-3">
-                      <p className="font-medium text-slate-800">{row.courier}</p>
-                      <p className="text-xs text-muted">{row.vehicle}</p>
-                    </td>
-                    <td className="px-3 py-3">
-                      <p className="font-medium text-slate-800">{row.escort}</p>
-                      <p className="text-xs text-muted">{row.escortId}</p>
-                    </td>
-                    <td className="px-3 py-3 text-slate-700">
-                      {row.from} → {row.to}
-                    </td>
-                    <td className="px-3 py-3 text-right font-semibold text-slate-900">
-                      {formatInr(row.amount)}
-                    </td>
-                    <td className="px-3 py-3">
-                      <span
-                        className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ${
-                          row.status === "Reconciled"
-                            ? "bg-emerald-50 text-emerald-700"
-                            : "bg-amber-50 text-amber-800"
-                        }`}
-                      >
-                        {row.status === "Reconciled" ? "✓ Reconciled" : row.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            data={transferRows}
+            columns={transferColumns}
+            getRowKey={(row) => row.id}
+            minWidth="100%"
+          />
         </section>
       ) : null}
 
@@ -664,50 +742,12 @@ export function BranchVaultMasterView() {
             </button>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-left text-sm">
-              <thead className="border-b border-border text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-soft">
-                <tr>
-                  <th className="px-3 py-3">Customer</th>
-                  <th className="px-3 py-3">Home / Serving</th>
-                  <th className="px-3 py-3">Type</th>
-                  <th className="px-3 py-3">Mode</th>
-                  <th className="px-3 py-3 text-right">Amount</th>
-                  <th className="px-3 py-3">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {anyBranchRows.map((row) => (
-                  <tr key={row.customer + row.type} className="border-b border-border/70">
-                    <td className="px-3 py-3">
-                      <p className="font-semibold text-slate-900">{row.customer}</p>
-                      <p className="text-xs text-muted">{row.name}</p>
-                    </td>
-                    <td className="px-3 py-3 text-slate-700">
-                      <p>{row.homeBranch}</p>
-                      <p className="text-xs text-muted">Serving: {row.serving}</p>
-                    </td>
-                    <td className="px-3 py-3">{row.type}</td>
-                    <td className="px-3 py-3">{row.mode}</td>
-                    <td className="px-3 py-3 text-right font-semibold">
-                      {formatInr(row.amount)}
-                    </td>
-                    <td className="px-3 py-3">
-                      <span
-                        className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ${
-                          row.status === "Posted"
-                            ? "bg-emerald-50 text-emerald-700"
-                            : "bg-amber-50 text-amber-800"
-                        }`}
-                      >
-                        {row.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            data={anyBranchRows}
+            columns={anyBranchColumns}
+            getRowKey={(row) => row.customer + row.type}
+            minWidth="100%"
+          />
         </section>
       ) : null}
 

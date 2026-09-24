@@ -4,12 +4,20 @@ import { useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { Save } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
+import { PageToast } from "@/components/ui/PageToast";
 import { Button } from "@/components/ui/Button";
-import { CheckRow, SelectField, TextField } from "@/components/ui/Form";
+import { CheckRow, DateField, SelectField, TextField } from "@/components/ui/Form";
 import {
   staffCreateInputSchema,
   staffUpdateInputSchema,
 } from "@/features/master/staff/schemas/staff.schema";
+import {
+  aadhaarPattern,
+  formatIssue,
+  mobilePattern,
+  normalizeMobile,
+  panPattern,
+} from "@/lib/validation/formats";
 import type {
   DesignationOption,
   ModuleAccessOption,
@@ -219,6 +227,19 @@ type BodyProps = {
   };
 };
 
+function staffFieldErrors(
+  flat: Record<string, string[] | undefined>,
+  translate: (key: "errors.fullName") => string,
+): Record<string, string> {
+  const next: Record<string, string> = {};
+  for (const key of Object.keys(flat)) {
+    if (flat[key]?.length) {
+      next[key] = translate(`errors.${key}` as "errors.fullName");
+    }
+  }
+  return next;
+}
+
 function StaffFormBody({
   mode,
   staff,
@@ -236,6 +257,7 @@ function StaffFormBody({
   moduleAccessLabel,
   fieldLabels,
 }: BodyProps) {
+  const t = useTranslations("master.staff");
   const [form, setForm] = useState<FormState>(() => toFormState(staff));
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
@@ -260,12 +282,7 @@ function StaffFormBody({
       };
       const parsed = staffCreateInputSchema.safeParse(payload);
       if (!parsed.success) {
-        const flat = parsed.error.flatten().fieldErrors;
-        const next: Record<string, string> = {};
-        for (const [key, messages] of Object.entries(flat)) {
-          if (messages?.[0]) next[key] = messages[0];
-        }
-        setFieldErrors(next);
+        setFieldErrors(staffFieldErrors(parsed.error.flatten().fieldErrors, t));
         return;
       }
       await onSubmitCreate(parsed.data);
@@ -281,12 +298,7 @@ function StaffFormBody({
     };
     const parsed = staffUpdateInputSchema.safeParse(payload);
     if (!parsed.success) {
-      const flat = parsed.error.flatten().fieldErrors;
-      const next: Record<string, string> = {};
-      for (const [key, messages] of Object.entries(flat)) {
-        if (messages?.[0]) next[key] = messages[0];
-      }
-      setFieldErrors(next);
+      setFieldErrors(staffFieldErrors(parsed.error.flatten().fieldErrors, t));
       return;
     }
     await onSubmitUpdate(parsed.data);
@@ -298,14 +310,7 @@ function StaffFormBody({
       onSubmit={(event) => void handleSubmit(event)}
       className="space-y-4"
     >
-      {errorMessage ? (
-        <p
-          role="alert"
-          className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700"
-        >
-          {errorMessage}
-        </p>
-      ) : null}
+      <PageToast message={errorMessage ?? null} tone="error" />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <TextField
@@ -348,6 +353,7 @@ function StaffFormBody({
         <SelectField
           label={fieldLabels.branchId}
           value={form.branchId}
+          error={fieldErrors.branchId || undefined}
           searchable
           searchPlaceholder={selectSearch}
           emptyMessage={selectEmpty}
@@ -363,6 +369,7 @@ function StaffFormBody({
         <SelectField
           label={fieldLabels.designationId}
           value={form.designationId}
+          error={fieldErrors.designationId || undefined}
           searchable
           searchPlaceholder={selectSearch}
           emptyMessage={selectEmpty}
@@ -383,7 +390,19 @@ function StaffFormBody({
         <TextField
           label={fieldLabels.mobile}
           value={form.mobile}
+          maxLength={10}
+          inputMode="numeric"
+          hint={t("hints.mobile")}
           error={fieldErrors.mobile}
+          validate={(value, final) =>
+            formatIssue(
+              normalizeMobile(value),
+              final,
+              10,
+              mobilePattern,
+              t("errors.mobile"),
+            )
+          }
           onChange={(mobile) => setForm((prev) => ({ ...prev, mobile }))}
         />
         <TextField
@@ -396,9 +415,8 @@ function StaffFormBody({
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <TextField
+        <DateField
           label={fieldLabels.joinDate}
-          type="date"
           value={form.joinDate}
           error={fieldErrors.joinDate}
           onChange={(joinDate) => setForm((prev) => ({ ...prev, joinDate }))}
@@ -406,6 +424,7 @@ function StaffFormBody({
         <SelectField
           label={fieldLabels.status}
           value={String(form.status)}
+          error={fieldErrors.status || undefined}
           searchable={false}
           searchPlaceholder={selectSearch}
           emptyMessage={selectEmpty}
@@ -423,13 +442,31 @@ function StaffFormBody({
         <TextField
           label={fieldLabels.aadhaar}
           value={form.aadhaar}
+          maxLength={12}
+          inputMode="numeric"
+          hint={t("hints.aadhaar")}
           error={fieldErrors.aadhaar}
+          validate={(value, final) =>
+            formatIssue(
+              value.replace(/\s/g, ""),
+              final,
+              12,
+              aadhaarPattern,
+              t("errors.aadhaar"),
+            )
+          }
           onChange={(aadhaar) => setForm((prev) => ({ ...prev, aadhaar }))}
         />
         <TextField
           label={fieldLabels.pan}
           value={form.pan}
+          maxLength={10}
+          restrict="code"
+          hint={t("hints.pan")}
           error={fieldErrors.pan}
+          validate={(value, final) =>
+            formatIssue(value, final, 10, panPattern, t("errors.pan"))
+          }
           onChange={(pan) => setForm((prev) => ({ ...prev, pan }))}
         />
       </div>
@@ -451,8 +488,14 @@ function StaffFormBody({
             type="password"
             value={form.userPass}
             maxLength={100}
+            hint={t("hints.userPass")}
             autoComplete="new-password"
             error={fieldErrors.userPass}
+            validate={(value, final) => {
+              if (!value) return final ? t("errors.userPass") : undefined;
+              if (!final && value.length < 8) return undefined;
+              return value.length >= 8 ? undefined : t("errors.userPass");
+            }}
             onChange={(userPass) => setForm((prev) => ({ ...prev, userPass }))}
           />
         </div>

@@ -13,6 +13,8 @@ import {
   Trophy,
   Users,
 } from "lucide-react";
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
 
 type MeetingStatus = "live" | "upcoming";
 
@@ -149,6 +151,78 @@ const leaderboard = [
     commission: "₹875.00",
     badge: "Silver Performer",
     badgeTone: "silver" as const,
+  },
+];
+
+const leaderboardColumns: DataTableColumn<(typeof leaderboard)[number]>[] = [
+  {
+    id: "rank",
+    header: "Rank",
+    cell: (row) => (
+      <span
+        className={`font-bold ${
+          row.rank === 1 ? "text-amber-500" : "text-slate-700"
+        }`}
+      >
+        #{row.rank}
+      </span>
+    ),
+  },
+  {
+    id: "officer",
+    header: "Field Officer",
+    cell: (row) => (
+      <>
+        <p className="font-semibold text-slate-900">{row.name}</p>
+        <p className="text-xs text-muted">{row.empId}</p>
+      </>
+    ),
+  },
+  {
+    id: "branch",
+    header: "Branch",
+    cell: (row) => row.branch,
+  },
+  {
+    id: "target",
+    header: "Target (₹)",
+    cell: (row) => (
+      <span className="font-mono text-[13px]">{row.target}</span>
+    ),
+  },
+  {
+    id: "collected",
+    header: "Collected (₹)",
+    cell: (row) => (
+      <span className="font-mono text-[13px] font-semibold text-emerald-600">
+        {row.collected}
+      </span>
+    ),
+  },
+  {
+    id: "efficiency",
+    header: "Efficiency",
+    cell: (row) => (
+      <span
+        className={`font-semibold ${
+          row.efficiency >= 95 ? "text-emerald-600" : "text-amber-600"
+        }`}
+      >
+        {row.efficiency}%
+      </span>
+    ),
+  },
+  {
+    id: "commission",
+    header: "Commission Earned (₹)",
+    cell: (row) => (
+      <span className="font-mono text-[13px]">{row.commission}</span>
+    ),
+  },
+  {
+    id: "badge",
+    header: "Badge",
+    cell: (row) => <BadgePill tone={row.badgeTone} label={row.badge} />,
   },
 ];
 
@@ -363,66 +437,13 @@ export function FieldForceView() {
           ))}
         </div>
 
-        <div className="table-scroll hidden md:block">
-          <table className="w-full min-w-[860px] overflow-hidden rounded-2xl text-left text-sm">
-            <thead>
-              <tr className="bg-slate-700 text-[11px] uppercase tracking-[0.12em] text-white">
-                <th className="rounded-tl-2xl px-4 py-3 font-semibold">Rank</th>
-                <th className="px-4 py-3 font-semibold">Field Officer</th>
-                <th className="px-4 py-3 font-semibold">Branch</th>
-                <th className="px-4 py-3 font-semibold">Target (₹)</th>
-                <th className="px-4 py-3 font-semibold">Collected (₹)</th>
-                <th className="px-4 py-3 font-semibold">Efficiency</th>
-                <th className="px-4 py-3 font-semibold">Commission Earned (₹)</th>
-                <th className="rounded-tr-2xl px-4 py-3 font-semibold">Badge</th>
-              </tr>
-            </thead>
-            <tbody>
-              {leaderboard.map((row) => (
-                <tr
-                  key={row.empId}
-                  className={`border-b border-border last:border-0 ${
-                    row.rank === 1 ? "bg-indigo-50/80" : "bg-white"
-                  }`}
-                >
-                  <td
-                    className={`px-4 py-3.5 font-bold ${
-                      row.rank === 1 ? "text-amber-500" : "text-slate-700"
-                    }`}
-                  >
-                    #{row.rank}
-                  </td>
-                  <td className="px-4 py-3.5">
-                    <p className="font-semibold text-slate-900">{row.name}</p>
-                    <p className="text-xs text-muted">{row.empId}</p>
-                  </td>
-                  <td className="px-4 py-3.5 text-slate-700">{row.branch}</td>
-                  <td className="px-4 py-3.5 font-mono text-[13px] text-slate-700">
-                    {row.target}
-                  </td>
-                  <td className="px-4 py-3.5 font-mono text-[13px] font-semibold text-emerald-600">
-                    {row.collected}
-                  </td>
-                  <td
-                    className={`px-4 py-3.5 font-semibold ${
-                      row.efficiency >= 95
-                        ? "text-emerald-600"
-                        : "text-amber-600"
-                    }`}
-                  >
-                    {row.efficiency}%
-                  </td>
-                  <td className="px-4 py-3.5 font-mono text-[13px] text-slate-700">
-                    {row.commission}
-                  </td>
-                  <td className="px-4 py-3.5">
-                    <BadgePill tone={row.badgeTone} label={row.badge} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          className="hidden md:block"
+          data={leaderboard}
+          columns={leaderboardColumns}
+          getRowKey={(row) => row.empId}
+          minWidth="860px"
+        />
       </section>
     </div>
   );

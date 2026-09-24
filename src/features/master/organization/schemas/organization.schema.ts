@@ -1,4 +1,15 @@
 import { z } from "zod";
+import {
+  cinPattern,
+  gstinPattern,
+  optionalEmail,
+  optionalFormatted,
+  optionalPhone,
+  optionalText,
+  optionalWebsite,
+  panPattern,
+  tanPattern,
+} from "@/lib/validation/formats";
 
 /** Loose runtime check for OrgGet / OrgUpdate response data. */
 export const organizationDtoSchema = z.object({
@@ -27,29 +38,19 @@ export const organizationDtoSchema = z.object({
  * Do not invent undocumented max lengths.
  */
 export const organizationUpdateInputSchema = z.object({
-  orgDispNm: z
-    .string()
-    .trim()
-    .min(1, "Display name is required")
-    .max(200, "Display name must be at most 200 characters"),
-  legalName: z.string().nullable().optional(),
-  regdAddress: z.string().nullable().optional(),
-  hoAddress: z.string().nullable().optional(),
-  stateCd: z.number().int().nullable().optional(),
-  phone: z.string().nullable().optional(),
-  email: z
-    .union([
-      z.literal(""),
-      z.null(),
-      z.string().trim().email("Enter a valid email address"),
-    ])
-    .optional(),
-  website: z.string().nullable().optional(),
-  cinNo: z.string().nullable().optional(),
-  regdNo: z.string().nullable().optional(),
-  gstNo: z.string().nullable().optional(),
-  panNo: z.string().nullable().optional(),
-  tanNo: z.string().nullable().optional(),
+  orgDispNm: z.string().trim().min(1).max(200),
+  legalName: optionalText(200),
+  regdAddress: optionalText(500),
+  hoAddress: optionalText(500),
+  stateCd: z.number().int().positive().nullable().optional(),
+  phone: optionalPhone(),
+  email: optionalEmail(100),
+  website: optionalWebsite(),
+  cinNo: optionalFormatted(21, cinPattern),
+  regdNo: optionalText(50),
+  gstNo: optionalFormatted(15, gstinPattern),
+  panNo: optionalFormatted(10, panPattern),
+  tanNo: optionalFormatted(10, tanPattern),
   /** undefined = omit/keep; "" = clear; other = base64 set */
   orgLogo: z.string().nullable().optional(),
   isActive: z.boolean().optional(),

@@ -1,7 +1,53 @@
 "use client";
 
-import { MisReportShell, MisTableCard } from "@/features/mis/components/MisReportShell";
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
+import { MisReportShell } from "@/features/mis/components/MisReportShell";
 import { demandRows, formatInr } from "@/features/mis/components/mis-data";
+
+type DemandRow = (typeof demandRows)[number];
+
+const columns: DataTableColumn<DemandRow>[] = [
+  {
+    id: "kendra",
+    header: "Kendra Centre",
+    className: "font-semibold text-slate-900",
+    cell: (row) => row.kendra,
+  },
+  {
+    id: "meeting",
+    header: "Meeting",
+    className: "text-slate-600",
+    cell: (row) => row.meeting,
+  },
+  {
+    id: "members",
+    header: "Members",
+    align: "end",
+    cell: (row) => row.members,
+  },
+  {
+    id: "principal",
+    header: "Principal",
+    align: "end",
+    className: "font-medium text-slate-800",
+    cell: (row) => formatInr(row.principal),
+  },
+  {
+    id: "interest",
+    header: "Interest",
+    align: "end",
+    className: "text-slate-600",
+    cell: (row) => formatInr(row.interest),
+  },
+  {
+    id: "total",
+    header: "Total Demand",
+    align: "end",
+    className: "font-semibold text-emerald-700",
+    cell: (row) => formatInr(row.total),
+  },
+];
 
 export function MisDemandSheetView() {
   const totalDemand = demandRows.reduce((sum, row) => sum + row.total, 0);
@@ -41,47 +87,14 @@ export function MisDemandSheetView() {
         },
       ]}
     >
-      <MisTableCard
+      <DataTable
         title="Meeting-wise Demand Register"
-        subtitle="Principal and interest breakup for field officers"
-      >
-        <div className="table-scroll">
-          <table className="w-full min-w-[860px] text-left text-sm">
-            <thead>
-              <tr className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-soft">
-                <th className="pb-3 pr-3">Kendra Centre</th>
-                <th className="pb-3 pr-3">Meeting</th>
-                <th className="pb-3 pr-3 text-right">Members</th>
-                <th className="pb-3 pr-3 text-right">Principal</th>
-                <th className="pb-3 pr-3 text-right">Interest</th>
-                <th className="pb-3 text-right">Total Demand</th>
-              </tr>
-            </thead>
-            <tbody>
-              {demandRows.map((row) => (
-                <tr key={row.kendra} className="border-t border-border/70">
-                  <td className="py-3.5 pr-3 font-semibold text-slate-900">
-                    {row.kendra}
-                  </td>
-                  <td className="py-3.5 pr-3 text-slate-600">{row.meeting}</td>
-                  <td className="py-3.5 pr-3 text-right text-slate-700">
-                    {row.members}
-                  </td>
-                  <td className="py-3.5 pr-3 text-right font-medium text-slate-800">
-                    {formatInr(row.principal)}
-                  </td>
-                  <td className="py-3.5 pr-3 text-right text-slate-600">
-                    {formatInr(row.interest)}
-                  </td>
-                  <td className="py-3.5 text-right font-semibold text-emerald-700">
-                    {formatInr(row.total)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </MisTableCard>
+        description="Principal and interest breakup for field officers"
+        data={demandRows}
+        columns={columns}
+        getRowKey={(row) => row.kendra}
+        minWidth="860px"
+      />
     </MisReportShell>
   );
 }

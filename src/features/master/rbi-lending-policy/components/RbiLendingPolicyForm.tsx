@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
+import { PageToast, useToastText } from "@/components/ui/PageToast";
 import { useTranslations } from "next-intl";
 import { Scale } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
@@ -71,7 +72,7 @@ export function RbiLendingPolicyForm() {
   const [saving, setSaving] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useToastText();
 
   useEffect(() => {
     let cancelled = false;
@@ -209,9 +210,7 @@ export function RbiLendingPolicyForm() {
         <Alert tone="info">{t("notConfiguredHint")}</Alert>
       ) : null}
 
-      {successMessage ? (
-        <Alert tone="success">{successMessage}</Alert>
-      ) : null}
+      <PageToast message={successMessage} />
 
       {formError ? <Alert tone="error">{formError}</Alert> : null}
 
@@ -316,7 +315,7 @@ export function RbiLendingPolicyForm() {
             />
           </div>
 
-          <div className="btn-actions mt-4">
+          <div className="btn-actions mt-5 border-t border-border pt-4">
             <Button type="submit" disabled={saving} icon={Scale}>
               {saving ? t("saving") : t("save")}
             </Button>

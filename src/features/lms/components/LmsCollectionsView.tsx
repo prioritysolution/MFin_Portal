@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   BookOpen,
   CalendarDays,
@@ -14,6 +14,8 @@ import {
   Search,
   Users,
 } from "lucide-react";
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import {
@@ -147,6 +149,45 @@ function formatInr(value: number) {
 
 type ModalKind = "upi" | "receipt" | "cash" | "attendance" | null;
 
+type MeetingRow = CollectionMember & { paid: boolean };
+
+const receiptColumns: DataTableColumn<(typeof recentReceipts)[number]>[] = [
+  {
+    id: "receipt",
+    header: "Receipt No.",
+    className: "font-semibold text-slate-900",
+    cell: (row) => row.receipt,
+  },
+  {
+    id: "member",
+    header: "Member",
+    className: "text-slate-700",
+    cell: (row) => row.member,
+  },
+  {
+    id: "loan",
+    header: "Loan A/c",
+    className: "font-medium text-slate-800",
+    cell: (row) => row.loan,
+  },
+  {
+    id: "amount",
+    header: "Amount",
+    align: "end",
+    className: "font-semibold text-emerald-700",
+    cell: (row) => formatInr(row.amount),
+  },
+  {
+    id: "mode",
+    header: "Mode",
+    cell: (row) => (
+      <Badge tone={row.mode.includes("UPI") ? "info" : "neutral"} caps={false}>
+        {row.mode}
+      </Badge>
+    ),
+  },
+];
+
 export function LmsCollectionsView() {
   const [query, setQuery] = useState("");
   const [paidIds, setPaidIds] = useState<Set<string>>(new Set());
@@ -180,13 +221,13 @@ export function LmsCollectionsView() {
     .filter((row) => row.paid)
     .reduce((sum, row) => sum + row.totalDue, 0);
 
-  function openMemberModal(
-    kind: "upi" | "receipt" | "cash",
-    member: CollectionMember,
-  ) {
-    setSelected(member);
-    setActiveModal(kind);
-  }
+  const openMemberModal = useCallback(
+    (kind: "upi" | "receipt" | "cash", member: CollectionMember) => {
+      setSelected(member);
+      setActiveModal(kind);
+    },
+    [],
+  );
 
   function closeModal() {
     setActiveModal(null);
@@ -196,6 +237,104 @@ export function LmsCollectionsView() {
   function markPaid(loanId: string) {
     setPaidIds((prev) => new Set(prev).add(loanId));
   }
+
+  const meetingColumns = useMemo<DataTableColumn<MeetingRow>[]>(
+    () => [
+      {
+        id: "loanId",
+        header: "Loan A/c",
+        className: "font-semibold text-slate-900",
+        cell: (row) => row.loanId,
+      },
+      {
+        id: "borrower",
+        header: "Borrower",
+        cell: (row) => (
+          <>
+            <p className="font-medium text-slate-800">{row.name}</p>
+            <p className="text-xs text-muted">{row.memberNo}</p>
+          </>
+        ),
+      },
+      {
+        id: "group",
+        header: "JLG Group",
+        className: "text-slate-600",
+        cell: (row) => row.group,
+      },
+      {
+        id: "principal",
+        header: "Principal",
+        align: "end",
+        className: "font-medium text-slate-800",
+        cell: (row) => formatInr(row.principalDue),
+      },
+      {
+        id: "interest",
+        header: "Interest",
+        align: "end",
+        className: "text-slate-600",
+        cell: (row) => formatInr(row.interestDue),
+      },
+      {
+        id: "totalDue",
+        header: "Total Due",
+        align: "end",
+        className: "font-semibold text-emerald-700",
+        cell: (row) => formatInr(row.totalDue),
+      },
+      {
+        id: "status",
+        header: "Status",
+        cell: (row) =>
+          row.paid ? (
+            <Badge tone="success" caps={false}>
+              Collected
+            </Badge>
+          ) : (
+            <Badge tone="warning" caps={false}>
+              Due Today
+            </Badge>
+          ),
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        cell: (row) => (
+          <div className="flex flex-wrap items-center gap-1.5">
+            <Button
+              size="sm"
+              variant="secondary"
+              icon={QrCode}
+              className="border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
+              disabled={row.paid}
+              onClick={() => openMemberModal("upi", row)}
+            >
+              UPI
+            </Button>
+            <Button
+              size="sm"
+              variant="success"
+              icon={HandCoins}
+              disabled={row.paid}
+              onClick={() => openMemberModal("cash", row)}
+            >
+              Cash
+            </Button>
+            <Button
+              size="sm"
+              variant="amber"
+              icon={Receipt}
+              onClick={() => openMemberModal("receipt", row)}
+            >
+              Receipt
+            </Button>
+          </div>
+        ),
+      },
+    ],
+    [openMemberModal],
+  );
 
   return (
     <div className="flex min-w-0 flex-col gap-4 sm:gap-5">
@@ -232,8 +371,8 @@ export function LmsCollectionsView() {
         ))}
       </div>
 
-      <section className="overflow-hidden rounded-2xl border border-border bg-surface shadow-[var(--shadow-card)]">
-        <div className="flex flex-col gap-4 bg-[#111827] px-4 py-4 text-white sm:px-5 sm:py-5 lg:flex-row lg:items-center lg:justify-between">
+      <section className="overflow-hidden rounded-2xl border border-border bg-[#111827] shadow-[var(--shadow-card)]">
+        <div className="flex flex-col gap-4 px-4 py-4 text-white sm:px-5 sm:py-5 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-medium text-emerald-300">
               <CalendarDays className="h-3.5 w-3.5" />
@@ -273,173 +412,52 @@ export function LmsCollectionsView() {
             </div>
           </div>
         </div>
-
-        <div className="border-b border-border px-4 py-3 sm:px-5">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <h3 className="text-sm font-semibold text-slate-900">
-                Meeting Installment Roster
-              </h3>
-              <p className="mt-0.5 text-xs text-muted">
-                Collect via UPI QR or cash — posts to loan A/c & GL instantly
-              </p>
-            </div>
-            <div className="relative w-full max-w-xs">
-              <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-soft" />
-              <input
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Filter members..."
-                className="w-full rounded-xl border border-border bg-surface-muted py-2.5 pr-3 pl-9 text-sm outline-none focus:border-brand/40 focus:bg-white focus:ring-4 focus:ring-brand/10"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="table-scroll px-1 sm:px-2">
-          <table className="w-full min-w-[1080px] text-left text-sm">
-            <thead>
-              <tr className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-soft">
-                <th className="px-3 py-3">Loan A/c</th>
-                <th className="px-3 py-3">Borrower</th>
-                <th className="px-3 py-3">JLG Group</th>
-                <th className="px-3 py-3 text-right">Principal</th>
-                <th className="px-3 py-3 text-right">Interest</th>
-                <th className="px-3 py-3 text-right">Total Due</th>
-                <th className="px-3 py-3">Status</th>
-                <th className="px-3 py-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((row) => (
-                <tr key={row.loanId} className="border-t border-border/70">
-                  <td className="px-3 py-3.5 font-semibold text-slate-900">
-                    {row.loanId}
-                  </td>
-                  <td className="px-3 py-3.5">
-                    <p className="font-medium text-slate-800">{row.name}</p>
-                    <p className="text-xs text-muted">{row.memberNo}</p>
-                  </td>
-                  <td className="px-3 py-3.5 text-slate-600">{row.group}</td>
-                  <td className="px-3 py-3.5 text-right font-medium text-slate-800">
-                    {formatInr(row.principalDue)}
-                  </td>
-                  <td className="px-3 py-3.5 text-right text-slate-600">
-                    {formatInr(row.interestDue)}
-                  </td>
-                  <td className="px-3 py-3.5 text-right font-semibold text-emerald-700">
-                    {formatInr(row.totalDue)}
-                  </td>
-                  <td className="px-3 py-3.5">
-                    {row.paid ? (
-                      <Badge tone="success" caps={false}>
-                        Collected
-                      </Badge>
-                    ) : (
-                      <Badge tone="warning" caps={false}>
-                        Due Today
-                      </Badge>
-                    )}
-                  </td>
-                  <td className="px-3 py-3.5">
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        icon={QrCode}
-                        className="border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
-                        disabled={row.paid}
-                        onClick={() => openMemberModal("upi", row)}
-                      >
-                        UPI
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="success"
-                        icon={HandCoins}
-                        disabled={row.paid}
-                        onClick={() => openMemberModal("cash", row)}
-                      >
-                        Cash
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="amber"
-                        icon={Receipt}
-                        onClick={() => openMemberModal("receipt", row)}
-                      >
-                        Receipt
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="flex items-center justify-between border-t border-border px-4 py-3 text-xs text-muted sm:px-5">
-          <p>
-            Showing {filtered.length} of {members.length} meeting members
-          </p>
-          <p className="inline-flex items-center gap-1.5">
-            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-            {paidIds.size} collected in this session
-          </p>
-        </div>
       </section>
 
-      <section className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5">
-        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <h2 className="inline-flex items-center gap-2 text-base font-semibold text-slate-900">
-              <BookOpen className="h-4 w-4 text-slate-500" />
-              Recent EMI Collections
-            </h2>
-            <p className="mt-1 text-sm text-muted">
-              Vault-credited collections with agent and Kendra attribution
-            </p>
-          </div>
+      <div className="flex justify-end">
+        <div className="relative w-full max-w-xs">
+          <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-soft" />
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Filter members..."
+            className="w-full rounded-xl border border-border bg-surface-muted py-2.5 pr-3 pl-9 text-sm outline-none focus:border-brand/40 focus:bg-white focus:ring-4 focus:ring-brand/10"
+          />
         </div>
+      </div>
 
-        <div className="table-scroll">
-          <table className="w-full min-w-[720px] text-left text-sm">
-            <thead>
-              <tr className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-soft">
-                <th className="pb-3 pr-3">Receipt No.</th>
-                <th className="pb-3 pr-3">Member</th>
-                <th className="pb-3 pr-3">Loan A/c</th>
-                <th className="pb-3 pr-3 text-right">Amount</th>
-                <th className="pb-3">Mode</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentReceipts.map((row) => (
-                <tr key={row.receipt} className="border-t border-border/70">
-                  <td className="py-3 pr-3 font-semibold text-slate-900">
-                    {row.receipt}
-                  </td>
-                  <td className="py-3 pr-3 text-slate-700">{row.member}</td>
-                  <td className="py-3 pr-3 font-medium text-slate-800">
-                    {row.loan}
-                  </td>
-                  <td className="py-3 pr-3 text-right font-semibold text-emerald-700">
-                    {formatInr(row.amount)}
-                  </td>
-                  <td className="py-3">
-                    <Badge
-                      tone={row.mode.includes("UPI") ? "info" : "neutral"}
-                      caps={false}
-                    >
-                      {row.mode}
-                    </Badge>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      <DataTable
+        data={filtered}
+        columns={meetingColumns}
+        getRowKey={(row) => row.loanId}
+        minWidth="1080px"
+        title="Meeting Installment Roster"
+        description="Collect via UPI QR or cash — posts to loan A/c & GL instantly"
+      />
+
+      <div className="flex items-center justify-between text-xs text-muted">
+        <p>
+          Showing {filtered.length} of {members.length} meeting members
+        </p>
+        <p className="inline-flex items-center gap-1.5">
+          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+          {paidIds.size} collected in this session
+        </p>
+      </div>
+
+      <DataTable
+        data={recentReceipts}
+        columns={receiptColumns}
+        getRowKey={(row) => row.receipt}
+        minWidth="720px"
+        title={
+          <span className="inline-flex items-center gap-2">
+            <BookOpen className="h-4 w-4 text-slate-500" />
+            Recent EMI Collections
+          </span>
+        }
+        description="Vault-credited collections with agent and Kendra attribution"
+      />
 
       <UpiPayModal
         open={activeModal === "upi"}

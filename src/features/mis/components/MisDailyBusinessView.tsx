@@ -2,6 +2,8 @@
 
 import { Search } from "lucide-react";
 import { useMemo, useState } from "react";
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/Badge";
 import { MisReportShell, MisTableCard } from "@/features/mis/components/MisReportShell";
 import {
@@ -9,6 +11,65 @@ import {
   formatInr,
   glHierarchy,
 } from "@/features/mis/components/mis-data";
+
+type BranchGlRow = (typeof branchGlRows)[number];
+
+const columns: DataTableColumn<BranchGlRow>[] = [
+  {
+    id: "jlg",
+    header: "JLG Code",
+    className: "font-semibold text-slate-900",
+    cell: (row) => row.jlg,
+  },
+  {
+    id: "branch",
+    header: "Branch",
+    cell: (row) => row.branch,
+  },
+  {
+    id: "gl",
+    header: "GL Head",
+    className: "text-slate-600",
+    cell: (row) => row.gl,
+  },
+  {
+    id: "members",
+    header: "Members",
+    align: "end",
+    cell: (row) => row.members,
+  },
+  {
+    id: "debit",
+    header: "Debit (Dr)",
+    align: "end",
+    className: "font-semibold text-slate-900",
+    cell: (row) => formatInr(row.debit),
+  },
+  {
+    id: "credit",
+    header: "Credit (Cr)",
+    align: "end",
+    className: "text-slate-600",
+    cell: (row) => formatInr(row.credit),
+  },
+  {
+    id: "collection",
+    header: "Collection",
+    align: "end",
+    className: "font-semibold text-emerald-700",
+    cell: (row) => formatInr(row.collection),
+  },
+  {
+    id: "efficiency",
+    header: "Eff %",
+    align: "end",
+    cell: (row) => (
+      <Badge tone="success" caps={false}>
+        {row.efficiency.toFixed(2)}%
+      </Badge>
+    ),
+  },
+];
 
 export function MisDailyBusinessView() {
   const [query, setQuery] = useState("");
@@ -79,64 +140,23 @@ export function MisDailyBusinessView() {
         </div>
       </MisTableCard>
 
-      <MisTableCard
+      <div className="mb-4 relative max-w-xs">
+        <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-soft" />
+        <input
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Search report, GL code or head..."
+          className="w-full rounded-xl border border-border bg-surface-muted py-2.5 pr-3 pl-9 text-sm outline-none focus:border-brand/40 focus:bg-white focus:ring-4 focus:ring-brand/10"
+        />
+      </div>
+      <DataTable
         title="JLG Code × Branch GL Breakdown"
-        subtitle="Search report, GL code or head"
-      >
-        <div className="mb-4 relative max-w-xs">
-          <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-soft" />
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search report, GL code or head..."
-            className="w-full rounded-xl border border-border bg-surface-muted py-2.5 pr-3 pl-9 text-sm outline-none focus:border-brand/40 focus:bg-white focus:ring-4 focus:ring-brand/10"
-          />
-        </div>
-        <div className="table-scroll">
-          <table className="w-full min-w-[980px] text-left text-sm">
-            <thead>
-              <tr className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-soft">
-                <th className="pb-3 pr-3">JLG Code</th>
-                <th className="pb-3 pr-3">Branch</th>
-                <th className="pb-3 pr-3">GL Head</th>
-                <th className="pb-3 pr-3 text-right">Members</th>
-                <th className="pb-3 pr-3 text-right">Debit (Dr)</th>
-                <th className="pb-3 pr-3 text-right">Credit (Cr)</th>
-                <th className="pb-3 pr-3 text-right">Collection</th>
-                <th className="pb-3 text-right">Eff %</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((row) => (
-                <tr key={row.jlg} className="border-t border-border/70">
-                  <td className="py-3.5 pr-3 font-semibold text-slate-900">
-                    {row.jlg}
-                  </td>
-                  <td className="py-3.5 pr-3 text-slate-700">{row.branch}</td>
-                  <td className="py-3.5 pr-3 text-slate-600">{row.gl}</td>
-                  <td className="py-3.5 pr-3 text-right text-slate-700">
-                    {row.members}
-                  </td>
-                  <td className="py-3.5 pr-3 text-right font-semibold text-slate-900">
-                    {formatInr(row.debit)}
-                  </td>
-                  <td className="py-3.5 pr-3 text-right text-slate-600">
-                    {formatInr(row.credit)}
-                  </td>
-                  <td className="py-3.5 pr-3 text-right font-semibold text-emerald-700">
-                    {formatInr(row.collection)}
-                  </td>
-                  <td className="py-3.5 text-right">
-                    <Badge tone="success" caps={false}>
-                      {row.efficiency.toFixed(2)}%
-                    </Badge>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </MisTableCard>
+        description="Search report, GL code or head"
+        data={filtered}
+        columns={columns}
+        getRowKey={(row) => row.jlg}
+        minWidth="980px"
+      />
     </MisReportShell>
   );
 }

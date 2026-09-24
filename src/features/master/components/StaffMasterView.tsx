@@ -11,6 +11,8 @@ import {
   UserRound,
   X,
 } from "lucide-react";
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
 
 type StaffRow = {
   empId: string;
@@ -269,6 +271,111 @@ export function StaffMasterView() {
     setModalOpen(false);
   }
 
+  const staffColumns: DataTableColumn<StaffRow>[] = [
+    {
+      id: "empId",
+      header: "Emp ID",
+      cell: (row) => (
+        <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700">
+          {row.empId}
+        </span>
+      ),
+    },
+    {
+      id: "name",
+      header: "Staff Name",
+      cell: (row) => (
+        <span className="font-medium text-slate-800">{row.name}</span>
+      ),
+    },
+    {
+      id: "designation",
+      header: "Designation",
+      cell: (row) => row.designation,
+    },
+    {
+      id: "mobile",
+      header: "Mobile",
+      cell: (row) => (
+        <span className="font-mono text-[13px]">{row.mobile}</span>
+      ),
+    },
+    {
+      id: "assignment",
+      header: "Assignment",
+      cell: (row) => row.assignment,
+    },
+    {
+      id: "salary",
+      header: "Salary",
+      cell: (row) => (
+        <span className="font-semibold tabular-nums text-slate-800">
+          {formatInr(row.salary)}
+        </span>
+      ),
+    },
+    {
+      id: "target",
+      header: "Target / Collected",
+      cell: (row) =>
+        row.target > 0 ? (
+          <span>
+            {formatInr(row.collected)}{" "}
+            <span className="text-muted">/ {formatInr(row.target)}</span>
+          </span>
+        ) : (
+          <span className="text-muted">—</span>
+        ),
+    },
+    {
+      id: "status",
+      header: "Status",
+      cell: (row) => (
+        <span className="rounded-full bg-emerald-500 px-2.5 py-1 text-[11px] font-semibold text-white">
+          {row.status}
+        </span>
+      ),
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: (row) => (
+        <div className="flex flex-wrap gap-1.5">
+          <button
+            type="button"
+            onClick={() => {
+              setSelected(row);
+              setDetailMode("performance");
+            }}
+            className="btn btn-secondary btn-sm"
+          >
+            <BarChart3 className="h-3.5 w-3.5" />
+            Performance
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setSelected(row);
+              setDetailMode("attendance");
+            }}
+            className="btn btn-secondary btn-sm"
+          >
+            <CalendarDays className="h-3.5 w-3.5" />
+            Attendance
+          </button>
+          <button
+            type="button"
+            onClick={() => openEdit(row)}
+            className="btn btn-secondary btn-sm"
+          >
+            <Pencil className="h-3.5 w-3.5" />
+            Edit
+          </button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="flex min-w-0 flex-col gap-4 sm:gap-5">
       <div className="flex justify-end">
@@ -307,101 +414,12 @@ export function StaffMasterView() {
           </label>
         </div>
 
-        <div className="table-scroll">
-          <table className="w-full min-w-[1100px] text-left text-sm">
-            <thead>
-              <tr className="border-b border-border text-[11px] uppercase tracking-[0.12em] text-muted-soft">
-                <th className="pb-3 pr-3 font-semibold">Emp ID</th>
-                <th className="pb-3 pr-3 font-semibold">Staff Name</th>
-                <th className="pb-3 pr-3 font-semibold">Designation</th>
-                <th className="pb-3 pr-3 font-semibold">Mobile</th>
-                <th className="pb-3 pr-3 font-semibold">Assignment</th>
-                <th className="pb-3 pr-3 font-semibold">Salary</th>
-                <th className="pb-3 pr-3 font-semibold">Target / Collected</th>
-                <th className="pb-3 pr-3 font-semibold">Status</th>
-                <th className="pb-3 font-semibold">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((row) => (
-                <tr
-                  key={row.empId}
-                  className="border-b border-border/70 last:border-0"
-                >
-                  <td className="py-3.5 pr-3">
-                    <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700">
-                      {row.empId}
-                    </span>
-                  </td>
-                  <td className="py-3.5 pr-3 font-medium text-slate-800">
-                    {row.name}
-                  </td>
-                  <td className="py-3.5 pr-3 text-slate-700">
-                    {row.designation}
-                  </td>
-                  <td className="py-3.5 pr-3 font-mono text-[13px] text-slate-700">
-                    {row.mobile}
-                  </td>
-                  <td className="py-3.5 pr-3 text-slate-700">{row.assignment}</td>
-                  <td className="py-3.5 pr-3 font-semibold tabular-nums text-slate-800">
-                    {formatInr(row.salary)}
-                  </td>
-                  <td className="py-3.5 pr-3 text-slate-700">
-                    {row.target > 0 ? (
-                      <span>
-                        {formatInr(row.collected)}{" "}
-                        <span className="text-muted">
-                          / {formatInr(row.target)}
-                        </span>
-                      </span>
-                    ) : (
-                      <span className="text-muted">—</span>
-                    )}
-                  </td>
-                  <td className="py-3.5 pr-3">
-                    <span className="rounded-full bg-emerald-500 px-2.5 py-1 text-[11px] font-semibold text-white">
-                      {row.status}
-                    </span>
-                  </td>
-                  <td className="py-3.5">
-                    <div className="flex flex-wrap gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelected(row);
-                          setDetailMode("performance");
-                        }}
-                        className="btn btn-secondary btn-sm"
-                      >
-                        <BarChart3 className="h-3.5 w-3.5" />
-                        Performance
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelected(row);
-                          setDetailMode("attendance");
-                        }}
-                        className="btn btn-secondary btn-sm"
-                      >
-                        <CalendarDays className="h-3.5 w-3.5" />
-                        Attendance
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => openEdit(row)}
-                        className="btn btn-secondary btn-sm"
-                      >
-                        <Pencil className="h-3.5 w-3.5" />
-                        Edit
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          data={filtered}
+          columns={staffColumns}
+          getRowKey={(row) => row.empId}
+          minWidth="1100px"
+        />
 
         <p className="mt-3 text-xs text-muted">
           Showing {filtered.length} of 114 total staff records

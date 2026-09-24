@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Ban, CircleCheck, Pencil } from "lucide-react";
 import { DataTable } from "@/components/shared/DataTable";
@@ -36,6 +36,7 @@ type OperationalDayTableProps = {
   onPageSizeChange: (pageSize: number) => void;
   onEdit: (row: OperationalDay) => void;
   onToggleStatus: (row: OperationalDay) => void;
+  headerActions?: ReactNode;
 };
 
 export function OperationalDayTable({
@@ -52,6 +53,7 @@ export function OperationalDayTable({
   onPageSizeChange,
   onEdit,
   onToggleStatus,
+  headerActions,
 }: OperationalDayTableProps) {
   const t = useTranslations("master.operationalDays");
 
@@ -135,6 +137,9 @@ export function OperationalDayTable({
 
   return (
     <DataTable<OperationalDay>
+      title={t("title")}
+      description={t("description")}
+      actions={headerActions}
       data={items}
       columns={columns}
       getRowKey={(row) => String(row.recId)}

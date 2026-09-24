@@ -1,8 +1,76 @@
 "use client";
 
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/Badge";
-import { MisReportShell, MisTableCard } from "@/features/mis/components/MisReportShell";
+import { MisReportShell } from "@/features/mis/components/MisReportShell";
 import { disbursementRows, formatInr } from "@/features/mis/components/mis-data";
+
+type DisbursementRow = (typeof disbursementRows)[number];
+
+const columns: DataTableColumn<DisbursementRow>[] = [
+  {
+    id: "app",
+    header: "App #",
+    className: "font-semibold text-slate-900",
+    cell: (row) => row.app,
+  },
+  {
+    id: "loan",
+    header: "Loan A/c",
+    cell: (row) => row.loan,
+  },
+  {
+    id: "borrower",
+    header: "Borrower",
+    className: "font-medium text-slate-800",
+    cell: (row) => row.borrower,
+  },
+  {
+    id: "product",
+    header: "Product",
+    className: "text-slate-600",
+    cell: (row) => row.product,
+  },
+  {
+    id: "gross",
+    header: "Gross",
+    align: "end",
+    className: "font-semibold text-slate-900",
+    cell: (row) => formatInr(row.gross),
+  },
+  {
+    id: "net",
+    header: "Net",
+    align: "end",
+    className: "font-semibold text-emerald-700",
+    cell: (row) => formatInr(row.net),
+  },
+  {
+    id: "mode",
+    header: "Mode",
+    className: "text-slate-600",
+    cell: (row) => row.mode,
+  },
+  {
+    id: "date",
+    header: "Date",
+    className: "text-slate-600",
+    cell: (row) => row.date,
+  },
+  {
+    id: "status",
+    header: "Status",
+    cell: (row) => (
+      <Badge
+        tone={row.status === "Disbursed" ? "success" : "warning"}
+        caps={false}
+      >
+        {row.status}
+      </Badge>
+    ),
+  },
+];
 
 export function MisDisbursementView() {
   const gross = disbursementRows.reduce((sum, row) => sum + row.gross, 0);
@@ -41,58 +109,14 @@ export function MisDisbursementView() {
         },
       ]}
     >
-      <MisTableCard
+      <DataTable
         title="Disbursement Register"
-        subtitle="Application → loan account → payout mode"
-      >
-        <div className="table-scroll">
-          <table className="w-full min-w-[980px] text-left text-sm">
-            <thead>
-              <tr className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-soft">
-                <th className="pb-3 pr-3">App #</th>
-                <th className="pb-3 pr-3">Loan A/c</th>
-                <th className="pb-3 pr-3">Borrower</th>
-                <th className="pb-3 pr-3">Product</th>
-                <th className="pb-3 pr-3 text-right">Gross</th>
-                <th className="pb-3 pr-3 text-right">Net</th>
-                <th className="pb-3 pr-3">Mode</th>
-                <th className="pb-3 pr-3">Date</th>
-                <th className="pb-3">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {disbursementRows.map((row) => (
-                <tr key={row.app} className="border-t border-border/70">
-                  <td className="py-3.5 pr-3 font-semibold text-slate-900">
-                    {row.app}
-                  </td>
-                  <td className="py-3.5 pr-3 text-slate-700">{row.loan}</td>
-                  <td className="py-3.5 pr-3 font-medium text-slate-800">
-                    {row.borrower}
-                  </td>
-                  <td className="py-3.5 pr-3 text-slate-600">{row.product}</td>
-                  <td className="py-3.5 pr-3 text-right font-semibold text-slate-900">
-                    {formatInr(row.gross)}
-                  </td>
-                  <td className="py-3.5 pr-3 text-right font-semibold text-emerald-700">
-                    {formatInr(row.net)}
-                  </td>
-                  <td className="py-3.5 pr-3 text-slate-600">{row.mode}</td>
-                  <td className="py-3.5 pr-3 text-slate-600">{row.date}</td>
-                  <td className="py-3.5">
-                    <Badge
-                      tone={row.status === "Disbursed" ? "success" : "warning"}
-                      caps={false}
-                    >
-                      {row.status}
-                    </Badge>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </MisTableCard>
+        description="Application → loan account → payout mode"
+        data={disbursementRows}
+        columns={columns}
+        getRowKey={(row) => row.app}
+        minWidth="980px"
+      />
     </MisReportShell>
   );
 }

@@ -1,8 +1,73 @@
 "use client";
 
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/Badge";
-import { MisReportShell, MisTableCard } from "@/features/mis/components/MisReportShell";
+import { MisReportShell } from "@/features/mis/components/MisReportShell";
 import { formatInr, scorecardRows } from "@/features/mis/components/mis-data";
+
+type ScorecardRow = (typeof scorecardRows)[number];
+
+const columns: DataTableColumn<ScorecardRow>[] = [
+  {
+    id: "rank",
+    header: "Rank",
+    className: "font-bold text-slate-900",
+    cell: (row) => `#${row.rank}`,
+  },
+  {
+    id: "branch",
+    header: "Branch",
+    className: "font-semibold text-slate-800",
+    cell: (row) => row.branch,
+  },
+  {
+    id: "aum",
+    header: "AUM",
+    align: "end",
+    className: "font-semibold text-slate-900",
+    cell: (row) => formatInr(row.aum, 0),
+  },
+  {
+    id: "collectionEff",
+    header: "Coll. Eff",
+    align: "end",
+    className: "font-semibold text-emerald-700",
+    cell: (row) => `${row.collectionEff.toFixed(1)}%`,
+  },
+  {
+    id: "par30",
+    header: "PAR 30",
+    align: "end",
+    className: "font-semibold text-amber-700",
+    cell: (row) => `${row.par30.toFixed(2)}%`,
+  },
+  {
+    id: "npa",
+    header: "NPA %",
+    align: "end",
+    className: "text-rose-600",
+    cell: (row) => `${row.npa.toFixed(2)}%`,
+  },
+  {
+    id: "disbursal",
+    header: "Disbursals",
+    align: "end",
+    cell: (row) => row.disbursal,
+  },
+  {
+    id: "band",
+    header: "Band",
+    cell: (row) => (
+      <Badge
+        tone={row.rank === 1 ? "success" : row.rank <= 3 ? "info" : "neutral"}
+        caps={false}
+      >
+        {row.rank === 1 ? "Leader" : row.rank <= 3 ? "Strong" : "Improve"}
+      </Badge>
+    ),
+  },
+];
 
 export function MisBranchScorecardView() {
   const top = scorecardRows[0]!;
@@ -42,72 +107,14 @@ export function MisBranchScorecardView() {
         },
       ]}
     >
-      <MisTableCard
+      <DataTable
         title="Branch Ranking Matrix"
-        subtitle="Composite operational KPIs for BM review"
-      >
-        <div className="table-scroll">
-          <table className="w-full min-w-[920px] text-left text-sm">
-            <thead>
-              <tr className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-soft">
-                <th className="pb-3 pr-3">Rank</th>
-                <th className="pb-3 pr-3">Branch</th>
-                <th className="pb-3 pr-3 text-right">AUM</th>
-                <th className="pb-3 pr-3 text-right">Coll. Eff</th>
-                <th className="pb-3 pr-3 text-right">PAR 30</th>
-                <th className="pb-3 pr-3 text-right">NPA %</th>
-                <th className="pb-3 pr-3 text-right">Disbursals</th>
-                <th className="pb-3">Band</th>
-              </tr>
-            </thead>
-            <tbody>
-              {scorecardRows.map((row) => (
-                <tr key={row.branch} className="border-t border-border/70">
-                  <td className="py-3.5 pr-3 font-bold text-slate-900">
-                    #{row.rank}
-                  </td>
-                  <td className="py-3.5 pr-3 font-semibold text-slate-800">
-                    {row.branch}
-                  </td>
-                  <td className="py-3.5 pr-3 text-right font-semibold text-slate-900">
-                    {formatInr(row.aum, 0)}
-                  </td>
-                  <td className="py-3.5 pr-3 text-right font-semibold text-emerald-700">
-                    {row.collectionEff.toFixed(1)}%
-                  </td>
-                  <td className="py-3.5 pr-3 text-right font-semibold text-amber-700">
-                    {row.par30.toFixed(2)}%
-                  </td>
-                  <td className="py-3.5 pr-3 text-right text-rose-600">
-                    {row.npa.toFixed(2)}%
-                  </td>
-                  <td className="py-3.5 pr-3 text-right text-slate-700">
-                    {row.disbursal}
-                  </td>
-                  <td className="py-3.5">
-                    <Badge
-                      tone={
-                        row.rank === 1
-                          ? "success"
-                          : row.rank <= 3
-                            ? "info"
-                            : "neutral"
-                      }
-                      caps={false}
-                    >
-                      {row.rank === 1
-                        ? "Leader"
-                        : row.rank <= 3
-                          ? "Strong"
-                          : "Improve"}
-                    </Badge>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </MisTableCard>
+        description="Composite operational KPIs for BM review"
+        data={scorecardRows}
+        columns={columns}
+        getRowKey={(row) => row.branch}
+        minWidth="920px"
+      />
     </MisReportShell>
   );
 }

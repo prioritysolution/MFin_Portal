@@ -12,6 +12,8 @@ import {
   Users,
   Wallet,
 } from "lucide-react";
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import {
@@ -29,7 +31,258 @@ import {
   memberTransfers,
   payrollRows,
   transferReasons,
+  type EmployeeTransfer,
+  type MemberTransfer,
+  type PayrollRow,
 } from "@/features/hr/components/hr-data";
+
+const memberTransferColumns: DataTableColumn<MemberTransfer>[] = [
+  {
+    id: "orderNo",
+    header: "Order #",
+    cell: (row) => (
+      <span className="font-semibold text-violet-600">{row.orderNo}</span>
+    ),
+  },
+  {
+    id: "member",
+    header: "Member",
+    cell: (row) => (
+      <span className="font-semibold text-slate-900">{row.member}</span>
+    ),
+  },
+  {
+    id: "from",
+    header: "From",
+    cell: (row) => (
+      <>
+        <p className="font-medium text-slate-800">{row.fromBranch}</p>
+        <p className="text-xs text-muted">{row.fromKendra}</p>
+      </>
+    ),
+  },
+  {
+    id: "to",
+    header: "To",
+    cell: (row) => (
+      <>
+        <p className="font-medium text-slate-800">{row.toBranch}</p>
+        <p className="text-xs text-muted">{row.toKendra}</p>
+      </>
+    ),
+  },
+  {
+    id: "reason",
+    header: "Reason",
+    cell: (row) => <span className="text-slate-600">{row.reason}</span>,
+  },
+  {
+    id: "date",
+    header: "Date",
+    cell: (row) => <span className="text-slate-600">{row.date}</span>,
+  },
+  {
+    id: "status",
+    header: "Status",
+    cell: (row) => (
+      <Badge tone="success" caps={false}>
+        {row.status}
+      </Badge>
+    ),
+  },
+];
+
+const employeeTransferColumns: DataTableColumn<EmployeeTransfer>[] = [
+  {
+    id: "orderNo",
+    header: "Order #",
+    cell: (row) => (
+      <span className="font-semibold text-blue-600">{row.orderNo}</span>
+    ),
+  },
+  {
+    id: "employee",
+    header: "Employee",
+    cell: (row) => (
+      <>
+        <p className="font-semibold text-slate-900">{row.employee}</p>
+        <p className="text-xs text-muted">{row.empId}</p>
+      </>
+    ),
+  },
+  {
+    id: "fromBranch",
+    header: "From Branch",
+    cell: (row) => row.fromBranch,
+  },
+  {
+    id: "toBranch",
+    header: "To Branch",
+    cell: (row) => row.toBranch,
+  },
+  {
+    id: "effectiveDate",
+    header: "Effective Date",
+    cell: (row) => <span className="text-slate-600">{row.effectiveDate}</span>,
+  },
+  {
+    id: "reason",
+    header: "Reason",
+    cell: (row) => <span className="text-slate-600">{row.reason}</span>,
+  },
+  {
+    id: "status",
+    header: "Status",
+    cell: (row) => (
+      <Badge tone="success" caps={false}>
+        {row.status}
+      </Badge>
+    ),
+  },
+];
+
+type PayrollTableRow =
+  | ({ kind: "line" } & PayrollRow)
+  | {
+      kind: "total";
+      empId: "TOTALS";
+      incentive: number;
+      deductions: number;
+      netPayable: number;
+    };
+
+const payrollColumns: DataTableColumn<PayrollTableRow>[] = [
+  {
+    id: "employee",
+    header: "Employee",
+    cell: (row) =>
+      row.kind === "total" ? (
+        <span className="font-bold text-slate-900">TOTALS</span>
+      ) : (
+        <>
+          <p className="font-semibold text-slate-900">{row.name}</p>
+          <p className="text-xs text-muted">
+            {row.empId} · {row.role}
+          </p>
+        </>
+      ),
+  },
+  {
+    id: "baseSalary",
+    header: "Base Salary",
+    align: "end",
+    cell: (row) =>
+      row.kind === "line" ? (
+        <span className="font-medium text-slate-800">
+          {formatInr(row.baseSalary)}
+        </span>
+      ) : null,
+  },
+  {
+    id: "target",
+    header: "Target",
+    align: "end",
+    cell: (row) =>
+      row.kind === "line" ? (
+        <span className="text-slate-600">
+          {row.target != null ? formatInr(row.target) : "—"}
+        </span>
+      ) : null,
+  },
+  {
+    id: "collected",
+    header: "Collected",
+    align: "end",
+    cell: (row) =>
+      row.kind === "line" ? (
+        <span className="text-slate-600">
+          {row.collected != null ? formatInr(row.collected) : "—"}
+        </span>
+      ) : null,
+  },
+  {
+    id: "achievement",
+    header: "Achievement",
+    align: "end",
+    cell: (row) =>
+      row.kind === "line" ? (
+        <span className="font-semibold text-amber-600">
+          {row.achievement != null ? `${row.achievement.toFixed(1)}%` : "N/A"}
+        </span>
+      ) : null,
+  },
+  {
+    id: "incentive",
+    header: "Incentive",
+    align: "end",
+    cell: (row) => (
+      <span
+        className={
+          row.kind === "total"
+            ? "font-bold text-emerald-700"
+            : "font-semibold text-emerald-700"
+        }
+      >
+        {row.kind === "total"
+          ? formatInr(row.incentive)
+          : row.incentive
+            ? formatInr(row.incentive)
+            : "—"}
+      </span>
+    ),
+  },
+  {
+    id: "deductions",
+    header: "Deductions",
+    align: "end",
+    cell: (row) => (
+      <span
+        className={
+          row.kind === "total" ? "font-bold text-rose-600" : "text-rose-600"
+        }
+      >
+        {row.kind === "total"
+          ? formatInr(row.deductions)
+          : row.deductions
+            ? formatInr(row.deductions)
+            : "—"}
+      </span>
+    ),
+  },
+  {
+    id: "netPayable",
+    header: "Net Payable",
+    align: "end",
+    cell: (row) => (
+      <span className="font-bold text-slate-900">{formatInr(row.netPayable)}</span>
+    ),
+  },
+  {
+    id: "status",
+    header: "Status",
+    cell: (row) =>
+      row.kind === "line" ? (
+        <Badge tone="success" caps={false}>
+          {row.status}
+        </Badge>
+      ) : null,
+  },
+  {
+    id: "paySlip",
+    header: "Pay Slip",
+    cell: (row) =>
+      row.kind === "line" ? (
+        <Button
+          size="sm"
+          variant="secondary"
+          icon={FileText}
+          className="border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
+        >
+          View
+        </Button>
+      ) : null,
+  },
+];
 
 export type HrEngineTab =
   | "member"
@@ -175,48 +428,12 @@ function MemberTransferHub() {
           </Button>
         </div>
 
-        <div className="table-scroll">
-          <table className="w-full min-w-[980px] text-left text-sm">
-            <thead>
-              <tr className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-soft">
-                <th className="pb-3 pr-3">Order #</th>
-                <th className="pb-3 pr-3">Member</th>
-                <th className="pb-3 pr-3">From</th>
-                <th className="pb-3 pr-3">To</th>
-                <th className="pb-3 pr-3">Reason</th>
-                <th className="pb-3 pr-3">Date</th>
-                <th className="pb-3">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => (
-                <tr key={row.orderNo} className="border-t border-border/70">
-                  <td className="py-3.5 pr-3 font-semibold text-violet-600">
-                    {row.orderNo}
-                  </td>
-                  <td className="py-3.5 pr-3 font-semibold text-slate-900">
-                    {row.member}
-                  </td>
-                  <td className="py-3.5 pr-3">
-                    <p className="font-medium text-slate-800">{row.fromBranch}</p>
-                    <p className="text-xs text-muted">{row.fromKendra}</p>
-                  </td>
-                  <td className="py-3.5 pr-3">
-                    <p className="font-medium text-slate-800">{row.toBranch}</p>
-                    <p className="text-xs text-muted">{row.toKendra}</p>
-                  </td>
-                  <td className="py-3.5 pr-3 text-slate-600">{row.reason}</td>
-                  <td className="py-3.5 pr-3 text-slate-600">{row.date}</td>
-                  <td className="py-3.5">
-                    <Badge tone="success" caps={false}>
-                      {row.status}
-                    </Badge>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          data={rows}
+          columns={memberTransferColumns}
+          getRowKey={(row) => row.orderNo}
+          minWidth="980px"
+        />
       </section>
 
       <NewMemberTransferModal
@@ -397,45 +614,12 @@ function EmployeePostings() {
           </Button>
         </div>
 
-        <div className="table-scroll">
-          <table className="w-full min-w-[920px] text-left text-sm">
-            <thead>
-              <tr className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-soft">
-                <th className="pb-3 pr-3">Order #</th>
-                <th className="pb-3 pr-3">Employee</th>
-                <th className="pb-3 pr-3">From Branch</th>
-                <th className="pb-3 pr-3">To Branch</th>
-                <th className="pb-3 pr-3">Effective Date</th>
-                <th className="pb-3 pr-3">Reason</th>
-                <th className="pb-3">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => (
-                <tr key={row.orderNo} className="border-t border-border/70">
-                  <td className="py-3.5 pr-3 font-semibold text-blue-600">
-                    {row.orderNo}
-                  </td>
-                  <td className="py-3.5 pr-3">
-                    <p className="font-semibold text-slate-900">{row.employee}</p>
-                    <p className="text-xs text-muted">{row.empId}</p>
-                  </td>
-                  <td className="py-3.5 pr-3 text-slate-700">{row.fromBranch}</td>
-                  <td className="py-3.5 pr-3 text-slate-700">{row.toBranch}</td>
-                  <td className="py-3.5 pr-3 text-slate-600">
-                    {row.effectiveDate}
-                  </td>
-                  <td className="py-3.5 pr-3 text-slate-600">{row.reason}</td>
-                  <td className="py-3.5">
-                    <Badge tone="success" caps={false}>
-                      {row.status}
-                    </Badge>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          data={rows}
+          columns={employeeTransferColumns}
+          getRowKey={(row) => row.orderNo}
+          minWidth="920px"
+        />
       </section>
 
       <IssueEmployeeTransferModal
@@ -609,94 +793,23 @@ function PayrollEngine() {
         </div>
       ) : null}
 
-      <section className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5">
-        <div className="table-scroll">
-          <table className="w-full min-w-[1100px] text-left text-sm">
-            <thead>
-              <tr className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-soft">
-                <th className="pb-3 pr-3">Employee</th>
-                <th className="pb-3 pr-3 text-right">Base Salary</th>
-                <th className="pb-3 pr-3 text-right">Target</th>
-                <th className="pb-3 pr-3 text-right">Collected</th>
-                <th className="pb-3 pr-3 text-right">Achievement</th>
-                <th className="pb-3 pr-3 text-right">Incentive</th>
-                <th className="pb-3 pr-3 text-right">Deductions</th>
-                <th className="pb-3 pr-3 text-right">Net Payable</th>
-                <th className="pb-3 pr-3">Status</th>
-                <th className="pb-3">Pay Slip</th>
-              </tr>
-            </thead>
-            <tbody>
-              {payrollRows.map((row) => (
-                <tr key={row.empId} className="border-t border-border/70">
-                  <td className="py-3.5 pr-3">
-                    <p className="font-semibold text-slate-900">{row.name}</p>
-                    <p className="text-xs text-muted">
-                      {row.empId} · {row.role}
-                    </p>
-                  </td>
-                  <td className="py-3.5 pr-3 text-right font-medium text-slate-800">
-                    {formatInr(row.baseSalary)}
-                  </td>
-                  <td className="py-3.5 pr-3 text-right text-slate-600">
-                    {row.target != null ? formatInr(row.target) : "—"}
-                  </td>
-                  <td className="py-3.5 pr-3 text-right text-slate-600">
-                    {row.collected != null ? formatInr(row.collected) : "—"}
-                  </td>
-                  <td className="py-3.5 pr-3 text-right font-semibold text-amber-600">
-                    {row.achievement != null
-                      ? `${row.achievement.toFixed(1)}%`
-                      : "N/A"}
-                  </td>
-                  <td className="py-3.5 pr-3 text-right font-semibold text-emerald-700">
-                    {row.incentive ? formatInr(row.incentive) : "—"}
-                  </td>
-                  <td className="py-3.5 pr-3 text-right text-rose-600">
-                    {row.deductions ? formatInr(row.deductions) : "—"}
-                  </td>
-                  <td className="py-3.5 pr-3 text-right font-bold text-slate-900">
-                    {formatInr(row.netPayable)}
-                  </td>
-                  <td className="py-3.5 pr-3">
-                    <Badge tone="success" caps={false}>
-                      {row.status}
-                    </Badge>
-                  </td>
-                  <td className="py-3.5">
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      icon={FileText}
-                      className="border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
-                    >
-                      View
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-              <tr className="border-t-2 border-slate-200 bg-slate-50/80">
-                <td className="py-3.5 pr-3 font-bold text-slate-900">TOTALS</td>
-                <td className="py-3.5 pr-3" />
-                <td className="py-3.5 pr-3" />
-                <td className="py-3.5 pr-3" />
-                <td className="py-3.5 pr-3" />
-                <td className="py-3.5 pr-3 text-right font-bold text-emerald-700">
-                  {formatInr(totalIncentive)}
-                </td>
-                <td className="py-3.5 pr-3 text-right font-bold text-rose-600">
-                  {formatInr(totalDeductions)}
-                </td>
-                <td className="py-3.5 pr-3 text-right font-bold text-slate-900">
-                  {formatInr(totalNet)}
-                </td>
-                <td className="py-3.5 pr-3" />
-                <td className="py-3.5" />
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+      <DataTable
+        data={[
+          ...payrollRows.map(
+            (row): PayrollTableRow => ({ kind: "line", ...row }),
+          ),
+          {
+            kind: "total",
+            empId: "TOTALS",
+            incentive: totalIncentive,
+            deductions: totalDeductions,
+            netPayable: totalNet,
+          },
+        ]}
+        columns={payrollColumns}
+        getRowKey={(row) => (row.kind === "total" ? "TOTALS" : row.empId)}
+        minWidth="1100px"
+      />
     </div>
   );
 }

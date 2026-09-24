@@ -1,9 +1,13 @@
 import { z } from "zod";
 
-/** Documented login request body from apilist.txt */
+/**
+ * `login` and `password` match the Laravel contract.
+ * `remember` stays on the BFF and is not forwarded upstream.
+ */
 export const loginRequestSchema = z.object({
   login: z.string().trim().min(1),
   password: z.string().min(1),
+  remember: z.boolean().optional(),
 });
 
 export type LoginRequest = z.infer<typeof loginRequestSchema>;

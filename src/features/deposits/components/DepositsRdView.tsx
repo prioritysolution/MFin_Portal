@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { CalendarClock, Plus, Search, UserPlus } from "lucide-react";
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
 import { Button } from "@/components/ui/Button";
 import {
   DepositTxnModal,
@@ -35,6 +37,76 @@ export function DepositsRdView() {
     (sum, row) => sum + (row.installment ?? 0),
     0,
   );
+
+  const columns: DataTableColumn<DepositAccount>[] = [
+      {
+        id: "account",
+        header: "Account No.",
+        className: "font-semibold text-slate-900",
+        cell: (row) => row.account,
+      },
+      {
+        id: "member",
+        header: "Member",
+        className: "font-medium text-slate-800",
+        cell: (row) => row.member,
+      },
+      {
+        id: "group",
+        header: "Group",
+        className: "text-slate-600",
+        cell: (row) => row.group,
+      },
+      {
+        id: "installment",
+        header: "Installment",
+        align: "end",
+        className: "font-semibold text-slate-900",
+        cell: (row) => formatInr(row.installment ?? 0),
+      },
+      {
+        id: "tenure",
+        header: "Tenure",
+        className: "text-slate-700",
+        cell: (row) => `${row.tenureMonths} months`,
+      },
+      {
+        id: "maturity",
+        header: "Maturity",
+        className: "text-slate-700",
+        cell: (row) => row.maturityDate,
+      },
+      {
+        id: "rate",
+        header: "Rate",
+        className: "text-slate-700",
+        cell: (row) => `${row.rate}% p.a.`,
+      },
+      {
+        id: "balance",
+        header: "Balance",
+        align: "end",
+        className: "font-semibold text-emerald-700",
+        cell: (row) => formatInr(row.balance),
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        cell: (row) => (
+          <Button
+            size="sm"
+            variant="success"
+            icon={Plus}
+            onClick={() => {
+              setSelected(row);
+              setModal("deposit");
+            }}
+          >
+            Collect EMI
+          </Button>
+        ),
+      },
+  ];
 
   return (
     <div className="flex min-w-0 flex-col gap-4 sm:gap-5">
@@ -86,85 +158,31 @@ export function DepositsRdView() {
         ))}
       </div>
 
-      <section className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5">
-        <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <h2 className="inline-flex items-center gap-2 text-base font-semibold text-slate-900">
-              <CalendarClock className="h-4 w-4 text-slate-500" />
-              RD Account Register
-            </h2>
-            <p className="mt-1 text-sm text-muted">
-              Installment, tenure, maturity date, and accrued balance
-            </p>
-          </div>
-          <div className="relative w-full max-w-xs">
-            <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-soft" />
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Filter records..."
-              className="w-full rounded-xl border border-border bg-surface-muted py-2.5 pr-3 pl-9 text-sm outline-none focus:border-brand/40 focus:bg-white focus:ring-4 focus:ring-brand/10"
-            />
-          </div>
+      <div className="flex justify-end">
+        <div className="relative w-full max-w-xs">
+          <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-soft" />
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Filter records..."
+            className="w-full rounded-xl border border-border bg-surface-muted py-2.5 pr-3 pl-9 text-sm outline-none focus:border-brand/40 focus:bg-white focus:ring-4 focus:ring-brand/10"
+          />
         </div>
+      </div>
 
-        <div className="table-scroll">
-          <table className="w-full min-w-[1080px] text-left text-sm">
-            <thead>
-              <tr className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-soft">
-                <th className="pb-3 pr-3">Account No.</th>
-                <th className="pb-3 pr-3">Member</th>
-                <th className="pb-3 pr-3">Group</th>
-                <th className="pb-3 pr-3 text-right">Installment</th>
-                <th className="pb-3 pr-3">Tenure</th>
-                <th className="pb-3 pr-3">Maturity</th>
-                <th className="pb-3 pr-3">Rate</th>
-                <th className="pb-3 pr-3 text-right">Balance</th>
-                <th className="pb-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((row) => (
-                <tr key={row.account} className="border-t border-border/70">
-                  <td className="py-3.5 pr-3 font-semibold text-slate-900">
-                    {row.account}
-                  </td>
-                  <td className="py-3.5 pr-3 font-medium text-slate-800">
-                    {row.member}
-                  </td>
-                  <td className="py-3.5 pr-3 text-slate-600">{row.group}</td>
-                  <td className="py-3.5 pr-3 text-right font-semibold text-slate-900">
-                    {formatInr(row.installment ?? 0)}
-                  </td>
-                  <td className="py-3.5 pr-3 text-slate-700">
-                    {row.tenureMonths} months
-                  </td>
-                  <td className="py-3.5 pr-3 text-slate-700">
-                    {row.maturityDate}
-                  </td>
-                  <td className="py-3.5 pr-3 text-slate-700">{row.rate}% p.a.</td>
-                  <td className="py-3.5 pr-3 text-right font-semibold text-emerald-700">
-                    {formatInr(row.balance)}
-                  </td>
-                  <td className="py-3.5">
-                    <Button
-                      size="sm"
-                      variant="success"
-                      icon={Plus}
-                      onClick={() => {
-                        setSelected(row);
-                        setModal("deposit");
-                      }}
-                    >
-                      Collect EMI
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      <DataTable
+        data={filtered}
+        columns={columns}
+        getRowKey={(row) => row.account}
+        minWidth="1080px"
+        title={
+          <span className="inline-flex items-center gap-2">
+            <CalendarClock className="h-4 w-4 text-slate-500" />
+            RD Account Register
+          </span>
+        }
+        description="Installment, tenure, maturity date, and accrued balance"
+      />
 
       <DepositTxnModal
         open={modal === "deposit"}

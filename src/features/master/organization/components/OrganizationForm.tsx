@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import { PageToast, useToastText } from "@/components/ui/PageToast";
 import { useTranslations } from "next-intl";
 import { Save } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
@@ -9,6 +10,7 @@ import { Alert } from "@/components/ui/Alert";
 import { Card } from "@/components/ui/Card";
 import {
   CheckboxField,
+  FormField,
   SelectField,
   TextAreaField,
   TextField,
@@ -23,6 +25,14 @@ import {
   saveOrganization,
 } from "@/features/master/organization/services/organization-client";
 import { organizationUpdateInputSchema } from "@/features/master/organization/schemas/organization.schema";
+import {
+  cinPattern,
+  formatIssue,
+  gstinPattern,
+  panPattern,
+  phonePattern,
+  tanPattern,
+} from "@/lib/validation/formats";
 import type {
   Organization,
   OrganizationUpdateInput,
@@ -136,7 +146,7 @@ export function OrganizationForm() {
   const [saving, setSaving] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [formError, setFormError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useToastText();
 
   useEffect(() => {
     if (process.env.NODE_ENV !== "development") return;
@@ -212,6 +222,17 @@ export function OrganizationForm() {
   async function handleLogoFile(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
+    if (!file.type.startsWith("image/") || file.size > 2 * 1024 * 1024) {
+      setFieldErrors({ orgLogo: [t("errors.orgLogo")] });
+      event.target.value = "";
+      return;
+    }
+    setFieldErrors((prev) => {
+      if (!prev.orgLogo) return prev;
+      const next = { ...prev };
+      delete next.orgLogo;
+      return next;
+    });
     const reader = new FileReader();
     reader.onload = () => {
       const result = typeof reader.result === "string" ? reader.result : "";
@@ -230,12 +251,20 @@ export function OrganizationForm() {
     setFieldErrors({});
 
     const payload = buildUpdatePayload(form, logoMode, logoBase64);
+    if (logoMode === "replace" && !logoBase64) {
+      setFieldErrors({ orgLogo: [t("errors.orgLogo")] });
+      setFormError(t("validationFailed"));
+      return;
+    }
+
     const parsed = organizationUpdateInputSchema.safeParse(payload);
     if (!parsed.success) {
       const flat = parsed.error.flatten().fieldErrors;
       const next: Record<string, string[]> = {};
-      for (const [key, messages] of Object.entries(flat)) {
-        if (messages && messages.length > 0) next[key] = messages;
+      for (const key of Object.keys(flat)) {
+        if (flat[key as keyof typeof flat]?.length) {
+          next[key] = [t(`errors.${key}` as "errors.orgDispNm")];
+        }
       }
       setFieldErrors(next);
       setFormError(t("validationFailed"));
@@ -321,9 +350,7 @@ export function OrganizationForm() {
 
   return (
     <div className="flex min-w-0 flex-col gap-4 sm:gap-5">
-      {successMessage ? (
-        <Alert tone="success">{successMessage}</Alert>
-      ) : null}
+      <PageToast message={successMessage} />
 
       {formError ? <Alert tone="error">{formError}</Alert> : null}
 
@@ -335,32 +362,25 @@ export function OrganizationForm() {
         <Card
           title={t("sectionIdentity")}
           description={t("sectionIdentityHint")}
-          trailing={
-            <span className="w-fit rounded-full bg-brand-soft px-3 py-1 text-xs font-semibold text-brand-ink">
-              {organization.orgSchema}
-            </span>
-          }
         >
-
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-            <TextField
-              label={t("fields.orgSchema")}
-              value={organization.orgSchema}
-              readOnly
-            />
-          </div>
-
-          <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
             <TextField
               label={t("fields.orgDispNm")}
               required
               value={form.orgDispNm}
+              maxLength={200}
+              hint={t("hints.orgDispNm")}
               error={fieldErrors.orgDispNm?.[0]}
+              validate={(value, final) =>
+                final && !value.trim() ? t("errors.orgDispNm") : undefined
+              }
               onChange={(value) => updateField("orgDispNm", value)}
             />
             <TextField
               label={t("fields.legalName")}
               value={form.legalName}
+              maxLength={200}
+              error={fieldErrors.legalName?.[0]}
               onChange={(value) => updateField("legalName", value)}
             />
           </div>
@@ -369,16 +389,32 @@ export function OrganizationForm() {
             <TextField
               label={t("fields.cinNo")}
               value={form.cinNo}
+              maxLength={21}
+              restrict="code"
+              hint={t("hints.cinNo")}
+              error={fieldErrors.cinNo?.[0]}
+              validate={(value, final) =>
+                formatIssue(value, final, 21, cinPattern, t("errors.cinNo"))
+              }
               onChange={(value) => updateField("cinNo", value)}
             />
             <TextField
               label={t("fields.regdNo")}
               value={form.regdNo}
+              maxLength={50}
+              error={fieldErrors.regdNo?.[0]}
               onChange={(value) => updateField("regdNo", value)}
             />
             <TextField
               label={t("fields.gstNo")}
               value={form.gstNo}
+              maxLength={15}
+              restrict="code"
+              hint={t("hints.gstNo")}
+              error={fieldErrors.gstNo?.[0]}
+              validate={(value, final) =>
+                formatIssue(value, final, 15, gstinPattern, t("errors.gstNo"))
+              }
               onChange={(value) => updateField("gstNo", value)}
             />
           </div>
@@ -387,16 +423,31 @@ export function OrganizationForm() {
             <TextField
               label={t("fields.panNo")}
               value={form.panNo}
+              maxLength={10}
+              restrict="code"
+              hint={t("hints.panNo")}
+              error={fieldErrors.panNo?.[0]}
+              validate={(value, final) =>
+                formatIssue(value, final, 10, panPattern, t("errors.panNo"))
+              }
               onChange={(value) => updateField("panNo", value)}
             />
             <TextField
               label={t("fields.tanNo")}
               value={form.tanNo}
+              maxLength={10}
+              restrict="code"
+              hint={t("hints.tanNo")}
+              error={fieldErrors.tanNo?.[0]}
+              validate={(value, final) =>
+                formatIssue(value, final, 10, tanPattern, t("errors.tanNo"))
+              }
               onChange={(value) => updateField("tanNo", value)}
             />
             <SelectField
               label={t("fields.stateCd")}
               value={form.stateCd}
+              error={fieldErrors.stateCd?.[0]}
               onChange={(value) => updateField("stateCd", value)}
               placeholder={t("fields.statePlaceholder")}
               searchPlaceholder={tUi("selectSearch")}
@@ -416,11 +467,15 @@ export function OrganizationForm() {
             <TextAreaField
               label={t("fields.regdAddress")}
               value={form.regdAddress}
+              maxLength={500}
+              error={fieldErrors.regdAddress?.[0]}
               onChange={(value) => updateField("regdAddress", value)}
             />
             <TextAreaField
               label={t("fields.hoAddress")}
               value={form.hoAddress}
+              maxLength={500}
+              error={fieldErrors.hoAddress?.[0]}
               onChange={(value) => updateField("hoAddress", value)}
             />
           </div>
@@ -428,18 +483,48 @@ export function OrganizationForm() {
           <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-3">
             <TextField
               label={t("fields.email")}
+              type="email"
               value={form.email}
+              maxLength={100}
+              hint={t("hints.email")}
               error={fieldErrors.email?.[0]}
+              validate={(value, final) => {
+                const trimmed = value.trim();
+                if (!trimmed) return undefined;
+                const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
+                if (!final && !/@[^\s@]+\.[^\s@]+$/.test(trimmed)) return undefined;
+                return ok ? undefined : t("errors.email");
+              }}
               onChange={(value) => updateField("email", value)}
             />
             <TextField
               label={t("fields.phone")}
+              type="tel"
               value={form.phone}
+              maxLength={16}
+              hint={t("hints.phone")}
+              error={fieldErrors.phone?.[0]}
+              validate={(value, final) => {
+                const compact = value.replace(/[\s-]/g, "");
+                if (!compact) return undefined;
+                if (!final && compact.replace(/\D/g, "").length < 6) return undefined;
+                return phonePattern.test(compact) ? undefined : t("errors.phone");
+              }}
               onChange={(value) => updateField("phone", value)}
             />
             <TextField
               label={t("fields.website")}
               value={form.website}
+              maxLength={200}
+              hint={t("hints.website")}
+              error={fieldErrors.website?.[0]}
+              validate={(value, final) => {
+                const trimmed = value.trim();
+                if (!trimmed) return undefined;
+                const ok = /^https?:\/\/\S+$/i.test(trimmed);
+                if (!final && trimmed.length < 8) return undefined;
+                return ok ? undefined : t("errors.website");
+              }}
               onChange={(value) => updateField("website", value)}
             />
           </div>
@@ -451,10 +536,11 @@ export function OrganizationForm() {
               onChange={(checked) => updateField("isActive", checked)}
             />
 
-            <div className="space-y-2 rounded-xl border border-border bg-surface-muted/50 p-3">
-              <p className="text-xs font-semibold text-slate-600">
-                {t("fields.orgLogo")}
-              </p>
+            <FormField
+              label={t("fields.orgLogo")}
+              error={fieldErrors.orgLogo?.[0]}
+              className="rounded-xl border border-border bg-surface-muted/50 p-3"
+            >
               {organization.orgLogo && logoMode === "keep" ? (
                 // eslint-disable-next-line @next/next/no-img-element -- org logo may be base64 from API
                 <img
@@ -520,15 +606,15 @@ export function OrganizationForm() {
               {!organization.orgLogo && logoMode === "keep" ? (
                 <p className="text-xs text-muted">{t("logoEmpty")}</p>
               ) : null}
-            </div>
+            </FormField>
+          </div>
+
+          <div className="btn-actions mt-5 border-t border-border pt-4">
+            <Button type="submit" disabled={saving} icon={Save}>
+              {saving ? t("saving") : t("save")}
+            </Button>
           </div>
         </Card>
-
-        <div className="btn-actions">
-          <Button type="submit" disabled={saving} icon={Save}>
-            {saving ? t("saving") : t("save")}
-          </Button>
-        </div>
       </form>
     </div>
   );

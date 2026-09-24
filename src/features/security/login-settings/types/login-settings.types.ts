@@ -1,7 +1,22 @@
-/**
- * Admin login-security draft.
- * Shape is local until the Laravel login-policy API is available.
- */
+/** Laravel `GET /api/SecurityPolicyGet` row. */
+export type SecurityPolicyDto = {
+  id: number;
+  max_attempts: number;
+  lock_minutes: number;
+  daily_reset_time: string;
+  min_chars: number;
+  max_chars: number;
+  require_upper: boolean;
+  require_lower: boolean;
+  require_number: boolean;
+  require_special: boolean;
+  unique_recent: number;
+  passwords_expire: boolean;
+  expire_days: number;
+};
+
+/** Body for `POST /api/SecurityPolicyUpdate` (no id). */
+export type SecurityPolicyUpdateDto = Omit<SecurityPolicyDto, "id">;
 
 export type LoginSecurityDraft = {
   maxAttempts: number;
@@ -16,6 +31,10 @@ export type LoginSecurityDraft = {
   uniquePasswordCount: number;
   expirationEnabled: boolean;
   expirationDays: number;
+};
+
+export type SecurityPolicy = LoginSecurityDraft & {
+  id: number;
 };
 
 export const LOGIN_SECURITY_DEFAULTS: LoginSecurityDraft = {

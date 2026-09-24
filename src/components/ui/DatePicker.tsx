@@ -9,7 +9,7 @@ import {
   type KeyboardEvent,
 } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, X } from "lucide-react";
 
 type DatePickerProps = {
   value: string;
@@ -215,6 +215,7 @@ export function DatePicker({
 
   return (
     <div ref={rootRef} className={`relative ${className}`.trim()}>
+      <div className="relative">
       <button
         type="button"
         id={id}
@@ -229,9 +230,9 @@ export function DatePicker({
           setOpen((prev) => !prev);
         }}
         onKeyDown={onTriggerKeyDown}
-        className={`flex w-full items-center justify-between gap-2 rounded-xl border border-border bg-surface-muted px-3 py-2.5 text-left text-sm outline-none transition hover:border-slate-300 focus:border-brand/40 focus:bg-white focus:ring-4 focus:ring-brand/10 disabled:cursor-not-allowed disabled:opacity-50 ${
-          open ? "border-brand/40 bg-white ring-4 ring-brand/10" : ""
-        }`}
+        className={`relative flex w-full items-center justify-between gap-2 rounded-xl border border-border bg-surface-muted py-2.5 text-left text-sm outline-none transition hover:border-slate-300 focus:border-brand/40 focus:bg-surface focus:ring-4 focus:ring-brand/10 disabled:cursor-not-allowed disabled:opacity-50 ${
+          value && !disabled ? "ps-3 pe-16" : "px-3"
+        } ${open ? "border-brand/40 bg-surface ring-4 ring-brand/10" : ""}`}
       >
         <span
           className={`min-w-0 truncate ${
@@ -240,20 +241,31 @@ export function DatePicker({
         >
           {displayLabel ?? placeholder ?? t("datePlaceholder")}
         </span>
-        <span className="flex shrink-0 items-center gap-1 text-muted-soft">
+        <span className="pointer-events-none absolute top-1/2 right-3 flex -translate-y-1/2 items-center gap-1 text-muted-soft">
           <CalendarDays className="h-4 w-4" />
           <ChevronDown
             className={`h-4 w-4 transition ${open ? "rotate-180" : ""}`}
           />
         </span>
       </button>
+      {value && !disabled ? (
+        <button
+          type="button"
+          aria-label={t("dateClear")}
+          onClick={clear}
+          className="absolute top-1/2 right-12 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-muted-soft transition hover:bg-surface hover:text-slate-800"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      ) : null}
+      </div>
 
       {open ? (
         <div
           id={panelId}
           role="dialog"
           aria-label={t("calendarLabel")}
-          className="absolute z-50 mt-1.5 w-[18.5rem] overflow-hidden rounded-xl border border-border bg-white p-3 shadow-[var(--shadow-card)]"
+          className="absolute z-50 mt-1.5 w-[18.5rem] overflow-hidden rounded-xl border border-border bg-surface p-3 shadow-[var(--shadow-card)]"
         >
           <div className="mb-2 flex items-center justify-between gap-2">
             <p className="text-sm font-semibold text-slate-800">{monthLabel}</p>

@@ -9,6 +9,8 @@ import {
   Search,
   Users,
 } from "lucide-react";
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import {
@@ -57,6 +59,87 @@ export function LmsDefaultersView() {
         row.group.toLowerCase().includes(q),
     );
   }, [query]);
+
+  const columns = useMemo<DataTableColumn<LmsLoan>[]>(
+    () => [
+      {
+        id: "loanId",
+        header: "Loan A/c",
+        className: "font-semibold text-slate-900",
+        cell: (row) => row.loanId,
+      },
+      {
+        id: "borrower",
+        header: "Borrower",
+        className: "font-medium text-slate-800",
+        cell: (row) => row.borrower,
+      },
+      {
+        id: "mobile",
+        header: "Mobile",
+        className: "text-slate-600",
+        cell: (row) => row.mobile,
+      },
+      {
+        id: "group",
+        header: "JLG Group",
+        className: "text-slate-600",
+        cell: (row) => row.group,
+      },
+      {
+        id: "outstanding",
+        header: "Outstanding",
+        align: "end",
+        className: "font-semibold text-slate-900",
+        cell: (row) => formatInr(row.outstanding),
+      },
+      {
+        id: "overdue",
+        header: "Overdue",
+        align: "end",
+        className: "font-semibold text-rose-600",
+        cell: (row) => {
+          const overdue = Math.min(
+            row.emi * 2,
+            Math.round(row.outstanding * 0.2 * 100) / 100,
+          );
+          return formatInr(overdue);
+        },
+      },
+      {
+        id: "dpd",
+        header: "DPD",
+        align: "center",
+        className: "font-semibold text-amber-700",
+        cell: (row) => row.dpd,
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        cell: (row) => (
+          <div className="flex flex-wrap gap-1.5">
+            <Button
+              size="sm"
+              variant="secondary"
+              icon={Mail}
+              className="border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
+            >
+              Reminder
+            </Button>
+            <Button
+              size="sm"
+              variant="amber"
+              icon={FileWarning}
+              onClick={() => setSelected(row)}
+            >
+              Legal Notice
+            </Button>
+          </div>
+        ),
+      },
+    ],
+    [],
+  );
 
   const overdueTotal = defaulters.reduce(
     (sum, row) => sum + Math.min(row.emi * 2, row.outstanding * 0.2),
@@ -139,93 +222,26 @@ export function LmsDefaultersView() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5">
-        <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <h2 className="text-base font-semibold text-slate-900">
-              DPD Aging · Delinquent Borrowers
-            </h2>
-            <p className="mt-1 text-sm text-muted">
-              Formal legal demand letter generation and guarantor summons
-            </p>
-          </div>
-          <div className="relative w-full max-w-xs">
-            <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-soft" />
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Filter records..."
-              className="w-full rounded-xl border border-border bg-surface-muted py-2.5 pr-3 pl-9 text-sm outline-none focus:border-brand/40 focus:bg-white focus:ring-4 focus:ring-brand/10"
-            />
-          </div>
+      <div className="flex justify-end">
+        <div className="relative w-full max-w-xs">
+          <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-soft" />
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Filter records..."
+            className="w-full rounded-xl border border-border bg-surface-muted py-2.5 pr-3 pl-9 text-sm outline-none focus:border-brand/40 focus:bg-white focus:ring-4 focus:ring-brand/10"
+          />
         </div>
+      </div>
 
-        <div className="table-scroll">
-          <table className="w-full min-w-[1040px] text-left text-sm">
-            <thead>
-              <tr className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-soft">
-                <th className="pb-3 pr-3">Loan A/c</th>
-                <th className="pb-3 pr-3">Borrower</th>
-                <th className="pb-3 pr-3">Mobile</th>
-                <th className="pb-3 pr-3">JLG Group</th>
-                <th className="pb-3 pr-3 text-right">Outstanding</th>
-                <th className="pb-3 pr-3 text-right">Overdue</th>
-                <th className="pb-3 pr-3 text-center">DPD</th>
-                <th className="pb-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((row) => {
-                const overdue = Math.min(
-                  row.emi * 2,
-                  Math.round(row.outstanding * 0.2 * 100) / 100,
-                );
-                return (
-                  <tr key={row.loanId} className="border-t border-border/70">
-                    <td className="py-3.5 pr-3 font-semibold text-slate-900">
-                      {row.loanId}
-                    </td>
-                    <td className="py-3.5 pr-3 font-medium text-slate-800">
-                      {row.borrower}
-                    </td>
-                    <td className="py-3.5 pr-3 text-slate-600">{row.mobile}</td>
-                    <td className="py-3.5 pr-3 text-slate-600">{row.group}</td>
-                    <td className="py-3.5 pr-3 text-right font-semibold text-slate-900">
-                      {formatInr(row.outstanding)}
-                    </td>
-                    <td className="py-3.5 pr-3 text-right font-semibold text-rose-600">
-                      {formatInr(overdue)}
-                    </td>
-                    <td className="py-3.5 pr-3 text-center font-semibold text-amber-700">
-                      {row.dpd}
-                    </td>
-                    <td className="py-3.5">
-                      <div className="flex flex-wrap gap-1.5">
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          icon={Mail}
-                          className="border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
-                        >
-                          Reminder
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="amber"
-                          icon={FileWarning}
-                          onClick={() => setSelected(row)}
-                        >
-                          Legal Notice
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      <DataTable
+        data={filtered}
+        columns={columns}
+        getRowKey={(row) => row.loanId}
+        minWidth="1040px"
+        title="DPD Aging · Delinquent Borrowers"
+        description="Formal legal demand letter generation and guarantor summons"
+      />
 
       <LegalNoticeModal
         open={Boolean(selected)}

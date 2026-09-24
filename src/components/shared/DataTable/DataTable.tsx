@@ -1,11 +1,37 @@
 "use client";
 
+import type { ReactNode } from "react";
 import type { DataTableAlign, DataTableProps } from "./types";
 import { useTranslations } from "next-intl";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { DataTableSkeleton } from "@/components/shared/skeletons/DataTableSkeleton";
 import { DataTablePagination } from "./DataTablePagination";
+
+function TableHeading({
+  title,
+  description,
+  actions,
+}: {
+  title?: ReactNode;
+  description?: ReactNode;
+  actions?: ReactNode;
+}) {
+  if (!title && !description && !actions) return null;
+  return (
+    <div className="mb-4 flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="min-w-0">
+        {title ? (
+          <h2 className="text-base font-semibold text-slate-900">{title}</h2>
+        ) : null}
+        {description ? (
+          <p className="mt-1 text-sm text-muted">{description}</p>
+        ) : null}
+      </div>
+      {actions ? <div className="shrink-0">{actions}</div> : null}
+    </div>
+  );
+}
 
 const alignClass: Record<DataTableAlign, string> = {
   start: "text-start",
@@ -36,6 +62,9 @@ export function DataTable<T>({
   minWidth = "640px",
   caption,
   onRowClick,
+  title,
+  description,
+  actions,
 }: DataTableProps<T>) {
   const t = useTranslations("ui");
 
@@ -80,12 +109,30 @@ export function DataTable<T>({
     );
   }
 
+  const heading = (
+    <TableHeading title={title} description={description} actions={actions} />
+  );
+  const hasHeading = Boolean(title || description || actions);
+  const cardClass =
+    `rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5 ${className}`.trim();
+
   if (loading) {
+    if (!hasHeading) {
+      return (
+        <DataTableSkeleton
+          columns={columns.length + (rowActions ? 1 : 0) + (selection ? 1 : 0)}
+          className={className}
+        />
+      );
+    }
     return (
-      <DataTableSkeleton
-        columns={columns.length + (rowActions ? 1 : 0) + (selection ? 1 : 0)}
-        className={className}
-      />
+      <section className={cardClass}>
+        {heading}
+        <DataTableSkeleton
+          bare
+          columns={columns.length + (rowActions ? 1 : 0) + (selection ? 1 : 0)}
+        />
+      </section>
     );
   }
 
@@ -94,6 +141,7 @@ export function DataTable<T>({
       <section
         className={`rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5 ${className}`.trim()}
       >
+        {heading}
         <ErrorState
           title={errorTitle}
           message={errorMessage}
@@ -108,6 +156,7 @@ export function DataTable<T>({
       <section
         className={`rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5 ${className}`.trim()}
       >
+        {heading}
         <EmptyState
           title={emptyTitle}
           message={emptyMessage}
@@ -124,6 +173,7 @@ export function DataTable<T>({
     <section
       className={`rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5 ${className}`.trim()}
     >
+      {heading}
       <div className="table-scroll scrollbar-thin">
         <table className="w-full text-left text-sm" style={{ minWidth }}>
           {caption ? <caption className="sr-only">{caption}</caption> : null}

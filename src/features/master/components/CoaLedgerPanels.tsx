@@ -10,6 +10,8 @@ import {
   Scale,
   Search,
 } from "lucide-react";
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
 
 function formatInr(value: number) {
   return new Intl.NumberFormat("en-IN", {
@@ -347,6 +349,66 @@ export function GlStatementPanel() {
     );
   }, [query]);
 
+  const glColumns: DataTableColumn<(typeof glEntries)[number]>[] = [
+    {
+      id: "date",
+      header: "Txn Date",
+      cell: (row) => row.date,
+    },
+    {
+      id: "voucher",
+      header: "Voucher No",
+      cell: (row) => (
+        <span className="font-mono text-xs font-semibold text-blue-700">
+          {row.voucher}
+        </span>
+      ),
+    },
+    {
+      id: "particulars",
+      header: "Particulars & Description",
+      cell: (row) => row.particulars,
+    },
+    {
+      id: "reference",
+      header: "Reference / Centre",
+      cell: (row) => row.reference,
+    },
+    {
+      id: "debit",
+      header: "Debit (Dr) ₹",
+      align: "end",
+      cell: (row) => (
+        <span className="font-semibold tabular-nums text-emerald-600">
+          {row.debit ? money(row.debit) : "₹0.00"}
+        </span>
+      ),
+    },
+    {
+      id: "credit",
+      header: "Credit (Cr) ₹",
+      align: "end",
+      cell: (row) => (
+        <span className="font-semibold tabular-nums text-rose-600">
+          {row.credit ? money(row.credit) : "₹0.00"}
+        </span>
+      ),
+    },
+    {
+      id: "balance",
+      header: "Running Balance ₹",
+      align: "end",
+      cell: (row) => (
+        <span className="font-semibold tabular-nums">{money(row.balance)}</span>
+      ),
+    },
+    {
+      id: "nature",
+      header: "Dr/Cr",
+      cell: (row) => <span className="text-slate-500">{row.nature}</span>,
+    },
+  ];
+
   return (
     <section className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -443,55 +505,13 @@ export function GlStatementPanel() {
 
           <div className="mt-4">
             <FilterInput value={query} onChange={setQuery} />
-            <div className="table-scroll mt-3">
-              <table className="w-full min-w-[980px] text-left text-sm">
-                <thead>
-                  <tr className="bg-slate-50 text-[11px] uppercase tracking-[0.12em] text-muted-soft">
-                    <th className="px-3 py-3 font-semibold">Txn Date</th>
-                    <th className="px-3 py-3 font-semibold">Voucher No</th>
-                    <th className="px-3 py-3 font-semibold">
-                      Particulars & Description
-                    </th>
-                    <th className="px-3 py-3 font-semibold">Reference / Centre</th>
-                    <th className="px-3 py-3 text-right font-semibold">
-                      Debit (Dr) ₹
-                    </th>
-                    <th className="px-3 py-3 text-right font-semibold">
-                      Credit (Cr) ₹
-                    </th>
-                    <th className="px-3 py-3 text-right font-semibold">
-                      Running Balance ₹
-                    </th>
-                    <th className="px-3 py-3 font-semibold">Dr/Cr</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((row) => (
-                    <tr
-                      key={row.voucher}
-                      className="border-t border-border/70 text-slate-700"
-                    >
-                      <td className="px-3 py-3">{row.date}</td>
-                      <td className="px-3 py-3 font-mono text-xs font-semibold text-blue-700">
-                        {row.voucher}
-                      </td>
-                      <td className="px-3 py-3">{row.particulars}</td>
-                      <td className="px-3 py-3">{row.reference}</td>
-                      <td className="px-3 py-3 text-right font-semibold tabular-nums text-emerald-600">
-                        {row.debit ? money(row.debit) : "₹0.00"}
-                      </td>
-                      <td className="px-3 py-3 text-right font-semibold tabular-nums text-rose-600">
-                        {row.credit ? money(row.credit) : "₹0.00"}
-                      </td>
-                      <td className="px-3 py-3 text-right font-semibold tabular-nums">
-                        {money(row.balance)}
-                      </td>
-                      <td className="px-3 py-3 text-slate-500">{row.nature}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <DataTable
+              className="mt-3"
+              data={rows}
+              columns={glColumns}
+              getRowKey={(row) => row.voucher}
+              minWidth="980px"
+            />
           </div>
         </>
       ) : null}
@@ -751,56 +771,77 @@ export function PostedVouchersPanel() {
     );
   }, [query]);
 
+  const voucherColumns: DataTableColumn<(typeof vouchers)[number]>[] = [
+    {
+      id: "no",
+      header: "Voucher No",
+      cell: (row) => (
+        <span className="font-mono text-xs font-semibold text-slate-800">
+          {row.no}
+        </span>
+      ),
+    },
+    {
+      id: "date",
+      header: "Date",
+      cell: (row) => (
+        <>
+          <p>{row.date}</p>
+          <p className="text-xs text-muted">{row.time}</p>
+        </>
+      ),
+    },
+    {
+      id: "type",
+      header: "Type",
+      cell: (row) => (
+        <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700">
+          {row.type}
+        </span>
+      ),
+    },
+    {
+      id: "narration",
+      header: "Narration",
+      cell: (row) => row.narration,
+    },
+    {
+      id: "debit",
+      header: "Total Debit ₹",
+      align: "end",
+      cell: (row) => (
+        <span className="font-semibold tabular-nums">{money(row.debit)}</span>
+      ),
+    },
+    {
+      id: "credit",
+      header: "Total Credit ₹",
+      align: "end",
+      cell: (row) => (
+        <span className="font-semibold tabular-nums">{money(row.credit)}</span>
+      ),
+    },
+    {
+      id: "status",
+      header: "Status",
+      cell: (row) => (
+        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
+          {row.status}
+        </span>
+      ),
+    },
+  ];
+
   return (
     <section className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5">
       <FilterInput value={query} onChange={setQuery} />
-      <div className="table-scroll mt-4">
-        <table className="w-full min-w-[980px] text-left text-sm">
-          <thead>
-            <tr className="bg-slate-50 text-[11px] uppercase tracking-[0.12em] text-muted-soft">
-              <th className="px-3 py-3 font-semibold">Voucher No</th>
-              <th className="px-3 py-3 font-semibold">Date</th>
-              <th className="px-3 py-3 font-semibold">Type</th>
-              <th className="px-3 py-3 font-semibold">Narration</th>
-              <th className="px-3 py-3 text-right font-semibold">Total Debit ₹</th>
-              <th className="px-3 py-3 text-right font-semibold">
-                Total Credit ₹
-              </th>
-              <th className="px-3 py-3 font-semibold">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row.no} className="border-t border-border/70">
-                <td className="px-3 py-3 font-mono text-xs font-semibold text-slate-800">
-                  {row.no}
-                </td>
-                <td className="px-3 py-3 text-slate-700">
-                  <p>{row.date}</p>
-                  <p className="text-xs text-muted">{row.time}</p>
-                </td>
-                <td className="px-3 py-3">
-                  <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700">
-                    {row.type}
-                  </span>
-                </td>
-                <td className="px-3 py-3 text-slate-700">{row.narration}</td>
-                <td className="px-3 py-3 text-right font-semibold tabular-nums">
-                  {money(row.debit)}
-                </td>
-                <td className="px-3 py-3 text-right font-semibold tabular-nums">
-                  {money(row.credit)}
-                </td>
-                <td className="px-3 py-3">
-                  <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
-                    {row.status}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <DataTable
+        className="mt-4"
+        data={rows}
+        columns={voucherColumns}
+        getRowKey={(row) => row.no}
+        minWidth="980px"
+      />
     </section>
   );
 }
@@ -816,6 +857,44 @@ export function DayBookPanel() {
         row.particulars.toLowerCase().includes(q),
     );
   }, [query]);
+
+  const dayBookColumns: DataTableColumn<(typeof dayBookRows)[number]>[] = [
+    {
+      id: "voucher",
+      header: "Voucher No",
+      cell: (row) => (
+        <span className="font-mono text-xs font-semibold text-slate-800">
+          {row.voucher}
+        </span>
+      ),
+    },
+    {
+      id: "ledger",
+      header: "Ledger Head",
+      cell: (row) => row.ledger,
+    },
+    {
+      id: "particulars",
+      header: "Particulars",
+      cell: (row) => row.particulars,
+    },
+    {
+      id: "debit",
+      header: "Debit (Dr) ₹",
+      align: "end",
+      cell: (row) => (
+        <span className="font-semibold tabular-nums">{money(row.debit)}</span>
+      ),
+    },
+    {
+      id: "credit",
+      header: "Credit (Cr) ₹",
+      align: "end",
+      cell: (row) => (
+        <span className="font-semibold tabular-nums">{money(row.credit)}</span>
+      ),
+    },
+  ];
 
   return (
     <section className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5">
@@ -840,39 +919,13 @@ export function DayBookPanel() {
 
       <FilterInput value={query} onChange={setQuery} />
 
-      <div className="table-scroll mt-4">
-        <table className="w-full min-w-[900px] text-left text-sm">
-          <thead>
-            <tr className="text-[11px] uppercase tracking-[0.12em] text-muted-soft">
-              <th className="pb-3 pr-3 font-semibold">Voucher No</th>
-              <th className="pb-3 pr-3 font-semibold">Ledger Head</th>
-              <th className="pb-3 pr-3 font-semibold">Particulars</th>
-              <th className="pb-3 pr-3 text-right font-semibold">Debit (Dr) ₹</th>
-              <th className="pb-3 text-right font-semibold">Credit (Cr) ₹</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row, index) => (
-              <tr
-                key={`${row.voucher}-${index}`}
-                className="border-t border-border/70"
-              >
-                <td className="py-3 pr-3 font-mono text-xs font-semibold text-slate-800">
-                  {row.voucher}
-                </td>
-                <td className="py-3 pr-3 text-slate-700">{row.ledger}</td>
-                <td className="py-3 pr-3 text-slate-700">{row.particulars}</td>
-                <td className="py-3 pr-3 text-right font-semibold tabular-nums">
-                  {money(row.debit)}
-                </td>
-                <td className="py-3 text-right font-semibold tabular-nums">
-                  {money(row.credit)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <DataTable
+        className="mt-4"
+        data={rows}
+        columns={dayBookColumns}
+        getRowKey={(row, index) => `${row.voucher}-${index}`}
+        minWidth="900px"
+      />
     </section>
   );
 }
@@ -888,6 +941,70 @@ export function CashBookPanel() {
         row.mode.toLowerCase().includes(q),
     );
   }, [query]);
+
+  const cashBookColumns: DataTableColumn<(typeof cashBookRows)[number]>[] = [
+    {
+      id: "date",
+      header: "Date",
+      cell: (row) => row.date,
+    },
+    {
+      id: "voucher",
+      header: "Voucher #",
+      cell: (row) => (
+        <span className="font-mono text-xs font-semibold text-slate-800">
+          {row.voucher}
+        </span>
+      ),
+    },
+    {
+      id: "particulars",
+      header: "Particulars",
+      cell: (row) => row.particulars,
+    },
+    {
+      id: "mode",
+      header: "Mode",
+      cell: (row) =>
+        row.mode === "Bank" ? (
+          <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
+            Bank
+          </span>
+        ) : (
+          <span>Cash</span>
+        ),
+    },
+    {
+      id: "receipt",
+      header: "Receipt (Dr) ₹",
+      align: "end",
+      cell: (row) => (
+        <span className="font-semibold tabular-nums">{money(row.receipt)}</span>
+      ),
+    },
+    {
+      id: "payment",
+      header: "Payment (Cr) ₹",
+      align: "end",
+      cell: (row) => (
+        <span className="font-semibold tabular-nums">{money(row.payment)}</span>
+      ),
+    },
+    {
+      id: "balance",
+      header: "Balance ₹",
+      align: "end",
+      cell: (row) => (
+        <span
+          className={`font-semibold tabular-nums ${
+            row.balance < 0 ? "text-rose-600" : "text-slate-800"
+          }`}
+        >
+          {money(row.balance)}
+        </span>
+      ),
+    },
+  ];
 
   return (
     <section className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5">
@@ -910,61 +1027,13 @@ export function CashBookPanel() {
 
       <FilterInput value={query} onChange={setQuery} />
 
-      <div className="table-scroll mt-4">
-        <table className="w-full min-w-[980px] text-left text-sm">
-          <thead>
-            <tr className="text-[11px] uppercase tracking-[0.12em] text-muted-soft">
-              <th className="pb-3 pr-3 font-semibold">Date</th>
-              <th className="pb-3 pr-3 font-semibold">Voucher #</th>
-              <th className="pb-3 pr-3 font-semibold">Particulars</th>
-              <th className="pb-3 pr-3 font-semibold">Mode</th>
-              <th className="pb-3 pr-3 text-right font-semibold">
-                Receipt (Dr) ₹
-              </th>
-              <th className="pb-3 pr-3 text-right font-semibold">
-                Payment (Cr) ₹
-              </th>
-              <th className="pb-3 text-right font-semibold">Balance ₹</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row, index) => (
-              <tr
-                key={`${row.voucher}-${index}`}
-                className="border-t border-border/70"
-              >
-                <td className="py-3 pr-3 text-slate-700">{row.date}</td>
-                <td className="py-3 pr-3 font-mono text-xs font-semibold text-slate-800">
-                  {row.voucher}
-                </td>
-                <td className="py-3 pr-3 text-slate-700">{row.particulars}</td>
-                <td className="py-3 pr-3">
-                  {row.mode === "Bank" ? (
-                    <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
-                      Bank
-                    </span>
-                  ) : (
-                    <span className="text-slate-700">Cash</span>
-                  )}
-                </td>
-                <td className="py-3 pr-3 text-right font-semibold tabular-nums">
-                  {money(row.receipt)}
-                </td>
-                <td className="py-3 pr-3 text-right font-semibold tabular-nums">
-                  {money(row.payment)}
-                </td>
-                <td
-                  className={`py-3 text-right font-semibold tabular-nums ${
-                    row.balance < 0 ? "text-rose-600" : "text-slate-800"
-                  }`}
-                >
-                  {money(row.balance)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <DataTable
+        className="mt-4"
+        data={rows}
+        columns={cashBookColumns}
+        getRowKey={(row, index) => `${row.voucher}-${index}`}
+        minWidth="980px"
+      />
     </section>
   );
 }

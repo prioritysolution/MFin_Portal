@@ -15,6 +15,7 @@ export { EmptyState } from "./EmptyState";
 export { ErrorState } from "./ErrorState";
 export { ModulePlaceholder } from "./ModulePlaceholder";
 export { ModulePageShell } from "./ModulePageShell";
+export { DataPage } from "./DataPage";
 export { PageTransition } from "./PageTransition";
 export { AppRouteLoading } from "./AppRouteLoading";
 

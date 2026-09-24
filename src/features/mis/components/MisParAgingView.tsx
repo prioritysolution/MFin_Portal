@@ -1,7 +1,47 @@
 "use client";
 
-import { MisReportShell, MisTableCard } from "@/features/mis/components/MisReportShell";
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
+import { MisReportShell } from "@/features/mis/components/MisReportShell";
 import { formatInr, parBuckets } from "@/features/mis/components/mis-data";
+
+type ParBucketRow = (typeof parBuckets)[number];
+
+const columns: DataTableColumn<ParBucketRow>[] = [
+  {
+    id: "bucket",
+    header: "Bucket",
+    className: "font-semibold text-slate-900",
+    cell: (row) => row.bucket,
+  },
+  {
+    id: "accounts",
+    header: "Accounts",
+    align: "end",
+    cell: (row) => row.accounts,
+  },
+  {
+    id: "outstanding",
+    header: "Outstanding",
+    align: "end",
+    className: "font-semibold text-slate-900",
+    cell: (row) => formatInr(row.amount),
+  },
+  {
+    id: "provisionPct",
+    header: "Prov %",
+    align: "end",
+    className: "text-slate-600",
+    cell: (row) => `${row.provisionPct}%`,
+  },
+  {
+    id: "provision",
+    header: "Provision Amt",
+    align: "end",
+    className: "font-semibold text-amber-700",
+    cell: (row) => formatInr(row.provision),
+  },
+];
 
 export function MisParAgingView() {
   const atRisk = parBuckets
@@ -42,45 +82,14 @@ export function MisParAgingView() {
         },
       ]}
     >
-      <MisTableCard
+      <DataTable
         title="PAR Aging Buckets"
-        subtitle={`Indicative total provision ${formatInr(provision)}`}
-      >
-        <div className="table-scroll">
-          <table className="w-full min-w-[760px] text-left text-sm">
-            <thead>
-              <tr className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-soft">
-                <th className="pb-3 pr-3">Bucket</th>
-                <th className="pb-3 pr-3 text-right">Accounts</th>
-                <th className="pb-3 pr-3 text-right">Outstanding</th>
-                <th className="pb-3 pr-3 text-right">Prov %</th>
-                <th className="pb-3 text-right">Provision Amt</th>
-              </tr>
-            </thead>
-            <tbody>
-              {parBuckets.map((row) => (
-                <tr key={row.bucket} className="border-t border-border/70">
-                  <td className="py-3.5 pr-3 font-semibold text-slate-900">
-                    {row.bucket}
-                  </td>
-                  <td className="py-3.5 pr-3 text-right text-slate-700">
-                    {row.accounts}
-                  </td>
-                  <td className="py-3.5 pr-3 text-right font-semibold text-slate-900">
-                    {formatInr(row.amount)}
-                  </td>
-                  <td className="py-3.5 pr-3 text-right text-slate-600">
-                    {row.provisionPct}%
-                  </td>
-                  <td className="py-3.5 text-right font-semibold text-amber-700">
-                    {formatInr(row.provision)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </MisTableCard>
+        description={`Indicative total provision ${formatInr(provision)}`}
+        data={parBuckets}
+        columns={columns}
+        getRowKey={(row) => row.bucket}
+        minWidth="760px"
+      />
     </MisReportShell>
   );
 }

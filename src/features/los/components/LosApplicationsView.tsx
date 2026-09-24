@@ -10,6 +10,8 @@ import {
   Users,
   Wallet,
 } from "lucide-react";
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import {
@@ -174,6 +176,110 @@ export function LosApplicationsView() {
     setActiveModal(kind);
   }
 
+  const applicationColumns: DataTableColumn<LosLoanApp>[] = [
+    {
+      id: "appNumber",
+      header: "App Number",
+      cell: (row) => (
+        <span className="font-semibold text-slate-900">{row.appNumber}</span>
+      ),
+    },
+    {
+      id: "borrower",
+      header: "Borrower",
+      cell: (row) => (
+        <span className="font-medium text-slate-800">{row.borrower}</span>
+      ),
+    },
+    {
+      id: "scheme",
+      header: "Product Scheme",
+      cell: (row) => row.scheme,
+    },
+    {
+      id: "applied",
+      header: "Applied Amount",
+      align: "end",
+      cell: (row) => (
+        <span className="font-semibold text-slate-900">
+          {formatInr(row.applied)}
+        </span>
+      ),
+    },
+    {
+      id: "score",
+      header: "Bureau Score",
+      align: "center",
+      cell: (row) => (
+        <div className="mx-auto flex h-14 w-14 flex-col items-center justify-center rounded-full bg-emerald-50 text-center">
+          <span className="text-sm font-bold text-emerald-700">{row.score}</span>
+          <span className="text-[9px] font-semibold text-emerald-600">
+            {row.risk}
+          </span>
+        </div>
+      ),
+    },
+    {
+      id: "feeGst",
+      header: "Fee + GST",
+      align: "end",
+      cell: (row) => formatInr(row.feeGst),
+    },
+    {
+      id: "netDisbursal",
+      header: "Net Disbursal",
+      align: "end",
+      cell: (row) => (
+        <span className="font-semibold text-slate-900">
+          {formatInr(row.netDisbursal)}
+        </span>
+      ),
+    },
+    {
+      id: "status",
+      header: "Status",
+      cell: (row) => (
+        <Badge
+          tone={
+            row.status === "Disbursed"
+              ? "success"
+              : row.status === "Sanctioned"
+                ? "info"
+                : "warning"
+          }
+          caps={false}
+        >
+          {row.status}
+        </Badge>
+      ),
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: (row) => (
+        <div className="flex flex-wrap items-center gap-1.5">
+          <Button
+            size="sm"
+            variant="amber"
+            icon={Diamond}
+            onClick={() => openAppModal("collateral", row)}
+          >
+            Collateral & PDCs
+          </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            icon={FileText}
+            className="border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
+            onClick={() => openAppModal("sanction", row)}
+          >
+            Sanction Letter & KFS
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
   function closeModal() {
     setActiveModal(null);
     setSelectedApp(null);
@@ -231,90 +337,12 @@ export function LosApplicationsView() {
           </div>
         </div>
 
-        <div className="table-scroll">
-          <table className="w-full min-w-[1180px] text-left text-sm">
-            <thead>
-              <tr className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-soft">
-                <th className="pb-3 pr-3">App Number</th>
-                <th className="pb-3 pr-3">Borrower</th>
-                <th className="pb-3 pr-3">Product Scheme</th>
-                <th className="pb-3 pr-3 text-right">Applied Amount</th>
-                <th className="pb-3 pr-3 text-center">Bureau Score</th>
-                <th className="pb-3 pr-3 text-right">Fee + GST</th>
-                <th className="pb-3 pr-3 text-right">Net Disbursal</th>
-                <th className="pb-3 pr-3">Status</th>
-                <th className="pb-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((row) => (
-                <tr key={row.appNumber} className="border-t border-border/70">
-                  <td className="py-3.5 pr-3 font-semibold text-slate-900">
-                    {row.appNumber}
-                  </td>
-                  <td className="py-3.5 pr-3 font-medium text-slate-800">
-                    {row.borrower}
-                  </td>
-                  <td className="py-3.5 pr-3 text-slate-700">{row.scheme}</td>
-                  <td className="py-3.5 pr-3 text-right font-semibold text-slate-900">
-                    {formatInr(row.applied)}
-                  </td>
-                  <td className="py-3.5 pr-3">
-                    <div className="mx-auto flex h-14 w-14 flex-col items-center justify-center rounded-full bg-emerald-50 text-center">
-                      <span className="text-sm font-bold text-emerald-700">
-                        {row.score}
-                      </span>
-                      <span className="text-[9px] font-semibold text-emerald-600">
-                        {row.risk}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="py-3.5 pr-3 text-right text-slate-700">
-                    {formatInr(row.feeGst)}
-                  </td>
-                  <td className="py-3.5 pr-3 text-right font-semibold text-slate-900">
-                    {formatInr(row.netDisbursal)}
-                  </td>
-                  <td className="py-3.5 pr-3">
-                    <Badge
-                      tone={
-                        row.status === "Disbursed"
-                          ? "success"
-                          : row.status === "Sanctioned"
-                            ? "info"
-                            : "warning"
-                      }
-                      caps={false}
-                    >
-                      {row.status}
-                    </Badge>
-                  </td>
-                  <td className="py-3.5">
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      <Button
-                        size="sm"
-                        variant="amber"
-                        icon={Diamond}
-                        onClick={() => openAppModal("collateral", row)}
-                      >
-                        Collateral & PDCs
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        icon={FileText}
-                        className="border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
-                        onClick={() => openAppModal("sanction", row)}
-                      >
-                        Sanction Letter & KFS
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          data={filtered}
+          columns={applicationColumns}
+          getRowKey={(row) => row.appNumber}
+          minWidth="1180px"
+        />
 
         <div className="mt-4 flex items-center justify-between border-t border-border pt-3 text-xs text-muted">
           <p>

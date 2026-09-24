@@ -2,12 +2,15 @@
 
 import { useMemo, useState } from "react";
 import { BookMarked, Search } from "lucide-react";
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/Badge";
 import {
   depositAccounts,
   formatInr,
   ledgerTxns,
   metricToneClass,
+  type LedgerTxn,
 } from "@/features/deposits/components/deposits-data";
 
 export function DepositsMemberLedgerView() {
@@ -17,6 +20,60 @@ export function DepositsMemberLedgerView() {
   const account =
     depositAccounts.find((row) => row.account === accountId) ??
     depositAccounts[0]!;
+
+  const columns = useMemo<DataTableColumn<LedgerTxn>[]>(
+    () => [
+      {
+        id: "date",
+        header: "Date",
+        className: "text-slate-700",
+        cell: (row) => row.date,
+      },
+      {
+        id: "ref",
+        header: "Reference",
+        className: "font-medium text-slate-900",
+        cell: (row) => row.ref,
+      },
+      {
+        id: "narrative",
+        header: "Narrative",
+        className: "text-slate-600",
+        cell: (row) => row.narrative,
+      },
+      {
+        id: "mode",
+        header: "Mode",
+        cell: (row) => (
+          <Badge tone="neutral" caps={false}>
+            {row.mode}
+          </Badge>
+        ),
+      },
+      {
+        id: "credit",
+        header: "Credit",
+        align: "end",
+        className: "font-semibold text-emerald-700",
+        cell: (row) => (row.credit ? formatInr(row.credit) : "—"),
+      },
+      {
+        id: "debit",
+        header: "Debit",
+        align: "end",
+        className: "font-semibold text-rose-600",
+        cell: (row) => (row.debit ? formatInr(row.debit) : "—"),
+      },
+      {
+        id: "balance",
+        header: "Balance",
+        align: "end",
+        className: "font-semibold text-slate-900",
+        cell: (row) => formatInr(row.balance),
+      },
+    ],
+    [],
+  );
 
   const filteredAccounts = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -108,58 +165,19 @@ export function DepositsMemberLedgerView() {
           </ul>
         </section>
 
-        <section className="rounded-2xl border border-border bg-surface shadow-[var(--shadow-card)]">
-          <div className="border-b border-border px-4 py-4 sm:px-5">
-            <h2 className="inline-flex items-center gap-2 text-base font-semibold text-slate-900">
+        <DataTable
+          data={ledgerTxns}
+          columns={columns}
+          getRowKey={(row) => row.ref}
+          minWidth="760px"
+          title={
+            <span className="inline-flex items-center gap-2">
               <BookMarked className="h-4 w-4 text-slate-500" />
               Account No: {account.account} · {account.member}
-            </h2>
-            <p className="mt-1 text-sm text-muted">
-              {account.group} · ID: {account.memberId}
-            </p>
-          </div>
-
-          <div className="table-scroll">
-            <table className="w-full min-w-[760px] text-left text-sm">
-              <thead>
-                <tr className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-soft">
-                  <th className="px-4 py-3">Date</th>
-                  <th className="px-4 py-3">Reference</th>
-                  <th className="px-4 py-3">Narrative</th>
-                  <th className="px-4 py-3">Mode</th>
-                  <th className="px-4 py-3 text-right">Credit</th>
-                  <th className="px-4 py-3 text-right">Debit</th>
-                  <th className="px-4 py-3 text-right">Balance</th>
-                </tr>
-              </thead>
-              <tbody>
-                {ledgerTxns.map((row) => (
-                  <tr key={row.ref} className="border-t border-border/70">
-                    <td className="px-4 py-3 text-slate-700">{row.date}</td>
-                    <td className="px-4 py-3 font-medium text-slate-900">
-                      {row.ref}
-                    </td>
-                    <td className="px-4 py-3 text-slate-600">{row.narrative}</td>
-                    <td className="px-4 py-3">
-                      <Badge tone="neutral" caps={false}>
-                        {row.mode}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-3 text-right font-semibold text-emerald-700">
-                      {row.credit ? formatInr(row.credit) : "—"}
-                    </td>
-                    <td className="px-4 py-3 text-right font-semibold text-rose-600">
-                      {row.debit ? formatInr(row.debit) : "—"}
-                    </td>
-                    <td className="px-4 py-3 text-right font-semibold text-slate-900">
-                      {formatInr(row.balance)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
+            </span>
+          }
+          description={`${account.group} · ID: ${account.memberId}`}
+        />
       </div>
     </div>
   );

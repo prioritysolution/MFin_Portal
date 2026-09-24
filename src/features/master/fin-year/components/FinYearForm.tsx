@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { Save } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
+import { PageToast } from "@/components/ui/PageToast";
 import { Button } from "@/components/ui/Button";
 import { CheckboxField, TextField, DateField } from "@/components/ui/Form";
 import { finYearSaveInputSchema } from "@/features/master/fin-year/schemas/fin-year.schema";
@@ -126,9 +127,9 @@ function FinYearFormBody({
     if (!parsed.success) {
       const flat = parsed.error.flatten().fieldErrors;
       setFieldErrors({
-        yearName: flat.yearName?.[0] ?? "",
-        startDate: flat.startDate?.[0] ?? "",
-        endDate: flat.endDate?.[0] ?? "",
+        yearName: flat.yearName ? t("errors.yearName") : "",
+        startDate: flat.startDate ? t("errors.startDate") : "",
+        endDate: flat.endDate ? t("errors.endDate") : "",
       });
       return;
     }
@@ -138,18 +139,14 @@ function FinYearFormBody({
 
   return (
     <form id="fin-year-form" className="space-y-4" onSubmit={(e) => void handleSubmit(e)}>
-      {errorMessage ? (
-        <p className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
-          {errorMessage}
-        </p>
-      ) : null}
+      <PageToast message={errorMessage ?? null} tone="error" />
 
       <TextField
         label={t("fields.yearName")}
         value={form.yearName}
         required
         maxLength={25}
-        placeholder="2026-2027"
+        placeholder={t("fields.yearNamePlaceholder")}
         error={fieldErrors.yearName || undefined}
         onChange={(value) => updateField("yearName", value)}
       />

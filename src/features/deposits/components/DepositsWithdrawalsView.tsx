@@ -1,7 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Check, Search, Wallet, X } from "lucide-react";
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { DepositTxnModal } from "@/features/deposits/components/DepositModals";
@@ -40,11 +42,103 @@ export function DepositsWithdrawalsView() {
   const pending = rows.filter((row) => row.status === "Pending");
   const pendingAmount = pending.reduce((sum, row) => sum + row.amount, 0);
 
-  function updateStatus(id: string, status: WithdrawalRequest["status"]) {
-    setRows((prev) =>
-      prev.map((row) => (row.id === id ? { ...row, status } : row)),
-    );
-  }
+  const updateStatus = useCallback(
+    (id: string, status: WithdrawalRequest["status"]) => {
+      setRows((prev) =>
+        prev.map((row) => (row.id === id ? { ...row, status } : row)),
+      );
+    },
+    [],
+  );
+
+  const columns = useMemo<DataTableColumn<WithdrawalRequest>[]>(
+    () => [
+      {
+        id: "id",
+        header: "Request ID",
+        className: "font-semibold text-slate-900",
+        cell: (row) => row.id,
+      },
+      {
+        id: "member",
+        header: "Member",
+        className: "font-medium text-slate-800",
+        cell: (row) => row.member,
+      },
+      {
+        id: "account",
+        header: "Account",
+        className: "text-slate-600",
+        cell: (row) => row.account,
+      },
+      {
+        id: "amount",
+        header: "Amount",
+        align: "end",
+        className: "font-semibold text-rose-600",
+        cell: (row) => formatInr(row.amount),
+      },
+      {
+        id: "reason",
+        header: "Reason",
+        className: "text-slate-600",
+        cell: (row) => row.reason,
+      },
+      {
+        id: "mode",
+        header: "Mode",
+        className: "text-slate-600",
+        cell: (row) => row.mode,
+      },
+      {
+        id: "status",
+        header: "Status",
+        cell: (row) => (
+          <Badge tone={statusTone[row.status]} caps={false}>
+            {row.status}
+          </Badge>
+        ),
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        cell: (row) =>
+          row.status === "Pending" ? (
+            <div className="flex flex-wrap gap-1.5">
+              <Button
+                size="sm"
+                variant="success"
+                icon={Check}
+                onClick={() => updateStatus(row.id, "Approved")}
+              >
+                Approve
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                icon={X}
+                className="border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100"
+                onClick={() => updateStatus(row.id, "Rejected")}
+              >
+                Reject
+              </Button>
+            </div>
+          ) : row.status === "Approved" ? (
+            <Button
+              size="sm"
+              variant="warning"
+              icon={Wallet}
+              onClick={() => updateStatus(row.id, "Disbursed")}
+            >
+              Disburse
+            </Button>
+          ) : (
+            <span className="text-xs text-muted">—</span>
+          ),
+      },
+    ],
+    [updateStatus],
+  );
 
   return (
     <div className="flex min-w-0 flex-col gap-4 sm:gap-5">
@@ -100,101 +194,26 @@ export function DepositsWithdrawalsView() {
         ))}
       </div>
 
-      <section className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5">
-        <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <h2 className="text-base font-semibold text-slate-900">
-              Withdrawal Request Queue
-            </h2>
-            <p className="mt-1 text-sm text-muted">
-              Approve, reject, or disburse after note verification
-            </p>
-          </div>
-          <div className="relative w-full max-w-xs">
-            <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-soft" />
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Filter records..."
-              className="w-full rounded-xl border border-border bg-surface-muted py-2.5 pr-3 pl-9 text-sm outline-none focus:border-brand/40 focus:bg-white focus:ring-4 focus:ring-brand/10"
-            />
-          </div>
+      <div className="flex justify-end">
+        <div className="relative w-full max-w-xs">
+          <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-soft" />
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Filter records..."
+            className="w-full rounded-xl border border-border bg-surface-muted py-2.5 pr-3 pl-9 text-sm outline-none focus:border-brand/40 focus:bg-white focus:ring-4 focus:ring-brand/10"
+          />
         </div>
+      </div>
 
-        <div className="table-scroll">
-          <table className="w-full min-w-[1040px] text-left text-sm">
-            <thead>
-              <tr className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-soft">
-                <th className="pb-3 pr-3">Request ID</th>
-                <th className="pb-3 pr-3">Member</th>
-                <th className="pb-3 pr-3">Account</th>
-                <th className="pb-3 pr-3 text-right">Amount</th>
-                <th className="pb-3 pr-3">Reason</th>
-                <th className="pb-3 pr-3">Mode</th>
-                <th className="pb-3 pr-3">Status</th>
-                <th className="pb-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((row) => (
-                <tr key={row.id} className="border-t border-border/70">
-                  <td className="py-3.5 pr-3 font-semibold text-slate-900">
-                    {row.id}
-                  </td>
-                  <td className="py-3.5 pr-3 font-medium text-slate-800">
-                    {row.member}
-                  </td>
-                  <td className="py-3.5 pr-3 text-slate-600">{row.account}</td>
-                  <td className="py-3.5 pr-3 text-right font-semibold text-rose-600">
-                    {formatInr(row.amount)}
-                  </td>
-                  <td className="py-3.5 pr-3 text-slate-600">{row.reason}</td>
-                  <td className="py-3.5 pr-3 text-slate-600">{row.mode}</td>
-                  <td className="py-3.5 pr-3">
-                    <Badge tone={statusTone[row.status]} caps={false}>
-                      {row.status}
-                    </Badge>
-                  </td>
-                  <td className="py-3.5">
-                    {row.status === "Pending" ? (
-                      <div className="flex flex-wrap gap-1.5">
-                        <Button
-                          size="sm"
-                          variant="success"
-                          icon={Check}
-                          onClick={() => updateStatus(row.id, "Approved")}
-                        >
-                          Approve
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          icon={X}
-                          className="border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100"
-                          onClick={() => updateStatus(row.id, "Rejected")}
-                        >
-                          Reject
-                        </Button>
-                      </div>
-                    ) : row.status === "Approved" ? (
-                      <Button
-                        size="sm"
-                        variant="warning"
-                        icon={Wallet}
-                        onClick={() => updateStatus(row.id, "Disbursed")}
-                      >
-                        Disburse
-                      </Button>
-                    ) : (
-                      <span className="text-xs text-muted">—</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      <DataTable
+        data={filtered}
+        columns={columns}
+        getRowKey={(row) => row.id}
+        minWidth="1040px"
+        title="Withdrawal Request Queue"
+        description="Approve, reject, or disburse after note verification"
+      />
 
       <DepositTxnModal
         open={cashOpen}

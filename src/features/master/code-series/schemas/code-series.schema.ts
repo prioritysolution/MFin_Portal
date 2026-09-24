@@ -35,12 +35,9 @@ export const codeSeriesUpdateInputSchema = z.object({
     .int()
     .min(1, "Padding must be at least 1")
     .max(12, "Padding must be at most 12"),
-  prefix: z
-    .string()
-    .max(50, "Prefix must be at most 50 characters")
-    .optional(),
-  suffix: z.string().optional(),
-  status: z.number().int().optional(),
+  prefix: z.string().trim().max(50).optional(),
+  suffix: z.string().trim().max(20).optional(),
+  status: z.number().int().min(0).max(1).optional(),
 });
 
 export type CodeSeriesUpdateInputParsed = z.infer<

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Ban, CircleCheck, Pencil, Shield } from "lucide-react";
 import { DataTable } from "@/components/shared/DataTable";
@@ -27,6 +27,7 @@ type RolesTableProps = {
   onEdit: (row: Role) => void;
   onPermissions: (row: Role) => void;
   onToggleStatus: (row: Role) => void;
+  headerActions?: ReactNode;
 };
 
 export function RolesTable({
@@ -44,6 +45,7 @@ export function RolesTable({
   onPermissions,
   onToggleStatus,
   statusBusyId = null,
+  headerActions,
 }: RolesTableProps) {
   const t = useTranslations("master.roles");
 
@@ -103,6 +105,9 @@ export function RolesTable({
 
   return (
     <DataTable<Role>
+      title={t("title")}
+      description={t("description")}
+      actions={headerActions}
       data={items}
       columns={columns}
       getRowKey={(row) => String(row.id)}

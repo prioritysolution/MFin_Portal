@@ -10,12 +10,15 @@ import {
   Wallet,
 } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import {
   formatInr,
   lmsLoans,
   metricToneClass,
+  type LmsLoan,
 } from "@/features/lms/components/lms-data";
 
 export function LmsLoanBookView() {
@@ -44,6 +47,109 @@ export function LmsLoanBookView() {
   const totalCollected = lmsLoans.reduce((sum, row) => sum + row.collected, 0);
   const avgRate =
     lmsLoans.reduce((sum, row) => sum + row.rate, 0) / lmsLoans.length;
+
+  const columns = useMemo<DataTableColumn<LmsLoan>[]>(
+    () => [
+      {
+        id: "loanId",
+        header: "Loan A/c",
+        className: "font-semibold text-slate-900",
+        cell: (row) => row.loanId,
+      },
+      {
+        id: "borrower",
+        header: "Borrower",
+        cell: (row) => (
+          <>
+            <p className="font-medium text-slate-800">{row.borrower}</p>
+            <p className="text-xs text-muted">{row.group}</p>
+          </>
+        ),
+      },
+      {
+        id: "principal",
+        header: "Principal",
+        align: "end",
+        className: "font-medium text-slate-800",
+        cell: (row) => formatInr(row.principal),
+      },
+      {
+        id: "outstanding",
+        header: "Outstanding",
+        align: "end",
+        className: "font-semibold text-slate-900",
+        cell: (row) => formatInr(row.outstanding),
+      },
+      {
+        id: "collected",
+        header: "Collected",
+        align: "end",
+        className: "font-semibold text-emerald-700",
+        cell: (row) => formatInr(row.collected),
+      },
+      {
+        id: "rate",
+        header: "Rate",
+        cell: (row) => (
+          <span className="inline-flex items-center gap-1 text-slate-700">
+            <Percent className="h-3 w-3 text-slate-400" />
+            {row.rate}% p.a.
+          </span>
+        ),
+      },
+      {
+        id: "dpd",
+        header: "DPD",
+        align: "center",
+        cell: (row) => (
+          <span
+            className={`font-semibold ${
+              row.dpd === 0
+                ? "text-emerald-600"
+                : row.dpd >= 90
+                  ? "text-rose-600"
+                  : "text-amber-700"
+            }`}
+          >
+            {row.dpd}
+          </span>
+        ),
+      },
+      {
+        id: "status",
+        header: "Status",
+        cell: (row) => (
+          <Badge
+            tone={
+              row.status === "Current"
+                ? "success"
+                : row.status === "NPA"
+                  ? "danger"
+                  : "warning"
+            }
+            caps={false}
+          >
+            {row.status}
+          </Badge>
+        ),
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        cell: () => (
+          <Button
+            size="sm"
+            variant="secondary"
+            icon={CalendarRange}
+            onClick={() => router.push("/lms/repayment-schedule")}
+          >
+            Schedule
+          </Button>
+        ),
+      },
+    ],
+    [router],
+  );
 
   return (
     <div className="flex min-w-0 flex-col gap-4 sm:gap-5">
@@ -96,131 +202,49 @@ export function LmsLoanBookView() {
         ))}
       </div>
 
-      <section className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5">
-        <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <h2 className="inline-flex items-center gap-2 text-base font-semibold text-slate-900">
-              <BookOpen className="h-4 w-4 text-slate-500" />
-              Portfolio Loan Register
-            </h2>
-            <p className="mt-1 text-sm text-muted">
-              Outstanding GLP with DPD and product rate snapshot
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <select
-              value={statusFilter}
-              onChange={(event) => setStatusFilter(event.target.value)}
-              className="rounded-xl border border-border bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-            >
-              {["All", "Current", "PAR", "NPA"].map((status) => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
-              ))}
-            </select>
-            <div className="relative w-full max-w-xs">
-              <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-soft" />
-              <input
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Filter records..."
-                className="w-full rounded-xl border border-border bg-surface-muted py-2.5 pr-3 pl-9 text-sm outline-none focus:border-brand/40 focus:bg-white focus:ring-4 focus:ring-brand/10"
-              />
-            </div>
-          </div>
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <select
+          value={statusFilter}
+          onChange={(event) => setStatusFilter(event.target.value)}
+          className="rounded-xl border border-border bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+        >
+          {["All", "Current", "PAR", "NPA"].map((status) => (
+            <option key={status} value={status}>
+              {status}
+            </option>
+          ))}
+        </select>
+        <div className="relative w-full max-w-xs">
+          <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-soft" />
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Filter records..."
+            className="w-full rounded-xl border border-border bg-surface-muted py-2.5 pr-3 pl-9 text-sm outline-none focus:border-brand/40 focus:bg-white focus:ring-4 focus:ring-brand/10"
+          />
         </div>
+      </div>
 
-        <div className="table-scroll">
-          <table className="w-full min-w-[1100px] text-left text-sm">
-            <thead>
-              <tr className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-soft">
-                <th className="pb-3 pr-3">Loan A/c</th>
-                <th className="pb-3 pr-3">Borrower</th>
-                <th className="pb-3 pr-3 text-right">Principal</th>
-                <th className="pb-3 pr-3 text-right">Outstanding</th>
-                <th className="pb-3 pr-3 text-right">Collected</th>
-                <th className="pb-3 pr-3">Rate</th>
-                <th className="pb-3 pr-3 text-center">DPD</th>
-                <th className="pb-3 pr-3">Status</th>
-                <th className="pb-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((row) => (
-                <tr key={row.loanId} className="border-t border-border/70">
-                  <td className="py-3.5 pr-3 font-semibold text-slate-900">
-                    {row.loanId}
-                  </td>
-                  <td className="py-3.5 pr-3">
-                    <p className="font-medium text-slate-800">{row.borrower}</p>
-                    <p className="text-xs text-muted">{row.group}</p>
-                  </td>
-                  <td className="py-3.5 pr-3 text-right font-medium text-slate-800">
-                    {formatInr(row.principal)}
-                  </td>
-                  <td className="py-3.5 pr-3 text-right font-semibold text-slate-900">
-                    {formatInr(row.outstanding)}
-                  </td>
-                  <td className="py-3.5 pr-3 text-right font-semibold text-emerald-700">
-                    {formatInr(row.collected)}
-                  </td>
-                  <td className="py-3.5 pr-3">
-                    <span className="inline-flex items-center gap-1 text-slate-700">
-                      <Percent className="h-3 w-3 text-slate-400" />
-                      {row.rate}% p.a.
-                    </span>
-                  </td>
-                  <td className="py-3.5 pr-3 text-center">
-                    <span
-                      className={`font-semibold ${
-                        row.dpd === 0
-                          ? "text-emerald-600"
-                          : row.dpd >= 90
-                            ? "text-rose-600"
-                            : "text-amber-700"
-                      }`}
-                    >
-                      {row.dpd}
-                    </span>
-                  </td>
-                  <td className="py-3.5 pr-3">
-                    <Badge
-                      tone={
-                        row.status === "Current"
-                          ? "success"
-                          : row.status === "NPA"
-                            ? "danger"
-                            : "warning"
-                      }
-                      caps={false}
-                    >
-                      {row.status}
-                    </Badge>
-                  </td>
-                  <td className="py-3.5">
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        icon={CalendarRange}
-                        onClick={() => router.push("/lms/repayment-schedule")}
-                      >
-                        Schedule
-                      </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      <DataTable
+        data={filtered}
+        columns={columns}
+        getRowKey={(row) => row.loanId}
+        minWidth="1100px"
+        title={
+          <span className="inline-flex items-center gap-2">
+            <BookOpen className="h-4 w-4 text-slate-500" />
+            Portfolio Loan Register
+          </span>
+        }
+        description="Outstanding GLP with DPD and product rate snapshot"
+      />
 
-        <div className="mt-4 flex items-center justify-between border-t border-border pt-3 text-xs text-muted">
-          <p>
-            Showing {filtered.length} of {lmsLoans.length} loan accounts
-          </p>
-          <p>Portfolio balances · Collections · DPD · Early settlements</p>
-        </div>
-      </section>
+      <div className="flex items-center justify-between text-xs text-muted">
+        <p>
+          Showing {filtered.length} of {lmsLoans.length} loan accounts
+        </p>
+        <p>Portfolio balances · Collections · DPD · Early settlements</p>
+      </div>
     </div>
   );
 }

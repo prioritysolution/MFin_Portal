@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Ban, CircleCheck, Pencil } from "lucide-react";
 import { DataTable } from "@/components/shared/DataTable";
@@ -26,6 +26,7 @@ type AcctSubledgerTableProps = {
   onPageSizeChange: (pageSize: number) => void;
   onEdit: (row: AcctSubledger) => void;
   onToggleStatus: (row: AcctSubledger) => void;
+  headerActions?: ReactNode;
 };
 
 export function AcctSubledgerTable({
@@ -42,6 +43,7 @@ export function AcctSubledgerTable({
   onPageSizeChange,
   onEdit,
   onToggleStatus,
+  headerActions,
 }: AcctSubledgerTableProps) {
   const t = useTranslations("master.acctSubledger");
 
@@ -119,6 +121,9 @@ export function AcctSubledgerTable({
 
   return (
     <DataTable<AcctSubledger>
+      title={t("title")}
+      description={t("description")}
+      actions={headerActions}
       data={items}
       columns={columns}
       getRowKey={(row) => String(row.subledgId)}

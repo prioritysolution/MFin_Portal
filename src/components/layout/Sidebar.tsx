@@ -19,6 +19,7 @@ import {
   fetchMenuClient,
   getStoredMenuForUser,
 } from "@/features/navigation/services/menu-client";
+import { menuEnglishName } from "@/features/navigation/utils/menu-label";
 import { toMenuLang } from "@/features/navigation/utils/menu-lang";
 import { sanitizeMenuRoute } from "@/features/navigation/utils/safe-menu-route";
 import { primaryNav } from "@/lib/nav";
@@ -62,15 +63,47 @@ function isChildActive(route: string | null, pathname: string): boolean {
   return pathname === route || pathname.startsWith(`${route}/`);
 }
 
-function isDashboardMenuItem(item: MenuTreeNode): boolean {
-  const name = item.name.trim().toLowerCase();
+function isDashboardName(name: string): boolean {
+  const value = name.trim().toLowerCase();
   return (
-    name === "dashboard" ||
-    name === "executive dashboard" ||
-    name === "executive dashbord" ||
+    value === "dashboard" ||
+    value === "executive dashboard" ||
+    value === "executive dashbord"
+  );
+}
+
+function isDashboardMenuItem(item: MenuTreeNode): boolean {
+  return (
+    isDashboardName(item.name) ||
+    isDashboardName(item.nameDefault ?? "") ||
     item.route === "/" ||
     item.route === "/dashboard" ||
     item.route === "/home"
+  );
+}
+
+function MenuLabel({
+  name,
+  nameDefault,
+  emphasize = false,
+}: {
+  name: string;
+  nameDefault: string | null;
+  emphasize?: boolean;
+}) {
+  const english = menuEnglishName(name, nameDefault);
+  const title = english ? `${name} (${english})` : name;
+  return (
+    <span className="min-w-0 flex-1" title={title}>
+      <span className={`block truncate ${emphasize ? "font-medium" : ""}`}>
+        {name}
+      </span>
+      {english ? (
+        <span className="block truncate text-[11px] font-normal leading-tight text-muted-soft">
+          {english}
+        </span>
+      ) : null}
+    </span>
   );
 }
 
@@ -283,9 +316,11 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
                           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand-ink">
                             <Icon className="h-4 w-4" />
                           </span>
-                          <span className="min-w-0 flex-1 truncate font-medium">
-                            {item.name}
-                          </span>
+                          <MenuLabel
+                            name={item.name}
+                            nameDefault={item.nameDefault}
+                            emphasize
+                          />
                         </Link>
                       ) : (
                         <button
@@ -301,9 +336,11 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
                           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand-ink">
                             <Icon className="h-4 w-4" />
                           </span>
-                          <span className="min-w-0 flex-1 truncate font-medium">
-                            {item.name}
-                          </span>
+                          <MenuLabel
+                            name={item.name}
+                            nameDefault={item.nameDefault}
+                            emphasize
+                          />
                           <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-500">
                             {childCount}
                           </span>
@@ -354,9 +391,10 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
                                       >
                                         <ChildIcon className="h-3.5 w-3.5" />
                                       </span>
-                                      <span className="min-w-0 flex-1 truncate">
-                                        {child.name}
-                                      </span>
+                                      <MenuLabel
+                                        name={child.name}
+                                        nameDefault={child.nameDefault}
+                                      />
                                     </Link>
                                   ) : (
                                     <span
@@ -366,9 +404,10 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
                                       <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-400">
                                         <ChildIcon className="h-3.5 w-3.5" />
                                       </span>
-                                      <span className="min-w-0 flex-1 truncate">
-                                        {child.name}
-                                      </span>
+                                      <MenuLabel
+                                        name={child.name}
+                                        nameDefault={child.nameDefault}
+                                      />
                                     </span>
                                   )}
                                 </li>

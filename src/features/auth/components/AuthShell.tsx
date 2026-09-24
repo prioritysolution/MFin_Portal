@@ -3,14 +3,10 @@
 import type { ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
-import {
-  Building2,
-  Languages,
-  Lock,
-  ShieldCheck,
-  Vault,
-} from "lucide-react";
+import { Building2, Lock, ShieldCheck, Vault } from "lucide-react";
+import { Select } from "@/components/ui/Select";
 import { ThemeToggle } from "@/features/theme/ThemeToggle";
+import { isAppLocale } from "@/i18n/routing";
 
 type AuthShellProps = {
   children: ReactNode;
@@ -135,8 +131,6 @@ export function AuthShell({
 export const authFieldClass =
   "auth-field w-full appearance-none rounded-xl border border-slate-200/90 bg-white px-3.5 py-3 text-sm text-slate-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-blue-500 focus:shadow-[0_0_0_4px_rgba(37,99,235,0.12)]";
 
-export const authSelectClass = `${authFieldClass} auth-select cursor-pointer pr-10`;
-
 const languages = [
   { value: "en", labelKey: "localeEn" },
   { value: "hi", labelKey: "localeHi" },
@@ -151,29 +145,24 @@ export function AuthLanguageSelect() {
   const t = useTranslations("auth");
 
   return (
-    <label className="auth-field-group block text-sm">
+    <div className="auth-field-group block text-sm">
       <span className="auth-label mb-1.5 block font-medium text-slate-700">
         {t("language")}
       </span>
-      <span className="relative block">
-        <Languages className="pointer-events-none absolute top-1/2 start-3.5 z-10 h-4 w-4 -translate-y-1/2 text-slate-400" />
-        <select
-          name="language"
-          value={locale}
-          onChange={(event) => {
-            const nextLocale = event.target.value;
-            router.replace(pathname, { locale: nextLocale });
-            router.refresh();
-          }}
-          className={`${authSelectClass} ps-10`}
-        >
-          {languages.map((lang) => (
-            <option key={lang.value} value={lang.value}>
-              {t(lang.labelKey)}
-            </option>
-          ))}
-        </select>
-      </span>
-    </label>
+      <Select
+        aria-label={t("language")}
+        value={locale}
+        clearable={false}
+        options={languages.map((lang) => ({
+          value: lang.value,
+          label: t(lang.labelKey),
+        }))}
+        onChange={(nextLocale) => {
+          if (!isAppLocale(nextLocale) || nextLocale === locale) return;
+          router.replace(pathname, { locale: nextLocale });
+          router.refresh();
+        }}
+      />
+    </div>
   );
 }

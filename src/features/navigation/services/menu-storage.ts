@@ -8,10 +8,10 @@ import type { MenuTreeNode } from "@/features/navigation/types/menu";
 import { resolveMenuRoute } from "@/features/navigation/utils/menu-route-fallbacks";
 import { normalizeMenuLang } from "@/features/navigation/utils/menu-lang";
 
-const STORAGE_KEY = "mfin.menu.v2";
+const STORAGE_KEY = "mfin.menu.v3";
 
 type StoredMenuPayload = {
-  version: 2;
+  version: 3;
   userId: number;
   orgId: number;
   lang: string;
@@ -59,7 +59,7 @@ function parseStored(raw: string | null): StoredMenuPayload | null {
   try {
     const parsed = JSON.parse(raw) as Partial<StoredMenuPayload>;
     if (
-      parsed.version !== 2 ||
+      parsed.version !== 3 ||
       typeof parsed.userId !== "number" ||
       typeof parsed.orgId !== "number" ||
       typeof parsed.lang !== "string" ||
@@ -69,7 +69,7 @@ function parseStored(raw: string | null): StoredMenuPayload | null {
       return null;
     }
     return {
-      version: 2,
+      version: 3,
       userId: parsed.userId,
       orgId: parsed.orgId,
       lang: normalizeMenuLang(parsed.lang),
@@ -117,7 +117,7 @@ export function writeStoredMenu(
 ): void {
   if (!canUseStorage()) return;
   const payload: StoredMenuPayload = {
-    version: 2,
+    version: 3,
     userId,
     orgId,
     lang: normalizeMenuLang(lang),

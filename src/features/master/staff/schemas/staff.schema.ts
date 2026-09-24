@@ -1,4 +1,11 @@
 import { z } from "zod";
+import {
+  optionalAadhaar,
+  optionalEmail,
+  optionalMobile,
+  optionalPan,
+  optionalText,
+} from "@/lib/validation/formats";
 
 export const staffModuleAccessDtoSchema = z.object({
   module_id: z.number(),
@@ -37,20 +44,14 @@ export const paginationMetaDtoSchema = z.object({
   has_more: z.boolean(),
 });
 
-const optionalEmail = z
-  .union([z.literal(""), z.null(), z.string().trim().email().max(100)])
-  .optional();
-
-const optionalText = z.string().trim().nullable().optional();
-
 const staffWritableInputSchema = z.object({
   fullName: z.string().trim().min(1).max(100),
-  shortName: optionalText,
+  shortName: optionalText(50),
   employeeCode: z.string().trim().max(50).nullable().optional(),
   branchId: z.number().int().positive().nullable().optional(),
   designationId: z.number().int().positive().nullable().optional(),
-  mobile: optionalText,
-  email: optionalEmail,
+  mobile: optionalMobile(),
+  email: optionalEmail(100),
   joinDate: z
     .union([
       z.literal(""),
@@ -58,8 +59,8 @@ const staffWritableInputSchema = z.object({
       z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
     ])
     .optional(),
-  aadhaar: optionalText,
-  pan: optionalText,
+  aadhaar: optionalAadhaar(),
+  pan: optionalPan(),
   deviceId: z.number().int().positive().nullable().optional(),
   moduleIds: z.array(z.number().int().positive()).optional(),
   status: z.number().int().min(0).max(1).optional(),
@@ -67,7 +68,7 @@ const staffWritableInputSchema = z.object({
 
 export const staffCreateInputSchema = staffWritableInputSchema.extend({
   userName: z.string().trim().min(1).max(100),
-  userPass: z.string().min(1).max(100),
+  userPass: z.string().min(8).max(100),
 });
 
 export const staffUpdateInputSchema = staffWritableInputSchema.extend({

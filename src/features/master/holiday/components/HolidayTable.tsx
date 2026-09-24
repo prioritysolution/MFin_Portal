@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Pencil } from "lucide-react";
 import { DataTable } from "@/components/shared/DataTable";
@@ -28,6 +28,7 @@ type HolidayTableProps = {
   onPageChange: (page: number) => void;
   onPageSizeChange: (pageSize: number) => void;
   onEdit: (row: Holiday) => void;
+  headerActions?: ReactNode;
 };
 
 export function HolidayTable({
@@ -42,6 +43,7 @@ export function HolidayTable({
   onPageChange,
   onPageSizeChange,
   onEdit,
+  headerActions,
 }: HolidayTableProps) {
   const t = useTranslations("master.holiday");
 
@@ -100,6 +102,9 @@ export function HolidayTable({
 
   return (
     <DataTable<Holiday>
+      title={t("title")}
+      description={t("description")}
+      actions={headerActions}
       data={items}
       columns={columns}
       getRowKey={(row) => String(row.id)}

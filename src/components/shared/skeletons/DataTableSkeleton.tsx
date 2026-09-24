@@ -5,6 +5,8 @@ type DataTableSkeletonProps = {
   columns?: number;
   showPagination?: boolean;
   className?: string;
+  /** Skip the outer card when the parent already provides one. */
+  bare?: boolean;
 };
 
 /**
@@ -15,14 +17,10 @@ export function DataTableSkeleton({
   columns = 5,
   showPagination = true,
   className = "",
+  bare = false,
 }: DataTableSkeletonProps) {
-  return (
-    <section
-      role="status"
-      aria-busy="true"
-      aria-live="polite"
-      className={`rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5 ${className}`.trim()}
-    >
+  const body = (
+    <>
       <div className="overflow-hidden">
         <div className="mb-3 flex gap-3 border-b border-border pb-3">
           {Array.from({ length: columns }).map((_, index) => (
@@ -60,6 +58,25 @@ export function DataTableSkeleton({
           </div>
         </div>
       ) : null}
+    </>
+  );
+
+  if (bare) {
+    return (
+      <div role="status" aria-busy="true" aria-live="polite">
+        {body}
+      </div>
+    );
+  }
+
+  return (
+    <section
+      role="status"
+      aria-busy="true"
+      aria-live="polite"
+      className={`rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5 ${className}`.trim()}
+    >
+      {body}
     </section>
   );
 }

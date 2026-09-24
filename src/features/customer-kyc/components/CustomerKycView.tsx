@@ -13,6 +13,8 @@ import {
   Users,
   IdCard,
 } from "lucide-react";
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
 import {
   CibilModal,
   DocLockerModal,
@@ -311,6 +313,117 @@ export function CustomerKycView() {
     setActive(null);
   }
 
+  const borrowerColumns: DataTableColumn<BorrowerRow>[] = [
+    {
+      id: "id",
+      header: "Member ID",
+      cell: (row) => (
+        <button
+          type="button"
+          onClick={() => openBorrowerModal("profile", row)}
+          className="font-semibold text-blue-600 hover:underline"
+        >
+          {row.id}
+        </button>
+      ),
+    },
+    {
+      id: "name",
+      header: "Member / Borrower Name",
+      cell: (row) => (
+        <span className="font-medium text-slate-900">{row.name}</span>
+      ),
+    },
+    {
+      id: "group",
+      header: "Group & Role",
+      cell: (row) => (
+        <>
+          <p className="font-medium text-slate-800">{row.group}</p>
+          <p className="text-xs text-muted">({row.role})</p>
+        </>
+      ),
+    },
+    {
+      id: "mobile",
+      header: "Contact",
+      cell: (row) => row.mobile,
+    },
+    {
+      id: "identity",
+      header: "Identity (Masked)",
+      cell: (row) => (
+        <>
+          <p className="font-medium text-slate-800">{row.aadhaar}</p>
+          <p className="text-xs text-muted">(PAN: {row.pan})</p>
+        </>
+      ),
+    },
+    {
+      id: "bankStatus",
+      header: "Bank Status",
+      cell: (row) => (
+        <span
+          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+            row.bankStatus === "Penny Drop Verified"
+              ? "bg-emerald-50 text-emerald-700"
+              : "bg-amber-50 text-amber-800"
+          }`}
+        >
+          <ShieldCheck className="h-3.5 w-3.5" />
+          {row.bankStatus}
+        </span>
+      ),
+    },
+    {
+      id: "kycStatus",
+      header: "KYC Status",
+      cell: (row) => (
+        <span
+          className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+            row.kycStatus === "ActiveBorrower"
+              ? "bg-brand-soft text-brand-ink"
+              : "bg-amber-50 text-amber-800"
+          }`}
+        >
+          {row.kycStatus}
+        </span>
+      ),
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: (row) => (
+        <div className="flex flex-wrap items-center gap-1.5">
+          <ActionButton
+            label="View Profile"
+            tone="blue"
+            icon={IdCard}
+            onClick={() => openBorrowerModal("profile", row)}
+          />
+          <ActionButton
+            label="CIBIL Check"
+            tone="violet"
+            icon={Scale}
+            onClick={() => openBorrowerModal("cibil", row)}
+          />
+          <ActionButton
+            label="Doc Locker"
+            tone="amber"
+            icon={FolderOpen}
+            onClick={() => openBorrowerModal("docs", row)}
+          />
+          <ActionButton
+            label="Edit"
+            tone="slate"
+            icon={Pencil}
+            onClick={() => openBorrowerModal("profile", row)}
+          />
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="flex min-w-0 flex-col gap-4 sm:gap-5">
       <div className="btn-actions justify-end">
@@ -381,100 +494,12 @@ export function CustomerKycView() {
           </div>
         </div>
 
-        <div className="table-scroll">
-          <table className="w-full min-w-[1180px] text-left text-sm">
-            <thead>
-              <tr className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-soft">
-                <th className="pb-3 pr-3">Member ID</th>
-                <th className="pb-3 pr-3">Member / Borrower Name</th>
-                <th className="pb-3 pr-3">Group & Role</th>
-                <th className="pb-3 pr-3">Contact</th>
-                <th className="pb-3 pr-3">Identity (Masked)</th>
-                <th className="pb-3 pr-3">Bank Status</th>
-                <th className="pb-3 pr-3">KYC Status</th>
-                <th className="pb-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((row) => (
-                <tr key={row.id} className="border-t border-border/70">
-                  <td className="py-3.5 pr-3">
-                    <button
-                      type="button"
-                      onClick={() => openBorrowerModal("profile", row)}
-                      className="font-semibold text-blue-600 hover:underline"
-                    >
-                      {row.id}
-                    </button>
-                  </td>
-                  <td className="py-3.5 pr-3 font-medium text-slate-900">
-                    {row.name}
-                  </td>
-                  <td className="py-3.5 pr-3">
-                    <p className="font-medium text-slate-800">{row.group}</p>
-                    <p className="text-xs text-muted">({row.role})</p>
-                  </td>
-                  <td className="py-3.5 pr-3 text-slate-700">{row.mobile}</td>
-                  <td className="py-3.5 pr-3">
-                    <p className="font-medium text-slate-800">{row.aadhaar}</p>
-                    <p className="text-xs text-muted">(PAN: {row.pan})</p>
-                  </td>
-                  <td className="py-3.5 pr-3">
-                    <span
-                      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
-                        row.bankStatus === "Penny Drop Verified"
-                          ? "bg-emerald-50 text-emerald-700"
-                          : "bg-amber-50 text-amber-800"
-                      }`}
-                    >
-                      <ShieldCheck className="h-3.5 w-3.5" />
-                      {row.bankStatus}
-                    </span>
-                  </td>
-                  <td className="py-3.5 pr-3">
-                    <span
-                      className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ${
-                        row.kycStatus === "ActiveBorrower"
-                          ? "bg-brand-soft text-brand-ink"
-                          : "bg-amber-50 text-amber-800"
-                      }`}
-                    >
-                      {row.kycStatus}
-                    </span>
-                  </td>
-                  <td className="py-3.5">
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      <ActionButton
-                        label="View Profile"
-                        tone="blue"
-                        icon={IdCard}
-                        onClick={() => openBorrowerModal("profile", row)}
-                      />
-                      <ActionButton
-                        label="CIBIL Check"
-                        tone="violet"
-                        icon={Scale}
-                        onClick={() => openBorrowerModal("cibil", row)}
-                      />
-                      <ActionButton
-                        label="Doc Locker"
-                        tone="amber"
-                        icon={FolderOpen}
-                        onClick={() => openBorrowerModal("docs", row)}
-                      />
-                      <ActionButton
-                        label="Edit"
-                        tone="slate"
-                        icon={Pencil}
-                        onClick={() => openBorrowerModal("profile", row)}
-                      />
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          data={filtered}
+          columns={borrowerColumns}
+          getRowKey={(row) => row.id}
+          minWidth="1180px"
+        />
 
         <div className="mt-4 flex items-center justify-between border-t border-border pt-3 text-xs text-muted">
           <p>

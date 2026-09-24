@@ -57,12 +57,29 @@ function normalizeSessionUser(user: SealedSessionPayload["user"]): AuthUser {
   };
 }
 
-export async function setAuthSession(session: AuthSession): Promise<void> {
+export async function setAuthSession(
+  session: AuthSession,
+  options: { persist?: boolean } = {},
+): Promise<void> {
   const store = await cookies();
-  const maxAge = Math.max(1, Math.floor((session.expiresAt - Date.now()) / 1000));
   const sealed = await sealSessionPayload(session, getAuthSessionSecret());
+  const persist = options.persist !== false;
+  const maxAge = persist
+    ? Math.max(1, Math.floor((session.expiresAt - Date.now()) / 1000))
+    : undefined;
 
-  store.set(AUTH_SESSION_COOKIE, sealed, cookieOptions(maxAge));
+  store.set(
+    AUTH_SESSION_COOKIE,
+    sealed,
+    persist && maxAge !== undefined
+      ? cookieOptions(maxAge)
+      : {
+          httpOnly: true,
+          secure: isProductionEnv(),
+          sameSite: "lax",
+          path: "/",
+        },
+  );
 }
 
 export async function clearAuthSession(): Promise<void> {

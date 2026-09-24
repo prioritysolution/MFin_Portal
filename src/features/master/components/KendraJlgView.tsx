@@ -10,6 +10,8 @@ import {
   Search,
   Users,
 } from "lucide-react";
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -175,6 +177,51 @@ function JlgGroupsPanel({
   query: string;
   onQueryChange: (value: string) => void;
 }) {
+  const jlgColumns: DataTableColumn<JlgRow>[] = [
+    {
+      id: "code",
+      header: "Group Code",
+      cell: (row) => (
+        <span className="rounded-full bg-rose-50 px-2.5 py-1 text-[11px] font-semibold text-rose-700">
+          {row.code}
+        </span>
+      ),
+    },
+    {
+      id: "name",
+      header: "Group Name",
+      cell: (row) => (
+        <span className="font-medium text-slate-800">{row.name}</span>
+      ),
+    },
+    {
+      id: "kendra",
+      header: "Kendra",
+      cell: (row) => row.kendra,
+    },
+    {
+      id: "leader",
+      header: "Leader",
+      cell: (row) => row.leader,
+    },
+    {
+      id: "members",
+      header: "Members",
+      cell: (row) => (
+        <span className="font-semibold tabular-nums">{row.members}</span>
+      ),
+    },
+    {
+      id: "status",
+      header: "Status",
+      cell: (row) => (
+        <Badge tone={row.status === "Active" ? "success" : "neutral"} caps>
+          {row.status}
+        </Badge>
+      ),
+    },
+  ];
+
   return (
     <>
       <div className="flex justify-end">
@@ -218,52 +265,12 @@ function JlgGroupsPanel({
           />
         </label>
       </div>
-      <section className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5">
-        <div className="table-scroll">
-          <table className="w-full min-w-[860px] text-left text-sm">
-            <thead>
-              <tr className="border-b border-border text-[11px] uppercase tracking-[0.12em] text-muted-soft">
-                <th className="pb-3 pr-3 font-semibold">Group Code</th>
-                <th className="pb-3 pr-3 font-semibold">Group Name</th>
-                <th className="pb-3 pr-3 font-semibold">Kendra</th>
-                <th className="pb-3 pr-3 font-semibold">Leader</th>
-                <th className="pb-3 pr-3 font-semibold">Members</th>
-                <th className="pb-3 font-semibold">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => (
-                <tr
-                  key={row.code}
-                  className="border-b border-border/70 last:border-0"
-                >
-                  <td className="py-3.5 pr-3">
-                    <span className="rounded-full bg-rose-50 px-2.5 py-1 text-[11px] font-semibold text-rose-700">
-                      {row.code}
-                    </span>
-                  </td>
-                  <td className="py-3.5 pr-3 font-medium text-slate-800">
-                    {row.name}
-                  </td>
-                  <td className="py-3.5 pr-3 text-slate-700">{row.kendra}</td>
-                  <td className="py-3.5 pr-3 text-slate-700">{row.leader}</td>
-                  <td className="py-3.5 pr-3 font-semibold tabular-nums">
-                    {row.members}
-                  </td>
-                  <td className="py-3.5">
-                    <Badge
-                      tone={row.status === "Active" ? "success" : "neutral"}
-                      caps
-                    >
-                      {row.status}
-                    </Badge>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      <DataTable
+        data={rows}
+        columns={jlgColumns}
+        getRowKey={(row) => row.code}
+        minWidth="860px"
+      />
     </>
   );
 }

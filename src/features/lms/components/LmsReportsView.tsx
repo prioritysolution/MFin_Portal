@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   BarChart3,
   ClipboardList,
@@ -9,6 +9,8 @@ import {
   PieChart,
   Shield,
 } from "lucide-react";
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import {
@@ -83,6 +85,48 @@ export function LmsReportsView() {
       par: 2.15,
     },
   ];
+
+  const branchColumns = useMemo<
+    DataTableColumn<(typeof branchRows)[number]>[]
+  >(
+    () => [
+      {
+        id: "branch",
+        header: "Branch",
+        className: "font-medium text-slate-800",
+        cell: (row) => row.branch,
+      },
+      {
+        id: "accounts",
+        header: "A/cs",
+        align: "end",
+        className: "text-slate-600",
+        cell: (row) => row.accounts,
+      },
+      {
+        id: "outstanding",
+        header: "Outstanding",
+        align: "end",
+        className: "font-semibold text-slate-900",
+        cell: (row) => formatInr(row.outstanding, 0),
+      },
+      {
+        id: "collection",
+        header: "Collection",
+        align: "end",
+        className: "font-semibold text-emerald-700",
+        cell: (row) => formatInr(row.collection, 0),
+      },
+      {
+        id: "par",
+        header: "PAR %",
+        align: "end",
+        className: "font-semibold text-amber-700",
+        cell: (row) => `${row.par.toFixed(2)}%`,
+      },
+    ],
+    [],
+  );
 
   return (
     <div className="flex min-w-0 flex-col gap-4 sm:gap-5">
@@ -165,61 +209,28 @@ export function LmsReportsView() {
           </div>
         </section>
 
-        <section className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <h2 className="text-base font-semibold text-slate-900">
-                {activePack.title}
-              </h2>
-              <p className="mt-1 text-sm text-muted">{activePack.body}</p>
-            </div>
-            <Badge tone={activePack.tone} caps={false}>
-              Selected
-            </Badge>
-          </div>
-
-          <div className="mt-4 overflow-hidden rounded-xl border border-slate-200">
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr className="bg-slate-50 text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500">
-                  <th className="px-3 py-2.5">Branch</th>
-                  <th className="px-3 py-2.5 text-right">A/cs</th>
-                  <th className="px-3 py-2.5 text-right">Outstanding</th>
-                  <th className="px-3 py-2.5 text-right">Collection</th>
-                  <th className="px-3 py-2.5 text-right">PAR %</th>
-                </tr>
-              </thead>
-              <tbody>
-                {branchRows.map((row) => (
-                  <tr key={row.branch} className="border-t border-slate-100">
-                    <td className="px-3 py-2.5 font-medium text-slate-800">
-                      {row.branch}
-                    </td>
-                    <td className="px-3 py-2.5 text-right text-slate-600">
-                      {row.accounts}
-                    </td>
-                    <td className="px-3 py-2.5 text-right font-semibold text-slate-900">
-                      {formatInr(row.outstanding, 0)}
-                    </td>
-                    <td className="px-3 py-2.5 text-right font-semibold text-emerald-700">
-                      {formatInr(row.collection, 0)}
-                    </td>
-                    <td className="px-3 py-2.5 text-right font-semibold text-amber-700">
-                      {row.par.toFixed(2)}%
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="mt-4 flex flex-wrap gap-2">
+        <div className="flex min-w-0 flex-col gap-3">
+          <DataTable
+            data={branchRows}
+            columns={branchColumns}
+            getRowKey={(row) => row.branch}
+            title={
+              <span className="flex w-full flex-wrap items-center justify-between gap-3">
+                <span>{activePack.title}</span>
+                <Badge tone={activePack.tone} caps={false}>
+                  Selected
+                </Badge>
+              </span>
+            }
+            description={activePack.body}
+          />
+          <div className="flex flex-wrap gap-2">
             <Button icon={Download}>Download CSV</Button>
             <Button variant="secondary" icon={FileSpreadsheet}>
               Download Excel
             </Button>
           </div>
-        </section>
+        </div>
       </div>
     </div>
   );

@@ -13,6 +13,8 @@ import {
   UsersRound,
   Zap,
 } from "lucide-react";
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
 
 const loanPassbook = [
   {
@@ -91,6 +93,99 @@ const productTabs = [
   "Bachat Gat Savings",
   "Recurring Deposits (RD)",
 ] as const;
+
+const passbookColumns: DataTableColumn<(typeof loanPassbook)[number]>[] = [
+  {
+    id: "date",
+    header: "Date",
+    cell: (row) => <span className="whitespace-nowrap">{row.date}</span>,
+  },
+  {
+    id: "particulars",
+    header: "Particulars / Description",
+    className: "max-w-xs",
+    cell: (row) => row.particulars,
+  },
+  {
+    id: "ref",
+    header: "Ref / Receipt #",
+    cell: (row) => (
+      <span className="font-mono text-[12px] text-slate-600">{row.ref}</span>
+    ),
+  },
+  {
+    id: "mode",
+    header: "Mode",
+    cell: (row) => <span className="text-slate-600">{row.mode}</span>,
+  },
+  {
+    id: "principal",
+    header: "Principal",
+    cell: (row) => <span className="text-muted">{row.principal}</span>,
+  },
+  {
+    id: "interest",
+    header: "Interest",
+    cell: (row) => <span className="text-muted">{row.interest}</span>,
+  },
+  {
+    id: "total",
+    header: "Total (₹)",
+    cell: (row) => (
+      <span
+        className={`font-semibold ${
+          row.totalTone === "credit" ? "text-emerald-600" : "text-rose-600"
+        }`}
+      >
+        {row.total}
+      </span>
+    ),
+  },
+  {
+    id: "balance",
+    header: "Balance (₹)",
+    cell: (row) => (
+      <span className="font-semibold text-amber-500">{row.balance}</span>
+    ),
+  },
+];
+
+const unifiedColumns: DataTableColumn<(typeof unifiedRows)[number]>[] = [
+  {
+    id: "date",
+    header: "Date",
+    cell: (row) => <span className="whitespace-nowrap">{row.date}</span>,
+  },
+  {
+    id: "product",
+    header: "Product",
+    cell: (row) => row.product,
+  },
+  {
+    id: "particulars",
+    header: "Particulars / Transaction Description",
+    cell: (row) => row.particulars,
+  },
+  {
+    id: "debit",
+    header: "Debit (Dr)",
+    cell: (row) => (
+      <span className="font-semibold text-rose-400">{row.debit}</span>
+    ),
+  },
+  {
+    id: "credit",
+    header: "Credit (Cr)",
+    cell: (row) => (
+      <span className="font-semibold text-emerald-400">{row.credit}</span>
+    ),
+  },
+  {
+    id: "balance",
+    header: "Balance",
+    cell: (row) => <span className="font-semibold">{row.balance}</span>,
+  },
+];
 
 export function CustomerPortalView() {
   const [activeTab, setActiveTab] =
@@ -246,57 +341,12 @@ export function CustomerPortalView() {
           </button>
         </div>
 
-        <div className="table-scroll">
-          <table className="w-full min-w-[920px] overflow-hidden rounded-2xl text-left text-sm">
-            <thead>
-              <tr className="bg-slate-700 text-[11px] uppercase tracking-[0.12em] text-white">
-                <th className="rounded-tl-2xl px-3 py-3 font-semibold">Date</th>
-                <th className="px-3 py-3 font-semibold">Particulars / Description</th>
-                <th className="px-3 py-3 font-semibold">Ref / Receipt #</th>
-                <th className="px-3 py-3 font-semibold">Mode</th>
-                <th className="px-3 py-3 font-semibold">Principal</th>
-                <th className="px-3 py-3 font-semibold">Interest</th>
-                <th className="px-3 py-3 font-semibold">Total (₹)</th>
-                <th className="rounded-tr-2xl px-3 py-3 font-semibold">
-                  Balance (₹)
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {loanPassbook.map((row) => (
-                <tr
-                  key={row.ref}
-                  className="border-b border-border bg-white last:border-0"
-                >
-                  <td className="px-3 py-3.5 whitespace-nowrap text-slate-700">
-                    {row.date}
-                  </td>
-                  <td className="max-w-xs px-3 py-3.5 text-slate-700">
-                    {row.particulars}
-                  </td>
-                  <td className="px-3 py-3.5 font-mono text-[12px] text-slate-600">
-                    {row.ref}
-                  </td>
-                  <td className="px-3 py-3.5 text-slate-600">{row.mode}</td>
-                  <td className="px-3 py-3.5 text-muted">{row.principal}</td>
-                  <td className="px-3 py-3.5 text-muted">{row.interest}</td>
-                  <td
-                    className={`px-3 py-3.5 font-semibold ${
-                      row.totalTone === "credit"
-                        ? "text-emerald-600"
-                        : "text-rose-600"
-                    }`}
-                  >
-                    {row.total}
-                  </td>
-                  <td className="px-3 py-3.5 font-semibold text-amber-500">
-                    {row.balance}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          data={loanPassbook}
+          columns={passbookColumns}
+          getRowKey={(row) => row.ref}
+          minWidth="920px"
+        />
       </section>
 
       {/* 360 passbook */}
@@ -375,47 +425,13 @@ export function CustomerPortalView() {
           </div>
         </div>
 
-        <div className="table-scroll mt-4">
-          <table className="w-full min-w-[760px] overflow-hidden rounded-2xl text-left text-sm">
-            <thead>
-              <tr className="bg-black/50 text-[11px] uppercase tracking-[0.12em] text-slate-300">
-                <th className="rounded-tl-2xl px-3 py-3 font-semibold">Date</th>
-                <th className="px-3 py-3 font-semibold">Product</th>
-                <th className="px-3 py-3 font-semibold">
-                  Particulars / Transaction Description
-                </th>
-                <th className="px-3 py-3 font-semibold">Debit (Dr)</th>
-                <th className="px-3 py-3 font-semibold">Credit (Cr)</th>
-                <th className="rounded-tr-2xl px-3 py-3 font-semibold">
-                  Balance
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {unifiedRows.map((row) => (
-                <tr
-                  key={`${row.date}-${row.product}`}
-                  className="border-b border-white/10 last:border-0"
-                >
-                  <td className="px-3 py-3.5 whitespace-nowrap text-slate-300">
-                    {row.date}
-                  </td>
-                  <td className="px-3 py-3.5 text-slate-200">{row.product}</td>
-                  <td className="px-3 py-3.5 text-slate-300">{row.particulars}</td>
-                  <td className="px-3 py-3.5 font-semibold text-rose-400">
-                    {row.debit}
-                  </td>
-                  <td className="px-3 py-3.5 font-semibold text-emerald-400">
-                    {row.credit}
-                  </td>
-                  <td className="px-3 py-3.5 font-semibold text-white">
-                    {row.balance}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          className="mt-4"
+          data={unifiedRows}
+          columns={unifiedColumns}
+          getRowKey={(row) => `${row.date}-${row.product}`}
+          minWidth="760px"
+        />
       </section>
     </div>
   );

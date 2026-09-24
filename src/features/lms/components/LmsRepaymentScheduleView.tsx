@@ -7,6 +7,8 @@ import {
   Printer,
   Search,
 } from "lucide-react";
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import {
@@ -35,6 +37,70 @@ export function LmsRepaymentScheduleView() {
 
   const paid = schedule.filter((row) => row.status === "Paid").length;
   const upcoming = schedule.filter((row) => row.status === "Upcoming").length;
+
+  const columns = useMemo<DataTableColumn<(typeof schedule)[number]>[]>(
+    () => [
+      {
+        id: "installment",
+        header: "#",
+        className: "font-semibold text-slate-900",
+        cell: (row) => `#${row.installment}`,
+      },
+      {
+        id: "dueDate",
+        header: "Due Date",
+        className: "text-slate-700",
+        cell: (row) => row.dueDate,
+      },
+      {
+        id: "principal",
+        header: "Principal",
+        align: "end",
+        className: "font-medium text-slate-800",
+        cell: (row) => formatInr(row.principal),
+      },
+      {
+        id: "interest",
+        header: "Interest",
+        align: "end",
+        className: "text-slate-600",
+        cell: (row) => formatInr(row.interest),
+      },
+      {
+        id: "total",
+        header: "EMI Total",
+        align: "end",
+        className: "font-semibold text-slate-900",
+        cell: (row) => formatInr(row.total),
+      },
+      {
+        id: "balance",
+        header: "Balance",
+        align: "end",
+        className: "text-slate-600",
+        cell: (row) => formatInr(row.balance),
+      },
+      {
+        id: "status",
+        header: "Status",
+        cell: (row) => (
+          <Badge
+            tone={
+              row.status === "Paid"
+                ? "success"
+                : row.status === "Due"
+                  ? "warning"
+                  : "neutral"
+            }
+            caps={false}
+          >
+            {row.status}
+          </Badge>
+        ),
+      },
+    ],
+    [],
+  );
 
   return (
     <div className="flex min-w-0 flex-col gap-4 sm:gap-5">
@@ -123,18 +189,17 @@ export function LmsRepaymentScheduleView() {
           </ul>
         </section>
 
-        <section className="rounded-2xl border border-border bg-surface shadow-[var(--shadow-card)]">
-          <div className="border-b border-border px-4 py-4 sm:px-5">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <h2 className="inline-flex items-center gap-2 text-base font-semibold text-slate-900">
-                  <CalendarRange className="h-4 w-4 text-slate-500" />
-                  Account No: {loan.loanId}
-                </h2>
-                <p className="mt-1 text-sm text-muted">
-                  {loan.borrower} · {loan.group} · {loan.product}
-                </p>
-              </div>
+        <DataTable
+          data={schedule}
+          columns={columns}
+          getRowKey={(row) => String(row.installment)}
+          minWidth="760px"
+          title={
+            <span className="flex w-full flex-wrap items-center justify-between gap-3">
+              <span className="inline-flex items-center gap-2">
+                <CalendarRange className="h-4 w-4 text-slate-500" />
+                Account No: {loan.loanId}
+              </span>
               <Badge
                 tone={
                   loan.status === "Current"
@@ -147,61 +212,10 @@ export function LmsRepaymentScheduleView() {
               >
                 {loan.status}
               </Badge>
-            </div>
-          </div>
-
-          <div className="table-scroll">
-            <table className="w-full min-w-[760px] text-left text-sm">
-              <thead>
-                <tr className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-soft">
-                  <th className="px-4 py-3">#</th>
-                  <th className="px-4 py-3">Due Date</th>
-                  <th className="px-4 py-3 text-right">Principal</th>
-                  <th className="px-4 py-3 text-right">Interest</th>
-                  <th className="px-4 py-3 text-right">EMI Total</th>
-                  <th className="px-4 py-3 text-right">Balance</th>
-                  <th className="px-4 py-3">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {schedule.map((row) => (
-                  <tr key={row.installment} className="border-t border-border/70">
-                    <td className="px-4 py-3 font-semibold text-slate-900">
-                      #{row.installment}
-                    </td>
-                    <td className="px-4 py-3 text-slate-700">{row.dueDate}</td>
-                    <td className="px-4 py-3 text-right font-medium text-slate-800">
-                      {formatInr(row.principal)}
-                    </td>
-                    <td className="px-4 py-3 text-right text-slate-600">
-                      {formatInr(row.interest)}
-                    </td>
-                    <td className="px-4 py-3 text-right font-semibold text-slate-900">
-                      {formatInr(row.total)}
-                    </td>
-                    <td className="px-4 py-3 text-right text-slate-600">
-                      {formatInr(row.balance)}
-                    </td>
-                    <td className="px-4 py-3">
-                      <Badge
-                        tone={
-                          row.status === "Paid"
-                            ? "success"
-                            : row.status === "Due"
-                              ? "warning"
-                              : "neutral"
-                        }
-                        caps={false}
-                      >
-                        {row.status}
-                      </Badge>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
+            </span>
+          }
+          description={`${loan.borrower} · ${loan.group} · ${loan.product}`}
+        />
       </div>
     </div>
   );

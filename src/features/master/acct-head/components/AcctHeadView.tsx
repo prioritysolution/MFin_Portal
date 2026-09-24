@@ -6,7 +6,7 @@ import { Plus } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { ModulePageShell } from "@/components/shared/ModulePageShell";
 import { Button } from "@/components/ui/Button";
-import { Alert } from "@/components/ui/Alert";
+import { PageToast, useToastText } from "@/components/ui/PageToast";
 import { masterModulePages } from "@/lib/modules/module.types";
 import {
   AcctHeadFilters,
@@ -76,7 +76,7 @@ export function AcctHeadView() {
   const [editing, setEditing] = useState<AcctHead | null>(null);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useToastText();
   const [statusBusyId, setStatusBusyId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -255,17 +255,8 @@ export function AcctHeadView() {
   }
 
   return (
-    <ModulePageShell
-      page={pageMeta}
-      actions={
-        <Button type="button" icon={Plus} onClick={openCreate}>
-          {t("add")}
-        </Button>
-      }
-    >
-      {successMessage ? (
-        <Alert tone="success">{successMessage}</Alert>
-      ) : null}
+    <ModulePageShell page={pageMeta}>
+      <PageToast message={successMessage} />
 
       <AcctHeadFilters
         values={filters}
@@ -296,6 +287,11 @@ export function AcctHeadView() {
         }}
         onEdit={openEdit}
         onToggleStatus={handleToggleStatus}
+        headerActions={
+          <Button type="button" icon={Plus} onClick={openCreate}>
+            {t("add")}
+          </Button>
+        }
       />
 
       <AcctHeadForm

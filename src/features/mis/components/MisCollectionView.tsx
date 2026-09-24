@@ -2,9 +2,68 @@
 
 import { useState } from "react";
 import { Search } from "lucide-react";
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/Badge";
-import { MisReportShell, MisTableCard } from "@/features/mis/components/MisReportShell";
+import { MisReportShell } from "@/features/mis/components/MisReportShell";
 import { collectionRows, formatInr } from "@/features/mis/components/mis-data";
+
+type CollectionRow = (typeof collectionRows)[number];
+
+const columns: DataTableColumn<CollectionRow>[] = [
+  {
+    id: "receipt",
+    header: "Receipt",
+    className: "font-semibold text-slate-900",
+    cell: (row) => row.receipt,
+  },
+  {
+    id: "member",
+    header: "Member",
+    className: "font-medium text-slate-800",
+    cell: (row) => row.member,
+  },
+  {
+    id: "loan",
+    header: "Loan A/c",
+    className: "text-slate-600",
+    cell: (row) => row.loan,
+  },
+  {
+    id: "kendra",
+    header: "Kendra",
+    className: "text-slate-600",
+    cell: (row) => row.kendra,
+  },
+  {
+    id: "agent",
+    header: "Agent",
+    className: "text-slate-600",
+    cell: (row) => row.agent,
+  },
+  {
+    id: "amount",
+    header: "Amount",
+    align: "end",
+    className: "font-semibold text-emerald-700",
+    cell: (row) => formatInr(row.amount),
+  },
+  {
+    id: "mode",
+    header: "Mode",
+    cell: (row) => (
+      <Badge tone={row.mode === "UPI" ? "info" : "neutral"} caps={false}>
+        {row.mode}
+      </Badge>
+    ),
+  },
+  {
+    id: "time",
+    header: "Time",
+    className: "text-slate-600",
+    cell: (row) => row.time,
+  },
+];
 
 export function MisCollectionView() {
   const [query, setQuery] = useState("");
@@ -57,63 +116,23 @@ export function MisCollectionView() {
         },
       ]}
     >
-      <MisTableCard
+      <div className="mb-4 relative max-w-xs">
+        <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-soft" />
+        <input
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Filter receipts..."
+          className="w-full rounded-xl border border-border bg-surface-muted py-2.5 pr-3 pl-9 text-sm outline-none focus:border-brand/40 focus:bg-white focus:ring-4 focus:ring-brand/10"
+        />
+      </div>
+      <DataTable
         title="Collection Register"
-        subtitle="Agent attribution, mode, and receipt timestamps"
-      >
-        <div className="mb-4 relative max-w-xs">
-          <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-soft" />
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Filter receipts..."
-            className="w-full rounded-xl border border-border bg-surface-muted py-2.5 pr-3 pl-9 text-sm outline-none focus:border-brand/40 focus:bg-white focus:ring-4 focus:ring-brand/10"
-          />
-        </div>
-        <div className="table-scroll">
-          <table className="w-full min-w-[980px] text-left text-sm">
-            <thead>
-              <tr className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-soft">
-                <th className="pb-3 pr-3">Receipt</th>
-                <th className="pb-3 pr-3">Member</th>
-                <th className="pb-3 pr-3">Loan A/c</th>
-                <th className="pb-3 pr-3">Kendra</th>
-                <th className="pb-3 pr-3">Agent</th>
-                <th className="pb-3 pr-3 text-right">Amount</th>
-                <th className="pb-3 pr-3">Mode</th>
-                <th className="pb-3">Time</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((row) => (
-                <tr key={row.receipt} className="border-t border-border/70">
-                  <td className="py-3.5 pr-3 font-semibold text-slate-900">
-                    {row.receipt}
-                  </td>
-                  <td className="py-3.5 pr-3 font-medium text-slate-800">
-                    {row.member}
-                  </td>
-                  <td className="py-3.5 pr-3 text-slate-600">{row.loan}</td>
-                  <td className="py-3.5 pr-3 text-slate-600">{row.kendra}</td>
-                  <td className="py-3.5 pr-3 text-slate-600">{row.agent}</td>
-                  <td className="py-3.5 pr-3 text-right font-semibold text-emerald-700">
-                    {formatInr(row.amount)}
-                  </td>
-                  <td className="py-3.5 pr-3">
-                    <Badge
-                      tone={row.mode === "UPI" ? "info" : "neutral"}
-                      caps={false}
-                    >
-                      {row.mode}
-                    </Badge>
-                  </td>
-                  <td className="py-3.5 text-slate-600">{row.time}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </MisTableCard>
+        description="Agent attribution, mode, and receipt timestamps"
+        data={filtered}
+        columns={columns}
+        getRowKey={(row) => row.receipt}
+        minWidth="980px"
+      />
     </MisReportShell>
   );
 }

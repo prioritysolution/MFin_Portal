@@ -8,7 +8,8 @@ import {
   useState,
   type KeyboardEvent,
 } from "react";
-import { Check, ChevronDown, Search } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Check, ChevronDown, Search, X } from "lucide-react";
 
 export type SelectOption = {
   value: string;
@@ -23,8 +24,10 @@ type SelectProps = {
   placeholder?: string;
   disabled?: boolean;
   size?: "sm" | "md";
-  /** Enable search when there are many options (default: auto when > 8). */
+  /** In-menu search. On for every dropdown unless set to false. */
   searchable?: boolean;
+  /** Show a clear control once a value is selected. */
+  clearable?: boolean;
   searchPlaceholder?: string;
   emptyMessage?: string;
   className?: string;
@@ -41,16 +44,21 @@ export function Select({
   options,
   value,
   onChange,
-  placeholder = "Select…",
+  placeholder,
   disabled = false,
   size = "md",
-  searchable,
-  searchPlaceholder = "Search…",
-  emptyMessage = "No options found",
+  searchable = true,
+  clearable = true,
+  searchPlaceholder,
+  emptyMessage,
   className = "",
   id,
   ...aria
 }: SelectProps) {
+  const t = useTranslations("ui");
+  const resolvedPlaceholder = placeholder ?? t("selectPlaceholder");
+  const resolvedSearchPlaceholder = searchPlaceholder ?? t("selectSearch");
+  const resolvedEmptyMessage = emptyMessage ?? t("selectEmpty");
   const listId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -58,7 +66,8 @@ export function Select({
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const enableSearch = searchable ?? options.length > 8;
+  const enableSearch = searchable;
+  const canClear = clearable && !disabled && value !== "";
 
   const selected = options.find((option) => option.value === value);
   const filtered = useMemo(() => {
@@ -111,6 +120,12 @@ export function Select({
     setQuery("");
   }
 
+  function clearSelection() {
+    onChange("");
+    setOpen(false);
+    setQuery("");
+  }
+
   function onTriggerKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
     if (disabled) return;
     if (
@@ -123,7 +138,9 @@ export function Select({
     }
   }
 
-  function onListKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+  function onListKeyDown(
+    event: KeyboardEvent<HTMLDivElement | HTMLInputElement>,
+  ) {
     if (event.key === "ArrowDown") {
       event.preventDefault();
       setActiveIndex((index) =>
@@ -147,6 +164,7 @@ export function Select({
 
   return (
     <div ref={rootRef} className={`relative ${className}`.trim()}>
+      <div className="relative">
       <button
         type="button"
         id={id}
@@ -157,25 +175,40 @@ export function Select({
         aria-label={aria["aria-label"]}
         onClick={() => (open ? setOpen(false) : openMenu())}
         onKeyDown={onTriggerKeyDown}
-        className={`flex w-full items-center justify-between gap-2 border border-border bg-surface-muted text-left outline-none transition hover:border-slate-300 focus:border-brand/40 focus:bg-white focus:ring-4 focus:ring-brand/10 disabled:cursor-not-allowed disabled:opacity-50 ${
+        className={`relative flex w-full items-center justify-between gap-2 border border-border bg-surface-muted text-left outline-none transition hover:border-slate-300 focus:border-brand/40 focus:bg-surface focus:ring-4 focus:ring-brand/10 disabled:cursor-not-allowed disabled:opacity-50 ${
           size === "sm"
-            ? "rounded-lg px-2 py-1.5 text-sm"
-            : "rounded-xl px-3 py-2.5 text-sm"
-        } ${open ? "border-brand/40 bg-white ring-4 ring-brand/10" : ""}`}
+            ? "rounded-lg py-1.5 text-sm"
+            : "rounded-xl py-2.5 text-sm"
+        } ${canClear ? "ps-3 pe-16" : "px-3"} ${
+          open ? "border-brand/40 bg-surface ring-4 ring-brand/10" : ""
+        }`}
       >
         <span
-          className={`min-w-0 truncate ${
+          className={`min-w-0 flex-1 truncate ${
             selected ? "font-medium text-slate-800" : "text-muted-soft"
           }`}
         >
-          {selected?.label ?? placeholder}
+          {selected?.label ?? resolvedPlaceholder}
         </span>
         <ChevronDown
-          className={`h-4 w-4 shrink-0 text-muted-soft transition ${
-            open ? "rotate-180" : ""
-          }`}
+          className={`pointer-events-none absolute top-1/2 -translate-y-1/2 text-muted-soft transition ${
+            size === "sm" ? "right-2 h-3.5 w-3.5" : "right-3 h-4 w-4"
+          } ${open ? "rotate-180" : ""}`}
         />
       </button>
+      {canClear ? (
+        <button
+          type="button"
+          aria-label={t("selectClear")}
+          onClick={clearSelection}
+          className={`absolute top-1/2 flex -translate-y-1/2 items-center justify-center rounded-full text-muted-soft transition hover:bg-surface hover:text-slate-800 ${
+            size === "sm" ? "right-7 h-5 w-5" : "right-8 h-6 w-6"
+          }`}
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      ) : null}
+      </div>
 
       {open ? (
         <div
@@ -183,7 +216,7 @@ export function Select({
           role="listbox"
           tabIndex={-1}
           onKeyDown={onListKeyDown}
-          className="absolute z-50 mt-1.5 w-full overflow-hidden rounded-xl border border-border bg-white shadow-[var(--shadow-card)]"
+          className="absolute z-50 mt-1.5 w-full overflow-hidden rounded-xl border border-border bg-surface shadow-[var(--shadow-card)]"
         >
           {enableSearch ? (
             <div className="border-b border-border p-2">
@@ -191,22 +224,38 @@ export function Select({
                 <Search className="pointer-events-none absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-muted-soft" />
                 <input
                   ref={searchRef}
-                  type="search"
+                  type="text"
                   value={query}
                   onChange={(event) => {
                     setQuery(event.target.value);
                     setActiveIndex(0);
                   }}
-                  placeholder={searchPlaceholder}
-                  className="w-full rounded-lg border border-border bg-surface-muted py-2 pr-3 pl-8 text-xs text-slate-800 outline-none placeholder:text-muted-soft focus:border-brand/40 focus:bg-white focus:ring-2 focus:ring-brand/10"
+                  onKeyDown={onListKeyDown}
+                  placeholder={resolvedSearchPlaceholder}
+                  aria-label={resolvedSearchPlaceholder}
+                  className="w-full rounded-lg border border-border bg-surface-muted py-2 pr-8 pl-8 text-xs text-slate-800 outline-none placeholder:text-muted-soft focus:border-brand/40 focus:bg-surface focus:ring-2 focus:ring-brand/10"
                 />
+                {query ? (
+                  <button
+                    type="button"
+                    aria-label={t("selectClear")}
+                    onClick={() => {
+                      setQuery("");
+                      setActiveIndex(0);
+                      searchRef.current?.focus();
+                    }}
+                    className="absolute top-1/2 right-2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-soft hover:text-slate-800"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                ) : null}
               </label>
             </div>
           ) : null}
 
           <ul className="max-h-60 overflow-y-auto py-1">
             {filtered.length === 0 ? (
-              <li className="px-3 py-2.5 text-xs text-muted">{emptyMessage}</li>
+              <li className="px-3 py-2.5 text-xs text-muted">{resolvedEmptyMessage}</li>
             ) : (
               filtered.map((option, index) => {
                 const isSelected = option.value === value;

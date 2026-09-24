@@ -20,9 +20,11 @@ export type PublicAuthUser = AuthUser;
 export async function loginWithLaravel(
   input: LoginRequest,
 ): Promise<PublicAuthUser> {
-  const data = await api.post<LoginDataDto>(endpoints.auth.login, input, {
-    expectEnvelope: true,
-  });
+  const data = await api.post<LoginDataDto>(
+    endpoints.auth.login,
+    { login: input.login, password: input.password },
+    { expectEnvelope: true },
+  );
 
   if (!data?.token || !data.user) {
     throw new ApiError({
@@ -33,7 +35,7 @@ export async function loginWithLaravel(
   }
 
   const session = mapLoginDataToSession(data);
-  await setAuthSession(session);
+  await setAuthSession(session, { persist: input.remember !== false });
   return session.user;
 }
 

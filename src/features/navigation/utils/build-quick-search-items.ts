@@ -1,4 +1,5 @@
 import type { MenuTreeNode } from "@/features/navigation/types/menu";
+import { menuSearchLabel } from "@/features/navigation/utils/menu-label";
 import type { NavItem } from "@/lib/nav";
 import { mainModules, primaryNav } from "@/lib/nav";
 
@@ -51,17 +52,17 @@ export function flattenMenuTree(nodes: MenuTreeNode[]): QuickSearchItem[] {
   for (const node of nodes) {
     if (node.route) {
       pushItem(map, {
-        label: node.name,
+        label: menuSearchLabel(node.name, node.nameDefault),
         href: node.route,
-        group: node.name,
+        group: menuSearchLabel(node.name, node.nameDefault),
       });
     }
     for (const child of node.children) {
       if (!child.route) continue;
       pushItem(map, {
-        label: child.name,
+        label: menuSearchLabel(child.name, child.nameDefault),
         href: child.route,
-        group: node.name,
+        group: menuSearchLabel(node.name, node.nameDefault),
       });
     }
   }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Ban, CircleCheck, Pencil } from "lucide-react";
 import { DataTable } from "@/components/shared/DataTable";
@@ -27,6 +27,7 @@ type AcctHeadTableProps = {
   onPageSizeChange: (pageSize: number) => void;
   onEdit: (row: AcctHead) => void;
   onToggleStatus: (row: AcctHead) => void;
+  headerActions?: ReactNode;
 };
 
 function isKnownType(
@@ -49,6 +50,7 @@ export function AcctHeadTable({
   onPageSizeChange,
   onEdit,
   onToggleStatus,
+  headerActions,
 }: AcctHeadTableProps) {
   const t = useTranslations("master.acctHead");
   const tCategory = useTranslations("master.acctCategory");
@@ -119,6 +121,9 @@ export function AcctHeadTable({
 
   return (
     <DataTable<AcctHead>
+      title={t("title")}
+      description={t("description")}
+      actions={headerActions}
       data={items}
       columns={columns}
       getRowKey={(row) => String(row.mainhdId)}

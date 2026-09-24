@@ -21,6 +21,7 @@ export const endpoints = {
     center: "/api/master/center",
     operationalDays: "/api/master/operational-days",
     roleMenu: "/api/master/role-menu",
+    securityPolicy: "/api/security/login-settings",
     acctCategory: "/api/master/acct-category",
     acctHead: "/api/master/acct-head",
     acctLedger: "/api/master/acct-ledger",
@@ -101,6 +102,10 @@ export const endpoints = {
   },
   auditLog: {
     list: "/api/AuditLogList",
+  },
+  securityPolicy: {
+    get: "/api/SecurityPolicyGet",
+    update: "/api/SecurityPolicyUpdate",
   },
   finYear: {
     list: "/api/FinYearGet",

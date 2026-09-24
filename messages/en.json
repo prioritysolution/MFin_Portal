@@ -20,6 +20,11 @@
     "apply": "Apply",
     "reset": "Reset"
   },
+  "notFoundPage": {
+    "title": "This page is not on the map",
+    "message": "The address may be mistyped, or the page has moved. You can return to the dashboard.",
+    "home": "Back to dashboard"
+  },
   "ui": {
     "loadingTitle": "Loading",
     "loadingMessage": "Please wait…",
@@ -41,6 +46,7 @@
     "themeToDark": "Switch to dark mode",
     "themeToLight": "Switch to light mode",
     "selectEmpty": "No options found",
+    "selectClear": "Clear selection",
     "datePlaceholder": "Select date…",
     "dateClear": "Clear",
     "dateToday": "Today",
@@ -53,7 +59,11 @@
     "weekdayTh": "Th",
     "weekdayFr": "Fr",
     "weekdaySa": "Sa",
-    "weekdaySu": "Su"
+    "weekdaySu": "Su",
+    "charCount": "{count}/{max}",
+    "numberRange": "{min}–{max}",
+    "numberMin": "Minimum is {min}",
+    "numberMax": "Maximum is {max}"
   },
   "navigation": {
     "dashboard": "Executive Dashboard",
@@ -68,6 +78,7 @@
     "logout": "Logout",
     "profile": "My Profile",
     "settings": "Settings",
+    "accountMenu": "Account menu",
     "closeSidebar": "Close sidebar",
     "mainModules": "Main Modules",
     "menuLoading": "Loading menu…",
@@ -124,7 +135,49 @@
     "localeBn": "Bengali",
     "localeOr": "Odia",
     "metaSignInTitle": "Sign In · eZi-Micro Core Banking",
-    "metaSignInDescription": "Secure staff login to eZi-Micro MFIN Core Banking Portal"
+    "metaSignInDescription": "Secure staff login to eZi-Micro MFIN Core Banking Portal",
+    "forgotHint": "Enter your registered employee email or employee ID. Password reset will be available once the API is connected.",
+    "forgotPendingApi": "Forgot-password API is not available yet. This page checks the form only.",
+    "forgotIdentifier": "Employee email / employee ID",
+    "sendReset": "Send reset OTP",
+    "rememberedPassword": "Remembered your password?",
+    "backToSignIn": "Back to sign in",
+    "registerPendingApi": "Staff registration API is not available yet. This form checks each field only.",
+    "errors": {
+      "username": "Enter your username.",
+      "password": "Enter your password.",
+      "passwordMin": "Password must be 8 to 100 characters.",
+      "identifier": "Enter a valid employee email or employee ID.",
+      "fullName": "Enter the full name.",
+      "empId": "Enter the employee ID.",
+      "mobile": "Enter a valid 10-digit mobile number.",
+      "email": "Enter a valid email address.",
+      "designation": "Select a designation.",
+      "branch": "Select a home branch.",
+      "confirmPassword": "Passwords must match and be at least 8 characters.",
+      "accepted": "Confirm this registration is for an authorized staff member."
+    },
+    "register": {
+      "fullName": "Full name",
+      "fullNamePlaceholder": "e.g. Abhijit Bhattacharya",
+      "empId": "Employee ID",
+      "empIdPlaceholder": "EMP-WB001",
+      "mobile": "Mobile number",
+      "mobilePlaceholder": "10-digit mobile",
+      "email": "Official email",
+      "emailPlaceholder": "name@ezimicro.in",
+      "designation": "Designation",
+      "branch": "Home branch",
+      "password": "Create password",
+      "confirmPassword": "Confirm password",
+      "confirmStaff": "I confirm this registration is for an authorized staff member mapped to a valid branch.",
+      "submit": "Create staff account",
+      "alreadyRegistered": "Already registered?"
+    },
+    "hints": {
+      "mobile": "10 digits, starting with 6–9",
+      "password": "8 to 100 characters"
+    }
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",
@@ -177,6 +230,32 @@
         "website": "Official Website URL",
         "isActive": "Organization is active",
         "orgLogo": "Organization logo"
+      },
+      "errors": {
+        "orgDispNm": "Enter the company display name (up to 200 characters).",
+        "legalName": "Legal name must be 200 characters or fewer.",
+        "cinNo": "Enter a valid 21-character CIN.",
+        "regdNo": "Registration number must be 50 characters or fewer.",
+        "gstNo": "Enter a valid 15-character GSTIN.",
+        "panNo": "Enter a valid PAN (AAAAA9999A).",
+        "tanNo": "Enter a valid TAN (AAAA99999A).",
+        "stateCd": "Select a valid state.",
+        "regdAddress": "Registered address must be 500 characters or fewer.",
+        "hoAddress": "Head office address must be 500 characters or fewer.",
+        "email": "Enter a valid email address.",
+        "phone": "Enter a valid phone number (6–15 digits).",
+        "website": "Enter a website starting with http:// or https://.",
+        "orgLogo": "Upload an image up to 2 MB."
+      },
+      "hints": {
+        "orgDispNm": "Up to 200 characters",
+        "cinNo": "21 characters, for example L12345MH2020PLC123456",
+        "gstNo": "15-character GSTIN",
+        "panNo": "10 characters, AAAAA9999A",
+        "tanNo": "10 characters, AAAA99999A",
+        "email": "name@company.com",
+        "phone": "6 to 15 digits",
+        "website": "Starts with http:// or https://"
       }
     },
     "workingHours": {
@@ -334,6 +413,13 @@
         "nextCounter": "Next counter",
         "paddingDigits": "Padding digits",
         "status": "Status"
+      },
+      "errors": {
+        "prefix": "Prefix must be 50 characters or fewer.",
+        "suffix": "Suffix must be 20 characters or fewer.",
+        "nextCounter": "Next counter must be a whole number of at least 1.",
+        "paddingDigits": "Padding must be a whole number from 1 to 12.",
+        "status": "Select a valid status."
       }
     },
     "roles": {
@@ -456,11 +542,17 @@
         "yearName": "Year name",
         "startDate": "Start date",
         "endDate": "End date",
-        "isActive": "Active financial year"
+        "isActive": "Active financial year",
+        "yearNamePlaceholder": "2026-2027"
       },
       "hints": {
         "endDate": "Must be after the start date.",
         "isActive": "Activating this year will deactivate all other financial years."
+      },
+      "errors": {
+        "yearName": "Enter a year name up to 25 characters.",
+        "startDate": "Choose a valid start date.",
+        "endDate": "End date must be after the start date."
       }
     },
     "holiday": {
@@ -884,6 +976,17 @@
         "headerText": "Header text",
         "isHead": "Head office branch",
         "isActive": "Status"
+      },
+      "errors": {
+        "branchName": "Enter a branch name (up to 100 characters).",
+        "branchAddress": "Address must be 200 characters or fewer.",
+        "branchMobile": "Enter a valid phone number (6–15 digits).",
+        "branchMail": "Enter a valid email address.",
+        "headerText": "Header text must be 500 characters or fewer."
+      },
+      "hints": {
+        "branchMobile": "6 to 15 digits",
+        "branchMail": "name@company.com"
       }
     },
     "center": {
@@ -998,6 +1101,28 @@
         "status": "Status",
         "moduleAccess": "Module access",
         "none": "None"
+      },
+      "errors": {
+        "fullName": "Enter the full name (up to 100 characters).",
+        "shortName": "Short name must be 50 characters or fewer.",
+        "employeeCode": "Enter a valid employee code (up to 50 characters).",
+        "branchId": "Select a valid branch.",
+        "designationId": "Select a valid designation.",
+        "mobile": "Enter a valid 10-digit mobile number.",
+        "email": "Enter a valid email address.",
+        "joinDate": "Enter the join date as YYYY-MM-DD.",
+        "aadhaar": "Enter a 12-digit Aadhaar number.",
+        "pan": "Enter a valid PAN (AAAAA9999A).",
+        "deviceId": "Enter a valid device ID.",
+        "userName": "Enter a username (up to 100 characters).",
+        "userPass": "Password must be 8 to 100 characters.",
+        "status": "Select a valid status."
+      },
+      "hints": {
+        "mobile": "10 digits, starting with 6–9",
+        "aadhaar": "12 digits",
+        "pan": "10 characters, AAAAA9999A",
+        "userPass": "8 to 100 characters"
       }
     }
   },
@@ -1054,6 +1179,11 @@
       "title": "Login & Password Policy",
       "description": "Attempt limits, account lock, and password rules for all users",
       "save": "Save rules",
+      "saving": "Saving…",
+      "loading": "Loading security policy",
+      "loadErrorTitle": "Could not load the security policy",
+      "saveSuccess": "Security policy saved",
+      "validationFailed": "Check the highlighted fields and try again.",
       "pendingApi": "These rules stay on this screen until the login security API is connected. Saving checks the values and does not store them on the server.",
       "validatedNotice": "Rules look valid. They will be stored when the login security API is connected.",
       "attempts": {

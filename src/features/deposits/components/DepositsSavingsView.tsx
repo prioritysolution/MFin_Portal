@@ -9,6 +9,8 @@ import {
   Search,
   UserPlus,
 } from "lucide-react";
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import {
@@ -43,6 +45,89 @@ export function DepositsSavingsView() {
   }, [accounts, query]);
 
   const totalBalance = accounts.reduce((sum, row) => sum + row.balance, 0);
+
+  const columns: DataTableColumn<DepositAccount>[] = [
+      {
+        id: "account",
+        header: "Account No.",
+        className: "font-semibold text-slate-900",
+        cell: (row) => row.account,
+      },
+      {
+        id: "member",
+        header: "Member",
+        cell: (row) => (
+          <>
+            <p className="font-medium text-slate-800">{row.member}</p>
+            <p className="text-xs text-muted">{row.memberId}</p>
+          </>
+        ),
+      },
+      {
+        id: "group",
+        header: "JLG Group",
+        className: "text-slate-600",
+        cell: (row) => row.group,
+      },
+      {
+        id: "product",
+        header: "Product",
+        className: "text-slate-700",
+        cell: (row) => row.productLabel,
+      },
+      {
+        id: "rate",
+        header: "Interest",
+        className: "text-slate-700",
+        cell: (row) => `${row.rate}% p.a.`,
+      },
+      {
+        id: "balance",
+        header: "Balance",
+        align: "end",
+        className: "font-semibold text-emerald-700",
+        cell: (row) => formatInr(row.balance),
+      },
+      {
+        id: "status",
+        header: "Status",
+        cell: (row) => (
+          <Badge tone="success" caps={false}>
+            {row.status}
+          </Badge>
+        ),
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        cell: (row) => (
+          <div className="flex flex-wrap gap-1.5">
+            <Button
+              size="sm"
+              variant="success"
+              icon={Plus}
+              onClick={() => {
+                setSelected(row);
+                setModal("deposit");
+              }}
+            >
+              Deposit
+            </Button>
+            <Button
+              size="sm"
+              variant="amber"
+              icon={Minus}
+              onClick={() => {
+                setSelected(row);
+                setModal("withdraw");
+              }}
+            >
+              Withdraw
+            </Button>
+          </div>
+        ),
+      },
+  ];
 
   return (
     <div className="flex min-w-0 flex-col gap-4 sm:gap-5">
@@ -104,95 +189,31 @@ export function DepositsSavingsView() {
         ))}
       </div>
 
-      <section className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5">
-        <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <h2 className="inline-flex items-center gap-2 text-base font-semibold text-slate-900">
-              <PiggyBank className="h-4 w-4 text-slate-500" />
-              Compulsory Group Savings Register
-            </h2>
-            <p className="mt-1 text-sm text-muted">
-              Interest rates, total deposits, and instant ledger passbooks
-            </p>
-          </div>
-          <div className="relative w-full max-w-xs">
-            <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-soft" />
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Filter records..."
-              className="w-full rounded-xl border border-border bg-surface-muted py-2.5 pr-3 pl-9 text-sm outline-none focus:border-brand/40 focus:bg-white focus:ring-4 focus:ring-brand/10"
-            />
-          </div>
+      <div className="flex justify-end">
+        <div className="relative w-full max-w-xs">
+          <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-soft" />
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Filter records..."
+            className="w-full rounded-xl border border-border bg-surface-muted py-2.5 pr-3 pl-9 text-sm outline-none focus:border-brand/40 focus:bg-white focus:ring-4 focus:ring-brand/10"
+          />
         </div>
+      </div>
 
-        <div className="table-scroll">
-          <table className="w-full min-w-[1000px] text-left text-sm">
-            <thead>
-              <tr className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-soft">
-                <th className="pb-3 pr-3">Account No.</th>
-                <th className="pb-3 pr-3">Member</th>
-                <th className="pb-3 pr-3">JLG Group</th>
-                <th className="pb-3 pr-3">Product</th>
-                <th className="pb-3 pr-3">Interest</th>
-                <th className="pb-3 pr-3 text-right">Balance</th>
-                <th className="pb-3 pr-3">Status</th>
-                <th className="pb-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((row) => (
-                <tr key={row.account} className="border-t border-border/70">
-                  <td className="py-3.5 pr-3 font-semibold text-slate-900">
-                    {row.account}
-                  </td>
-                  <td className="py-3.5 pr-3">
-                    <p className="font-medium text-slate-800">{row.member}</p>
-                    <p className="text-xs text-muted">{row.memberId}</p>
-                  </td>
-                  <td className="py-3.5 pr-3 text-slate-600">{row.group}</td>
-                  <td className="py-3.5 pr-3 text-slate-700">{row.productLabel}</td>
-                  <td className="py-3.5 pr-3 text-slate-700">{row.rate}% p.a.</td>
-                  <td className="py-3.5 pr-3 text-right font-semibold text-emerald-700">
-                    {formatInr(row.balance)}
-                  </td>
-                  <td className="py-3.5 pr-3">
-                    <Badge tone="success" caps={false}>
-                      {row.status}
-                    </Badge>
-                  </td>
-                  <td className="py-3.5">
-                    <div className="flex flex-wrap gap-1.5">
-                      <Button
-                        size="sm"
-                        variant="success"
-                        icon={Plus}
-                        onClick={() => {
-                          setSelected(row);
-                          setModal("deposit");
-                        }}
-                      >
-                        Deposit
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="amber"
-                        icon={Minus}
-                        onClick={() => {
-                          setSelected(row);
-                          setModal("withdraw");
-                        }}
-                      >
-                        Withdraw
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      <DataTable
+        data={filtered}
+        columns={columns}
+        getRowKey={(row) => row.account}
+        minWidth="1000px"
+        title={
+          <span className="inline-flex items-center gap-2">
+            <PiggyBank className="h-4 w-4 text-slate-500" />
+            Compulsory Group Savings Register
+          </span>
+        }
+        description="Interest rates, total deposits, and instant ledger passbooks"
+      />
 
       <DepositTxnModal
         open={modal === "deposit" || modal === "withdraw"}

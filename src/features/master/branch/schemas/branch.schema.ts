@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { optionalEmail, optionalPhone, optionalText } from "@/lib/validation/formats";
 
 export const branchDtoSchema = z.object({
   branch_id: z.number(),
@@ -24,16 +25,10 @@ export const paginationMetaDtoSchema = z.object({
 export const branchCreateInputSchema = z.object({
   branchCode: z.string().trim().max(6).nullable().optional(),
   branchName: z.string().trim().min(1).max(100),
-  branchAddress: z.string().trim().max(200).nullable().optional(),
-  branchMobile: z.string().trim().max(50).nullable().optional(),
-  branchMail: z
-    .union([
-      z.literal(""),
-      z.null(),
-      z.string().trim().email().max(50),
-    ])
-    .optional(),
-  headerText: z.string().trim().nullable().optional(),
+  branchAddress: optionalText(200),
+  branchMobile: optionalPhone(20),
+  branchMail: optionalEmail(50),
+  headerText: optionalText(500),
   isHead: z.boolean().optional(),
   isActive: z.boolean().optional(),
 });

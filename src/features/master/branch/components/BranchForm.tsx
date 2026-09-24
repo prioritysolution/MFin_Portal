@@ -15,6 +15,7 @@ import {
   branchCreateInputSchema,
   branchUpdateInputSchema,
 } from "@/features/master/branch/schemas/branch.schema";
+import { phonePattern } from "@/lib/validation/formats";
 import type {
   Branch,
   BranchCreateInput,
@@ -154,6 +155,19 @@ type BodyProps = {
   };
 };
 
+function branchFieldErrors(
+  flat: Record<string, string[] | undefined>,
+  translate: (key: "errors.branchName") => string,
+): Record<string, string> {
+  const next: Record<string, string> = {};
+  for (const key of Object.keys(flat)) {
+    if (flat[key]?.length) {
+      next[key] = translate(`errors.${key}` as "errors.branchName");
+    }
+  }
+  return next;
+}
+
 function BranchFormBody({
   mode,
   branch,
@@ -166,6 +180,7 @@ function BranchFormBody({
   selectEmpty,
   fieldLabels,
 }: BodyProps) {
+  const t = useTranslations("master.branch");
   const [form, setForm] = useState<FormState>(() => toFormState(branch));
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
@@ -177,12 +192,9 @@ function BranchFormBody({
       const payload = toWritablePayload(form);
       const parsed = branchCreateInputSchema.safeParse(payload);
       if (!parsed.success) {
-        const flat = parsed.error.flatten().fieldErrors;
-        const next: Record<string, string> = {};
-        for (const [key, messages] of Object.entries(flat)) {
-          if (messages?.[0]) next[key] = messages[0];
-        }
-        setFieldErrors(next);
+        setFieldErrors(
+          branchFieldErrors(parsed.error.flatten().fieldErrors, t),
+        );
         return;
       }
       await onSubmitCreate(parsed.data);
@@ -197,12 +209,7 @@ function BranchFormBody({
     };
     const parsed = branchUpdateInputSchema.safeParse(payload);
     if (!parsed.success) {
-      const flat = parsed.error.flatten().fieldErrors;
-      const next: Record<string, string> = {};
-      for (const [key, messages] of Object.entries(flat)) {
-        if (messages?.[0]) next[key] = messages[0];
-      }
-      setFieldErrors(next);
+      setFieldErrors(branchFieldErrors(parsed.error.flatten().fieldErrors, t));
       return;
     }
     await onSubmitUpdate(parsed.data);
@@ -235,6 +242,7 @@ function BranchFormBody({
       <TextAreaField
         label={fieldLabels.branchAddress}
         value={form.branchAddress}
+        maxLength={200}
         error={fieldErrors.branchAddress}
         onChange={(branchAddress) =>
           setForm((prev) => ({ ...prev, branchAddress }))
@@ -244,9 +252,18 @@ function BranchFormBody({
       <div className="grid gap-4 sm:grid-cols-2">
         <TextField
           label={fieldLabels.branchMobile}
+          type="tel"
           value={form.branchMobile}
-          maxLength={50}
+          maxLength={16}
+          hint={t("hints.branchMobile")}
           error={fieldErrors.branchMobile}
+          validate={(value, final) => {
+            const compact = value.replace(/[\s-]/g, "");
+            if (!compact) return undefined;
+            const digits = compact.replace(/\D/g, "");
+            if (!final && digits.length < 6) return undefined;
+            return phonePattern.test(compact) ? undefined : t("errors.branchMobile");
+          }}
           onChange={(branchMobile) =>
             setForm((prev) => ({ ...prev, branchMobile }))
           }
@@ -256,7 +273,15 @@ function BranchFormBody({
           type="email"
           value={form.branchMail}
           maxLength={50}
+          hint={t("hints.branchMail")}
           error={fieldErrors.branchMail}
+          validate={(value, final) => {
+            const trimmed = value.trim();
+            if (!trimmed) return undefined;
+            const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
+            if (!final && !/@[^\s@]+\.[^\s@]+$/.test(trimmed)) return undefined;
+            return ok ? undefined : t("errors.branchMail");
+          }}
           onChange={(branchMail) => setForm((prev) => ({ ...prev, branchMail }))}
         />
       </div>
@@ -264,6 +289,7 @@ function BranchFormBody({
       <TextAreaField
         label={fieldLabels.headerText}
         value={form.headerText}
+        maxLength={500}
         error={fieldErrors.headerText}
         onChange={(headerText) => setForm((prev) => ({ ...prev, headerText }))}
       />

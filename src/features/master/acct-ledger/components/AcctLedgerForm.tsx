@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { Save } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
+import { PageToast } from "@/components/ui/PageToast";
 import { Button } from "@/components/ui/Button";
 import { CheckboxField, SelectField, TextField } from "@/components/ui/Form";
 import {
@@ -182,11 +183,7 @@ function AcctLedgerFormBody({
       className="space-y-4"
       onSubmit={(e) => void handleSubmit(e)}
     >
-      {errorMessage ? (
-        <p className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
-          {errorMessage}
-        </p>
-      ) : null}
+      <PageToast message={errorMessage ?? null} tone="error" />
 
       <TextField
         label={t("fields.ledgerName")}

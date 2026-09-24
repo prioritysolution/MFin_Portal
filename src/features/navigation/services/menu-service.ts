@@ -37,9 +37,11 @@ function parseMenuNode(row: unknown): MenuTreeNode | null {
     menu_sl: parsed.data.menu_sl,
     menu_id: parsed.data.menu_id,
     menu_name: parsed.data.menu_name,
+    menu_name_default: parsed.data.menu_name_default,
     icon: parsed.data.icon,
     route: parsed.data.route,
     status: parsed.data.status,
+    lang_code: parsed.data.lang_code,
     children,
   };
 

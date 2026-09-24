@@ -4,6 +4,11 @@ import type {
   MFinTableColumn,
   MFinTableRow,
 } from "@/lib/mfin/types";
+import { DataTable as SharedDataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { TextAreaField, TextField } from "@/components/ui/Form";
 
 const toneMap = {
   green: "bg-brand-soft text-brand-ink",
@@ -69,59 +74,22 @@ export function DataTable({
   columns: MFinTableColumn[];
   rows: MFinTableRow[];
 }) {
+  const mapped: DataTableColumn<MFinTableRow>[] = columns.map((col) => ({
+    id: col.key,
+    header: col.label,
+    align:
+      col.align === "right" ? "end" : col.align === "center" ? "center" : "start",
+    className: col.align === "right" ? "font-medium tabular-nums" : undefined,
+    cell: (row) => row[col.key] ?? "",
+  }));
+
   return (
-    <section className="overflow-hidden rounded-2xl border border-border bg-surface shadow-[var(--shadow-card)]">
-      {title ? (
-        <div className="border-b border-border px-4 py-3">
-          <h2 className="text-sm font-semibold text-slate-900">{title}</h2>
-        </div>
-      ) : null}
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-left text-sm">
-          <thead className="bg-surface-muted text-[11px] uppercase tracking-[0.12em] text-muted-soft">
-            <tr>
-              {columns.map((col) => (
-                <th
-                  key={col.key}
-                  className={`px-4 py-3 font-semibold ${
-                    col.align === "right"
-                      ? "text-right"
-                      : col.align === "center"
-                        ? "text-center"
-                        : "text-left"
-                  }`}
-                >
-                  {col.label}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row, idx) => (
-              <tr
-                key={idx}
-                className="border-t border-border/80 hover:bg-surface-muted/60"
-              >
-                {columns.map((col) => (
-                  <td
-                    key={col.key}
-                    className={`px-4 py-3 text-slate-700 ${
-                      col.align === "right"
-                        ? "text-right font-medium tabular-nums"
-                        : col.align === "center"
-                          ? "text-center"
-                          : "text-left"
-                    }`}
-                  >
-                    {row[col.key]}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
+    <SharedDataTable
+      title={title}
+      data={rows}
+      columns={mapped}
+      getRowKey={(_row, index) => String(index)}
+    />
   );
 }
 
@@ -133,39 +101,43 @@ export function FormGrid({
   fields: MFinFormField[];
 }) {
   return (
-    <section className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5">
-      {title ? (
-        <h2 className="mb-4 text-sm font-semibold text-slate-900">{title}</h2>
-      ) : null}
+    <Card title={title}>
       <div className="grid gap-3 sm:grid-cols-2">
-        {fields.map((field) => (
-          <label
-            key={field.label}
-            className={`flex flex-col gap-1.5 ${field.span === 2 ? "sm:col-span-2" : ""}`}
-          >
-            <span className="text-xs font-medium text-muted">{field.label}</span>
-            {field.type === "textarea" ? (
-              <textarea
-                readOnly
-                defaultValue={field.value}
-                rows={3}
-                className="rounded-xl border border-border bg-surface-muted px-3 py-2 text-sm text-slate-800"
-              />
-            ) : field.type === "toggle" ? (
-              <span className="inline-flex w-fit rounded-full bg-brand-soft px-2.5 py-1 text-xs font-semibold text-brand-ink">
-                {field.value}
-              </span>
-            ) : (
-              <input
-                readOnly
-                defaultValue={field.value}
-                className="rounded-xl border border-border bg-surface-muted px-3 py-2 text-sm text-slate-800"
-              />
-            )}
-          </label>
-        ))}
+        {fields.map((field) => {
+          const span = field.span === 2 ? "sm:col-span-2" : "";
+          if (field.type === "toggle") {
+            return (
+              <div key={field.label} className={span}>
+                <p className="mb-1.5 text-xs font-semibold text-slate-600">
+                  {field.label}
+                </p>
+                <span className="inline-flex w-fit rounded-full bg-brand-soft px-2.5 py-1 text-xs font-semibold text-brand-ink">
+                  {field.value}
+                </span>
+              </div>
+            );
+          }
+          if (field.type === "textarea") {
+            return (
+              <div key={field.label} className={span}>
+                <TextAreaField
+                  label={field.label}
+                  value={field.value}
+                  rows={3}
+                  disabled
+                  onChange={() => undefined}
+                />
+              </div>
+            );
+          }
+          return (
+            <div key={field.label} className={span}>
+              <TextField label={field.label} value={field.value} readOnly />
+            </div>
+          );
+        })}
       </div>
-    </section>
+    </Card>
   );
 }
 
@@ -214,13 +186,13 @@ export function ActionBar({ actions }: { actions: string[] }) {
       {actions.map((action, idx) => {
         const isPrimary = idx === actions.length - 1;
         return (
-          <button
+          <Button
             key={action}
             type="button"
-            className={isPrimary ? "btn btn-primary" : "btn btn-secondary"}
+            variant={isPrimary ? "primary" : "secondary"}
           >
             {action}
-          </button>
+          </Button>
         );
       })}
     </div>

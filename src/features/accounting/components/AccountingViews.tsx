@@ -13,6 +13,8 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
 import {
   CashBookPanel,
   TrialBalancePanel,
@@ -145,6 +147,91 @@ export function VoucherEntryView() {
     );
   }
 
+  const lineColumns: DataTableColumn<LineRow>[] = [
+      {
+        id: "party",
+        header: "Party / Customer",
+        cell: (row) => (
+          <input
+            className={fieldClass}
+            value={row.party}
+            onChange={(event) =>
+              updateLine(row.id, { party: event.target.value })
+            }
+          />
+        ),
+      },
+      {
+        id: "account",
+        header: "COA Account",
+        cell: (row) => (
+          <select
+            className={fieldClass}
+            value={row.account}
+            onChange={(event) =>
+              updateLine(row.id, { account: event.target.value })
+            }
+          >
+            <option>111000 — Branch Vault Cash</option>
+            <option>112100 — Bank Current Account</option>
+            <option>121100 — JLG Microfinance Loans</option>
+            <option>211000 — Bachat Gat Savings</option>
+            <option>411000 — Interest Income</option>
+          </select>
+        ),
+      },
+      {
+        id: "debit",
+        header: "Debit (Dr)",
+        align: "end",
+        cell: (row) => (
+          <input
+            type="number"
+            min={0}
+            className={`${fieldClass} text-right`}
+            value={row.debit}
+            onChange={(event) =>
+              updateLine(row.id, {
+                debit: Number(event.target.value) || 0,
+              })
+            }
+          />
+        ),
+      },
+      {
+        id: "credit",
+        header: "Credit (Cr)",
+        align: "end",
+        cell: (row) => (
+          <input
+            type="number"
+            min={0}
+            className={`${fieldClass} text-right`}
+            value={row.credit}
+            onChange={(event) =>
+              updateLine(row.id, {
+                credit: Number(event.target.value) || 0,
+              })
+            }
+          />
+        ),
+      },
+      {
+        id: "remove",
+        header: "",
+        cell: (row) => (
+          <button
+            type="button"
+            onClick={() => removeLine(row.id)}
+            className="rounded-lg p-2 text-rose-500 hover:bg-rose-50"
+            aria-label="Remove line"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        ),
+      },
+    ];
+
   return (
     <div className="flex min-w-0 flex-col gap-4 sm:gap-5">
       <PageActions
@@ -230,98 +317,16 @@ export function VoucherEntryView() {
           </span>
         </div>
 
-        <div className="table-scroll">
-          <table className="w-full min-w-[840px] text-left text-sm">
-            <thead>
-              <tr className="text-[11px] uppercase tracking-[0.12em] text-muted-soft">
-                <th className="pb-3 pr-3 font-semibold">Party / Customer</th>
-                <th className="pb-3 pr-3 font-semibold">COA Account</th>
-                <th className="pb-3 pr-3 text-right font-semibold">Debit (Dr)</th>
-                <th className="pb-3 pr-3 text-right font-semibold">Credit (Cr)</th>
-                <th className="pb-3 font-semibold" />
-              </tr>
-            </thead>
-            <tbody>
-              {lines.map((row) => (
-                <tr key={row.id} className="border-t border-border/70">
-                  <td className="py-2.5 pr-3">
-                    <input
-                      className={fieldClass}
-                      value={row.party}
-                      onChange={(event) =>
-                        updateLine(row.id, { party: event.target.value })
-                      }
-                    />
-                  </td>
-                  <td className="py-2.5 pr-3">
-                    <select
-                      className={fieldClass}
-                      value={row.account}
-                      onChange={(event) =>
-                        updateLine(row.id, { account: event.target.value })
-                      }
-                    >
-                      <option>111000 — Branch Vault Cash</option>
-                      <option>112100 — Bank Current Account</option>
-                      <option>121100 — JLG Microfinance Loans</option>
-                      <option>211000 — Bachat Gat Savings</option>
-                      <option>411000 — Interest Income</option>
-                    </select>
-                  </td>
-                  <td className="py-2.5 pr-3">
-                    <input
-                      type="number"
-                      min={0}
-                      className={`${fieldClass} text-right`}
-                      value={row.debit}
-                      onChange={(event) =>
-                        updateLine(row.id, {
-                          debit: Number(event.target.value) || 0,
-                        })
-                      }
-                    />
-                  </td>
-                  <td className="py-2.5 pr-3">
-                    <input
-                      type="number"
-                      min={0}
-                      className={`${fieldClass} text-right`}
-                      value={row.credit}
-                      onChange={(event) =>
-                        updateLine(row.id, {
-                          credit: Number(event.target.value) || 0,
-                        })
-                      }
-                    />
-                  </td>
-                  <td className="py-2.5">
-                    <button
-                      type="button"
-                      onClick={() => removeLine(row.id)}
-                      className="rounded-lg p-2 text-rose-500 hover:bg-rose-50"
-                      aria-label="Remove line"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-            <tfoot>
-              <tr className="border-t border-border font-semibold">
-                <td className="py-3 pr-3" colSpan={2}>
-                  Totals
-                </td>
-                <td className="py-3 pr-3 text-right text-emerald-700">
-                  {formatInr(totals.debit)}
-                </td>
-                <td className="py-3 pr-3 text-right text-rose-600">
-                  {formatInr(totals.credit)}
-                </td>
-                <td />
-              </tr>
-            </tfoot>
-          </table>
+        <DataTable
+          data={lines}
+          columns={lineColumns}
+          getRowKey={(row) => row.id}
+          minWidth="840px"
+        />
+        <div className="mt-4 flex flex-wrap items-center gap-x-8 gap-y-2 border-t border-border pt-3 text-sm font-semibold">
+          <span>Totals</span>
+          <span className="text-emerald-700">{formatInr(totals.debit)}</span>
+          <span className="text-rose-600">{formatInr(totals.credit)}</span>
         </div>
       </section>
     </div>
@@ -359,6 +364,89 @@ export function JournalAdjustmentView() {
     return { debit, credit, ok: Math.abs(debit - credit) < 0.01 };
   }, [rows]);
 
+  const journalColumns: DataTableColumn<(typeof rows)[number]>[] = [
+    {
+      id: "account",
+      header: "GL Account",
+      cell: (row) => (
+        <input
+          className={fieldClass}
+          value={row.account}
+          onChange={(event) =>
+            setRows((prev) =>
+              prev.map((item) =>
+                item.id === row.id
+                  ? { ...item, account: event.target.value }
+                  : item,
+              ),
+            )
+          }
+        />
+      ),
+    },
+    {
+      id: "label",
+      header: "Particulars",
+      cell: (row) => (
+        <input
+          className={fieldClass}
+          value={row.label}
+          onChange={(event) =>
+            setRows((prev) =>
+              prev.map((item) =>
+                item.id === row.id
+                  ? { ...item, label: event.target.value }
+                  : item,
+              ),
+            )
+          }
+        />
+      ),
+    },
+    {
+      id: "debit",
+      header: "Dr ₹",
+      align: "end",
+      cell: (row) => (
+        <input
+          type="number"
+          className={`${fieldClass} text-right`}
+          value={row.debit}
+          onChange={(event) =>
+            setRows((prev) =>
+              prev.map((item) =>
+                item.id === row.id
+                  ? { ...item, debit: Number(event.target.value) || 0 }
+                  : item,
+              ),
+            )
+          }
+        />
+      ),
+    },
+    {
+      id: "credit",
+      header: "Cr ₹",
+      align: "end",
+      cell: (row) => (
+        <input
+          type="number"
+          className={`${fieldClass} text-right`}
+          value={row.credit}
+          onChange={(event) =>
+            setRows((prev) =>
+              prev.map((item) =>
+                item.id === row.id
+                  ? { ...item, credit: Number(event.target.value) || 0 }
+                  : item,
+              ),
+            )
+          }
+        />
+      ),
+    },
+  ];
+
   return (
     <div className="flex min-w-0 flex-col gap-4 sm:gap-5">
       <PageActions
@@ -381,92 +469,13 @@ export function JournalAdjustmentView() {
           />
         </label>
 
-        <div className="table-scroll mt-4">
-          <table className="w-full min-w-[720px] text-left text-sm">
-            <thead>
-              <tr className="text-[11px] uppercase tracking-[0.12em] text-muted-soft">
-                <th className="pb-3 pr-3 font-semibold">GL Account</th>
-                <th className="pb-3 pr-3 font-semibold">Particulars</th>
-                <th className="pb-3 pr-3 text-right font-semibold">Dr ₹</th>
-                <th className="pb-3 text-right font-semibold">Cr ₹</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => (
-                <tr key={row.id} className="border-t border-border/70">
-                  <td className="py-2.5 pr-3">
-                    <input
-                      className={fieldClass}
-                      value={row.account}
-                      onChange={(event) =>
-                        setRows((prev) =>
-                          prev.map((item) =>
-                            item.id === row.id
-                              ? { ...item, account: event.target.value }
-                              : item,
-                          ),
-                        )
-                      }
-                    />
-                  </td>
-                  <td className="py-2.5 pr-3">
-                    <input
-                      className={fieldClass}
-                      value={row.label}
-                      onChange={(event) =>
-                        setRows((prev) =>
-                          prev.map((item) =>
-                            item.id === row.id
-                              ? { ...item, label: event.target.value }
-                              : item,
-                          ),
-                        )
-                      }
-                    />
-                  </td>
-                  <td className="py-2.5 pr-3">
-                    <input
-                      type="number"
-                      className={`${fieldClass} text-right`}
-                      value={row.debit}
-                      onChange={(event) =>
-                        setRows((prev) =>
-                          prev.map((item) =>
-                            item.id === row.id
-                              ? {
-                                  ...item,
-                                  debit: Number(event.target.value) || 0,
-                                }
-                              : item,
-                          ),
-                        )
-                      }
-                    />
-                  </td>
-                  <td className="py-2.5">
-                    <input
-                      type="number"
-                      className={`${fieldClass} text-right`}
-                      value={row.credit}
-                      onChange={(event) =>
-                        setRows((prev) =>
-                          prev.map((item) =>
-                            item.id === row.id
-                              ? {
-                                  ...item,
-                                  credit: Number(event.target.value) || 0,
-                                }
-                              : item,
-                          ),
-                        )
-                      }
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          className="mt-4"
+          data={rows}
+          columns={journalColumns}
+          getRowKey={(row) => row.id}
+          minWidth="720px"
+        />
 
         <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-surface-muted px-4 py-3 text-sm">
           <span>
@@ -501,6 +510,92 @@ function VoucherListView({ filterHint }: { filterHint: string }) {
     );
   }, [query]);
 
+  const voucherColumns: DataTableColumn<(typeof postedVouchers)[number]>[] = [
+    {
+      id: "date",
+      header: "Date",
+      cell: (row) => row.date,
+    },
+    {
+      id: "no",
+      header: "Voucher No",
+      cell: (row) => (
+        <span className="font-semibold text-slate-900">{row.no}</span>
+      ),
+    },
+    {
+      id: "party",
+      header: "Party",
+      cell: (row) => row.party,
+    },
+    {
+      id: "narration",
+      header: "Narration",
+      cell: (row) => <span className="text-muted">{row.narration}</span>,
+    },
+    {
+      id: "debit",
+      header: "Dr ₹",
+      align: "end",
+      cell: (row) => (
+        <span className="font-medium text-emerald-700">
+          {row.debit ? formatInr(row.debit) : "—"}
+        </span>
+      ),
+    },
+    {
+      id: "credit",
+      header: "Cr ₹",
+      align: "end",
+      cell: (row) => (
+        <span className="font-medium text-rose-600">
+          {row.credit ? formatInr(row.credit) : "—"}
+        </span>
+      ),
+    },
+    {
+      id: "status",
+      header: "Status",
+      cell: (row) => (
+        <span
+          className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+            row.status === "Posted"
+              ? "bg-emerald-50 text-emerald-700"
+              : "bg-amber-50 text-amber-800"
+          }`}
+        >
+          {row.status}
+        </span>
+      ),
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: (row) => (
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            className="rounded-lg p-2 text-slate-500 hover:bg-surface-muted"
+            title="Print"
+            onClick={() => {
+              setSelected(row);
+              setPrintOpen(true);
+            }}
+          >
+            <Printer className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            className="rounded-lg p-2 text-slate-500 hover:bg-surface-muted"
+            title="Reverse"
+          >
+            <RefreshCw className="h-4 w-4" />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="flex min-w-0 flex-col gap-4 sm:gap-5">
       <PageActions
@@ -523,73 +618,13 @@ function VoucherListView({ filterHint }: { filterHint: string }) {
           />
         </div>
 
-        <div className="table-scroll mt-4">
-          <table className="w-full min-w-[900px] text-left text-sm">
-            <thead>
-              <tr className="text-[11px] uppercase tracking-[0.12em] text-muted-soft">
-                <th className="pb-3 pr-3 font-semibold">Date</th>
-                <th className="pb-3 pr-3 font-semibold">Voucher No</th>
-                <th className="pb-3 pr-3 font-semibold">Party</th>
-                <th className="pb-3 pr-3 font-semibold">Narration</th>
-                <th className="pb-3 pr-3 text-right font-semibold">Dr ₹</th>
-                <th className="pb-3 pr-3 text-right font-semibold">Cr ₹</th>
-                <th className="pb-3 pr-3 font-semibold">Status</th>
-                <th className="pb-3 font-semibold">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => (
-                <tr key={row.no} className="border-t border-border/70">
-                  <td className="py-3 pr-3 text-slate-700">{row.date}</td>
-                  <td className="py-3 pr-3 font-semibold text-slate-900">
-                    {row.no}
-                  </td>
-                  <td className="py-3 pr-3">{row.party}</td>
-                  <td className="py-3 pr-3 text-muted">{row.narration}</td>
-                  <td className="py-3 pr-3 text-right font-medium text-emerald-700">
-                    {row.debit ? formatInr(row.debit) : "—"}
-                  </td>
-                  <td className="py-3 pr-3 text-right font-medium text-rose-600">
-                    {row.credit ? formatInr(row.credit) : "—"}
-                  </td>
-                  <td className="py-3 pr-3">
-                    <span
-                      className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ${
-                        row.status === "Posted"
-                          ? "bg-emerald-50 text-emerald-700"
-                          : "bg-amber-50 text-amber-800"
-                      }`}
-                    >
-                      {row.status}
-                    </span>
-                  </td>
-                  <td className="py-3">
-                    <div className="flex items-center gap-1">
-                      <button
-                        type="button"
-                        className="rounded-lg p-2 text-slate-500 hover:bg-surface-muted"
-                        title="Print"
-                        onClick={() => {
-                          setSelected(row);
-                          setPrintOpen(true);
-                        }}
-                      >
-                        <Printer className="h-4 w-4" />
-                      </button>
-                      <button
-                        type="button"
-                        className="rounded-lg p-2 text-slate-500 hover:bg-surface-muted"
-                        title="Reverse"
-                      >
-                        <RefreshCw className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          className="mt-4"
+          data={rows}
+          columns={voucherColumns}
+          getRowKey={(row) => row.no}
+          minWidth="900px"
+        />
       </section>
 
       {printOpen && selected ? (

@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Plus } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
-import { ModulePageShell } from "@/components/shared/ModulePageShell";
+import { DataPage } from "@/components/shared/DataPage";
 import { Button } from "@/components/ui/Button";
-import { Alert } from "@/components/ui/Alert";
+import { PageToast, useToastText } from "@/components/ui/PageToast";
 import { masterModulePages } from "@/lib/modules/module.types";
 import {
   FinYearFilters,
@@ -61,7 +61,8 @@ export function FinYearView() {
   const [saving, setSaving] = useState(false);
   const [statusBusyId, setStatusBusyId] = useState<number | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useToastText();
+  const [actionError, setActionError] = useToastText();
 
   useEffect(() => {
     if (filtersEqual(filters, appliedFilters)) return;
@@ -156,6 +157,7 @@ export function FinYearView() {
     const nextActive = !year.isActive;
     setStatusBusyId(year.yearId);
     setSuccessMessage(null);
+    setActionError(null);
     try {
       await saveFinYear({
         yearId: year.yearId,
@@ -173,8 +175,7 @@ export function FinYearView() {
         router.replace("/login");
         return;
       }
-      setError(true);
-      setErrorMessage(
+      setActionError(
         isFinYearClientError(err) ? err.message : tErrors("generic"),
       );
     } finally {
@@ -183,17 +184,9 @@ export function FinYearView() {
   }
 
   return (
-    <ModulePageShell
-      page={pageMeta}
-      actions={
-        <Button type="button" icon={Plus} onClick={openCreate}>
-          {t("add")}
-        </Button>
-      }
-    >
-      {successMessage ? (
-        <Alert tone="success">{successMessage}</Alert>
-      ) : null}
+    <DataPage page={pageMeta}>
+      <PageToast message={successMessage} />
+      <PageToast message={actionError} tone="error" />
 
       <FinYearFilters
         values={filters}
@@ -223,6 +216,11 @@ export function FinYearView() {
         }}
         onEdit={openEdit}
         onToggleActive={handleToggleActive}
+        headerActions={
+          <Button type="button" icon={Plus} onClick={openCreate}>
+            {t("add")}
+          </Button>
+        }
       />
 
       <FinYearForm
@@ -238,6 +236,6 @@ export function FinYearView() {
         }}
         onSubmit={handleSave}
       />
-    </ModulePageShell>
+    </DataPage>
   );
 }

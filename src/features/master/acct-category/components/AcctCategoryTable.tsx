@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Pencil } from "lucide-react";
 import { DataTable } from "@/components/shared/DataTable";
@@ -25,6 +25,7 @@ type AcctCategoryTableProps = {
   onPageChange: (page: number) => void;
   onPageSizeChange: (pageSize: number) => void;
   onEdit: (row: AcctCategory) => void;
+  headerActions?: ReactNode;
 };
 
 function isKnownType(
@@ -45,6 +46,7 @@ export function AcctCategoryTable({
   onPageChange,
   onPageSizeChange,
   onEdit,
+  headerActions,
 }: AcctCategoryTableProps) {
   const t = useTranslations("master.acctCategory");
 
@@ -96,6 +98,9 @@ export function AcctCategoryTable({
 
   return (
     <DataTable<AcctCategory>
+      title={t("title")}
+      description={t("description")}
+      actions={headerActions}
       data={items}
       columns={columns}
       getRowKey={(row) => String(row.categId)}

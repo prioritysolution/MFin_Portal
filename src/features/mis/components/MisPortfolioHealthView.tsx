@@ -1,12 +1,64 @@
 "use client";
 
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/Badge";
-import { MisReportShell, MisTableCard } from "@/features/mis/components/MisReportShell";
+import { MisReportShell } from "@/features/mis/components/MisReportShell";
 import {
   branchGlRows,
   formatInr,
   parBuckets,
 } from "@/features/mis/components/mis-data";
+
+type BranchGlRow = (typeof branchGlRows)[number];
+
+const columns: DataTableColumn<BranchGlRow>[] = [
+  {
+    id: "branch",
+    header: "Branch",
+    className: "font-semibold text-slate-900",
+    cell: (row) => row.branch,
+  },
+  {
+    id: "aum",
+    header: "AUM",
+    align: "end",
+    className: "font-semibold text-slate-900",
+    cell: (row) => formatInr(row.debit),
+  },
+  {
+    id: "collection",
+    header: "Collection",
+    align: "end",
+    className: "font-semibold text-emerald-700",
+    cell: (row) => formatInr(row.collection),
+  },
+  {
+    id: "efficiency",
+    header: "Eff %",
+    align: "end",
+    cell: (row) => `${row.efficiency.toFixed(2)}%`,
+  },
+  {
+    id: "par",
+    header: "PAR %",
+    align: "end",
+    className: "font-semibold text-amber-700",
+    cell: (row) => `${row.par.toFixed(2)}%`,
+  },
+  {
+    id: "health",
+    header: "Health",
+    cell: (row) => (
+      <Badge
+        tone={row.par < 1 ? "success" : row.par < 2 ? "warning" : "danger"}
+        caps={false}
+      >
+        {row.par < 1 ? "Strong" : row.par < 2 ? "Watch" : "Stress"}
+      </Badge>
+    ),
+  },
+];
 
 export function MisPortfolioHealthView() {
   const totalAum = branchGlRows.reduce((sum, row) => sum + row.debit, 0);
@@ -64,54 +116,14 @@ export function MisPortfolioHealthView() {
         ))}
       </div>
 
-      <MisTableCard
+      <DataTable
         title="Branch Portfolio Quality"
-        subtitle="Concentration, efficiency, and PAR by operating branch"
-      >
-        <div className="table-scroll">
-          <table className="w-full min-w-[820px] text-left text-sm">
-            <thead>
-              <tr className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-soft">
-                <th className="pb-3 pr-3">Branch</th>
-                <th className="pb-3 pr-3 text-right">AUM</th>
-                <th className="pb-3 pr-3 text-right">Collection</th>
-                <th className="pb-3 pr-3 text-right">Eff %</th>
-                <th className="pb-3 pr-3 text-right">PAR %</th>
-                <th className="pb-3">Health</th>
-              </tr>
-            </thead>
-            <tbody>
-              {branchGlRows.map((row) => (
-                <tr key={row.jlg} className="border-t border-border/70">
-                  <td className="py-3.5 pr-3 font-semibold text-slate-900">
-                    {row.branch}
-                  </td>
-                  <td className="py-3.5 pr-3 text-right font-semibold text-slate-900">
-                    {formatInr(row.debit)}
-                  </td>
-                  <td className="py-3.5 pr-3 text-right font-semibold text-emerald-700">
-                    {formatInr(row.collection)}
-                  </td>
-                  <td className="py-3.5 pr-3 text-right text-slate-700">
-                    {row.efficiency.toFixed(2)}%
-                  </td>
-                  <td className="py-3.5 pr-3 text-right font-semibold text-amber-700">
-                    {row.par.toFixed(2)}%
-                  </td>
-                  <td className="py-3.5">
-                    <Badge
-                      tone={row.par < 1 ? "success" : row.par < 2 ? "warning" : "danger"}
-                      caps={false}
-                    >
-                      {row.par < 1 ? "Strong" : row.par < 2 ? "Watch" : "Stress"}
-                    </Badge>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </MisTableCard>
+        description="Concentration, efficiency, and PAR by operating branch"
+        data={branchGlRows}
+        columns={columns}
+        getRowKey={(row) => row.jlg}
+        minWidth="820px"
+      />
     </MisReportShell>
   );
 }

@@ -16,6 +16,8 @@ import {
   SlidersHorizontal,
   Trash2,
 } from "lucide-react";
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
 
 const permissionOptions = [
   "Onboard KYC",
@@ -260,6 +262,70 @@ export function SeriesPanel() {
     [query],
   );
 
+  const seriesColumns: DataTableColumn<(typeof seriesRows)[number]>[] = [
+    {
+      id: "entity",
+      header: "Entity / Module",
+      cell: (row) => (
+        <span className="font-medium text-slate-800">{row.entity}</span>
+      ),
+    },
+    {
+      id: "prefix",
+      header: "Custom Prefix",
+      cell: (row) => (
+        <span className="rounded-md bg-blue-50 px-2 py-1 font-mono text-xs font-semibold text-blue-700">
+          {row.prefix}
+        </span>
+      ),
+    },
+    {
+      id: "counter",
+      header: "Next Counter",
+      cell: (row) => <span className="font-mono">{row.counter}</span>,
+    },
+    {
+      id: "padding",
+      header: "Padding Digits",
+      cell: (row) => <span className="font-mono">{row.padding}</span>,
+    },
+    {
+      id: "suffix",
+      header: "Suffix",
+      cell: (row) => (
+        <span className="text-muted">{row.suffix || "—"}</span>
+      ),
+    },
+    {
+      id: "sample",
+      header: "Live Formatted Sample",
+      cell: (row) => (
+        <span className="font-mono text-sm font-semibold text-slate-800">
+          {row.sample}
+        </span>
+      ),
+    },
+    {
+      id: "status",
+      header: "Status",
+      cell: () => (
+        <span className="rounded-full bg-brand-soft px-2.5 py-1 text-[11px] font-semibold text-brand-ink">
+          Active
+        </span>
+      ),
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: () => (
+        <button type="button" className="btn btn-secondary btn-sm">
+          <SlidersHorizontal className="h-3.5 w-3.5" />
+          Configure Series
+        </button>
+      ),
+    },
+  ];
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
@@ -293,57 +359,12 @@ export function SeriesPanel() {
           </label>
         </div>
 
-        <div className="table-scroll">
-          <table className="w-full min-w-[980px] text-left text-sm">
-            <thead>
-              <tr className="border-b border-border text-[11px] uppercase tracking-[0.12em] text-muted-soft">
-                <th className="pb-3 pr-3 font-semibold">Entity / Module</th>
-                <th className="pb-3 pr-3 font-semibold">Custom Prefix</th>
-                <th className="pb-3 pr-3 font-semibold">Next Counter</th>
-                <th className="pb-3 pr-3 font-semibold">Padding Digits</th>
-                <th className="pb-3 pr-3 font-semibold">Suffix</th>
-                <th className="pb-3 pr-3 font-semibold">Live Formatted Sample</th>
-                <th className="pb-3 pr-3 font-semibold">Status</th>
-                <th className="pb-3 font-semibold">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((row) => (
-                <tr key={row.entity} className="border-b border-border/70 last:border-0">
-                  <td className="py-3.5 pr-3 font-medium text-slate-800">
-                    {row.entity}
-                  </td>
-                  <td className="py-3.5 pr-3">
-                    <span className="rounded-md bg-blue-50 px-2 py-1 font-mono text-xs font-semibold text-blue-700">
-                      {row.prefix}
-                    </span>
-                  </td>
-                  <td className="py-3.5 pr-3 font-mono text-slate-700">
-                    {row.counter}
-                  </td>
-                  <td className="py-3.5 pr-3 font-mono text-slate-700">
-                    {row.padding}
-                  </td>
-                  <td className="py-3.5 pr-3 text-muted">{row.suffix || "—"}</td>
-                  <td className="py-3.5 pr-3 font-mono text-sm font-semibold text-slate-800">
-                    {row.sample}
-                  </td>
-                  <td className="py-3.5 pr-3">
-                    <span className="rounded-full bg-brand-soft px-2.5 py-1 text-[11px] font-semibold text-brand-ink">
-                      Active
-                    </span>
-                  </td>
-                  <td className="py-3.5">
-                    <button type="button" className="btn btn-secondary btn-sm">
-                      <SlidersHorizontal className="h-3.5 w-3.5" />
-                      Configure Series
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          data={filtered}
+          columns={seriesColumns}
+          getRowKey={(row) => row.entity}
+          minWidth="980px"
+        />
       </section>
     </div>
   );
@@ -583,6 +604,114 @@ export function MakerPanel() {
     ]);
   }
 
+  const ruleColumns: DataTableColumn<MakerRule>[] = [
+    {
+      id: "voucherType",
+      header: "Voucher Type",
+      cell: (rule) => (
+        <select
+          value={rule.voucherType}
+          onChange={(event) =>
+            updateRule(rule.id, {
+              voucherType: event.target.value as MakerRule["voucherType"],
+            })
+          }
+          className="w-full rounded-lg border border-border bg-surface-muted px-2 py-2 text-sm outline-none focus:border-blue-400 focus:bg-white"
+        >
+          {voucherTypes.map((type) => (
+            <option key={type} value={type}>
+              {type}
+            </option>
+          ))}
+        </select>
+      ),
+    },
+    {
+      id: "threshold",
+      header: "Threshold Limit (₹)",
+      cell: (rule) => (
+        <input
+          type="number"
+          value={rule.threshold}
+          onChange={(event) =>
+            updateRule(rule.id, {
+              threshold: Number(event.target.value) || 0,
+            })
+          }
+          className="w-28 rounded-lg border border-border bg-surface-muted px-2 py-2 text-sm outline-none focus:border-blue-400 focus:bg-white"
+        />
+      ),
+    },
+    {
+      id: "makers",
+      header: "Maker Roles (Initiators)",
+      cell: (rule) => (
+        <input
+          value={rule.makers}
+          onChange={(event) =>
+            updateRule(rule.id, { makers: event.target.value })
+          }
+          className="w-full rounded-lg border border-border bg-surface-muted px-2 py-2 text-sm outline-none focus:border-blue-400 focus:bg-white"
+        />
+      ),
+    },
+    {
+      id: "checkers",
+      header: "Checker Roles (Approvers)",
+      cell: (rule) => (
+        <input
+          value={rule.checkers}
+          onChange={(event) =>
+            updateRule(rule.id, { checkers: event.target.value })
+          }
+          className="w-full rounded-lg border border-border bg-surface-muted px-2 py-2 text-sm outline-none focus:border-blue-400 focus:bg-white"
+        />
+      ),
+    },
+    {
+      id: "dualAuth",
+      header: "Dual Auth Mandatory",
+      cell: (rule) => (
+        <input
+          type="checkbox"
+          checked={rule.dualAuth}
+          onChange={(event) =>
+            updateRule(rule.id, { dualAuth: event.target.checked })
+          }
+          className="h-4 w-4 accent-blue-600"
+        />
+      ),
+    },
+    {
+      id: "autoApprove",
+      header: "Auto-Approve Below",
+      cell: (rule) => (
+        <input
+          type="checkbox"
+          checked={rule.autoApprove}
+          onChange={(event) =>
+            updateRule(rule.id, { autoApprove: event.target.checked })
+          }
+          className="h-4 w-4 accent-blue-600"
+        />
+      ),
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: (rule) => (
+        <button
+          type="button"
+          onClick={() => removeRule(rule.id)}
+          className="rounded-lg p-2 text-rose-600 transition hover:bg-rose-50"
+          aria-label="Delete rule"
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
+      ),
+    },
+  ];
+
   return (
     <section className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5">
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -607,107 +736,12 @@ export function MakerPanel() {
         </button>
       </div>
 
-      <div className="table-scroll">
-        <table className="w-full min-w-[980px] text-left text-sm">
-          <thead>
-            <tr className="border-b border-border text-[11px] uppercase tracking-[0.12em] text-muted-soft">
-              <th className="pb-3 pr-3 font-semibold">Voucher Type</th>
-              <th className="pb-3 pr-3 font-semibold">Threshold Limit (₹)</th>
-              <th className="pb-3 pr-3 font-semibold">Maker Roles (Initiators)</th>
-              <th className="pb-3 pr-3 font-semibold">Checker Roles (Approvers)</th>
-              <th className="pb-3 pr-3 font-semibold">Dual Auth Mandatory</th>
-              <th className="pb-3 pr-3 font-semibold">Auto-Approve Below</th>
-              <th className="pb-3 font-semibold">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rules.map((rule) => (
-              <tr key={rule.id} className="border-b border-border/70 last:border-0">
-                <td className="py-3 pr-3">
-                  <select
-                    value={rule.voucherType}
-                    onChange={(event) =>
-                      updateRule(rule.id, {
-                        voucherType: event.target
-                          .value as MakerRule["voucherType"],
-                      })
-                    }
-                    className="w-full rounded-lg border border-border bg-surface-muted px-2 py-2 text-sm outline-none focus:border-blue-400 focus:bg-white"
-                  >
-                    {voucherTypes.map((type) => (
-                      <option key={type} value={type}>
-                        {type}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td className="py-3 pr-3">
-                  <input
-                    type="number"
-                    value={rule.threshold}
-                    onChange={(event) =>
-                      updateRule(rule.id, {
-                        threshold: Number(event.target.value) || 0,
-                      })
-                    }
-                    className="w-28 rounded-lg border border-border bg-surface-muted px-2 py-2 text-sm outline-none focus:border-blue-400 focus:bg-white"
-                  />
-                </td>
-                <td className="py-3 pr-3">
-                  <input
-                    value={rule.makers}
-                    onChange={(event) =>
-                      updateRule(rule.id, { makers: event.target.value })
-                    }
-                    className="w-full rounded-lg border border-border bg-surface-muted px-2 py-2 text-sm outline-none focus:border-blue-400 focus:bg-white"
-                  />
-                </td>
-                <td className="py-3 pr-3">
-                  <input
-                    value={rule.checkers}
-                    onChange={(event) =>
-                      updateRule(rule.id, { checkers: event.target.value })
-                    }
-                    className="w-full rounded-lg border border-border bg-surface-muted px-2 py-2 text-sm outline-none focus:border-blue-400 focus:bg-white"
-                  />
-                </td>
-                <td className="py-3 pr-3">
-                  <input
-                    type="checkbox"
-                    checked={rule.dualAuth}
-                    onChange={(event) =>
-                      updateRule(rule.id, { dualAuth: event.target.checked })
-                    }
-                    className="h-4 w-4 accent-blue-600"
-                  />
-                </td>
-                <td className="py-3 pr-3">
-                  <input
-                    type="checkbox"
-                    checked={rule.autoApprove}
-                    onChange={(event) =>
-                      updateRule(rule.id, {
-                        autoApprove: event.target.checked,
-                      })
-                    }
-                    className="h-4 w-4 accent-blue-600"
-                  />
-                </td>
-                <td className="py-3">
-                  <button
-                    type="button"
-                    onClick={() => removeRule(rule.id)}
-                    className="rounded-lg p-2 text-rose-600 transition hover:bg-rose-50"
-                    aria-label="Delete rule"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <DataTable
+        data={rules}
+        columns={ruleColumns}
+        getRowKey={(rule) => rule.id}
+        minWidth="980px"
+      />
 
       <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-xs italic text-muted">

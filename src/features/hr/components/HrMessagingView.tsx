@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { Search, Send } from "lucide-react";
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import {
@@ -10,7 +12,67 @@ import {
   modalFieldClass,
   modalSelectClass,
 } from "@/components/ui/Modal";
-import { messageLogs } from "@/features/hr/components/hr-data";
+import { messageLogs, type MessageLog } from "@/features/hr/components/hr-data";
+
+const messageColumns: DataTableColumn<MessageLog>[] = [
+  {
+    id: "recipient",
+    header: "Recipient",
+    cell: (row) => (
+      <span className="font-semibold text-slate-900">{row.recipient}</span>
+    ),
+  },
+  {
+    id: "mobile",
+    header: "Mobile",
+    cell: (row) => <span className="text-slate-600">{row.mobile}</span>,
+  },
+  {
+    id: "category",
+    header: "Category",
+    cell: (row) => row.category,
+  },
+  {
+    id: "channel",
+    header: "Channel",
+    cell: (row) => (
+      <Badge tone={row.channel === "WhatsApp" ? "success" : "info"} caps={false}>
+        {row.channel}
+      </Badge>
+    ),
+  },
+  {
+    id: "preview",
+    header: "Preview",
+    className: "max-w-xs",
+    cell: (row) => (
+      <span className="line-clamp-2 text-slate-600">{row.preview}</span>
+    ),
+  },
+  {
+    id: "sentAt",
+    header: "Sent At",
+    cell: (row) => <span className="text-slate-600">{row.sentAt}</span>,
+  },
+  {
+    id: "status",
+    header: "Status",
+    cell: (row) => (
+      <Badge
+        tone={
+          row.status === "Delivered"
+            ? "success"
+            : row.status === "Queued"
+              ? "warning"
+              : "danger"
+        }
+        caps={false}
+      >
+        {row.status}
+      </Badge>
+    ),
+  },
+];
 
 export function HrMessagingView() {
   const [query, setQuery] = useState("");
@@ -91,58 +153,12 @@ export function HrMessagingView() {
           </div>
         </div>
 
-        <div className="table-scroll">
-          <table className="w-full min-w-[980px] text-left text-sm">
-            <thead>
-              <tr className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-soft">
-                <th className="pb-3 pr-3">Recipient</th>
-                <th className="pb-3 pr-3">Mobile</th>
-                <th className="pb-3 pr-3">Category</th>
-                <th className="pb-3 pr-3">Channel</th>
-                <th className="pb-3 pr-3">Preview</th>
-                <th className="pb-3 pr-3">Sent At</th>
-                <th className="pb-3">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((row) => (
-                <tr key={row.id} className="border-t border-border/70">
-                  <td className="py-3.5 pr-3 font-semibold text-slate-900">
-                    {row.recipient}
-                  </td>
-                  <td className="py-3.5 pr-3 text-slate-600">{row.mobile}</td>
-                  <td className="py-3.5 pr-3 text-slate-700">{row.category}</td>
-                  <td className="py-3.5 pr-3">
-                    <Badge
-                      tone={row.channel === "WhatsApp" ? "success" : "info"}
-                      caps={false}
-                    >
-                      {row.channel}
-                    </Badge>
-                  </td>
-                  <td className="max-w-xs py-3.5 pr-3 text-slate-600">
-                    <span className="line-clamp-2">{row.preview}</span>
-                  </td>
-                  <td className="py-3.5 pr-3 text-slate-600">{row.sentAt}</td>
-                  <td className="py-3.5">
-                    <Badge
-                      tone={
-                        row.status === "Delivered"
-                          ? "success"
-                          : row.status === "Queued"
-                            ? "warning"
-                            : "danger"
-                      }
-                      caps={false}
-                    >
-                      {row.status}
-                    </Badge>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          data={filtered}
+          columns={messageColumns}
+          getRowKey={(row) => row.id}
+          minWidth="980px"
+        />
       </section>
 
       <ComposeMessageModal open={open} onClose={() => setOpen(false)} />

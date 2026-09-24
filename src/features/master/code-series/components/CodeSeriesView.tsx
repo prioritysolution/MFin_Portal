@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { PageToast, useToastText } from "@/components/ui/PageToast";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { Alert } from "@/components/ui/Alert";
 import {
   CodeSeriesFilters,
   type CodeSeriesFilterValues,
@@ -61,7 +61,7 @@ export function CodeSeriesView() {
   const [saving, setSaving] = useState(false);
   const [statusBusyId, setStatusBusyId] = useState<number | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useToastText();
 
   // Live filters → API (one search, no Apply click needed)
   useEffect(() => {
@@ -202,9 +202,7 @@ export function CodeSeriesView() {
         </span>
       </div>
 
-      {successMessage ? (
-        <Alert tone="success">{successMessage}</Alert>
-      ) : null}
+      <PageToast message={successMessage} />
 
       <CodeSeriesFilters
         values={filters}

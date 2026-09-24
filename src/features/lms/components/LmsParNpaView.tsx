@@ -1,18 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   AlertTriangle,
   BarChart3,
   Search,
   ShieldAlert,
 } from "lucide-react";
+import { DataTable } from "@/components/shared/DataTable";
+import type { DataTableColumn } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import {
   formatInr,
   lmsLoans,
   metricToneClass,
+  type LmsLoan,
 } from "@/features/lms/components/lms-data";
 
 const buckets = [
@@ -51,6 +54,82 @@ export function LmsParNpaView() {
   const npaPct = totalOutstanding
     ? ((npaAmount / totalOutstanding) * 100).toFixed(2)
     : "0.00";
+
+  const columns = useMemo<DataTableColumn<LmsLoan>[]>(
+    () => [
+      {
+        id: "loanId",
+        header: "Loan A/c",
+        className: "font-semibold text-slate-900",
+        cell: (row) => row.loanId,
+      },
+      {
+        id: "borrower",
+        header: "Borrower",
+        cell: (row) => (
+          <>
+            <p className="font-medium text-slate-800">{row.borrower}</p>
+            <p className="text-xs text-muted">{row.group}</p>
+          </>
+        ),
+      },
+      {
+        id: "outstanding",
+        header: "Outstanding",
+        align: "end",
+        className: "font-semibold text-slate-900",
+        cell: (row) => formatInr(row.outstanding),
+      },
+      {
+        id: "dpd",
+        header: "DPD",
+        align: "center",
+        className: "font-semibold text-amber-700",
+        cell: (row) => row.dpd,
+      },
+      {
+        id: "bucket",
+        header: "Bucket",
+        cell: (row) => {
+          const bucket =
+            buckets.find(
+              (item) => row.dpd >= item.min && row.dpd <= item.max,
+            ) ?? buckets[0]!;
+          return (
+            <Badge tone={bucket.tone} caps={false}>
+              {bucket.label}
+            </Badge>
+          );
+        },
+      },
+      {
+        id: "emi",
+        header: "EMI",
+        align: "end",
+        className: "text-slate-700",
+        cell: (row) => formatInr(row.emi),
+      },
+      {
+        id: "status",
+        header: "Classification",
+        cell: (row) => (
+          <Badge
+            tone={
+              row.status === "Current"
+                ? "success"
+                : row.status === "NPA"
+                  ? "danger"
+                  : "warning"
+            }
+            caps={false}
+          >
+            {row.status}
+          </Badge>
+        ),
+      },
+    ],
+    [],
+  );
 
   const filtered = (() => {
     const q = query.trim().toLowerCase();
@@ -145,91 +224,31 @@ export function LmsParNpaView() {
         ))}
       </div>
 
-      <section className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5">
-        <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <h2 className="inline-flex items-center gap-2 text-base font-semibold text-slate-900">
-              <AlertTriangle className="h-4 w-4 text-amber-500" />
-              DPD Aging Register
-            </h2>
-            <p className="mt-1 text-sm text-muted">
-              Click an aging bucket above to filter portfolio exposure
-            </p>
-          </div>
-          <div className="relative w-full max-w-xs">
-            <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-soft" />
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Filter records..."
-              className="w-full rounded-xl border border-border bg-surface-muted py-2.5 pr-3 pl-9 text-sm outline-none focus:border-brand/40 focus:bg-white focus:ring-4 focus:ring-brand/10"
-            />
-          </div>
+      <div className="flex justify-end">
+        <div className="relative w-full max-w-xs">
+          <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-soft" />
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Filter records..."
+            className="w-full rounded-xl border border-border bg-surface-muted py-2.5 pr-3 pl-9 text-sm outline-none focus:border-brand/40 focus:bg-white focus:ring-4 focus:ring-brand/10"
+          />
         </div>
+      </div>
 
-        <div className="table-scroll">
-          <table className="w-full min-w-[980px] text-left text-sm">
-            <thead>
-              <tr className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-soft">
-                <th className="pb-3 pr-3">Loan A/c</th>
-                <th className="pb-3 pr-3">Borrower</th>
-                <th className="pb-3 pr-3 text-right">Outstanding</th>
-                <th className="pb-3 pr-3 text-center">DPD</th>
-                <th className="pb-3 pr-3">Bucket</th>
-                <th className="pb-3 pr-3 text-right">EMI</th>
-                <th className="pb-3">Classification</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((row) => {
-                const bucket =
-                  buckets.find(
-                    (item) => row.dpd >= item.min && row.dpd <= item.max,
-                  ) ?? buckets[0]!;
-                return (
-                  <tr key={row.loanId} className="border-t border-border/70">
-                    <td className="py-3.5 pr-3 font-semibold text-slate-900">
-                      {row.loanId}
-                    </td>
-                    <td className="py-3.5 pr-3">
-                      <p className="font-medium text-slate-800">{row.borrower}</p>
-                      <p className="text-xs text-muted">{row.group}</p>
-                    </td>
-                    <td className="py-3.5 pr-3 text-right font-semibold text-slate-900">
-                      {formatInr(row.outstanding)}
-                    </td>
-                    <td className="py-3.5 pr-3 text-center font-semibold text-amber-700">
-                      {row.dpd}
-                    </td>
-                    <td className="py-3.5 pr-3">
-                      <Badge tone={bucket.tone} caps={false}>
-                        {bucket.label}
-                      </Badge>
-                    </td>
-                    <td className="py-3.5 pr-3 text-right text-slate-700">
-                      {formatInr(row.emi)}
-                    </td>
-                    <td className="py-3.5">
-                      <Badge
-                        tone={
-                          row.status === "Current"
-                            ? "success"
-                            : row.status === "NPA"
-                              ? "danger"
-                              : "warning"
-                        }
-                        caps={false}
-                      >
-                        {row.status}
-                      </Badge>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      <DataTable
+        data={filtered}
+        columns={columns}
+        getRowKey={(row) => row.loanId}
+        minWidth="980px"
+        title={
+          <span className="inline-flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 text-amber-500" />
+            DPD Aging Register
+          </span>
+        }
+        description="Click an aging bucket above to filter portfolio exposure"
+      />
     </div>
   );
 }

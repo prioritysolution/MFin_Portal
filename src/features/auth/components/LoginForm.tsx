@@ -1,30 +1,62 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Eye, EyeOff, LogIn } from "lucide-react";
-import { AuthLanguageSelect, authFieldClass } from "@/features/auth/components/AuthShell";
+import { AuthLanguageSelect } from "@/features/auth/components/AuthShell";
+import { loginFormSchema } from "@/features/auth/schemas/auth-form.schema";
+import { CheckboxField, TextField } from "@/components/ui/Form";
 import { Link, useRouter } from "@/i18n/navigation";
 import { endpoints } from "@/lib/api/endpoints";
 import { clearMenuClientCache } from "@/features/navigation/services/menu-client";
+import {
+  readRememberedLogin,
+  saveRememberedLogin,
+} from "@/features/auth/utils/remember-login";
 
 export function LoginForm() {
   const t = useTranslations("auth");
   const tErrors = useTranslations("errors");
   const router = useRouter();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(true);
+
+  useEffect(() => {
+    const saved = readRememberedLogin();
+    if (!saved) return;
+    setRemember(saved.remember);
+    if (saved.login) setUsername(saved.login);
+  }, []);
+
+  function updateRemember(next: boolean) {
+    setRemember(next);
+    saveRememberedLogin(next, next ? username : "");
+  }
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
-    setSubmitting(true);
 
-    const form = new FormData(event.currentTarget);
-    const login = String(form.get("username") ?? "").trim();
-    const password = String(form.get("password") ?? "");
+    const parsed = loginFormSchema.safeParse({ username, password });
+    if (!parsed.success) {
+      const flat = parsed.error.flatten().fieldErrors;
+      const next: Record<string, string> = {};
+      for (const key of Object.keys(flat)) {
+        if (flat[key as keyof typeof flat]?.length) {
+          next[key] = t(`errors.${key}` as "errors.username");
+        }
+      }
+      setFieldErrors(next);
+      return;
+    }
+
+    setFieldErrors({});
+    setSubmitting(true);
 
     try {
       const response = await fetch(endpoints.auth.login, {
@@ -34,7 +66,11 @@ export function LoginForm() {
           "Content-Type": "application/json",
         },
         credentials: "same-origin",
-        body: JSON.stringify({ login, password }),
+        body: JSON.stringify({
+          login: parsed.data.username,
+          password: parsed.data.password,
+          remember,
+        }),
       });
 
       const payload = (await response.json()) as {
@@ -47,11 +83,7 @@ export function LoginForm() {
         return;
       }
 
-      // remember flag reserved for future device preference; session uses httpOnly cookie.
-      void remember;
-      // Full login payload (token + user + roleId) is already sealed server-side in the
-      // AUTH_SESSION cookie by /api/auth/login — do not store token in localStorage.
-      // Soft replace keeps Network log; avoid refresh() (it remounts Sidebar → 2nd menu call).
+      saveRememberedLogin(remember, parsed.data.username);
       clearMenuClientCache();
       router.replace("/");
       return;
@@ -66,37 +98,43 @@ export function LoginForm() {
     <form onSubmit={handleSubmit} className="space-y-5">
       <AuthLanguageSelect />
 
-      <label className="auth-field-group block text-sm">
-        <span className="auth-label mb-1.5 block font-medium text-slate-700">
-          {t("username")}
-        </span>
-        <input
-          type="text"
-          name="username"
-          required
-          autoComplete="username"
-          placeholder={t("usernamePlaceholder")}
-          className={authFieldClass}
-        />
-      </label>
+      <TextField
+        label={t("username")}
+        name="username"
+        required
+        autoComplete="username"
+        placeholder={t("usernamePlaceholder")}
+        value={username}
+        maxLength={100}
+        error={fieldErrors.username}
+        validate={(value, final) =>
+          final && !value.trim() ? t("errors.username") : undefined
+        }
+        onChange={(value) => {
+          setUsername(value);
+          if (remember) saveRememberedLogin(true, value);
+        }}
+      />
 
-      <label className="auth-field-group block text-sm">
-        <span className="auth-label mb-1.5 block font-medium text-slate-700">
-          {t("password")}
-        </span>
-        <span className="relative block">
-          <input
-            type={showPassword ? "text" : "password"}
-            name="password"
-            required
-            autoComplete="current-password"
-            placeholder={t("passwordPlaceholder")}
-            className={`${authFieldClass} pr-11`}
-          />
+      <TextField
+        label={t("password")}
+        name="password"
+        type={showPassword ? "text" : "password"}
+        required
+        autoComplete="current-password"
+        placeholder={t("passwordPlaceholder")}
+        value={password}
+        maxLength={100}
+        error={fieldErrors.password}
+        validate={(value, final) =>
+          final && !value ? t("errors.password") : undefined
+        }
+        onChange={setPassword}
+        trailing={
           <button
             type="button"
             onClick={() => setShowPassword((prev) => !prev)}
-            className="absolute top-1/2 end-3 -translate-y-1/2 rounded-md p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+            className="rounded-md p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
             aria-label={showPassword ? t("hidePassword") : t("showPassword")}
           >
             {showPassword ? (
@@ -105,8 +143,8 @@ export function LoginForm() {
               <Eye className="h-4 w-4" />
             )}
           </button>
-        </span>
-      </label>
+        }
+      />
 
       {error ? (
         <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
@@ -115,15 +153,11 @@ export function LoginForm() {
       ) : null}
 
       <div className="flex flex-wrap items-center justify-between gap-3 pt-0.5 text-sm">
-        <label className="inline-flex items-center gap-2.5 text-slate-700">
-          <input
-            type="checkbox"
-            checked={remember}
-            onChange={(event) => setRemember(event.currentTarget.checked)}
-            className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500/30"
-          />
-          {t("rememberDevice")}
-        </label>
+        <CheckboxField
+          label={t("rememberDevice")}
+          checked={remember}
+          onChange={updateRemember}
+        />
         <Link
           href="/forgot-password"
           className="font-semibold text-blue-600 hover:text-blue-700 hover:underline"

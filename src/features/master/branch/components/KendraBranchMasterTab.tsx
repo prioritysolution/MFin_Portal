@@ -1,16 +1,19 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { PageToast, useToastText } from "@/components/ui/PageToast";
 import { useTranslations } from "next-intl";
-import { Ban, CircleCheck, Pencil, Plus, Search } from "lucide-react";
+import { Ban, CircleCheck, Pencil, Plus } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
-import { Alert } from "@/components/ui/Alert";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
 import { DataTable } from "@/components/shared/DataTable";
 import type { DataTableColumn } from "@/components/shared/DataTable";
 import { BranchForm } from "@/features/master/branch/components/BranchForm";
+import {
+  BranchFilters,
+  type BranchFilterValues,
+} from "@/features/master/branch/components/BranchFilters";
 import {
   createBranch,
   fetchBranchList,
@@ -26,6 +29,18 @@ import type {
 
 const SEARCH_DEBOUNCE_MS = 350;
 
+const DEFAULT_FILTERS: BranchFilterValues = {
+  keyword: "",
+  status: "",
+  isHead: "",
+};
+
+function filtersEqual(a: BranchFilterValues, b: BranchFilterValues): boolean {
+  return (
+    a.keyword === b.keyword && a.status === b.status && a.isHead === b.isHead
+  );
+}
+
 type KendraBranchMasterTabProps = {
   onBranchesChange?: (branches: Branch[]) => void;
 };
@@ -35,13 +50,13 @@ export function KendraBranchMasterTab({
 }: KendraBranchMasterTabProps) {
   const t = useTranslations("master.branch");
   const tErrors = useTranslations("errors");
-  const tCommon = useTranslations("common");
   const router = useRouter();
   const onBranchesChangeRef = useRef(onBranchesChange);
   onBranchesChangeRef.current = onBranchesChange;
 
-  const [keyword, setKeyword] = useState("");
-  const [appliedKeyword, setAppliedKeyword] = useState("");
+  const [filters, setFilters] = useState<BranchFilterValues>(DEFAULT_FILTERS);
+  const [appliedFilters, setAppliedFilters] =
+    useState<BranchFilterValues>(DEFAULT_FILTERS);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [items, setItems] = useState<Branch[]>([]);
@@ -50,7 +65,7 @@ export function KendraBranchMasterTab({
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
   const [reloadKey, setReloadKey] = useState(0);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useToastText();
 
   const [formOpen, setFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<"create" | "edit">("create");
@@ -60,14 +75,14 @@ export function KendraBranchMasterTab({
   const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (keyword === appliedKeyword) return;
+    if (filtersEqual(filters, appliedFilters)) return;
     const timer = window.setTimeout(() => {
       setPage(1);
-      setAppliedKeyword(keyword);
+      setAppliedFilters(filters);
       setSuccessMessage(null);
     }, SEARCH_DEBOUNCE_MS);
     return () => window.clearTimeout(timer);
-  }, [keyword, appliedKeyword]);
+  }, [filters, appliedFilters]);
 
   useEffect(() => {
     let cancelled = false;
@@ -80,7 +95,15 @@ export function KendraBranchMasterTab({
         const result = await fetchBranchList({
           page,
           perPage: pageSize,
-          keyword: appliedKeyword.trim() || undefined,
+          keyword: appliedFilters.keyword.trim() || undefined,
+          isActive:
+            appliedFilters.status === ""
+              ? undefined
+              : Number(appliedFilters.status),
+          isHead:
+            appliedFilters.isHead === ""
+              ? undefined
+              : Number(appliedFilters.isHead),
         });
         if (cancelled) return;
         setItems(result.items);
@@ -108,7 +131,7 @@ export function KendraBranchMasterTab({
     return () => {
       cancelled = true;
     };
-  }, [appliedKeyword, page, pageSize, reloadKey, router, tErrors]);
+  }, [appliedFilters, page, pageSize, reloadKey, router, tErrors]);
 
   const total = meta?.total ?? items.length;
   const activeCount = items.filter((row) => row.isActive).length;
@@ -260,26 +283,18 @@ export function KendraBranchMasterTab({
 
   return (
     <>
-      <div className="flex justify-end">
-        <Button type="button" icon={Plus} onClick={openCreate}>
-          {t("add")}
-        </Button>
-      </div>
+      <PageToast message={successMessage} />
 
-      {successMessage ? <Alert tone="success">{successMessage}</Alert> : null}
-      {error ? (
-        <Alert tone="error">
-          <span className="font-semibold">{t("loadErrorTitle")}</span>
-          {errorMessage ? ` — ${errorMessage}` : null}
-          <button
-            type="button"
-            className="ml-2 underline"
-            onClick={() => setReloadKey((key) => key + 1)}
-          >
-            {tCommon("retry")}
-          </button>
-        </Alert>
-      ) : null}
+      <BranchFilters
+        values={filters}
+        onChange={setFilters}
+        onReset={() => {
+          setFilters(DEFAULT_FILTERS);
+          setAppliedFilters(DEFAULT_FILTERS);
+          setPage(1);
+          setSuccessMessage(null);
+        }}
+      />
 
       <div className="grid gap-3 sm:grid-cols-3">
         <StatCard
@@ -299,25 +314,14 @@ export function KendraBranchMasterTab({
         />
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-base font-semibold text-slate-900">
-            {t("directoryTitle")}
-          </h2>
-          <p className="mt-1 text-sm text-muted">{t("directoryDescription")}</p>
-        </div>
-        <label className="relative block w-full sm:w-64">
-          <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-soft" />
-          <Input
-            value={keyword}
-            onChange={(event) => setKeyword(event.target.value)}
-            placeholder={t("filters.searchPlaceholder")}
-            className="pl-9"
-          />
-        </label>
-      </div>
-
       <DataTable<Branch>
+        title={t("directoryTitle")}
+        description={t("directoryDescription")}
+        actions={
+          <Button type="button" icon={Plus} onClick={openCreate}>
+            {t("add")}
+          </Button>
+        }
         data={items}
         columns={columns}
         getRowKey={(row) => String(row.branchId)}

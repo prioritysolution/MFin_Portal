@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Ban, CircleCheck, Pencil } from "lucide-react";
 import { DataTable } from "@/components/shared/DataTable";
@@ -26,6 +26,7 @@ type StaffTableProps = {
   onPageSizeChange: (pageSize: number) => void;
   onEdit: (row: Staff) => void;
   onToggleStatus: (row: Staff) => void;
+  headerActions?: ReactNode;
 };
 
 export function StaffTable({
@@ -42,6 +43,7 @@ export function StaffTable({
   onEdit,
   onToggleStatus,
   statusBusyId = null,
+  headerActions,
 }: StaffTableProps) {
   const t = useTranslations("master.staff");
 
@@ -99,6 +101,9 @@ export function StaffTable({
 
   return (
     <DataTable<Staff>
+      title={t("title")}
+      description={t("description")}
+      actions={headerActions}
       data={items}
       columns={columns}
       getRowKey={(row) => String(row.staffId)}

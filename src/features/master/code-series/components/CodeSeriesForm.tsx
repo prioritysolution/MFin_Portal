@@ -70,8 +70,10 @@ function CodeSeriesFormBody({
     if (!parsed.success) {
       const flat = parsed.error.flatten().fieldErrors;
       const next: Record<string, string> = {};
-      for (const [key, messages] of Object.entries(flat)) {
-        if (messages?.[0]) next[key] = messages[0];
+      for (const key of Object.keys(flat)) {
+        if (flat[key as keyof typeof flat]?.length) {
+          next[key] = t(`errors.${key}` as "errors.prefix");
+        }
       }
       setFieldErrors(next);
       return;
@@ -121,6 +123,8 @@ function CodeSeriesFormBody({
         <TextField
           label={t("fields.suffix")}
           value={form.suffix}
+          maxLength={20}
+          error={fieldErrors.suffix}
           onChange={(value) => setForm((prev) => ({ ...prev, suffix: value }))}
         />
       </div>
@@ -160,6 +164,7 @@ function CodeSeriesFormBody({
       <SelectField
         label={t("fields.status")}
         value={String(form.status)}
+        error={fieldErrors.status}
         onChange={(value) =>
           setForm((prev) => ({ ...prev, status: Number(value) }))
         }

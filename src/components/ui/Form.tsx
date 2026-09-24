@@ -1,4 +1,7 @@
-import type { InputHTMLAttributes, ReactNode } from "react";
+"use client";
+
+import { useState, type InputHTMLAttributes, type ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Select, type SelectOption } from "@/components/ui/Select";
@@ -9,7 +12,9 @@ import { DatePicker } from "@/components/ui/DatePicker";
 export { controlClass as formControlClass } from "@/components/ui/Input";
 /** @deprecated Prefer `Select` — kept for rare native select needs. */
 export const formSelectClass =
-  "w-full rounded-xl border border-border bg-surface-muted px-3 py-2.5 text-sm text-slate-800 outline-none transition appearance-none bg-[url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")] bg-[length:1rem] bg-[right_0.875rem_center] bg-no-repeat pr-10 hover:border-slate-300 focus:border-brand/40 focus:bg-white focus:ring-4 focus:ring-brand/10";
+  "w-full rounded-xl border border-border bg-surface-muted px-3 py-2.5 text-sm text-slate-800 outline-none transition appearance-none bg-[url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")] bg-[length:1rem] bg-[right_0.875rem_center] bg-no-repeat pr-10 hover:border-slate-300 focus:border-brand/40 focus:bg-surface focus:ring-4 focus:ring-brand/10";
+
+export type FieldRestrict = "digits" | "phone" | "code" | "decimal";
 
 type FormFieldProps = {
   label: string;
@@ -18,9 +23,10 @@ type FormFieldProps = {
   required?: boolean;
   error?: string;
   hint?: string;
+  meta?: ReactNode;
 };
 
-/** Label + control + optional error/hint wrapper. */
+/** Label + control + live hint, error, and limit counter. */
 export function FormField({
   label,
   children,
@@ -28,6 +34,7 @@ export function FormField({
   required,
   error,
   hint,
+  meta,
 }: FormFieldProps) {
   return (
     <div className={`block ${className}`}>
@@ -37,13 +44,38 @@ export function FormField({
       </span>
       {children}
       {error ? (
-        <span className="mt-1 block text-xs text-rose-600">{error}</span>
+        <span className="mt-1 block text-xs text-rose-600" role="alert">
+          {error}
+        </span>
       ) : null}
-      {!error && hint ? (
-        <span className="mt-1 block text-xs text-muted">{hint}</span>
+      {hint || meta ? (
+        <span className="mt-1 flex items-start justify-between gap-3 text-xs text-muted">
+          <span className="min-w-0">{hint}</span>
+          {meta ? <span className="shrink-0 tabular-nums">{meta}</span> : null}
+        </span>
       ) : null}
     </div>
   );
+}
+
+function limitValue(
+  value: string,
+  restrict: FieldRestrict | undefined,
+  maxLength: number | undefined,
+) {
+  let next = value;
+  if (restrict === "digits") next = next.replace(/\D/g, "");
+  if (restrict === "phone") {
+    next = next.replace(/[^\d+]/g, "").replace(/(?!^)\+/g, "");
+  }
+  if (restrict === "code") next = next.toUpperCase().replace(/[^A-Z0-9]/g, "");
+  if (restrict === "decimal") {
+    next = next.replace(/[^\d.]/g, "");
+    const [whole, ...rest] = next.split(".");
+    next = rest.length > 0 ? `${whole}.${rest.join("")}` : whole;
+  }
+  if (maxLength != null && maxLength > 0) next = next.slice(0, maxLength);
+  return next;
 }
 
 type TextFieldProps = Omit<
@@ -55,7 +87,13 @@ type TextFieldProps = Omit<
   onChange?: (value: string) => void;
   error?: string;
   hint?: string;
+  className?: string;
   inputClassName?: string;
+  trailing?: ReactNode;
+  /** Strip disallowed characters as the user types. */
+  restrict?: FieldRestrict;
+  /** Checked while typing and again when the field is left. */
+  validate?: (value: string, final: boolean) => string | undefined;
 };
 
 export function TextField({
@@ -65,25 +103,106 @@ export function TextField({
   required,
   error,
   hint,
+  className,
   readOnly,
   inputClassName = "",
+  trailing,
+  restrict,
+  validate,
   ...rest
 }: TextFieldProps) {
+  const t = useTranslations("ui");
+  const [touched, setTouched] = useState(false);
+  const [liveError, setLiveError] = useState<string | undefined>();
+  const maxLength =
+    typeof rest.maxLength === "number" ? rest.maxLength : undefined;
+  const min = rest.min;
+  const max = rest.max;
+  const type = rest.type;
+  const inputMode = rest.inputMode;
+  const activeRestrict: FieldRestrict | undefined =
+    restrict ??
+    (inputMode === "numeric" || inputMode === "decimal"
+      ? inputMode === "decimal"
+        ? "decimal"
+        : "digits"
+      : type === "tel"
+        ? "phone"
+        : type === "number"
+          ? "digits"
+          : undefined);
+
+  const textValue = String(value ?? "");
+  const shownError = touched ? liveError : error;
+
+  function check(next: string, final: boolean) {
+    if (type === "number" && next !== "") {
+      const amount = Number(next);
+      if (max != null && amount > Number(max)) {
+        return t("numberMax", { max: String(max) });
+      }
+      if (final && min != null && amount < Number(min)) {
+        return t("numberMin", { min: String(min) });
+      }
+    }
+    return validate?.(next, final);
+  }
+
+  function commit(next: string, final: boolean) {
+    setTouched(true);
+    setLiveError(check(next, final));
+    onChange?.(next);
+  }
+
+  const countLabel =
+    maxLength != null
+      ? t("charCount", { count: textValue.length, max: maxLength })
+      : type === "number" && min != null && max != null
+        ? t("numberRange", { min: String(min), max: String(max) })
+        : null;
+
   return (
-    <FormField label={label} required={required} error={error} hint={hint}>
-      <Input
-        {...rest}
-        value={value}
-        required={required}
-        readOnly={readOnly}
-        onChange={
-          readOnly || !onChange
-            ? undefined
-            : (event) => onChange(event.target.value)
-        }
-        className={inputClassName}
-        aria-invalid={error ? true : undefined}
-      />
+    <FormField
+      label={label}
+      required={required}
+      error={shownError}
+      hint={hint}
+      className={className}
+      meta={countLabel}
+    >
+      <div className={trailing ? "relative" : undefined}>
+        <Input
+          {...rest}
+          value={value}
+          readOnly={readOnly}
+          aria-required={required || undefined}
+          onBlur={(event) => {
+            rest.onBlur?.(event);
+            if (readOnly) return;
+            setTouched(true);
+            setLiveError(check(textValue, true));
+          }}
+          onChange={
+            readOnly || !onChange
+              ? undefined
+              : (event) => {
+                  const next = limitValue(
+                    event.target.value,
+                    activeRestrict,
+                    maxLength,
+                  );
+                  commit(next, false);
+                }
+          }
+          className={`${trailing ? "pe-11" : ""} ${inputClassName}`.trim()}
+          aria-invalid={shownError ? true : undefined}
+        />
+        {trailing ? (
+          <div className="absolute inset-y-0 end-2 flex items-center">
+            {trailing}
+          </div>
+        ) : null}
+      </div>
     </FormField>
   );
 }
@@ -97,6 +216,8 @@ type TextAreaFieldProps = {
   hint?: string;
   rows?: number;
   disabled?: boolean;
+  maxLength?: number;
+  validate?: (value: string, final: boolean) => string | undefined;
 };
 
 export function TextAreaField({
@@ -108,16 +229,45 @@ export function TextAreaField({
   hint,
   rows = 3,
   disabled,
+  maxLength,
+  validate,
 }: TextAreaFieldProps) {
+  const t = useTranslations("ui");
+  const [touched, setTouched] = useState(false);
+  const [liveError, setLiveError] = useState<string | undefined>();
+  const shownError = touched ? liveError : error;
+
   return (
-    <FormField label={label} required={required} error={error} hint={hint}>
+    <FormField
+      label={label}
+      required={required}
+      error={shownError}
+      hint={hint}
+      meta={
+        maxLength != null
+          ? t("charCount", { count: value.length, max: maxLength })
+          : null
+      }
+    >
       <Textarea
         rows={rows}
         value={value}
-        required={required}
         disabled={disabled}
-        onChange={(event) => onChange(event.target.value)}
-        aria-invalid={error ? true : undefined}
+        maxLength={maxLength}
+        aria-required={required || undefined}
+        onBlur={() => {
+          setTouched(true);
+          setLiveError(validate?.(value, true));
+        }}
+        onChange={(event) => {
+          const next = maxLength
+            ? event.target.value.slice(0, maxLength)
+            : event.target.value;
+          setTouched(true);
+          setLiveError(validate?.(next, false));
+          onChange(next);
+        }}
+        aria-invalid={shownError ? true : undefined}
       />
     </FormField>
   );

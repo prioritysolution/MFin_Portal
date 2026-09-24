@@ -6,6 +6,7 @@ import { Clock3 } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
 import { Alert } from "@/components/ui/Alert";
+import { PageToast, useToastText } from "@/components/ui/PageToast";
 import { Card } from "@/components/ui/Card";
 import { TextField } from "@/components/ui/Form";
 import { LoadingState } from "@/components/shared/LoadingState";
@@ -61,7 +62,7 @@ export function WorkingHoursForm() {
   const [saving, setSaving] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useToastText();
 
   useEffect(() => {
     let cancelled = false;
@@ -237,9 +238,7 @@ export function WorkingHoursForm() {
 
   return (
     <div className="flex min-w-0 flex-col gap-4 sm:gap-5">
-      {successMessage ? (
-        <Alert tone="success">{successMessage}</Alert>
-      ) : null}
+      <PageToast message={successMessage} />
 
       {formError ? <Alert tone="error">{formError}</Alert> : null}
 
@@ -287,7 +286,7 @@ export function WorkingHoursForm() {
             />
           </div>
 
-          <div className="btn-actions mt-4">
+          <div className="btn-actions mt-5 border-t border-border pt-4">
             <Button type="submit" disabled={saving} icon={Clock3}>
               {saving ? t("saving") : t("save")}
             </Button>
