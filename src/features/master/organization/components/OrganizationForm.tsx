@@ -359,10 +359,7 @@ export function OrganizationForm() {
         onSubmit={(event) => void handleSubmit(event)}
         className="flex min-w-0 flex-col gap-4 sm:gap-5"
       >
-        <Card
-          title={t("sectionIdentity")}
-          description={t("sectionIdentityHint")}
-        >
+        <Card title={t("title")} description={t("description")}>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <TextField
               label={t("fields.orgDispNm")}

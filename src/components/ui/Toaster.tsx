@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 import {
   Check,
@@ -36,22 +37,27 @@ export function Toaster() {
   const t = useTranslations("common");
   const items = useSyncExternalStore(subscribeToasts, getToasts, getToasts);
   const knownIds = useRef(new Set<number>());
+  const [mounted, setMounted] = useState(false);
   const incomingId =
     [...items].reverse().find((item) => !knownIds.current.has(item.id))?.id ??
     null;
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
     for (const item of items) knownIds.current.add(item.id);
   }, [items]);
 
-  if (items.length === 0) return null;
+  if (!mounted || items.length === 0) return null;
 
   const stacked = items.slice(-4);
   const settled = stacked.filter((item) => !item.leaving);
 
-  return (
+  return createPortal(
     <div
-      className="toast-stack pointer-events-none fixed top-4 right-4 z-[80] w-[min(22rem,calc(100vw-2rem))]"
+      className="toast-stack pointer-events-none fixed top-4 right-4 z-[240] w-[min(22rem,calc(100vw-2rem))]"
       aria-live="polite"
     >
       {stacked.map((item) => {
@@ -94,6 +100,7 @@ export function Toaster() {
           </div>
         );
       })}
-    </div>
+    </div>,
+    document.body,
   );
 }

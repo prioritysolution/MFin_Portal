@@ -116,6 +116,8 @@ export function CodeSeriesTable({
 
   return (
     <DataTable<CodeSeries>
+      title={t("title")}
+      description={t("description")}
       data={items}
       columns={columns}
       getRowKey={(row) => String(row.seriesId)}

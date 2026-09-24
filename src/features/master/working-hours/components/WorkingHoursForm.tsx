@@ -250,7 +250,7 @@ export function WorkingHoursForm() {
         id="working-hours-form"
         onSubmit={(event) => void handleSubmit(event)}
       >
-        <Card title={t("sectionTitle")} description={t("sectionHint")}>
+        <Card title={t("title")} description={t("description")}>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <TextField
               label={t("fields.sodTime")}

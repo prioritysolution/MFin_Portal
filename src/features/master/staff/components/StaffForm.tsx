@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { Save } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
@@ -261,6 +261,11 @@ function StaffFormBody({
   const [form, setForm] = useState<FormState>(() => toFormState(staff));
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
+  useEffect(() => {
+    if (!errorMessage || !/password/i.test(errorMessage)) return;
+    setFieldErrors((prev) => ({ ...prev, userPass: errorMessage }));
+  }, [errorMessage]);
+
   function toggleModule(moduleId: number, checked: boolean) {
     setForm((prev) => ({
       ...prev,
@@ -487,14 +492,13 @@ function StaffFormBody({
             required
             type="password"
             value={form.userPass}
-            maxLength={100}
+            maxLength={128}
             hint={t("hints.userPass")}
             autoComplete="new-password"
             error={fieldErrors.userPass}
             validate={(value, final) => {
-              if (!value) return final ? t("errors.userPass") : undefined;
-              if (!final && value.length < 8) return undefined;
-              return value.length >= 8 ? undefined : t("errors.userPass");
+              if (!final || value) return undefined;
+              return t("errors.userPass");
             }}
             onChange={(userPass) => setForm((prev) => ({ ...prev, userPass }))}
           />

@@ -1115,14 +1115,14 @@
         "pan": "Enter a valid PAN (AAAAA9999A).",
         "deviceId": "Enter a valid device ID.",
         "userName": "Enter a username (up to 100 characters).",
-        "userPass": "Password must be 8 to 100 characters.",
+        "userPass": "Enter a password. It must follow the rules set by the administrator.",
         "status": "Select a valid status."
       },
       "hints": {
         "mobile": "10 digits, starting with 6–9",
         "aadhaar": "12 digits",
         "pan": "10 characters, AAAAA9999A",
-        "userPass": "8 to 100 characters"
+        "userPass": "Follows the password rules set by the administrator"
       }
     }
   },

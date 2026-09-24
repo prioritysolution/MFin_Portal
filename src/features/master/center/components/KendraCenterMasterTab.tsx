@@ -2,13 +2,14 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Ban, CircleCheck, Pencil, Plus, RotateCcw, Search } from "lucide-react";
+import { Ban, CircleCheck, Pencil, Plus, Search } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { PageToast, useToastText } from "@/components/ui/PageToast";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { SelectField } from "@/components/ui/Form";
+import { FilterPanel } from "@/components/shared/FilterPanel";
 import { DataTable } from "@/components/shared/DataTable";
 import type { DataTableColumn } from "@/components/shared/DataTable";
 import { CenterForm } from "@/features/master/center/components/CenterForm";
@@ -53,7 +54,6 @@ export function KendraCenterMasterTab({
 }: KendraCenterMasterTabProps) {
   const t = useTranslations("master.center");
   const tErrors = useTranslations("errors");
-  const tCommon = useTranslations("common");
   const tUi = useTranslations("ui");
   const router = useRouter();
   const onCentersChangeRef = useRef(onCentersChange);
@@ -325,8 +325,14 @@ export function KendraCenterMasterTab({
     <>
       <PageToast message={successMessage} />
 
-      <div className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5">
-        <div className="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-end">
+      <FilterPanel
+        onReset={() => {
+          setFilters(DEFAULT_FILTERS);
+          setAppliedFilters(DEFAULT_FILTERS);
+          setPage(1);
+          setSuccessMessage(null);
+        }}
+      >
           <label className="relative block min-w-[14rem] flex-1 sm:max-w-md">
             <span className="mb-1.5 block text-xs font-semibold text-slate-600">
               {t("filters.search")}
@@ -378,21 +384,7 @@ export function KendraCenterMasterTab({
               ]}
             />
           </div>
-          <Button
-            type="button"
-            variant="secondary"
-            icon={RotateCcw}
-            onClick={() => {
-              setFilters(DEFAULT_FILTERS);
-              setAppliedFilters(DEFAULT_FILTERS);
-              setPage(1);
-              setSuccessMessage(null);
-            }}
-          >
-            {tCommon("reset")}
-          </Button>
-        </div>
-      </div>
+      </FilterPanel>
 
       <div className="grid gap-3 sm:grid-cols-3">
         <StatCard

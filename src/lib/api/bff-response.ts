@@ -63,6 +63,40 @@ export function sanitizeClientErrors(details: unknown): unknown {
   };
 }
 
+function isUserFacingMessage(value: string): boolean {
+  if (!value || value.length > 200) return false;
+  if (/[\\{}$<>]/.test(value)) return false;
+  if (/https?:\/\//i.test(value)) return false;
+  return true;
+}
+
+function pushSentence(found: string[], value: unknown) {
+  if (typeof value !== "string") return;
+  const trimmed = value.trim().replace(/\s+/g, " ");
+  if (!isUserFacingMessage(trimmed)) return;
+  if (/^validation failed\.?$/i.test(trimmed)) return;
+  if (/^the given data was invalid\.?$/i.test(trimmed)) return;
+  if (!found.includes(trimmed)) found.push(trimmed);
+}
+
+/** Plain Laravel / field sentences a person can act on. Internal payloads stay hidden. */
+function validationSentences(error: ApiError): string[] {
+  const found: string[] = [];
+  const details = error.details;
+  if (details && typeof details === "object" && !Array.isArray(details)) {
+    for (const [key, value] of Object.entries(
+      details as Record<string, unknown>,
+    )) {
+      if (key === "fieldErrors" || key === "formErrors") continue;
+      if (Array.isArray(value)) {
+        for (const item of value) pushSentence(found, item);
+      }
+    }
+  }
+  pushSentence(found, error.message);
+  return found.slice(0, 4);
+}
+
 function clientMessageFor(error: ApiError): string {
   // Prefer stable code messages for server/unexpected to avoid leaking internals.
   if (error.code === "SERVER") {
@@ -76,6 +110,8 @@ function clientMessageFor(error: ApiError): string {
     return SAFE_MESSAGE.UNEXPECTED;
   }
   if (error.code === "VALIDATION") {
+    const sentences = validationSentences(error);
+    if (sentences.length > 0) return sentences.join(" ");
     return SAFE_MESSAGE.VALIDATION;
   }
   // Auth/not-found may use the ApiError message when already client-safe.

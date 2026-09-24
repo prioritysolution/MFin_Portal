@@ -210,11 +210,7 @@ export function CodeSeriesView() {
         onReset={handleResetFilters}
       />
 
-      <section className="space-y-3">
-        <h3 className="text-base font-semibold text-slate-900">
-          {t("tableHeading")}
-        </h3>
-        <CodeSeriesTable
+      <CodeSeriesTable
           items={items}
           meta={meta}
           page={page}
@@ -235,7 +231,6 @@ export function CodeSeriesView() {
           }}
           onToggleStatus={handleToggleStatus}
         />
-      </section>
 
       <CodeSeriesForm
         open={Boolean(editing)}

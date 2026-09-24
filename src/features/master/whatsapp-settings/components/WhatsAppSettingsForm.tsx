@@ -212,7 +212,7 @@ export function WhatsAppSettingsForm() {
         id="whatsapp-settings-form"
         onSubmit={(event) => void handleSubmit(event)}
       >
-        <Card title={t("sectionTitle")} description={t("sectionHint")}>
+        <Card title={t("title")} description={t("description")}>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <div className="md:col-span-2">
               <TextField

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import {
   ChevronDown,
@@ -112,6 +112,44 @@ function isNodeActive(node: MenuTreeNode, pathname: string): boolean {
   return node.children.some((child) => isChildActive(child.route, pathname));
 }
 
+const OPEN_MENUS_KEY = "mfin.sidebar.open.v1";
+
+function readOpenMenus(userId: number): string[] {
+  try {
+    const raw = sessionStorage.getItem(`${OPEN_MENUS_KEY}.${userId}`);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter((item): item is string => typeof item === "string")
+      .slice(0, 40);
+  } catch {
+    return [];
+  }
+}
+
+function writeOpenMenus(userId: number, keys: string[]) {
+  try {
+    sessionStorage.setItem(
+      `${OPEN_MENUS_KEY}.${userId}`,
+      JSON.stringify(keys),
+    );
+  } catch {
+    // Private mode or a full quota should not block navigation.
+  }
+}
+
+/** Scroll only the sidebar list, and place the current item in the middle of it. */
+function revealMenuItem(scroller: HTMLElement, target: HTMLElement) {
+  const scrollerBox = scroller.getBoundingClientRect();
+  const targetBox = target.getBoundingClientRect();
+  const delta = targetBox.top - scrollerBox.top;
+  const next =
+    scroller.scrollTop + delta - scroller.clientHeight / 2 + target.offsetHeight / 2;
+  const max = Math.max(0, scroller.scrollHeight - scroller.clientHeight);
+  scroller.scrollTo({ top: Math.min(max, Math.max(0, next)) });
+}
+
 export function Sidebar({ open, onClose, user }: SidebarProps) {
   const t = useTranslations("navigation");
   const locale = useLocale();
@@ -120,8 +158,11 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
   // Always start as loading so SSR HTML matches the first client render.
   // localStorage cache is applied only after mount (avoids hydration mismatch).
   const [menuState, setMenuState] = useState<MenuLoadState>({ status: "loading" });
-  const [collapsedKeys, setCollapsedKeys] = useState<Record<string, boolean>>({});
+  const [openKeys, setOpenKeys] = useState<string[]>([]);
+  const [menusHydrated, setMenusHydrated] = useState(false);
+  const [dismissedKey, setDismissedKey] = useState<string | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
+  const navScrollRef = useRef<HTMLDivElement>(null);
 
   // Browser → BFF GET /api/menu?status=1&role_id=…&lang=HI → Laravel MenuTree.
   useEffect(() => {
@@ -173,17 +214,66 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
     return active ? String(active.id) : null;
   }, [menuState, pathname]);
 
+  useEffect(() => {
+    setOpenKeys(readOpenMenus(user.userId));
+    setMenusHydrated(true);
+  }, [user.userId]);
+
+  useEffect(() => {
+    setDismissedKey(null);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!menusHydrated || !activeNodeKey) return;
+    setOpenKeys((prev) =>
+      prev.includes(activeNodeKey) ? prev : [...prev, activeNodeKey],
+    );
+  }, [activeNodeKey, menusHydrated, pathname]);
+
+  useEffect(() => {
+    if (!menusHydrated) return;
+    writeOpenMenus(user.userId, openKeys);
+  }, [menusHydrated, openKeys, user.userId]);
+
+  useEffect(() => {
+    if (menuState.status !== "ready") return;
+    const scroller = navScrollRef.current;
+    if (!scroller) return;
+
+    const reveal = () => {
+      const current = scroller.querySelector<HTMLElement>(
+        "[data-menu-current='true']",
+      );
+      const group = activeNodeKey
+        ? scroller.querySelector<HTMLElement>(
+            `[data-menu-group="${activeNodeKey}"]`,
+          )
+        : null;
+      const target =
+        current && current.getBoundingClientRect().height > 8 ? current : group;
+      if (!target) return;
+      revealMenuItem(scroller, target);
+    };
+
+    const frame = window.requestAnimationFrame(reveal);
+    const timer = window.setTimeout(reveal, 240);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(timer);
+    };
+  }, [activeNodeKey, menuState, pathname]);
+
   function isExpanded(key: string): boolean {
-    if (key in collapsedKeys) {
-      return !collapsedKeys[key];
-    }
-    return activeNodeKey === key;
+    if (openKeys.includes(key)) return true;
+    return activeNodeKey === key && dismissedKey !== key;
   }
 
   function toggleNode(key: string) {
-    setCollapsedKeys((prev) => {
-      const currentlyOpen = key in prev ? !prev[key] : activeNodeKey === key;
-      return { ...prev, [key]: currentlyOpen };
+    const open = isExpanded(key);
+    if (key === activeNodeKey) setDismissedKey(open ? key : null);
+    setOpenKeys((prev) => {
+      const without = prev.filter((item) => item !== key);
+      return open ? without : [...without, key];
     });
   }
 
@@ -240,10 +330,15 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
           </button>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4 scrollbar-thin">
+        <div
+          ref={navScrollRef}
+          className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4 scrollbar-thin"
+        >
           <Link
             href={primaryNav.href}
             onClick={onClose}
+            data-menu-current={pathname === primaryNav.href ? "true" : undefined}
+            aria-current={pathname === primaryNav.href ? "page" : undefined}
             className={`mb-5 flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-semibold transition ${
               pathname === primaryNav.href
                 ? "bg-brand-soft text-brand-ink shadow-sm"
@@ -296,6 +391,7 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
                 return (
                   <div
                     key={key}
+                    data-menu-group={key}
                     className={`overflow-hidden rounded-2xl border transition ${
                       active
                         ? "border-brand/20 bg-brand-soft/40 shadow-sm"
@@ -307,6 +403,8 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
                         <Link
                           href={leafHref}
                           onClick={onClose}
+                          data-menu-current={active ? "true" : undefined}
+                          aria-current={active ? "page" : undefined}
                           className={`flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 text-left text-sm transition ${
                             active
                               ? "text-brand-ink"
@@ -380,6 +478,10 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
                                     <Link
                                       href={childHref}
                                       onClick={onClose}
+                                      data-menu-current={
+                                        childActive ? "true" : undefined
+                                      }
+                                      aria-current={childActive ? "page" : undefined}
                                       className={itemClass}
                                     >
                                       <span

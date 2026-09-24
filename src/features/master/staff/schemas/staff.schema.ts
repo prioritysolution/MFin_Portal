@@ -68,7 +68,7 @@ const staffWritableInputSchema = z.object({
 
 export const staffCreateInputSchema = staffWritableInputSchema.extend({
   userName: z.string().trim().min(1).max(100),
-  userPass: z.string().min(8).max(100),
+  userPass: z.string().min(1).max(128),
 });
 
 export const staffUpdateInputSchema = staffWritableInputSchema.extend({

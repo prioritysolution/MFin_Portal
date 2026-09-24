@@ -1,8 +1,8 @@
 "use client";
 
-import { RotateCcw, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Button } from "@/components/ui/Button";
+import { FilterPanel } from "@/components/shared/FilterPanel";
 import { Input } from "@/components/ui/Input";
 import { SelectField } from "@/components/ui/Form";
 import { AUDIT_ACTIONS } from "@/features/security/audit-log/types/audit-log.types";
@@ -28,11 +28,8 @@ export function AuditLogFilters({
 }: AuditLogFiltersProps) {
   const t = useTranslations("security.auditLog");
   const tUi = useTranslations("ui");
-  const tCommon = useTranslations("common");
-
   return (
-    <div className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5">
-      <div className="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-end">
+    <FilterPanel onReset={onReset}>
         <label className="relative block min-w-[14rem] flex-1 sm:max-w-md">
           <span className="mb-1.5 block text-xs font-semibold text-slate-600">
             {t("filters.search")}
@@ -130,10 +127,6 @@ export function AuditLogFilters({
           </label>
         </div>
 
-        <Button type="button" variant="secondary" icon={RotateCcw} onClick={onReset}>
-          {tCommon("reset")}
-        </Button>
-      </div>
-    </div>
+    </FilterPanel>
   );
 }

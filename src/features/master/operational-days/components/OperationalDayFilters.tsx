@@ -1,8 +1,7 @@
 "use client";
 
-import { RotateCcw } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Button } from "@/components/ui/Button";
+import { FilterPanel } from "@/components/shared/FilterPanel";
 import { SelectField } from "@/components/ui/Form";
 
 export type OperationalDayFilterValues = {
@@ -31,11 +30,8 @@ export function OperationalDayFilters({
 }: OperationalDayFiltersProps) {
   const t = useTranslations("master.operationalDays");
   const tUi = useTranslations("ui");
-  const tCommon = useTranslations("common");
-
   return (
-    <div className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5">
-      <div className="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-end">
+    <FilterPanel onReset={onReset}>
         <div className="min-w-[12rem] sm:max-w-[16rem]">
           <SelectField
             label={t("filters.branch")}
@@ -113,10 +109,6 @@ export function OperationalDayFilters({
           />
         </div>
 
-        <Button type="button" variant="secondary" icon={RotateCcw} onClick={onReset}>
-          {tCommon("reset")}
-        </Button>
-      </div>
-    </div>
+    </FilterPanel>
   );
 }
