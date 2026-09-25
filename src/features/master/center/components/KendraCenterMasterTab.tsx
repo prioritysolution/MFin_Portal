@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/Input";
 import { SelectField } from "@/components/ui/Form";
 import { FilterPanel } from "@/components/shared/FilterPanel";
 import { DataTable } from "@/components/shared/DataTable";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import type { DataTableColumn } from "@/components/shared/DataTable";
 import { CenterForm } from "@/features/master/center/components/CenterForm";
 import {
@@ -57,7 +58,9 @@ export function KendraCenterMasterTab({
   const tUi = useTranslations("ui");
   const router = useRouter();
   const onCentersChangeRef = useRef(onCentersChange);
-  onCentersChangeRef.current = onCentersChange;
+  useEffect(() => {
+    onCentersChangeRef.current = onCentersChange;
+  }, [onCentersChange]);
 
   const [filters, setFilters] = useState<FilterValues>(DEFAULT_FILTERS);
   const [appliedFilters, setAppliedFilters] =
@@ -79,6 +82,7 @@ export function KendraCenterMasterTab({
   const [editing, setEditing] = useState<Center | null>(null);
   const [saving, setSaving] = useState(false);
   const [statusBusyId, setStatusBusyId] = useState<number | null>(null);
+  const [statusConfirmTarget, setStatusConfirmTarget] = useState<Center | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
 
   const branchOptions = useMemo(
@@ -288,7 +292,11 @@ export function KendraCenterMasterTab({
     }
   }
 
-  async function handleToggleStatus(center: Center) {
+  function handleToggleStatus(center: Center) {
+    setStatusConfirmTarget(center);
+  }
+
+  async function executeToggleStatus(center: Center) {
     const nextActive = !center.isActive;
     setStatusBusyId(center.centerId);
     setSuccessMessage(null);
@@ -482,6 +490,26 @@ export function KendraCenterMasterTab({
         }}
         onCreate={handleCreate}
         onUpdate={handleUpdate}
+      />
+
+      <ConfirmDialog
+        open={Boolean(statusConfirmTarget)}
+        onClose={() => setStatusConfirmTarget(null)}
+        onConfirm={async () => {
+          if (!statusConfirmTarget) return;
+          const target = statusConfirmTarget;
+          setStatusConfirmTarget(null);
+          await executeToggleStatus(target);
+        }}
+        actionType={
+          statusConfirmTarget?.isActive ? "deactivate" : "activate"
+        }
+        itemName={
+          statusConfirmTarget
+            ? `${statusConfirmTarget.centerName} (${statusConfirmTarget.branchName ?? ""})`
+            : undefined
+        }
+        itemType="Center"
       />
     </>
   );

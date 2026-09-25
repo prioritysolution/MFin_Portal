@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Plus } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { ModulePageShell } from "@/components/shared/ModulePageShell";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { Button } from "@/components/ui/Button";
 import { PageToast, useToastText } from "@/components/ui/PageToast";
 import { masterModulePages } from "@/lib/modules/module.types";
@@ -54,7 +55,11 @@ function filtersEqual(
   );
 }
 
-export function AcctLedgerView() {
+export type AcctLedgerViewProps = {
+  embedded?: boolean;
+};
+
+export function AcctLedgerView({ embedded = false }: AcctLedgerViewProps = {}) {
   const t = useTranslations("master.acctLedger");
   const tErrors = useTranslations("errors");
   const router = useRouter();
@@ -81,6 +86,7 @@ export function AcctLedgerView() {
   const [formError, setFormError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useToastText();
   const [statusBusyId, setStatusBusyId] = useState<number | null>(null);
+  const [statusConfirmTarget, setStatusConfirmTarget] = useState<AcctLedger | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -215,6 +221,20 @@ export function AcctLedgerView() {
       await updateAcctLedger(input);
       setFormOpen(false);
       setEditing(null);
+      setItems((prev) =>
+        prev.map((item) =>
+          item.ledgerId === input.ledgerId
+            ? {
+                ...item,
+                ledgerName: input.ledgerName,
+                mainhdId: input.mainhdId,
+                ledgerType: input.ledgerType ?? item.ledgerType,
+                isActive:
+                  input.isActive !== undefined ? input.isActive : item.isActive,
+              }
+            : item,
+        ),
+      );
       setSuccessMessage(t("updateSuccess"));
       setReloadKey((key) => key + 1);
     } catch (err) {
@@ -230,7 +250,11 @@ export function AcctLedgerView() {
     }
   }
 
-  async function handleToggleStatus(ledger: AcctLedger) {
+  function handleToggleStatus(ledger: AcctLedger) {
+    setStatusConfirmTarget(ledger);
+  }
+
+  async function executeToggleStatus(ledger: AcctLedger) {
     const nextActive = !ledger.isActive;
     setStatusBusyId(ledger.ledgerId);
     setSuccessMessage(null);
@@ -242,6 +266,13 @@ export function AcctLedgerView() {
         ledgerType: ledger.ledgerType,
         isActive: nextActive,
       });
+      setItems((prev) =>
+        prev.map((item) =>
+          item.ledgerId === ledger.ledgerId
+            ? { ...item, isActive: nextActive }
+            : item,
+        ),
+      );
       setSuccessMessage(
         nextActive ? t("activateSuccess") : t("deactivateSuccess"),
       );
@@ -260,8 +291,8 @@ export function AcctLedgerView() {
     }
   }
 
-  return (
-    <ModulePageShell page={pageMeta}>
+  const body = (
+    <>
       <PageToast message={successMessage} />
 
       <AcctLedgerFilters
@@ -315,6 +346,28 @@ export function AcctLedgerView() {
         onCreate={handleCreate}
         onUpdate={handleUpdate}
       />
-    </ModulePageShell>
+
+      <ConfirmDialog
+        open={Boolean(statusConfirmTarget)}
+        onClose={() => setStatusConfirmTarget(null)}
+        onConfirm={async () => {
+          if (!statusConfirmTarget) return;
+          const target = statusConfirmTarget;
+          setStatusConfirmTarget(null);
+          await executeToggleStatus(target);
+        }}
+        actionType={
+          statusConfirmTarget?.isActive ? "deactivate" : "activate"
+        }
+        itemName={statusConfirmTarget?.ledgerName}
+        itemType="Account Ledger"
+      />
+    </>
   );
+
+  if (embedded) {
+    return <div className="flex min-w-0 flex-col gap-4 sm:gap-5">{body}</div>;
+  }
+
+  return <ModulePageShell page={pageMeta}>{body}</ModulePageShell>;
 }

@@ -1,5 +1,5 @@
-import { AcctSubledgerBranchView } from "@/features/master/acct-subledger-branch";
+import { AccountLedgerSetupView } from "@/features/master/components/AccountLedgerSetupView";
 
 export default function Page() {
-  return <AcctSubledgerBranchView />;
+  return <AccountLedgerSetupView initialTab="branches" />;
 }

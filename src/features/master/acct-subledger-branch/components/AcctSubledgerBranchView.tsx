@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Plus } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { ModulePageShell } from "@/components/shared/ModulePageShell";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { Button } from "@/components/ui/Button";
 import { PageToast, useToastText } from "@/components/ui/PageToast";
 import { masterModulePages } from "@/lib/modules/module.types";
@@ -56,7 +57,13 @@ function filtersEqual(
   );
 }
 
-export function AcctSubledgerBranchView() {
+export type AcctSubledgerBranchViewProps = {
+  embedded?: boolean;
+};
+
+export function AcctSubledgerBranchView({
+  embedded = false,
+}: AcctSubledgerBranchViewProps = {}) {
   const t = useTranslations("master.acctSubledgerBranch");
   const tErrors = useTranslations("errors");
   const router = useRouter();
@@ -86,6 +93,7 @@ export function AcctSubledgerBranchView() {
   const [formError, setFormError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useToastText();
   const [statusBusyId, setStatusBusyId] = useState<number | null>(null);
+  const [statusConfirmTarget, setStatusConfirmTarget] = useState<AcctSubledgerBranch | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -250,7 +258,11 @@ export function AcctSubledgerBranchView() {
     }
   }
 
-  async function handleToggleStatus(mapping: AcctSubledgerBranch) {
+  function handleToggleStatus(mapping: AcctSubledgerBranch) {
+    setStatusConfirmTarget(mapping);
+  }
+
+  async function executeToggleStatus(mapping: AcctSubledgerBranch) {
     const nextActive = !mapping.isActive;
     setStatusBusyId(mapping.id);
     setSuccessMessage(null);
@@ -261,6 +273,11 @@ export function AcctSubledgerBranchView() {
         subledgId: mapping.subledgId,
         isActive: nextActive,
       });
+      setItems((prev) =>
+        prev.map((item) =>
+          item.id === mapping.id ? { ...item, isActive: nextActive } : item,
+        ),
+      );
       setSuccessMessage(
         nextActive ? t("activateSuccess") : t("deactivateSuccess"),
       );
@@ -281,8 +298,8 @@ export function AcctSubledgerBranchView() {
     }
   }
 
-  return (
-    <ModulePageShell page={pageMeta}>
+  const body = (
+    <>
       <PageToast message={successMessage} />
 
       <AcctSubledgerBranchFilters
@@ -338,6 +355,32 @@ export function AcctSubledgerBranchView() {
         onCreate={handleCreate}
         onUpdate={handleUpdate}
       />
-    </ModulePageShell>
+
+      <ConfirmDialog
+        open={Boolean(statusConfirmTarget)}
+        onClose={() => setStatusConfirmTarget(null)}
+        onConfirm={async () => {
+          if (!statusConfirmTarget) return;
+          const target = statusConfirmTarget;
+          setStatusConfirmTarget(null);
+          await executeToggleStatus(target);
+        }}
+        actionType={
+          statusConfirmTarget?.isActive ? "deactivate" : "activate"
+        }
+        itemName={
+          statusConfirmTarget
+            ? `${statusConfirmTarget.subledgName} (${statusConfirmTarget.branchName})`
+            : undefined
+        }
+        itemType="Subledger Branch Mapping"
+      />
+    </>
   );
+
+  if (embedded) {
+    return <div className="flex min-w-0 flex-col gap-4 sm:gap-5">{body}</div>;
+  }
+
+  return <ModulePageShell page={pageMeta}>{body}</ModulePageShell>;
 }

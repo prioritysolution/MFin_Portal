@@ -110,7 +110,7 @@ export const mainModules: NavItem[] = [
         icon: GitBranch,
       },
       {
-        label: "N-Level COA Tree Master",
+        label: "Ledger/Chart of A/cs Setup",
         href: "/master/coa-tree",
         icon: Network,
       },

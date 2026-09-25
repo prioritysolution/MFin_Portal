@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PageToast, useToastText } from "@/components/ui/PageToast";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import {
@@ -60,6 +61,7 @@ export function CodeSeriesView() {
   const [editing, setEditing] = useState<CodeSeries | null>(null);
   const [saving, setSaving] = useState(false);
   const [statusBusyId, setStatusBusyId] = useState<number | null>(null);
+  const [statusConfirmTarget, setStatusConfirmTarget] = useState<CodeSeries | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useToastText();
 
@@ -151,7 +153,11 @@ export function CodeSeriesView() {
     }
   }
 
-  async function handleToggleStatus(series: CodeSeries) {
+  function handleToggleStatus(series: CodeSeries) {
+    setStatusConfirmTarget(series);
+  }
+
+  async function executeToggleStatus(series: CodeSeries) {
     const nextActive = series.status !== 1;
     setStatusBusyId(series.seriesId);
     setSuccessMessage(null);
@@ -243,6 +249,26 @@ export function CodeSeriesView() {
           setFormError(null);
         }}
         onSubmit={handleSave}
+      />
+
+      <ConfirmDialog
+        open={Boolean(statusConfirmTarget)}
+        onClose={() => setStatusConfirmTarget(null)}
+        onConfirm={async () => {
+          if (!statusConfirmTarget) return;
+          const target = statusConfirmTarget;
+          setStatusConfirmTarget(null);
+          await executeToggleStatus(target);
+        }}
+        actionType={
+          statusConfirmTarget?.status === 1 ? "deactivate" : "activate"
+        }
+        itemName={
+          statusConfirmTarget
+            ? `${statusConfirmTarget.prefix ?? ""}[#]${statusConfirmTarget.suffix ?? ""} (${statusConfirmTarget.moduleName})`
+            : undefined
+        }
+        itemType="Code Series"
       />
     </div>
   );

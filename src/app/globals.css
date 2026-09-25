@@ -126,6 +126,22 @@ body {
   animation-duration: 200ms;
 }
 
+@keyframes table-progress {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(350%);
+  }
+}
+
+.animate-table-progress {
+  animation: table-progress 1.4s ease-in-out infinite;
+}
+
 @keyframes toast-layer-in {
   0% {
     opacity: 0;
@@ -929,6 +945,16 @@ select:disabled,
 
 .btn-soft:hover:not(:disabled) {
   background: #e2e8f0;
+}
+
+.btn-danger {
+  border: 1px solid transparent;
+  background: #e11d48;
+  color: #ffffff;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #be123c;
 }
 
 .btn-lg {

@@ -70,6 +70,44 @@
     "numberMin": "Minimum is {min}",
     "numberMax": "Maximum is {max}"
   },
+  "confirmDialog": {
+    "defaultTitle": "Are you sure?",
+    "defaultDescription": "Please confirm if you want to proceed with this action.",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "processing": "Processing…",
+    "activate": {
+      "title": "Activate Record",
+      "description": "Are you sure you want to activate this record? It will become active and available for use.",
+      "button": "Activate"
+    },
+    "deactivate": {
+      "title": "Deactivate Record",
+      "description": "Are you sure you want to deactivate this record? It will be disabled and restricted from access.",
+      "button": "Deactivate"
+    },
+    "delete": {
+      "title": "Delete Record",
+      "description": "Are you sure you want to delete this record? This action cannot be undone.",
+      "button": "Delete"
+    },
+    "approve": {
+      "title": "Approve Record",
+      "description": "Are you sure you want to approve this request?",
+      "button": "Approve"
+    },
+    "reject": {
+      "title": "Reject Record",
+      "description": "Are you sure you want to reject this request?",
+      "button": "Reject"
+    },
+    "keywordPrompt": "To confirm, please type \"{keyword}\" below:",
+    "keywordPlaceholder": "Type confirmation keyword",
+    "targetItem": "Target Item",
+    "statusChange": "Status Change",
+    "statusActive": "Active",
+    "statusInactive": "Inactive"
+  },
   "navigation": {
     "dashboard": "Executive Dashboard",
     "master": "Master Menu",

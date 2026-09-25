@@ -8,6 +8,7 @@ import { useRouter } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { DataTable } from "@/components/shared/DataTable";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import type { DataTableColumn } from "@/components/shared/DataTable";
 import { BranchForm } from "@/features/master/branch/components/BranchForm";
 import {
@@ -52,7 +53,9 @@ export function KendraBranchMasterTab({
   const tErrors = useTranslations("errors");
   const router = useRouter();
   const onBranchesChangeRef = useRef(onBranchesChange);
-  onBranchesChangeRef.current = onBranchesChange;
+  useEffect(() => {
+    onBranchesChangeRef.current = onBranchesChange;
+  }, [onBranchesChange]);
 
   const [filters, setFilters] = useState<BranchFilterValues>(DEFAULT_FILTERS);
   const [appliedFilters, setAppliedFilters] =
@@ -72,6 +75,7 @@ export function KendraBranchMasterTab({
   const [editing, setEditing] = useState<Branch | null>(null);
   const [saving, setSaving] = useState(false);
   const [statusBusyId, setStatusBusyId] = useState<number | null>(null);
+  const [statusConfirmTarget, setStatusConfirmTarget] = useState<Branch | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -246,7 +250,11 @@ export function KendraBranchMasterTab({
     }
   }
 
-  async function handleToggleStatus(branch: Branch) {
+  function handleToggleStatus(branch: Branch) {
+    setStatusConfirmTarget(branch);
+  }
+
+  async function executeToggleStatus(branch: Branch) {
     const nextActive = !branch.isActive;
     setStatusBusyId(branch.branchId);
     setSuccessMessage(null);
@@ -385,6 +393,26 @@ export function KendraBranchMasterTab({
         }}
         onSubmitCreate={handleCreate}
         onSubmitUpdate={handleUpdate}
+      />
+
+      <ConfirmDialog
+        open={Boolean(statusConfirmTarget)}
+        onClose={() => setStatusConfirmTarget(null)}
+        onConfirm={async () => {
+          if (!statusConfirmTarget) return;
+          const target = statusConfirmTarget;
+          setStatusConfirmTarget(null);
+          await executeToggleStatus(target);
+        }}
+        actionType={
+          statusConfirmTarget?.isActive ? "deactivate" : "activate"
+        }
+        itemName={
+          statusConfirmTarget
+            ? `${statusConfirmTarget.branchName} (${statusConfirmTarget.branchCode})`
+            : undefined
+        }
+        itemType="Branch"
       />
     </>
   );

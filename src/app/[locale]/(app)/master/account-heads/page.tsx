@@ -1,5 +1,5 @@
-import { AcctHeadView } from "@/features/master/acct-head";
+import { AccountLedgerSetupView } from "@/features/master/components/AccountLedgerSetupView";
 
 export default function Page() {
-  return <AcctHeadView />;
+  return <AccountLedgerSetupView initialTab="heads" />;
 }

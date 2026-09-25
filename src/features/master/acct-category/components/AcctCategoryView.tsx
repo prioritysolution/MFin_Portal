@@ -42,7 +42,13 @@ function filtersEqual(
   return a.keyword === b.keyword && a.categoryType === b.categoryType;
 }
 
-export function AcctCategoryView() {
+export type AcctCategoryViewProps = {
+  embedded?: boolean;
+};
+
+export function AcctCategoryView({
+  embedded = false,
+}: AcctCategoryViewProps = {}) {
   const t = useTranslations("master.acctCategory");
   const tErrors = useTranslations("errors");
   const router = useRouter();
@@ -161,6 +167,20 @@ export function AcctCategoryView() {
       await updateAcctCategory(input);
       setFormOpen(false);
       setEditing(null);
+      setItems((prev) =>
+        prev.map((item) =>
+          item.categId === input.categId
+            ? {
+                ...item,
+                categName: input.categName,
+                categoryType:
+                  input.categoryType !== undefined
+                    ? input.categoryType
+                    : item.categoryType,
+              }
+            : item,
+        ),
+      );
       setSuccessMessage(t("updateSuccess"));
       setReloadKey((key) => key + 1);
     } catch (err) {
@@ -176,8 +196,8 @@ export function AcctCategoryView() {
     }
   }
 
-  return (
-    <ModulePageShell page={pageMeta}>
+  const body = (
+    <>
       <PageToast message={successMessage} />
 
       <AcctCategoryFilters
@@ -227,6 +247,12 @@ export function AcctCategoryView() {
         onCreate={handleCreate}
         onUpdate={handleUpdate}
       />
-    </ModulePageShell>
+    </>
   );
+
+  if (embedded) {
+    return <div className="flex min-w-0 flex-col gap-4 sm:gap-5">{body}</div>;
+  }
+
+  return <ModulePageShell page={pageMeta}>{body}</ModulePageShell>;
 }

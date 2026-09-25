@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Plus } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { DataPage } from "@/components/shared/DataPage";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { Button } from "@/components/ui/Button";
 import { PageToast, useToastText } from "@/components/ui/PageToast";
 import { masterModulePages } from "@/lib/modules/module.types";
@@ -60,6 +61,7 @@ export function FinYearView() {
   const [editing, setEditing] = useState<FinYear | null>(null);
   const [saving, setSaving] = useState(false);
   const [statusBusyId, setStatusBusyId] = useState<number | null>(null);
+  const [statusConfirmTarget, setStatusConfirmTarget] = useState<FinYear | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useToastText();
   const [actionError, setActionError] = useToastText();
@@ -153,7 +155,11 @@ export function FinYearView() {
     }
   }
 
-  async function handleToggleActive(year: FinYear) {
+  function handleToggleActive(year: FinYear) {
+    setStatusConfirmTarget(year);
+  }
+
+  async function executeToggleActive(year: FinYear) {
     const nextActive = !year.isActive;
     setStatusBusyId(year.yearId);
     setSuccessMessage(null);
@@ -235,6 +241,22 @@ export function FinYearView() {
           setFormError(null);
         }}
         onSubmit={handleSave}
+      />
+
+      <ConfirmDialog
+        open={Boolean(statusConfirmTarget)}
+        onClose={() => setStatusConfirmTarget(null)}
+        onConfirm={async () => {
+          if (!statusConfirmTarget) return;
+          const target = statusConfirmTarget;
+          setStatusConfirmTarget(null);
+          await executeToggleActive(target);
+        }}
+        actionType={
+          statusConfirmTarget?.isActive ? "deactivate" : "activate"
+        }
+        itemName={statusConfirmTarget?.yearName}
+        itemType="Financial Year"
       />
     </DataPage>
   );

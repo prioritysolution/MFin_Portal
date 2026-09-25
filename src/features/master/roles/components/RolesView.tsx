@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Plus } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { ModulePageShell } from "@/components/shared/ModulePageShell";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { Button } from "@/components/ui/Button";
 import { PageToast, useToastText } from "@/components/ui/PageToast";
 import { masterModulePages } from "@/lib/modules/module.types";
@@ -68,6 +69,7 @@ export function RolesView() {
   const [permissionsRole, setPermissionsRole] = useState<Role | null>(null);
   const [saving, setSaving] = useState(false);
   const [statusBusyId, setStatusBusyId] = useState<number | null>(null);
+  const [statusConfirmTarget, setStatusConfirmTarget] = useState<Role | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useToastText();
 
@@ -189,7 +191,11 @@ export function RolesView() {
     }
   }
 
-  async function handleToggleStatus(role: Role) {
+  function handleToggleStatus(role: Role) {
+    setStatusConfirmTarget(role);
+  }
+
+  async function executeToggleStatus(role: Role) {
     const nextActive = role.status !== 1;
     setStatusBusyId(role.id);
     setSuccessMessage(null);
@@ -280,6 +286,22 @@ export function RolesView() {
         role={permissionsRole}
         onClose={() => setPermissionsRole(null)}
         onSaved={() => setSuccessMessage(t("menuPermissions.saveSuccess"))}
+      />
+
+      <ConfirmDialog
+        open={Boolean(statusConfirmTarget)}
+        onClose={() => setStatusConfirmTarget(null)}
+        onConfirm={async () => {
+          if (!statusConfirmTarget) return;
+          const target = statusConfirmTarget;
+          setStatusConfirmTarget(null);
+          await executeToggleStatus(target);
+        }}
+        actionType={
+          statusConfirmTarget?.status === 1 ? "deactivate" : "activate"
+        }
+        itemName={statusConfirmTarget?.roleName}
+        itemType="Role"
       />
     </ModulePageShell>
   );

@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Plus } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { ModulePageShell } from "@/components/shared/ModulePageShell";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { Button } from "@/components/ui/Button";
 import { PageToast, useToastText } from "@/components/ui/PageToast";
 import { masterModulePages } from "@/lib/modules/module.types";
@@ -80,6 +81,7 @@ export function StaffView() {
   const [editing, setEditing] = useState<Staff | null>(null);
   const [saving, setSaving] = useState(false);
   const [statusBusyId, setStatusBusyId] = useState<number | null>(null);
+  const [statusConfirmTarget, setStatusConfirmTarget] = useState<Staff | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useToastText();
 
@@ -122,7 +124,7 @@ export function StaffView() {
       setSuccessMessage(null);
     }, SEARCH_DEBOUNCE_MS);
     return () => window.clearTimeout(timer);
-  }, [filters, appliedFilters]);
+  }, [filters, appliedFilters, setSuccessMessage]);
 
   useEffect(() => {
     let cancelled = false;
@@ -232,7 +234,11 @@ export function StaffView() {
     }
   }
 
-  async function handleToggleStatus(staff: Staff) {
+  function handleToggleStatus(staff: Staff) {
+    setStatusConfirmTarget(staff);
+  }
+
+  async function executeToggleStatus(staff: Staff) {
     const nextActive = staff.status !== 1;
     setStatusBusyId(staff.staffId);
     setSuccessMessage(null);
@@ -329,6 +335,26 @@ export function StaffView() {
         }}
         onSubmitCreate={handleCreate}
         onSubmitUpdate={handleUpdate}
+      />
+
+      <ConfirmDialog
+        open={Boolean(statusConfirmTarget)}
+        onClose={() => setStatusConfirmTarget(null)}
+        onConfirm={async () => {
+          if (!statusConfirmTarget) return;
+          const target = statusConfirmTarget;
+          setStatusConfirmTarget(null);
+          await executeToggleStatus(target);
+        }}
+        actionType={
+          statusConfirmTarget?.status === 1 ? "deactivate" : "activate"
+        }
+        itemName={
+          statusConfirmTarget
+            ? `${statusConfirmTarget.fullName} (${statusConfirmTarget.employeeCode})`
+            : undefined
+        }
+        itemType="Staff Member"
       />
     </ModulePageShell>
   );

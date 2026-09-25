@@ -18,6 +18,16 @@ export { ModulePageShell } from "./ModulePageShell";
 export { DataPage } from "./DataPage";
 export { PageTransition } from "./PageTransition";
 export { AppRouteLoading } from "./AppRouteLoading";
+export {
+  ConfirmDialog,
+  useConfirmDialog,
+} from "./ConfirmDialog";
+export type {
+  ConfirmActionType,
+  ConfirmVariant,
+  ConfirmDialogProps,
+  UseConfirmOptions,
+} from "./ConfirmDialog";
 
 export {
   DataTableSkeleton,

@@ -1,5 +1,5 @@
-import { AcctLedgerView } from "@/features/master/acct-ledger";
+import { AccountLedgerSetupView } from "@/features/master/components/AccountLedgerSetupView";
 
 export default function Page() {
-  return <AcctLedgerView />;
+  return <AccountLedgerSetupView initialTab="ledgers" />;
 }

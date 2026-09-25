@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Plus } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { ModulePageShell } from "@/components/shared/ModulePageShell";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { Button } from "@/components/ui/Button";
 import { PageToast, useToastText } from "@/components/ui/PageToast";
 import { masterModulePages } from "@/lib/modules/module.types";
@@ -52,7 +53,11 @@ function filtersEqual(
   );
 }
 
-export function AcctHeadView() {
+export type AcctHeadViewProps = {
+  embedded?: boolean;
+};
+
+export function AcctHeadView({ embedded = false }: AcctHeadViewProps = {}) {
   const t = useTranslations("master.acctHead");
   const tErrors = useTranslations("errors");
   const router = useRouter();
@@ -78,6 +83,7 @@ export function AcctHeadView() {
   const [formError, setFormError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useToastText();
   const [statusBusyId, setStatusBusyId] = useState<number | null>(null);
+  const [statusConfirmTarget, setStatusConfirmTarget] = useState<AcctHead | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -210,6 +216,19 @@ export function AcctHeadView() {
       await updateAcctHead(input);
       setFormOpen(false);
       setEditing(null);
+      setItems((prev) =>
+        prev.map((item) =>
+          item.mainhdId === input.mainhdId
+            ? {
+                ...item,
+                mainhdName: input.mainhdName,
+                categId: input.categId,
+                isActive:
+                  input.isActive !== undefined ? input.isActive : item.isActive,
+              }
+            : item,
+        ),
+      );
       setSuccessMessage(t("updateSuccess"));
       setReloadKey((key) => key + 1);
     } catch (err) {
@@ -225,7 +244,11 @@ export function AcctHeadView() {
     }
   }
 
-  async function handleToggleStatus(head: AcctHead) {
+  function handleToggleStatus(head: AcctHead) {
+    setStatusConfirmTarget(head);
+  }
+
+  async function executeToggleStatus(head: AcctHead) {
     const nextActive = !head.isActive;
     setStatusBusyId(head.mainhdId);
     setSuccessMessage(null);
@@ -236,6 +259,13 @@ export function AcctHeadView() {
         categId: head.categId,
         isActive: nextActive,
       });
+      setItems((prev) =>
+        prev.map((item) =>
+          item.mainhdId === head.mainhdId
+            ? { ...item, isActive: nextActive }
+            : item,
+        ),
+      );
       setSuccessMessage(
         nextActive ? t("activateSuccess") : t("deactivateSuccess"),
       );
@@ -254,8 +284,8 @@ export function AcctHeadView() {
     }
   }
 
-  return (
-    <ModulePageShell page={pageMeta}>
+  const body = (
+    <>
       <PageToast message={successMessage} />
 
       <AcctHeadFilters
@@ -309,6 +339,28 @@ export function AcctHeadView() {
         onCreate={handleCreate}
         onUpdate={handleUpdate}
       />
-    </ModulePageShell>
+
+      <ConfirmDialog
+        open={Boolean(statusConfirmTarget)}
+        onClose={() => setStatusConfirmTarget(null)}
+        onConfirm={async () => {
+          if (!statusConfirmTarget) return;
+          const target = statusConfirmTarget;
+          setStatusConfirmTarget(null);
+          await executeToggleStatus(target);
+        }}
+        actionType={
+          statusConfirmTarget?.isActive ? "deactivate" : "activate"
+        }
+        itemName={statusConfirmTarget?.mainhdName}
+        itemType="Account Head"
+      />
+    </>
   );
+
+  if (embedded) {
+    return <div className="flex min-w-0 flex-col gap-4 sm:gap-5">{body}</div>;
+  }
+
+  return <ModulePageShell page={pageMeta}>{body}</ModulePageShell>;
 }

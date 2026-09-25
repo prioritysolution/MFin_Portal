@@ -118,7 +118,9 @@ export function DataTable<T>({
   const cardClass =
     `rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5 ${className}`.trim();
 
-  if (loading) {
+  // Only show full skeleton on initial load when there is NO data yet.
+  // When data is already present, keep the table visible and show a sleek background progress bar.
+  if (loading && data.length === 0) {
     if (!hasHeading) {
       return (
         <DataTableSkeleton
@@ -138,11 +140,10 @@ export function DataTable<T>({
     );
   }
 
-  if (error) {
+  // Only show full ErrorState when there is NO data to show.
+  if (error && data.length === 0) {
     return (
-      <section
-        className={`rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5 ${className}`.trim()}
-      >
+      <section className={cardClass}>
         {heading}
         <ErrorState
           title={errorTitle}
@@ -155,9 +156,7 @@ export function DataTable<T>({
 
   if (data.length === 0) {
     return (
-      <section
-        className={`rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5 ${className}`.trim()}
-      >
+      <section className={cardClass}>
         {heading}
         <EmptyState
           title={emptyTitle}
@@ -172,10 +171,35 @@ export function DataTable<T>({
   }
 
   return (
-    <section
-      className={`rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5 ${className}`.trim()}
-    >
+    <section className={`relative ${cardClass}`}>
+      {/* Background reload indicator: subtle progress bar so the table never disappears or flashes */}
+      <div
+        className={`relative -mx-4 -mt-2 mb-3 h-0.5 overflow-hidden bg-slate-100 sm:-mx-5 transition-opacity duration-200 ${
+          loading ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+        aria-hidden="true"
+      >
+        <div className="animate-table-progress h-full w-1/3 rounded-full bg-brand" />
+      </div>
+
       {heading}
+
+      {/* Non-intrusive inline error alert if background refetch fails while data is visible */}
+      {error && data.length > 0 ? (
+        <div className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-xs text-rose-800">
+          <span>{errorMessage || errorTitle || t("loadErrorTitle")}</span>
+          {onRetry ? (
+            <button
+              type="button"
+              onClick={onRetry}
+              className="font-semibold underline hover:text-rose-950"
+            >
+              {t("retry")}
+            </button>
+          ) : null}
+        </div>
+      ) : null}
+
       <div className="table-scroll scrollbar-thin">
         <table className="w-full text-left text-sm" style={{ minWidth }}>
           {caption ? <caption className="sr-only">{caption}</caption> : null}
@@ -214,7 +238,11 @@ export function DataTable<T>({
               ) : null}
             </tr>
           </thead>
-          <tbody>
+          <tbody
+            className={`transition-opacity duration-150 ${
+              loading ? "opacity-70" : "opacity-100"
+            }`}
+          >
             {data.map((row, rowIndex) => {
               const key = getRowKey(row, rowIndex);
               const selectionKey = selection

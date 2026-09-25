@@ -1,7 +1,7 @@
 "use client";
 
 import type { ButtonHTMLAttributes, ReactNode } from "react";
-import type { LucideIcon } from "lucide-react";
+import { Loader2, type LucideIcon } from "lucide-react";
 import { Tooltip } from "@/components/ui/Tooltip";
 
 export type ButtonVariant =
@@ -12,7 +12,8 @@ export type ButtonVariant =
   | "warning"
   | "amber"
   | "violet"
-  | "soft";
+  | "soft"
+  | "danger";
 
 type ButtonSize = "sm" | "md" | "lg";
 
@@ -20,6 +21,8 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: ButtonVariant;
   size?: ButtonSize;
   icon?: LucideIcon;
+  /** When true, shows spinner and disables button */
+  loading?: boolean;
   /** Omit for icon-only buttons (provide `aria-label` or `tooltip`). */
   children?: ReactNode;
   /** Project UI tooltip label (replaces native `title`). */
@@ -35,6 +38,7 @@ const variantClass: Record<ButtonVariant, string> = {
   amber: "btn btn-amber",
   violet: "btn btn-violet",
   soft: "btn btn-soft",
+  danger: "btn btn-danger",
 };
 
 const sizeClass: Record<ButtonSize, string> = {
@@ -47,14 +51,16 @@ export function Button({
   variant = "primary",
   size = "md",
   icon: Icon,
+  loading = false,
   className = "",
   children,
   type = "button",
   tooltip,
+  disabled,
   ...props
 }: ButtonProps) {
   const iconOnly =
-    Boolean(Icon) &&
+    Boolean(Icon || loading) &&
     (children === undefined || children === null || children === "");
 
   const button = (
@@ -63,10 +69,16 @@ export function Button({
       className={`${variantClass[variant]} ${sizeClass[size]} ${
         iconOnly ? "btn-icon" : ""
       } ${className}`.trim()}
+      disabled={disabled || loading}
+      aria-busy={loading ? "true" : undefined}
       {...props}
       aria-label={props["aria-label"] ?? tooltip}
     >
-      {Icon ? <Icon className="h-4 w-4 shrink-0" /> : null}
+      {loading ? (
+        <Loader2 className="h-4 w-4 animate-spin shrink-0" />
+      ) : Icon ? (
+        <Icon className="h-4 w-4 shrink-0" />
+      ) : null}
       {!iconOnly ? children : null}
     </button>
   );

@@ -13,6 +13,16 @@ export {
   modalFieldClass,
   modalSelectClass,
 } from "@/components/ui/Modal";
+export {
+  ConfirmDialog,
+  useConfirmDialog,
+} from "@/components/shared/ConfirmDialog";
+export type {
+  ConfirmActionType,
+  ConfirmVariant,
+  ConfirmDialogProps,
+  UseConfirmOptions,
+} from "@/components/shared/ConfirmDialog";
 
 export { Input, controlClass, controlReadOnlyClass } from "@/components/ui/Input";
 export { Textarea } from "@/components/ui/Textarea";
