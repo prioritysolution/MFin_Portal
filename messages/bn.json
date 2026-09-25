@@ -101,6 +101,11 @@
       "description": "আপনি কি নিশ্চিত যে আপনি এই অনুরোধটি প্রত্যাখ্যান করতে চান?",
       "button": "প্রত্যাখ্যান করুন"
     },
+    "logout": {
+      "title": "সাইন আউট করবেন?",
+      "description": "আপনি কি নিশ্চিত যে আপনি আপনার স্টাফ সেশন থেকে সাইন আউট করতে চান?",
+      "button": "সাইন আউট"
+    },
     "keywordPrompt": "নিশ্চিত করতে, অনুগ্রহ করে নিচে \"{keyword}\" লিখুন:",
     "keywordPlaceholder": "নিশ্চিতকরণ শব্দ লিখুন",
     "targetItem": "নির্দিষ্ট বিষয়",
@@ -223,8 +228,27 @@
     }
   },
   "account": {
+    "profile": {
+      "detailsTitle": "প্রোফাইল বিবরণ",
+      "auditNote": "সব আপডেট অডিট লগে সময়-চিহ্নিত হয়।",
+      "refresh": "রিফ্রেশ",
+      "save": "কনফিগারেশন সংরক্ষণ",
+      "fields": {
+        "name": "ইংরেজি নাম",
+        "shortName": "সংক্ষিপ্ত নাম",
+        "employeeId": "কর্মচারী আইডি",
+        "designation": "পদবি",
+        "branch": "শাখা",
+        "status": "স্থিতি",
+        "active": "সক্রিয়",
+        "inactive": "নিষ্ক্রিয়",
+        "admin": "প্রশাসক",
+        "mobile": "মোবাইল",
+        "email": "ইমেইল"
+      }
+    },
     "changePassword": {
-      "title": "পাসওয়ার্ড পরিবর্তন",
+      "title": "পাসওয়ার্ড আপডেট",
       "description": "সাইন-ইন করা স্টাফ অ্যাকাউন্টের পাসওয়ার্ড আপডেট করুন।",
       "current": "বর্তমান পাসওয়ার্ড",
       "new": "নতুন পাসওয়ার্ড",
@@ -348,6 +372,76 @@
         "invalidEod": "দিন শেষ HH:mm AM/PM ফরম্যাটে দিন (যেমন 07:30 PM)",
         "invalidBatch": "ব্যাচ সময় HH:mm AM/PM ফরম্যাটে দিন (যেমন 10:00 PM)",
         "invalidSession": "সেশন টাইমআউট HH:mm ফরম্যাটে দিন (যেমন 00:30)"
+      }
+    },
+    "globalSettings": {
+      "title": "গ্লোবাল সেটিংস",
+      "description": "প্রতিষ্ঠান-ব্যাপী ভাষা, অ্যাকাউন্টিং ও অপারেশনাল ডিফল্ট",
+      "loading": "গ্লোবাল সেটিংস লোড হচ্ছে…",
+      "save": "গ্লোবাল সেটিংস সংরক্ষণ",
+      "saving": "সংরক্ষণ হচ্ছে…",
+      "saveSuccess": "গ্লোবাল সেটিংস সফলভাবে সংরক্ষিত হয়েছে।",
+      "validationFailed": "ফর্মটি পরীক্ষা করে হাইলাইট করা ক্ষেত্রগুলো ঠিক করুন।",
+      "localOnlyHint": "ব্যাকএন্ড গ্লোবাল সেটিংস API না আসা পর্যন্ত সেটিংস এই ব্রাউজারে সংরক্ষিত হয়।",
+      "sections": {
+        "locale": {
+          "title": "লোকেল ও প্রদর্শন",
+          "hint": "প্রতিষ্ঠানের টাইমজোন, তারিখ ফরম্যাট, মুদ্রা এবং ডিফল্ট ভাষা।"
+        },
+        "accounting": {
+          "title": "অ্যাকাউন্টিং ডিফল্ট",
+          "hint": "সুদের দিন-গণনা, রাউন্ডিং এবং ব্যাকডেটেড লেনদেন নিয়ন্ত্রণ।"
+        },
+        "controls": {
+          "title": "অপারেশনাল নিয়ন্ত্রণ",
+          "hint": "শাখা অ্যাক্সেস, মাস্টারে মেকার-চেকার, EOD বাধ্যবাধকতা এবং অডিট ধারণকাল।"
+        }
+      },
+      "fields": {
+        "timezone": "টাইমজোন",
+        "dateFormat": "তারিখ ফরম্যাট",
+        "currencyCode": "মূল মুদ্রা",
+        "decimalPlaces": "রাশির দশমিক স্থান",
+        "defaultLocale": "ডিফল্ট ভাষা",
+        "dayCountBasis": "সুদের দিন-গণনা ভিত্তি",
+        "roundingMode": "রাশি রাউন্ডিং",
+        "allowBackdatedTxn": "ব্যাকডেটেড লেনদেন অনুমোদন",
+        "maxBackdateDays": "সর্বোচ্চ ব্যাকডেট দিন",
+        "multiBranchAccess": "মাল্টি-শাখা ব্যবহারকারী অ্যাক্সেস অনুমোদন",
+        "requireMakerCheckerMasters": "মাস্টার পরিবর্তনে মেকার-চেকার প্রয়োজন",
+        "forceEodBeforeNextDay": "পরবর্তী কার্যদিবসের আগে EOD বাধ্যতামূলক",
+        "auditRetentionDays": "অডিট লগ ধারণকাল (দিন)"
+      },
+      "hints": {
+        "decimalPlaces": "INR রাশির জন্য সাধারণত ২।",
+        "maxBackdateDays": "অতীতে কত দিন পর্যন্ত ভাউচার পোস্ট করা যাবে।",
+        "auditRetentionDays": "অডিট ট্রেইল কতদিন রাখা হবে (৩০–৩৬৫০)।"
+      },
+      "options": {
+        "timezone": {
+          "kolkata": "Asia/Kolkata (IST)",
+          "dhaka": "Asia/Dhaka (BST)",
+          "utc": "UTC"
+        },
+        "currency": {
+          "inr": "INR — ভারতীয় রুপি",
+          "usd": "USD — মার্কিন ডলার"
+        },
+        "locale": {
+          "en": "English",
+          "bn": "বাংলা",
+          "hi": "हिन्दी",
+          "or": "ଓଡ଼ିଆ"
+        },
+        "dayCount": {
+          "365": "Actual / 365",
+          "360": "Actual / 360"
+        },
+        "rounding": {
+          "nearest": "নিকটতমে রাউন্ড",
+          "up": "উপরে রাউন্ড",
+          "down": "নিচে রাউন্ড"
+        }
       }
     },
     "smsSettings": {
@@ -532,6 +626,10 @@
         "isAdmin": "অ্যাডমিনিস্ট্রেটর রোল",
         "status": "স্ট্যাটাস"
       },
+      "errors": {
+        "roleNameRequired": "রোলের নাম আবশ্যক",
+        "descriptionMax": "বিবরণ সর্বোচ্চ ২৫৫ অক্ষর হতে পারে"
+      },
       "menuPermissions": {
         "title": "মেনু অনুমতি",
         "subtitle": "{roleName} এর জন্য মেনু অ্যাক্সেস কনফিগার করুন",
@@ -562,6 +660,70 @@
           "reverse": "রিভার্স",
           "print": "প্রিন্ট"
         }
+      }
+    },
+    "makerChecker": {
+      "title": "মেকার-চেকার নিয়ম",
+      "description": "ভাউচার টাইপ অনুযায়ী ডুয়াল-অথ থ্রেশহোল্ড ও চেকার রোল",
+      "add": "নিয়ম যোগ করুন",
+      "edit": "সম্পাদনা",
+      "deactivate": "নিষ্ক্রিয়",
+      "activate": "সক্রিয়",
+      "deactivateSuccess": "মেকার-চেকার নিয়ম সফলভাবে নিষ্ক্রিয় হয়েছে।",
+      "activateSuccess": "মেকার-চেকার নিয়ম সফলভাবে সক্রিয় হয়েছে।",
+      "createTitle": "মেকার-চেকার নিয়ম যোগ করুন",
+      "editTitle": "মেকার-চেকার নিয়ম সম্পাদনা",
+      "save": "নিয়ম সংরক্ষণ",
+      "saving": "সংরক্ষণ হচ্ছে…",
+      "cancel": "বাতিল",
+      "createSuccess": "মেকার-চেকার নিয়ম সফলভাবে তৈরি হয়েছে।",
+      "updateSuccess": "মেকার-চেকার নিয়ম সফলভাবে আপডেট হয়েছে।",
+      "loadErrorTitle": "মেকার-চেকার নিয়ম লোড করা যায়নি",
+      "emptyTitle": "কোনো মেকার-চেকার নিয়ম নেই",
+      "emptyMessage": "বর্তমান ফিল্টারের সাথে কোনো নিয়ম মিলছে না।",
+      "tableCaption": "মেকার-চেকার নিয়মের তালিকা",
+      "statusActive": "সক্রিয়",
+      "statusInactive": "নিষ্ক্রিয়",
+      "yes": "হ্যাঁ",
+      "no": "না",
+      "confirmItemType": "মেকার-চেকার নিয়ম",
+      "confirmItemName": "ভাউচার টাইপ {voucherType}",
+      "filters": {
+        "voucherType": "ভাউচার টাইপ",
+        "voucherTypeHint": "ভাউচার টাইপ কোড দিয়ে ফিল্টার",
+        "status": "স্ট্যাটাস",
+        "statusAll": "সব"
+      },
+      "columns": {
+        "id": "আইডি",
+        "voucherType": "ভাউচার টাইপ",
+        "thresholdLimit": "থ্রেশহোল্ড",
+        "checkerRole": "চেকার রোল",
+        "dualAuthReq": "ডুয়াল অথ",
+        "autoApprv": "অটো-অ্যাপ্রুভ",
+        "status": "স্ট্যাটাস",
+        "createdAt": "তৈরি",
+        "actions": "কর্ম"
+      },
+      "fields": {
+        "voucherType": "ভাউচার টাইপ",
+        "thresholdLimit": "থ্রেশহোল্ড সীমা",
+        "checkerRoleId": "চেকার রোল",
+        "checkerRolePlaceholder": "চেকার রোল বেছে নিন…",
+        "dualAuthReq": "ডুয়াল অথেন্টিকেশন প্রয়োজন",
+        "autoApprv": "থ্রেশহোল্ডের নিচে অটো-অ্যাপ্রুভ",
+        "isActive": "সক্রিয়"
+      },
+      "hints": {
+        "voucherType": "ভাউচার টাইপ কোড (পূর্ণসংখ্যা ≥ ১)। প্রতি টাইপে একটি নিয়ম।",
+        "thresholdLimit": "এই সীমায় বা তার উপরে চেকার অনুমোদন প্রয়োজন।"
+      },
+      "errors": {
+        "voucherTypeRequired": "ভাউচার টাইপ আবশ্যক",
+        "voucherTypeMin": "ভাউচার টাইপ কমপক্ষে ১ হতে হবে",
+        "thresholdLimitRequired": "থ্রেশহোল্ড সীমা আবশ্যক",
+        "thresholdLimitMin": "থ্রেশহোল্ড কমপক্ষে ০ হতে হবে",
+        "checkerRoleRequired": "চেকার রোল আবশ্যক"
       }
     },
     "finYear": {
@@ -752,11 +914,8 @@
       "emptyMessage": "বর্তমান ফিল্টারের সাথে মিলে এমন কোনো ক্যাটাগরি নেই।",
       "tableCaption": "অ্যাকাউন্ট ক্যাটাগরি তালিকা",
       "types": {
-        "AS": "সম্পদ (AS)",
-        "LI": "দায় (LI)",
-        "EQ": "ইকুইটি (EQ)",
-        "IN": "আয় (IN)",
-        "EX": "ব্যয় (EX)"
+        "CR": "ক্রেডিট (CR)",
+        "DR": "ডেবিট (DR)"
       },
       "filters": {
         "search": "অনুসন্ধান",
@@ -775,8 +934,7 @@
         "categName": "ক্যাটাগরির নাম",
         "categCode": "ক্যাটাগরি কোড",
         "categoryType": "ক্যাটাগরি ধরন",
-        "categoryTypePlaceholder": "ধরন নির্বাচন করুন",
-        "categoryTypeNone": "কোনোটি নয়"
+        "categoryTypePlaceholder": "ধরন নির্বাচন করুন"
       },
       "hints": {
         "categCode": "ঐচ্ছিক। খালি রাখলে কোড সিরিজ থেকে স্বয়ংক্রিয় তৈরি হবে।"

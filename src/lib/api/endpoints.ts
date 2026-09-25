@@ -27,6 +27,7 @@ export const endpoints = {
     acctLedger: "/api/master/acct-ledger",
     acctSubledger: "/api/master/acct-subledger",
     acctSubledgerBranch: "/api/master/acct-subledger-branch",
+    makerChecker: "/api/master/maker-checker",
   },
   menuTree: "/api/MenuTree",
   stateList: "/api/StateList",
@@ -124,6 +125,11 @@ export const endpoints = {
     list: "/api/OperationalDaysList",
     add: "/api/OperationalDaysAdd",
     edit: "/api/OperationalDaysEdit",
+  },
+  makerChecker: {
+    list: "/api/MakerCheckerList",
+    add: "/api/MakerCheckerAdd",
+    edit: "/api/MakerCheckerEdit",
   },
 } as const;
 

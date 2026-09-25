@@ -3,7 +3,7 @@ type CheckboxProps = {
   checked: boolean;
   onChange: (checked: boolean) => void;
   disabled?: boolean;
-  /** Boxed row (form cards) vs plain list row. */
+  /** Inline form checkbox vs stacked list row. */
   variant?: "box" | "row";
   className?: string;
 };
@@ -37,7 +37,7 @@ export function Checkbox({
 
   return (
     <label
-      className={`inline-flex cursor-pointer items-center gap-2 rounded-xl border border-border bg-surface-muted px-3 py-2.5 text-sm text-slate-800 ${
+      className={`inline-flex cursor-pointer items-center gap-2 text-sm text-slate-800 ${
         disabled ? "cursor-not-allowed opacity-50" : ""
       } ${className}`.trim()}
     >

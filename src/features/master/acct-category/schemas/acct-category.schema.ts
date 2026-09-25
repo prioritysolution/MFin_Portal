@@ -26,15 +26,11 @@ export const paginationMetaDtoSchema = z.object({
 });
 
 const categoryTypeSchema = z
-  .union([z.string(), z.null()])
-  .optional()
-  .transform((value) => {
-    if (value == null) return null;
-    const trimmed = value.trim().toUpperCase();
-    return trimmed === "" ? null : trimmed;
-  })
-  .refine((value) => value == null || value.length <= 2, {
-    message: "Category type must be at most 2 characters",
+  .string()
+  .trim()
+  .transform((value) => value.toUpperCase())
+  .refine((value) => value === "CR" || value === "DR", {
+    message: "Category type is required",
   });
 
 const categCodeSchema = z

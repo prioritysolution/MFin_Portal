@@ -160,7 +160,7 @@ export function DashboardView({
               <Link
                 key={item.href}
                 href={item.href}
-                className="group flex flex-row items-center gap-3 rounded-2xl border border-border bg-surface-muted/60 px-4 py-4 text-left transition hover:border-brand/30 hover:bg-white hover:shadow-[var(--shadow-card)] min-[480px]:flex-col min-[480px]:py-6 min-[480px]:text-center"
+                className="group flex flex-row items-center gap-3 rounded-2xl border border-border bg-surface-muted/60 px-4 py-4 text-left transition hover:border-brand/30 hover:bg-surface hover:shadow-[var(--shadow-card)] min-[480px]:flex-col min-[480px]:py-6 min-[480px]:text-center"
               >
                 <span
                   className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl sm:h-14 sm:w-14 ${tones.icon} transition group-hover:scale-105`}

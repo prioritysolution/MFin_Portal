@@ -135,11 +135,27 @@ function RolesFormBody({
   selectEmpty,
   fieldLabels,
 }: BodyProps) {
+  const t = useTranslations("master.roles");
   const [form, setForm] = useState<FormState>(() => toFormState(role));
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
+  function mapFieldErrors(
+    flat: Record<string, string[] | undefined>,
+  ): Record<string, string> {
+    const next: Record<string, string> = {};
+    if (flat.roleName?.[0]) next.roleName = t("errors.roleNameRequired");
+    if (flat.description?.[0]) next.description = t("errors.descriptionMax");
+    return next;
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (!form.roleName.trim()) {
+      setFieldErrors({ roleName: t("errors.roleNameRequired") });
+      return;
+    }
+
     setFieldErrors({});
 
     if (mode === "create") {
@@ -151,12 +167,7 @@ function RolesFormBody({
       };
       const parsed = roleCreateInputSchema.safeParse(payload);
       if (!parsed.success) {
-        const flat = parsed.error.flatten().fieldErrors;
-        const next: Record<string, string> = {};
-        for (const [key, messages] of Object.entries(flat)) {
-          if (messages?.[0]) next[key] = messages[0];
-        }
-        setFieldErrors(next);
+        setFieldErrors(mapFieldErrors(parsed.error.flatten().fieldErrors));
         return;
       }
       await onSubmitCreate(parsed.data);
@@ -173,12 +184,7 @@ function RolesFormBody({
     };
     const parsed = roleUpdateInputSchema.safeParse(payload);
     if (!parsed.success) {
-      const flat = parsed.error.flatten().fieldErrors;
-      const next: Record<string, string> = {};
-      for (const [key, messages] of Object.entries(flat)) {
-        if (messages?.[0]) next[key] = messages[0];
-      }
-      setFieldErrors(next);
+      setFieldErrors(mapFieldErrors(parsed.error.flatten().fieldErrors));
       return;
     }
     await onSubmitUpdate(parsed.data);

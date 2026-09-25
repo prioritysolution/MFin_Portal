@@ -5,7 +5,6 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { Building2, Lock, ShieldCheck, Vault } from "lucide-react";
 import { Select } from "@/components/ui/Select";
-import { ThemeToggle } from "@/features/theme/ThemeToggle";
 import { isAppLocale } from "@/i18n/routing";
 
 type AuthShellProps = {
@@ -103,9 +102,6 @@ export function AuthShell({
       </aside>
 
       <main className="auth-main relative flex flex-1 flex-col justify-center px-4 py-8 sm:px-8 lg:px-12 lg:py-10">
-        <div className="absolute end-4 top-4 z-20 sm:end-8 sm:top-6">
-          <ThemeToggle />
-        </div>
         <div className="auth-main-pattern pointer-events-none absolute inset-0" aria-hidden />
         <div
           className={`relative z-10 mx-auto w-full ${wide ? "max-w-[540px]" : "max-w-[440px]"}`}
@@ -129,7 +125,7 @@ export function AuthShell({
 }
 
 export const authFieldClass =
-  "auth-field w-full appearance-none rounded-xl border border-slate-200/90 bg-white px-3.5 py-3 text-sm text-slate-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-blue-500 focus:shadow-[0_0_0_4px_rgba(37,99,235,0.12)]";
+  "auth-field w-full appearance-none rounded-[var(--radius-control)] border border-border bg-surface px-3.5 py-3 text-sm font-medium text-slate-900 outline-none transition placeholder:font-normal placeholder:text-muted-soft hover:border-border-strong focus:border-brand focus:shadow-[var(--focus-ring)]";
 
 const languages = [
   { value: "en", labelKey: "localeEn" },

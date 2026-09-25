@@ -101,6 +101,11 @@
       "description": "ଆପଣ କ'ଣ ନିଶ୍ଚିତ ଭାବରେ ଏହି ଅନୁରୋଧକୁ ପ୍ରତ୍ୟାଖ୍ୟାନ କରିବାକୁ ଚାହାଁନ୍ତି?",
       "button": "ପ୍ରତ୍ୟାଖ୍ୟାନ କରନ୍ତୁ"
     },
+    "logout": {
+      "title": "ସାଇନ୍ ଆଉଟ୍ କରିବେ?",
+      "description": "ଆପଣ କ'ଣ ନିଶ୍ଚିତ ଭାବରେ ଆପଣଙ୍କ ଷ୍ଟାଫ୍ ସେସନରୁ ସାଇନ୍ ଆଉଟ୍ କରିବାକୁ ଚାହାଁନ୍ତି?",
+      "button": "ସାଇନ୍ ଆଉଟ୍"
+    },
     "keywordPrompt": "ନିଶ୍ଚିତ କରିବାକୁ, ଦୟାକରି ତଳେ \"{keyword}\" ଲେଖନ୍ତୁ:",
     "keywordPlaceholder": "ନିଶ୍ଚିତକରଣ ଶବ୍ଦ ଲେଖନ୍ତୁ",
     "targetItem": "ନିର୍ଦ୍ଦିଷ୍ଟ ଆଇଟମ୍",
@@ -223,8 +228,27 @@
     }
   },
   "account": {
+    "profile": {
+      "detailsTitle": "ପ୍ରୋଫାଇଲ୍ ବିବରଣୀ",
+      "auditNote": "ସମସ୍ତ ଅପଡେଟ୍ ଅଡିଟ୍ ଲଗରେ ସମୟ-ଚିହ୍ନିତ ହୁଏ।",
+      "refresh": "ରିଫ୍ରେଶ୍",
+      "save": "କନଫିଗରେସନ୍ ସେଭ୍ କରନ୍ତୁ",
+      "fields": {
+        "name": "ଇଂରାଜୀ ନାମ",
+        "shortName": "ସଂକ୍ଷିପ୍ତ ନାମ",
+        "employeeId": "କର୍ମଚାରୀ ଆଇଡି",
+        "designation": "ପଦବୀ",
+        "branch": "ଶାଖା",
+        "status": "ସ୍ଥିତି",
+        "active": "ସକ୍ରିୟ",
+        "inactive": "ନିଷ୍କ୍ରିୟ",
+        "admin": "ପ୍ରଶାସକ",
+        "mobile": "ମୋବାଇଲ୍",
+        "email": "ଇମେଲ୍"
+      }
+    },
     "changePassword": {
-      "title": "ପାସୱାର୍ଡ ବଦଳାନ୍ତୁ",
+      "title": "ପାସୱାର୍ଡ ଅପଡେଟ୍",
       "description": "ସାଇନ୍-ଇନ୍ ହୋଇଥିବା ଷ୍ଟାଫ୍ ଆକାଉଣ୍ଟର ପାସୱାର୍ଡ ଅପଡେଟ୍ କରନ୍ତୁ।",
       "current": "ବର୍ତ୍ତମାନର ପାସୱାର୍ଡ",
       "new": "ନୂଆ ପାସୱାର୍ଡ",
@@ -348,6 +372,76 @@
         "invalidEod": "ଦିନ ଶେଷ HH:mm AM/PM ରେ ଲେଖନ୍ତୁ (ଯଥା 07:30 PM)",
         "invalidBatch": "ବ୍ୟାଚ୍ ସମୟ HH:mm AM/PM ରେ ଲେଖନ୍ତୁ (ଯଥା 10:00 PM)",
         "invalidSession": "ସେସନ୍ ଟାଇମଆଉଟ୍ HH:mm ରେ ଲେଖନ୍ତୁ (ଯଥା 00:30)"
+      }
+    },
+    "globalSettings": {
+      "title": "ଗ୍ଲୋବାଲ୍ ସେଟିଂସ୍",
+      "description": "ଅନୁଷ୍ଠାନ-ବ୍ୟାପୀ ଲୋକେଲ୍, ଆକାଉଣ୍ଟିଂ ଏବଂ ଅପରେସନାଲ୍ ଡିଫଲ୍ଟ",
+      "loading": "ଗ୍ଲୋବାଲ୍ ସେଟିଂସ୍ ଲୋଡ୍ ହେଉଛି…",
+      "save": "ଗ୍ଲୋବାଲ୍ ସେଟିଂସ୍ ସଂରକ୍ଷଣ",
+      "saving": "ସଂରକ୍ଷଣ ହେଉଛି…",
+      "saveSuccess": "ଗ୍ଲୋବାଲ୍ ସେଟିଂସ୍ ସଫଳତାର ସହିତ ସଂରକ୍ଷିତ ହୋଇଛି।",
+      "validationFailed": "ଫର୍ମ ଯାଞ୍ଚ କରି ହାଇଲାଇଟ୍ ହୋଇଥିବା ଫିଲ୍ଡଗୁଡ଼ିକ ଠିକ୍ କରନ୍ତୁ।",
+      "localOnlyHint": "ବ୍ୟାକଏଣ୍ଡ ଗ୍ଲୋବାଲ୍ ସେଟିଂସ୍ API ଉପଲବ୍ଧ ନହେବା ପର୍ଯ୍ୟନ୍ତ ସେଟିଂସ୍ ଏହି ବ୍ରାଉଜରରେ ସଂରକ୍ଷିତ ହୁଏ।",
+      "sections": {
+        "locale": {
+          "title": "ଲୋକେଲ୍ ଏବଂ ପ୍ରଦର୍ଶନ",
+          "hint": "ଅନୁଷ୍ଠାନର ଟାଇମଜୋନ୍, ତାରିଖ ଫର୍ମାଟ୍, ମୁଦ୍ରା ଏବଂ ଡିଫଲ୍ଟ ଭାଷା।"
+        },
+        "accounting": {
+          "title": "ଆକାଉଣ୍ଟିଂ ଡିଫଲ୍ଟ",
+          "hint": "ସୁଧ ଦିନ-ଗଣନା, ରାଉଣ୍ଡିଂ ଏବଂ ବ୍ୟାକଡେଟେଡ୍ କାରବାର ନିୟନ୍ତ୍ରଣ।"
+        },
+        "controls": {
+          "title": "ଅପରେସନାଲ୍ ନିୟନ୍ତ୍ରଣ",
+          "hint": "ଶାଖା ଆକ୍ସେସ୍, ମାଷ୍ଟରରେ ମେକର-ଚେକର, EOD ବାଧ୍ୟତା ଏବଂ ଅଡିଟ୍ ଧାରଣକାଳ।"
+        }
+      },
+      "fields": {
+        "timezone": "ଟାଇମଜୋନ୍",
+        "dateFormat": "ତାରିଖ ଫର୍ମାଟ୍",
+        "currencyCode": "ମୂଳ ମୁଦ୍ରା",
+        "decimalPlaces": "ରାଶି ଦଶମିକ ସ୍ଥାନ",
+        "defaultLocale": "ଡିଫଲ୍ଟ ଭାଷା",
+        "dayCountBasis": "ସୁଧ ଦିନ-ଗଣନା ଭିତ୍ତି",
+        "roundingMode": "ରାଶି ରାଉଣ୍ଡିଂ",
+        "allowBackdatedTxn": "ବ୍ୟାକଡେଟେଡ୍ କାରବାର ଅନୁମତି",
+        "maxBackdateDays": "ସର୍ବାଧିକ ବ୍ୟାକଡେଟ୍ ଦିନ",
+        "multiBranchAccess": "ମଲ୍ଟି-ଶାଖା ଉପଭୋକ୍ତା ଆକ୍ସେସ୍ ଅନୁମତି",
+        "requireMakerCheckerMasters": "ମାଷ୍ଟର ପରିବର୍ତ୍ତନରେ ମେକର-ଚେକର ଆବଶ୍ୟକ",
+        "forceEodBeforeNextDay": "ପରବର୍ତ୍ତୀ କାର୍ଯ୍ୟଦିବସ ପୂର୍ବରୁ EOD ବାଧ୍ୟତାମୂଳକ",
+        "auditRetentionDays": "ଅଡିଟ୍ ଲଗ୍ ଧାରଣକାଳ (ଦିନ)"
+      },
+      "hints": {
+        "decimalPlaces": "INR ରାଶି ପାଇଁ ସାଧାରଣତଃ 2।",
+        "maxBackdateDays": "ଅତୀତରେ କେତେ ଦିନ ପର୍ଯ୍ୟନ୍ତ ଭାଉଚର ପୋଷ୍ଟ କରାଯାଇପାରିବ।",
+        "auditRetentionDays": "ଅଡିଟ୍ ଟ୍ରେଲ୍ କେତେ ଦିନ ରଖାଯିବ (30–3650)।"
+      },
+      "options": {
+        "timezone": {
+          "kolkata": "Asia/Kolkata (IST)",
+          "dhaka": "Asia/Dhaka (BST)",
+          "utc": "UTC"
+        },
+        "currency": {
+          "inr": "INR — ଭାରତୀୟ ଟଙ୍କା",
+          "usd": "USD — ଆମେରିକୀୟ ଡଲାର"
+        },
+        "locale": {
+          "en": "English",
+          "bn": "বাংলা",
+          "hi": "हिन्दी",
+          "or": "ଓଡ଼ିଆ"
+        },
+        "dayCount": {
+          "365": "Actual / 365",
+          "360": "Actual / 360"
+        },
+        "rounding": {
+          "nearest": "ନିକଟତମକୁ ରାଉଣ୍ଡ",
+          "up": "ଉପରକୁ ରାଉଣ୍ଡ",
+          "down": "ତଳକୁ ରାଉଣ୍ଡ"
+        }
       }
     },
     "smsSettings": {
@@ -532,6 +626,10 @@
         "isAdmin": "ଆଡମିନିଷ୍ଟ୍ରେଟର୍ ରୋଲ୍",
         "status": "ସ୍ଥିତି"
       },
+      "errors": {
+        "roleNameRequired": "ରୋଲ୍ ନାମ ଆବଶ୍ୟକ",
+        "descriptionMax": "ବିବରଣୀ ସର୍ବାଧିକ 255 ଅକ୍ଷର ହୋଇପାରିବ"
+      },
       "menuPermissions": {
         "title": "ମେନୁ ଅନୁମତି",
         "subtitle": "{roleName} ପାଇଁ ମେନୁ ଆକ୍ସେସ୍ କନଫିଗର୍ କରନ୍ତୁ",
@@ -562,6 +660,70 @@
           "reverse": "ରିଭର୍ସ",
           "print": "ପ୍ରିଣ୍ଟ"
         }
+      }
+    },
+    "makerChecker": {
+      "title": "ମେକର-ଚେକର ନିୟମ",
+      "description": "ଭାଉଚର ପ୍ରକାର ଅନୁଯାୟୀ ଡୁଆଲ୍-ଅଥ୍ ଥ୍ରେସହୋଲ୍ଡ ଏବଂ ଚେକର ରୋଲ୍",
+      "add": "ନିୟମ ଯୋଗ କରନ୍ତୁ",
+      "edit": "ସମ୍ପାଦନା",
+      "deactivate": "ନିଷ୍କ୍ରିୟ",
+      "activate": "ସକ୍ରିୟ",
+      "deactivateSuccess": "ମେକର-ଚେକର ନିୟମ ସଫଳତାର ସହିତ ନିଷ୍କ୍ରିୟ ହୋଇଛି।",
+      "activateSuccess": "ମେକର-ଚେକର ନିୟମ ସଫଳତାର ସହିତ ସକ୍ରିୟ ହୋଇଛି।",
+      "createTitle": "ମେକର-ଚେକର ନିୟମ ଯୋଗ କରନ୍ତୁ",
+      "editTitle": "ମେକର-ଚେକର ନିୟମ ସମ୍ପାଦନା",
+      "save": "ନିୟମ ସଂରକ୍ଷଣ",
+      "saving": "ସଂରକ୍ଷଣ ହେଉଛି…",
+      "cancel": "ବାତିଲ୍",
+      "createSuccess": "ମେକର-ଚେକର ନିୟମ ସଫଳତାର ସହିତ ତିଆରି ହୋଇଛି।",
+      "updateSuccess": "ମେକର-ଚେକର ନିୟମ ସଫଳତାର ସହିତ ଅଦ୍ୟତନ ହୋଇଛି।",
+      "loadErrorTitle": "ମେକର-ଚେକର ନିୟମ ଲୋଡ୍ କରାଯାଇପାରିଲା ନାହିଁ",
+      "emptyTitle": "କୌଣସି ମେକର-ଚେକର ନିୟମ ମିଳିଲା ନାହିଁ",
+      "emptyMessage": "ବର୍ତ୍ତମାନ ଫିଲ୍ଟର ସହିତ କୌଣସି ନିୟମ ମେଳ ଖାଉନାହିଁ।",
+      "tableCaption": "ମେକର-ଚେକର ନିୟମ ତାଲିକା",
+      "statusActive": "ସକ୍ରିୟ",
+      "statusInactive": "ନିଷ୍କ୍ରିୟ",
+      "yes": "ହଁ",
+      "no": "ନା",
+      "confirmItemType": "ମେକର-ଚେକର ନିୟମ",
+      "confirmItemName": "ଭାଉଚର ପ୍ରକାର {voucherType}",
+      "filters": {
+        "voucherType": "ଭାଉଚର ପ୍ରକାର",
+        "voucherTypeHint": "ଭାଉଚର ପ୍ରକାର କୋଡ୍ ଦ୍ୱାରା ଫିଲ୍ଟର",
+        "status": "ସ୍ଥିତି",
+        "statusAll": "ସମସ୍ତ"
+      },
+      "columns": {
+        "id": "ଆଇଡି",
+        "voucherType": "ଭାଉଚର ପ୍ରକାର",
+        "thresholdLimit": "ଥ୍ରେସହୋଲ୍ଡ",
+        "checkerRole": "ଚେକର ରୋଲ୍",
+        "dualAuthReq": "ଡୁଆଲ୍ ଅଥ୍",
+        "autoApprv": "ଅଟୋ-ଅନୁମୋଦନ",
+        "status": "ସ୍ଥିତି",
+        "createdAt": "ତିଆରି",
+        "actions": "କାର୍ଯ୍ୟ"
+      },
+      "fields": {
+        "voucherType": "ଭାଉଚର ପ୍ରକାର",
+        "thresholdLimit": "ଥ୍ରେସହୋଲ୍ଡ ସୀମା",
+        "checkerRoleId": "ଚେକର ରୋଲ୍",
+        "checkerRolePlaceholder": "ଚେକର ରୋଲ୍ ବାଛନ୍ତୁ…",
+        "dualAuthReq": "ଡୁଆଲ୍ ପ୍ରମାଣୀକରଣ ଆବଶ୍ୟକ",
+        "autoApprv": "ଥ୍ରେସହୋଲ୍ଡ ତଳେ ଅଟୋ-ଅନୁମୋଦନ",
+        "isActive": "ସକ୍ରିୟ"
+      },
+      "hints": {
+        "voucherType": "ଭାଉଚର ପ୍ରକାର କୋଡ୍ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା ≥ 1)। ପ୍ରତି ପ୍ରକାରରେ ଗୋଟିଏ ନିୟମ।",
+        "thresholdLimit": "ଏହି ସୀମାରେ କିମ୍ବା ତା’ଠାରୁ ଅଧିକରେ ଚେକର ଅନୁମୋଦନ ଆବଶ୍ୟକ।"
+      },
+      "errors": {
+        "voucherTypeRequired": "ଭାଉଚର ପ୍ରକାର ଆବଶ୍ୟକ",
+        "voucherTypeMin": "ଭାଉଚର ପ୍ରକାର କମରେ 1 ହେବା ଉଚିତ",
+        "thresholdLimitRequired": "ଥ୍ରେସହୋଲ୍ଡ ସୀମା ଆବଶ୍ୟକ",
+        "thresholdLimitMin": "ଥ୍ରେସହୋଲ୍ଡ କମରେ 0 ହେବା ଉଚିତ",
+        "checkerRoleRequired": "ଚେକର ରୋଲ୍ ଆବଶ୍ୟକ"
       }
     },
     "finYear": {
@@ -752,11 +914,8 @@
       "emptyMessage": "ବର୍ତ୍ତମାନ ଫିଲ୍ଟର୍ ସହ ମେଳ ହେଉଥିବା କୌଣସି କ୍ୟାଟେଗୋରୀ ନାହିଁ।",
       "tableCaption": "ଆକାଉଣ୍ଟ କ୍ୟାଟେଗୋରୀ ତାଲିକା",
       "types": {
-        "AS": "ସମ୍ପତ୍ତି (AS)",
-        "LI": "ଦାୟିତ୍ୱ (LI)",
-        "EQ": "ଇକ୍ୱିଟି (EQ)",
-        "IN": "ଆୟ (IN)",
-        "EX": "ବ୍ୟୟ (EX)"
+        "CR": "କ୍ରେଡିଟ୍ (CR)",
+        "DR": "ଡେବିଟ୍ (DR)"
       },
       "filters": {
         "search": "ସନ୍ଧାନ",
@@ -775,8 +934,7 @@
         "categName": "କ୍ୟାଟେଗୋରୀ ନାମ",
         "categCode": "କ୍ୟାଟେଗୋରୀ କୋଡ୍",
         "categoryType": "କ୍ୟାଟେଗୋରୀ ପ୍ରକାର",
-        "categoryTypePlaceholder": "ପ୍ରକାର ବାଛନ୍ତୁ",
-        "categoryTypeNone": "କିଛି ନୁହେଁ"
+        "categoryTypePlaceholder": "ପ୍ରକାର ବାଛନ୍ତୁ"
       },
       "hints": {
         "categCode": "ଐଚ୍ଛିକ। ଖାଲି ରଖିଲେ କୋଡ୍ ସିରିଜରୁ ସ୍ୱୟଂଚାଳିତ ତିଆରି ହେବ।"

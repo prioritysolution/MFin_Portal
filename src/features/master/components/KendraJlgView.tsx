@@ -126,7 +126,7 @@ export function KendraJlgView() {
               className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold transition ${
                 active
                   ? "bg-white text-blue-700 shadow-sm"
-                  : "text-slate-500 hover:bg-white/70 hover:text-slate-700"
+                  : "text-slate-500 hover:bg-surface-muted hover:text-slate-700"
               }`}
             >
               <Icon

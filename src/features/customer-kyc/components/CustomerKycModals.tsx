@@ -431,7 +431,7 @@ export function OnboardModal({ onClose }: { onClose: () => void }) {
                 className={`flex items-center gap-2 rounded-xl px-3 py-2.5 text-left text-xs font-semibold transition ${
                   active
                     ? "bg-blue-600 text-white"
-                    : "border border-border bg-surface-muted text-slate-600 hover:bg-white"
+                    : "border border-border bg-surface-muted text-slate-600 hover:bg-surface"
                 }`}
               >
                 <item.icon className="h-3.5 w-3.5 shrink-0" />

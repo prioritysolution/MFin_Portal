@@ -538,7 +538,7 @@ function ActionButton({
     blue: "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100",
     violet: "border-violet-200 bg-violet-50 text-violet-700 hover:bg-violet-100",
     amber: "border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100",
-    slate: "border-border bg-surface-muted text-slate-600 hover:bg-white",
+    slate: "border-border bg-surface-muted text-slate-600 hover:bg-surface",
   };
 
   return (

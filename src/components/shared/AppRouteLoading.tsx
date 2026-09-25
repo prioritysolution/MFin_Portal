@@ -11,6 +11,7 @@ const FORM_ROUTES = new Set([
   "/master/company-profile",
   "/master/timings",
   "/master/rbi-policies",
+  "/master/global-settings",
 ]);
 
 /**

@@ -1,32 +1,35 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f3f5f7;
-  --foreground: #0f172a;
+  --background: #e9eef4;
+  --foreground: #0b1220;
   --surface: #ffffff;
-  --surface-muted: #f8fafc;
-  --border: #e8edf2;
-  --border-strong: #d7dee7;
-  --muted: #64748b;
-  --muted-soft: #94a3b8;
+  --surface-muted: #f1f5f9;
+  --border: #c5d0dc;
+  --border-strong: #94a3b8;
+  --muted: #475569;
+  --muted-soft: #64748b;
   --brand: #16a34a;
   --brand-soft: #dcfce7;
   --brand-ink: #166534;
   --brand-dark: #0f172a;
-  --accent-blue: #3b82f6;
+  --accent-blue: #2563eb;
   --accent-blue-soft: #dbeafe;
   --accent-amber: #f59e0b;
   --accent-amber-soft: #fef3c7;
-  --accent-violet: #8b5cf6;
+  --accent-violet: #7c3aed;
   --accent-violet-soft: #ede9fe;
-  --accent-rose: #f43f5e;
+  --accent-rose: #e11d48;
   --accent-rose-soft: #ffe4e6;
   --demo: #c45c26;
   --demo-ink: #fff7ed;
-  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04),
-    0 8px 24px rgba(15, 23, 42, 0.04);
+  /* Tight, crisp elevation — avoid soft diffuse haze */
+  --shadow-card: 0 1px 0 rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.08);
   --sidebar-width: min(288px, 86vw);
   --content-gap: 0.875rem;
+  --radius-control: 0.625rem;
+  --radius-card: 0.875rem;
+  --focus-ring: 0 0 0 2px color-mix(in srgb, var(--brand) 28%, transparent);
 }
 
 @media (min-width: 640px) {
@@ -85,6 +88,9 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -878,19 +884,20 @@ select:disabled,
 }
 
 .btn-secondary {
-  border: 1px solid var(--border);
-  background: #ffffff;
-  color: #334155;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: #1e293b;
 }
 
 .btn-secondary:hover:not(:disabled) {
   background: var(--surface-muted);
+  border-color: var(--border-strong);
 }
 
 .btn-ghost {
   border: 1px solid var(--border);
-  background: var(--surface-muted);
-  color: #475569;
+  background: var(--surface);
+  color: #334155;
 }
 
 .btn-ghost:hover:not(:disabled) {
@@ -1027,14 +1034,14 @@ select:disabled,
 /* Dark theme — token swap plus light-only utility remaps. */
 html.dark {
   color-scheme: dark;
-  --background: #0b1220;
-  --foreground: #e7eef8;
-  --surface: #121c2e;
-  --surface-muted: #182536;
-  --border: #2a3a50;
-  --border-strong: #3b4d66;
-  --muted: #a8b6c8;
-  --muted-soft: #7d8da3;
+  --background: #0a101c;
+  --foreground: #f1f5f9;
+  --surface: #111827;
+  --surface-muted: #1a2436;
+  --border: #334155;
+  --border-strong: #475569;
+  --muted: #94a3b8;
+  --muted-soft: #64748b;
   --brand-soft: #14532d;
   --brand-ink: #86efac;
   --brand-dark: #071018;
@@ -1042,7 +1049,8 @@ html.dark {
   --accent-amber-soft: #422006;
   --accent-violet-soft: #2e1065;
   --accent-rose-soft: #4c0519;
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.35), 0 10px 28px rgba(0, 0, 0, 0.32);
+  --shadow-card: 0 1px 0 rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.45);
+  --focus-ring: 0 0 0 2px color-mix(in srgb, var(--brand) 40%, transparent);
 }
 
 html.dark .bg-white,
@@ -1104,11 +1112,24 @@ html.dark .hover\:border-slate-300:hover {
 }
 
 html.dark .hover\:bg-white:hover,
+html.dark .hover\:bg-white\/90:hover,
+html.dark .hover\:bg-white\/80:hover,
+html.dark .hover\:bg-white\/70:hover,
+html.dark .hover\:bg-white\/60:hover,
+html.dark .hover\:bg-white\/50:hover,
 html.dark .hover\:bg-slate-50:hover,
 html.dark .hover\:bg-slate-100:hover,
 html.dark .hover\:bg-gray-50:hover,
 html.dark .hover\:bg-gray-100:hover {
-  background-color: #223044;
+  background-color: color-mix(in srgb, var(--surface-muted) 92%, white 8%);
+}
+
+/* Keep muted hover readable on dark surfaces (incl. opacity variants). */
+html.dark .hover\:bg-surface-muted:hover,
+html.dark .hover\:bg-surface-muted\/80:hover,
+html.dark .hover\:bg-surface-muted\/60:hover,
+html.dark .hover\:bg-surface-muted\/40:hover {
+  background-color: #243447;
 }
 
 html.dark .bg-rose-50 {

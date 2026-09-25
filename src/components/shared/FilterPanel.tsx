@@ -26,7 +26,7 @@ export function FilterPanel({
 
   return (
     <section
-      className={`rounded-2xl border border-border bg-surface p-3 shadow-[var(--shadow-card)] sm:p-4 ${className}`.trim()}
+      className={`rounded-[var(--radius-card)] border border-border bg-surface p-3 shadow-[var(--shadow-card)] sm:p-4 ${className}`.trim()}
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end [&>*]:w-full [&>*]:min-w-0 sm:[&>*]:w-auto sm:[&>*]:min-w-[10rem] sm:[&>*]:max-w-[18rem] sm:[&>*]:flex-1 sm:[&>button]:w-auto sm:[&>button]:max-w-none sm:[&>button]:min-w-0 sm:[&>button]:flex-none">
         {children}

@@ -20,6 +20,8 @@ export type ModuleId =
   | "master.center"
   | "master.staff"
   | "master.smsSettings"
+  | "master.globalSettings"
+  | "master.makerChecker"
   | "security.auditLog"
   | "security.loginSettings";
 
@@ -181,6 +183,20 @@ export const masterModulePages = {
     id: "master.smsSettings",
     route: "/master/gateway",
     messageNamespace: "master.smsSettings",
+    titleKey: "title",
+    descriptionKey: "description",
+  }),
+  globalSettings: new ModulePage({
+    id: "master.globalSettings",
+    route: "/master/global-settings",
+    messageNamespace: "master.globalSettings",
+    titleKey: "title",
+    descriptionKey: "description",
+  }),
+  makerChecker: new ModulePage({
+    id: "master.makerChecker",
+    route: "/master/maker-checker",
+    messageNamespace: "master.makerChecker",
     titleKey: "title",
     descriptionKey: "description",
   }),

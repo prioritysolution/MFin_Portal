@@ -230,7 +230,7 @@ export function DatePicker({
           setOpen((prev) => !prev);
         }}
         onKeyDown={onTriggerKeyDown}
-        className={`relative flex w-full items-center justify-between gap-2 rounded-xl border border-border bg-surface-muted py-2.5 text-left text-sm outline-none transition hover:border-slate-300 focus:border-brand/40 focus:bg-surface focus:ring-4 focus:ring-brand/10 disabled:cursor-not-allowed disabled:opacity-50 ${
+        className={`relative flex w-full items-center justify-between gap-2 rounded-[var(--radius-control)] border border-border bg-surface py-2.5 text-left text-sm font-medium text-slate-900 outline-none transition hover:border-border-strong focus:border-brand focus:bg-surface focus:shadow-[var(--focus-ring)] disabled:cursor-not-allowed disabled:opacity-50 ${
           value && !disabled ? "ps-3 pe-16" : "px-3"
         } ${open ? "border-brand/40 bg-surface ring-4 ring-brand/10" : ""}`}
       >

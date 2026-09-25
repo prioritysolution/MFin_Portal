@@ -19,16 +19,32 @@ export const paginationMetaDtoSchema = z.object({
 });
 
 export const roleCreateInputSchema = z.object({
-  roleName: z.string().trim().min(1).max(100),
-  description: z.string().trim().max(255).optional(),
+  roleName: z
+    .string()
+    .trim()
+    .min(1, "Role name is required")
+    .max(100, "Role name must be at most 100 characters"),
+  description: z
+    .string()
+    .trim()
+    .max(255, "Description must be at most 255 characters")
+    .optional(),
   isAdmin: z.boolean().optional(),
   status: z.number().int().optional(),
 });
 
 export const roleUpdateInputSchema = z.object({
   roleId: z.number().int().positive(),
-  roleName: z.string().trim().min(1).max(100),
-  description: z.string().max(255).nullable().optional(),
+  roleName: z
+    .string()
+    .trim()
+    .min(1, "Role name is required")
+    .max(100, "Role name must be at most 100 characters"),
+  description: z
+    .string()
+    .max(255, "Description must be at most 255 characters")
+    .nullable()
+    .optional(),
   isAdmin: z.boolean().optional(),
   status: z.number().int().optional(),
 });

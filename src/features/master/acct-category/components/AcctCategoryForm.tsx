@@ -127,7 +127,7 @@ function AcctCategoryFormBody({
 
     const base = {
       categName: form.categName.trim(),
-      categoryType: form.categoryType.trim() || null,
+      categoryType: form.categoryType.trim(),
     };
 
     if (mode === "edit" && category) {
@@ -180,19 +180,17 @@ function AcctCategoryFormBody({
       <SelectField
         label={t("fields.categoryType")}
         value={form.categoryType}
+        required
         searchable={false}
         placeholder={t("fields.categoryTypePlaceholder")}
         searchPlaceholder={tUi("selectSearch")}
         emptyMessage={tUi("selectEmpty")}
         error={fieldErrors.categoryType || undefined}
         onChange={(categoryType) => updateField("categoryType", categoryType)}
-        options={[
-          { value: "", label: t("fields.categoryTypeNone") },
-          ...ACCT_CATEGORY_TYPE_OPTIONS.map((code) => ({
-            value: code,
-            label: t(`types.${code}`),
-          })),
-        ]}
+        options={ACCT_CATEGORY_TYPE_OPTIONS.map((code) => ({
+          value: code,
+          label: t(`types.${code}`),
+        }))}
       />
     </form>
   );

@@ -815,8 +815,12 @@ export function ContraTransferView() {
   );
 }
 
-export function AccountingCoaView() {
-  return <CoaTreeView />;
+export function AccountingCoaView({
+  initialTab,
+}: {
+  initialTab?: string;
+} = {}) {
+  return <CoaTreeView initialTab={initialTab} />;
 }
 
 export function AccountingTrialBalanceView() {

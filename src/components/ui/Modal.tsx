@@ -70,7 +70,7 @@ export function Modal({
       <button
         type="button"
         aria-label={t("close")}
-        className="absolute inset-0 cursor-pointer bg-slate-950/55 backdrop-blur-[2px]"
+        className="absolute inset-0 cursor-pointer bg-slate-950/50"
         onClick={onClose}
       />
 
@@ -78,14 +78,14 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={`modal-panel relative z-10 flex w-full max-h-[calc(100dvh-2rem)] flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_25px_50px_-12px_rgba(15,23,42,0.35)] sm:max-h-[calc(100dvh-3rem)] ${sizeClass[size]} ${className}`.trim()}
+        className={`modal-panel relative z-10 flex w-full max-h-[calc(100dvh-2rem)] flex-col overflow-hidden rounded-[var(--radius-card)] border border-border bg-surface shadow-[0_12px_32px_-8px_rgba(15,23,42,0.28)] sm:max-h-[calc(100dvh-3rem)] ${sizeClass[size]} ${className}`.trim()}
       >
         <span
           className="absolute inset-x-0 top-0 h-1 bg-brand"
           aria-hidden
         />
 
-        <header className="flex shrink-0 items-start justify-between gap-4 border-b border-border bg-surface-muted/80 px-5 pt-5 pb-4 sm:px-6 sm:pt-6 sm:pb-5">
+        <header className="flex shrink-0 items-start justify-between gap-4 border-b border-border bg-surface px-5 pt-5 pb-4 sm:px-6 sm:pt-6 sm:pb-5">
           <div className="min-w-0 pe-2">
             <h2
               id={titleId}
@@ -100,7 +100,7 @@ export function Modal({
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-border bg-surface text-slate-500 transition hover:border-slate-300 hover:bg-white hover:text-slate-800"
+            className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-border bg-surface text-slate-500 transition hover:border-border-strong hover:bg-surface-muted hover:text-slate-800"
             aria-label={t("close")}
           >
             <X className="h-4 w-4" />
@@ -112,7 +112,7 @@ export function Modal({
         </div>
 
         {footer ? (
-          <footer className="flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-border bg-surface-muted px-5 py-4 sm:px-6">
+          <footer className="flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-border bg-surface px-5 py-4 sm:px-6">
             {footer}
           </footer>
         ) : null}

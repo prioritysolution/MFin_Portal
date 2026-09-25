@@ -175,17 +175,17 @@ export function Select({
         aria-label={aria["aria-label"]}
         onClick={() => (open ? setOpen(false) : openMenu())}
         onKeyDown={onTriggerKeyDown}
-        className={`relative flex w-full items-center justify-between gap-2 border border-border bg-surface-muted text-left outline-none transition hover:border-slate-300 focus:border-brand/40 focus:bg-surface focus:ring-4 focus:ring-brand/10 disabled:cursor-not-allowed disabled:opacity-50 ${
+        className={`relative flex w-full items-center justify-between gap-2 border border-border bg-surface text-left text-sm font-medium text-slate-900 outline-none transition hover:border-border-strong focus:border-brand focus:bg-surface focus:shadow-[var(--focus-ring)] disabled:cursor-not-allowed disabled:opacity-50 ${
           size === "sm"
-            ? "rounded-lg py-1.5 text-sm"
-            : "rounded-xl py-2.5 text-sm"
+            ? "rounded-lg py-1.5"
+            : "rounded-[var(--radius-control)] py-2.5"
         } ${canClear ? "ps-3 pe-16" : "ps-3 pe-8"} ${
-          open ? "border-brand/40 bg-surface ring-4 ring-brand/10" : ""
+          open ? "border-brand bg-surface shadow-[var(--focus-ring)]" : ""
         }`}
       >
         <span
           className={`min-w-0 flex-1 truncate ${
-            selected ? "font-medium text-slate-800" : "text-muted-soft"
+            selected ? "font-medium text-slate-900" : "font-normal text-muted"
           }`}
         >
           {selected?.label ?? resolvedPlaceholder}
@@ -216,7 +216,7 @@ export function Select({
           role="listbox"
           tabIndex={-1}
           onKeyDown={onListKeyDown}
-          className="absolute z-50 mt-1.5 w-full overflow-hidden rounded-xl border border-border bg-surface shadow-[var(--shadow-card)]"
+          className="absolute z-50 mt-1.5 w-full overflow-hidden rounded-[var(--radius-control)] border border-border bg-surface shadow-[var(--shadow-card)]"
         >
           {enableSearch ? (
             <div className="border-b border-border p-2">
@@ -233,7 +233,7 @@ export function Select({
                   onKeyDown={onListKeyDown}
                   placeholder={resolvedSearchPlaceholder}
                   aria-label={resolvedSearchPlaceholder}
-                  className="w-full rounded-lg border border-border bg-surface-muted py-2 pr-8 pl-8 text-xs text-slate-800 outline-none placeholder:text-muted-soft focus:border-brand/40 focus:bg-surface focus:ring-2 focus:ring-brand/10"
+                  className="w-full rounded-lg border border-border bg-surface py-2 pr-8 pl-8 text-xs font-medium text-slate-900 outline-none placeholder:font-normal placeholder:text-muted-soft focus:border-brand focus:shadow-[var(--focus-ring)]"
                 />
                 {query ? (
                   <button

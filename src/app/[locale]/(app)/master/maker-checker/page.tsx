@@ -1,4 +1,4 @@
-import { MakerCheckerView } from "@/features/master/components/MakerCheckerView";
+import { MakerCheckerView } from "@/features/master/maker-checker";
 
 export default function Page() {
   return <MakerCheckerView />;

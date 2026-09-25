@@ -23,6 +23,7 @@ import { menuEnglishName } from "@/features/navigation/utils/menu-label";
 import { toMenuLang } from "@/features/navigation/utils/menu-lang";
 import { sanitizeMenuRoute } from "@/features/navigation/utils/safe-menu-route";
 import { primaryNav } from "@/lib/nav";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { SidebarNavSkeleton } from "@/components/shared/skeletons/SidebarNavSkeleton";
 
 type SidebarProps = {
@@ -152,6 +153,7 @@ function revealMenuItem(scroller: HTMLElement, target: HTMLElement) {
 
 export function Sidebar({ open, onClose, user }: SidebarProps) {
   const t = useTranslations("navigation");
+  const tConfirm = useTranslations("confirmDialog");
   const locale = useLocale();
   const menuLang = toMenuLang(locale);
   const pathname = usePathname();
@@ -162,6 +164,7 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
   const [menusHydrated, setMenusHydrated] = useState(false);
   const [dismissedKey, setDismissedKey] = useState<string | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
   const navScrollRef = useRef<HTMLDivElement>(null);
 
   // Browser → BFF GET /api/menu?status=1&role_id=…&lang=HI → Laravel MenuTree.
@@ -390,10 +393,10 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
                   <div
                     key={key}
                     data-menu-group={key}
-                    className={`overflow-hidden rounded-2xl border transition ${
+                    className={`overflow-hidden rounded-[var(--radius-card)] border transition ${
                       active
-                        ? "border-brand/20 bg-brand-soft/40 shadow-sm"
-                        : "border-transparent bg-white shadow-[var(--shadow-card)]"
+                        ? "border-brand bg-brand-soft shadow-sm"
+                        : "border-border bg-surface shadow-[var(--shadow-card)]"
                     }`}
                   >
                     <div className="flex items-stretch">
@@ -466,8 +469,8 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
                               const childHref = sanitizeMenuRoute(child.route);
                               const itemClass = `flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] transition ${
                                 childActive
-                                  ? "bg-white font-semibold text-brand-ink shadow-sm"
-                                  : "text-slate-600 hover:bg-white/80 hover:text-slate-900"
+                                  ? "bg-surface font-semibold text-brand-ink shadow-sm"
+                                  : "text-slate-600 hover:bg-surface-muted hover:text-slate-900"
                               }`;
 
                               return (
@@ -544,7 +547,7 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
             </div>
             <button
               type="button"
-              onClick={() => void handleLogout()}
+              onClick={() => setLogoutConfirmOpen(true)}
               disabled={loggingOut}
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-rose-200 bg-rose-50 text-rose-600 transition hover:bg-rose-100 disabled:opacity-60"
               aria-label={t("logout")}
@@ -555,6 +558,22 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
           </div>
         </div>
       </aside>
+
+      <ConfirmDialog
+        open={logoutConfirmOpen}
+        onClose={() => {
+          if (!loggingOut) setLogoutConfirmOpen(false);
+        }}
+        onConfirm={handleLogout}
+        actionType="custom"
+        variant="warning"
+        icon={LogOut}
+        title={tConfirm("logout.title")}
+        description={tConfirm("logout.description")}
+        confirmLabel={tConfirm("logout.button")}
+        loading={loggingOut}
+        disableBackdropClick={loggingOut}
+      />
     </>
   );
 }

@@ -396,7 +396,7 @@ function ModeCard({
       className={`rounded-2xl border p-4 text-left transition ${
         active
           ? "border-blue-500 bg-blue-50 shadow-sm"
-          : "border-border bg-surface-muted/40 hover:border-blue-200 hover:bg-white"
+          : "border-border bg-surface-muted/40 hover:border-blue-200 hover:bg-surface"
       }`}
     >
       <span

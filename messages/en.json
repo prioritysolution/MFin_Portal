@@ -101,6 +101,11 @@
       "description": "Are you sure you want to reject this request?",
       "button": "Reject"
     },
+    "logout": {
+      "title": "Sign out?",
+      "description": "Are you sure you want to sign out of your staff session?",
+      "button": "Sign out"
+    },
     "keywordPrompt": "To confirm, please type \"{keyword}\" below:",
     "keywordPlaceholder": "Type confirmation keyword",
     "targetItem": "Target Item",
@@ -223,8 +228,27 @@
     }
   },
   "account": {
+    "profile": {
+      "detailsTitle": "Profile Details",
+      "auditNote": "All updates are timestamped in audit logs.",
+      "refresh": "Refresh",
+      "save": "Save Configuration",
+      "fields": {
+        "name": "English Name",
+        "shortName": "Short Name",
+        "employeeId": "Employee ID",
+        "designation": "Designation",
+        "branch": "Branch",
+        "status": "Status",
+        "active": "Active",
+        "inactive": "Inactive",
+        "admin": "Administrator",
+        "mobile": "Mobile",
+        "email": "Email"
+      }
+    },
     "changePassword": {
-      "title": "Change Password",
+      "title": "Password update",
       "description": "Update the password for your signed-in staff account.",
       "current": "Current password",
       "new": "New password",
@@ -348,6 +372,76 @@
         "invalidEod": "Enter end of day as HH:mm AM/PM (e.g. 07:30 PM)",
         "invalidBatch": "Enter batch time as HH:mm AM/PM (e.g. 10:00 PM)",
         "invalidSession": "Enter session timeout as HH:mm (e.g. 00:30)"
+      }
+    },
+    "globalSettings": {
+      "title": "Global Settings",
+      "description": "Institution-wide locale, accounting, and operational defaults",
+      "loading": "Loading global settings…",
+      "save": "Save Global Settings",
+      "saving": "Saving…",
+      "saveSuccess": "Global settings saved successfully.",
+      "validationFailed": "Please check the form and correct the highlighted fields.",
+      "localOnlyHint": "Settings are stored in this browser until the backend Global Settings API is available.",
+      "sections": {
+        "locale": {
+          "title": "Locale & Display",
+          "hint": "Timezone, date format, currency, and default language for the institution."
+        },
+        "accounting": {
+          "title": "Accounting Defaults",
+          "hint": "Interest day-count, rounding, and backdated transaction controls."
+        },
+        "controls": {
+          "title": "Operational Controls",
+          "hint": "Branch access, maker-checker for masters, EOD enforcement, and audit retention."
+        }
+      },
+      "fields": {
+        "timezone": "Timezone",
+        "dateFormat": "Date format",
+        "currencyCode": "Base currency",
+        "decimalPlaces": "Amount decimal places",
+        "defaultLocale": "Default language",
+        "dayCountBasis": "Interest day-count basis",
+        "roundingMode": "Amount rounding",
+        "allowBackdatedTxn": "Allow backdated transactions",
+        "maxBackdateDays": "Max backdate days",
+        "multiBranchAccess": "Allow multi-branch user access",
+        "requireMakerCheckerMasters": "Require maker-checker for master changes",
+        "forceEodBeforeNextDay": "Require EOD before next business day",
+        "auditRetentionDays": "Audit log retention (days)"
+      },
+      "hints": {
+        "decimalPlaces": "Typically 2 for INR amounts.",
+        "maxBackdateDays": "Maximum days in the past that vouchers may be posted.",
+        "auditRetentionDays": "How long audit trail entries are retained (30–3650)."
+      },
+      "options": {
+        "timezone": {
+          "kolkata": "Asia/Kolkata (IST)",
+          "dhaka": "Asia/Dhaka (BST)",
+          "utc": "UTC"
+        },
+        "currency": {
+          "inr": "INR — Indian Rupee",
+          "usd": "USD — US Dollar"
+        },
+        "locale": {
+          "en": "English",
+          "bn": "বাংলা",
+          "hi": "हिन्दी",
+          "or": "ଓଡ଼ିଆ"
+        },
+        "dayCount": {
+          "365": "Actual / 365",
+          "360": "Actual / 360"
+        },
+        "rounding": {
+          "nearest": "Round to nearest",
+          "up": "Round up",
+          "down": "Round down"
+        }
       }
     },
     "smsSettings": {
@@ -532,6 +626,10 @@
         "isAdmin": "Administrator role",
         "status": "Status"
       },
+      "errors": {
+        "roleNameRequired": "Role name is required",
+        "descriptionMax": "Description must be at most 255 characters"
+      },
       "menuPermissions": {
         "title": "Menu Permissions",
         "subtitle": "Configure menu access for {roleName}",
@@ -562,6 +660,70 @@
           "reverse": "Reverse",
           "print": "Print"
         }
+      }
+    },
+    "makerChecker": {
+      "title": "Maker-Checker Rules",
+      "description": "Dual-auth thresholds and checker roles per voucher type",
+      "add": "Add Rule",
+      "edit": "Edit",
+      "deactivate": "Deactivate",
+      "activate": "Activate",
+      "deactivateSuccess": "Maker-checker rule deactivated successfully.",
+      "activateSuccess": "Maker-checker rule activated successfully.",
+      "createTitle": "Add Maker-Checker Rule",
+      "editTitle": "Edit Maker-Checker Rule",
+      "save": "Save Rule",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "createSuccess": "Maker-checker rule created successfully.",
+      "updateSuccess": "Maker-checker rule updated successfully.",
+      "loadErrorTitle": "Unable to load maker-checker rules",
+      "emptyTitle": "No maker-checker rules found",
+      "emptyMessage": "No rules match the current filters.",
+      "tableCaption": "Maker-checker rules list",
+      "statusActive": "Active",
+      "statusInactive": "Inactive",
+      "yes": "Yes",
+      "no": "No",
+      "confirmItemType": "Maker-checker rule",
+      "confirmItemName": "Voucher type {voucherType}",
+      "filters": {
+        "voucherType": "Voucher type",
+        "voucherTypeHint": "Filter by voucher type code",
+        "status": "Status",
+        "statusAll": "All"
+      },
+      "columns": {
+        "id": "ID",
+        "voucherType": "Voucher type",
+        "thresholdLimit": "Threshold",
+        "checkerRole": "Checker role",
+        "dualAuthReq": "Dual auth",
+        "autoApprv": "Auto-approve",
+        "status": "Status",
+        "createdAt": "Created",
+        "actions": "Actions"
+      },
+      "fields": {
+        "voucherType": "Voucher type",
+        "thresholdLimit": "Threshold limit",
+        "checkerRoleId": "Checker role",
+        "checkerRolePlaceholder": "Select checker role…",
+        "dualAuthReq": "Dual authentication required",
+        "autoApprv": "Auto-approve below threshold",
+        "isActive": "Active"
+      },
+      "hints": {
+        "voucherType": "Voucher type code (integer ≥ 1). One rule per voucher type.",
+        "thresholdLimit": "Amount at or above this limit requires checker approval."
+      },
+      "errors": {
+        "voucherTypeRequired": "Voucher type is required",
+        "voucherTypeMin": "Voucher type must be at least 1",
+        "thresholdLimitRequired": "Threshold limit is required",
+        "thresholdLimitMin": "Threshold must be at least 0",
+        "checkerRoleRequired": "Checker role is required"
       }
     },
     "finYear": {
@@ -752,11 +914,8 @@
       "emptyMessage": "No account categories match the current filters.",
       "tableCaption": "Account categories list",
       "types": {
-        "AS": "Assets (AS)",
-        "LI": "Liabilities (LI)",
-        "EQ": "Equity (EQ)",
-        "IN": "Income (IN)",
-        "EX": "Expenditure (EX)"
+        "CR": "Credit (CR)",
+        "DR": "Debit (DR)"
       },
       "filters": {
         "search": "Search",
@@ -775,8 +934,7 @@
         "categName": "Category name",
         "categCode": "Category code",
         "categoryType": "Category type",
-        "categoryTypePlaceholder": "Select type",
-        "categoryTypeNone": "None"
+        "categoryTypePlaceholder": "Select type"
       },
       "hints": {
         "categCode": "Optional. Leave blank to auto-generate from code series."

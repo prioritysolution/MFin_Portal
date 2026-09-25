@@ -13,7 +13,7 @@ import { TimePicker } from "@/components/ui/TimePicker";
 export { controlClass as formControlClass } from "@/components/ui/Input";
 /** @deprecated Prefer `Select` — kept for rare native select needs. */
 export const formSelectClass =
-  "w-full rounded-xl border border-border bg-surface-muted px-3 py-2.5 text-sm text-slate-800 outline-none transition appearance-none bg-[url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")] bg-[length:1rem] bg-[right_0.875rem_center] bg-no-repeat pr-10 hover:border-slate-300 focus:border-brand/40 focus:bg-surface focus:ring-4 focus:ring-brand/10";
+  "w-full rounded-[var(--radius-control)] border border-border bg-surface px-3 py-2.5 text-sm font-medium text-slate-900 outline-none transition appearance-none bg-[url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")] bg-[length:1rem] bg-[right_0.875rem_center] bg-no-repeat pr-10 hover:border-border-strong focus:border-brand focus:bg-surface focus:shadow-[var(--focus-ring)]";
 
 export type FieldRestrict = "digits" | "phone" | "code" | "decimal";
 

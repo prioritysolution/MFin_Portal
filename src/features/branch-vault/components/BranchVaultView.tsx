@@ -222,7 +222,7 @@ export function BranchVaultView() {
                 className={`flex items-center gap-3 rounded-2xl px-4 py-3.5 text-left transition ${
                   active
                     ? "bg-blue-600 text-white shadow-sm"
-                    : "border border-border bg-surface-muted text-slate-700 hover:bg-white"
+                    : "border border-border bg-surface-muted text-slate-700 hover:bg-surface"
                 }`}
               >
                 <tab.icon className="h-4 w-4 shrink-0" />

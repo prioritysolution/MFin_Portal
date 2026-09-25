@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { BookOpen, GitBranch, GitFork, Layers, Tag } from "lucide-react";
 import { AcctCategoryView } from "@/features/master/acct-category";
 import { AcctHeadView } from "@/features/master/acct-head";
@@ -15,64 +16,19 @@ export type PanelId =
   | "subledgers"
   | "branches";
 
-type TabConfig = {
-  id: PanelId;
-  title: string;
-  bangla: string;
-  icon: typeof Layers;
-};
-
-const tabs: TabConfig[] = [
-  {
-    id: "categories",
-    title: "Account Categories",
-    bangla: "অ্যাকাউন্ট ক্যাটাগরি",
-    icon: Layers,
-  },
-  {
-    id: "heads",
-    title: "Account Heads",
-    bangla: "অ্যাকাউন্ট মেইন হেড",
-    icon: Tag,
-  },
-  {
-    id: "ledgers",
-    title: "Account Ledgers",
-    bangla: "অ্যাকাউন্ট লেজার",
-    icon: BookOpen,
-  },
-  {
-    id: "subledgers",
-    title: "Account Sub-Ledgers",
-    bangla: "অ্যাকাউন্ট সাব-লেজার",
-    icon: GitBranch,
-  },
-  {
-    id: "branches",
-    title: "Subledger Branches",
-    bangla: "সাব-লেজার শাখা",
-    icon: GitFork,
-  },
+const TAB_IDS: PanelId[] = [
+  "categories",
+  "heads",
+  "ledgers",
+  "subledgers",
+  "branches",
 ];
 
-function resolveInitialTab(initialTab?: string): PanelId {
-  if (typeof window !== "undefined") {
-    const params = new URLSearchParams(window.location.search);
-    const tabParam = params.get("tab");
-    if (tabParam) {
-      if (tabParam === "sub-ledger") return "subledgers";
-      if (tabs.some((t) => t.id === tabParam)) {
-        return tabParam as PanelId;
-      }
-    }
-  }
-  if (initialTab) {
-    if (initialTab === "sub-ledger") return "subledgers";
-    if (tabs.some((t) => t.id === initialTab)) {
-      return initialTab as PanelId;
-    }
-  }
-  return "categories";
+function normalizeTab(value: string | null | undefined): PanelId | null {
+  if (!value) return null;
+  if (value === "sub-ledger") return "subledgers";
+  if (TAB_IDS.includes(value as PanelId)) return value as PanelId;
+  return null;
 }
 
 export type CoaTreeViewProps = {
@@ -82,37 +38,60 @@ export type CoaTreeViewProps = {
 export function CoaTreeView({
   initialTab = "categories",
 }: CoaTreeViewProps = {}) {
-  const [activeTab, setActiveTab] = useState<PanelId>(() =>
-    resolveInitialTab(initialTab),
+  const tCategory = useTranslations("master.acctCategory");
+  const tHead = useTranslations("master.acctHead");
+  const tLedger = useTranslations("master.acctLedger");
+  const tSubledger = useTranslations("master.acctSubledger");
+  const tBranch = useTranslations("master.acctSubledgerBranch");
+
+  const tabs = useMemo(
+    () => [
+      { id: "categories" as const, title: tCategory("title"), icon: Layers },
+      { id: "heads" as const, title: tHead("title"), icon: Tag },
+      { id: "ledgers" as const, title: tLedger("title"), icon: BookOpen },
+      {
+        id: "subledgers" as const,
+        title: tSubledger("title"),
+        icon: GitBranch,
+      },
+      { id: "branches" as const, title: tBranch("title"), icon: GitFork },
+    ],
+    [tBranch, tCategory, tHead, tLedger, tSubledger],
   );
 
+  const [activeTab, setActiveTab] = useState<PanelId>(
+    () => normalizeTab(initialTab) ?? "categories",
+  );
+
+  // Sync from URL only after mount — never during useState (avoids hydration mismatch).
   useEffect(() => {
+    const fromUrl = normalizeTab(
+      new URLSearchParams(window.location.search).get("tab"),
+    );
+    if (fromUrl && fromUrl !== activeTab) {
+      setActiveTab(fromUrl);
+    }
+
     function onPopState() {
-      const params = new URLSearchParams(window.location.search);
-      const tabParam = params.get("tab");
-      if (tabParam) {
-        const normalized = tabParam === "sub-ledger" ? "subledgers" : tabParam;
-        if (tabs.some((t) => t.id === normalized)) {
-          setActiveTab(normalized as PanelId);
-        }
-      }
+      const tabParam = new URLSearchParams(window.location.search).get("tab");
+      const next = normalizeTab(tabParam);
+      if (next) setActiveTab(next);
     }
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
+    // Intentionally run once on mount for URL sync.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only URL hydration
   }, []);
 
   function handleSelectTab(id: PanelId) {
     setActiveTab(id);
-    if (typeof window !== "undefined") {
-      const url = new URL(window.location.href);
-      url.searchParams.set("tab", id);
-      window.history.replaceState(null, "", url.toString());
-    }
+    const url = new URL(window.location.href);
+    url.searchParams.set("tab", id);
+    window.history.replaceState(null, "", url.toString());
   }
 
   return (
     <div className="flex min-w-0 flex-col gap-4 sm:gap-5">
-      {/* Horizontal Card Menu */}
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 xl:grid-cols-5">
         {tabs.map((tab) => {
           const active = activeTab === tab.id;
@@ -125,7 +104,7 @@ export function CoaTreeView({
               className={`flex flex-col items-start gap-1.5 rounded-2xl border px-3.5 py-3 text-left transition ${
                 active
                   ? "border-brand bg-brand text-white shadow-sm"
-                  : "border-border bg-surface-muted text-slate-600 hover:border-brand/30 hover:bg-white"
+                  : "border-border bg-surface-muted text-slate-600 hover:border-brand/30 hover:bg-surface"
               }`}
             >
               <Icon
@@ -134,19 +113,11 @@ export function CoaTreeView({
               <span className="text-xs font-semibold leading-snug">
                 {tab.title}
               </span>
-              <span
-                className={`text-[11px] leading-snug ${
-                  active ? "text-white/80" : "text-muted"
-                }`}
-              >
-                {tab.bangla}
-              </span>
             </button>
           );
         })}
       </div>
 
-      {/* Active Module Panel Content */}
       {activeTab === "categories" ? <AcctCategoryView embedded /> : null}
       {activeTab === "heads" ? <AcctHeadView embedded /> : null}
       {activeTab === "ledgers" ? <AcctLedgerView embedded /> : null}

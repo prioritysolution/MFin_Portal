@@ -116,7 +116,7 @@ export function DataTable<T>({
   );
   const hasHeading = Boolean(title || description || actions);
   const cardClass =
-    `rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5 ${className}`.trim();
+    `rounded-[var(--radius-card)] border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5 ${className}`.trim();
 
   // Only show full skeleton on initial load when there is NO data yet.
   // When data is already present, keep the table visible and show a sleek background progress bar.

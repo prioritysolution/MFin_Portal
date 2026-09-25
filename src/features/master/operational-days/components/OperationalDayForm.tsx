@@ -273,21 +273,23 @@ function OperationalDayFormBody({
         />
       </div>
 
-      <CheckboxField
-        label={t("fields.isOperational")}
-        checked={form.isOperational}
-        onChange={(checked) => updateField("isOperational", checked)}
-      />
-      <CheckboxField
-        label={t("fields.isHalfDay")}
-        checked={form.isHalfDay}
-        onChange={(checked) => updateField("isHalfDay", checked)}
-      />
-      <CheckboxField
-        label={t("fields.isActive")}
-        checked={form.isActive}
-        onChange={(checked) => updateField("isActive", checked)}
-      />
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+        <CheckboxField
+          label={t("fields.isOperational")}
+          checked={form.isOperational}
+          onChange={(checked) => updateField("isOperational", checked)}
+        />
+        <CheckboxField
+          label={t("fields.isHalfDay")}
+          checked={form.isHalfDay}
+          onChange={(checked) => updateField("isHalfDay", checked)}
+        />
+        <CheckboxField
+          label={t("fields.isActive")}
+          checked={form.isActive}
+          onChange={(checked) => updateField("isActive", checked)}
+        />
+      </div>
     </form>
   );
 }

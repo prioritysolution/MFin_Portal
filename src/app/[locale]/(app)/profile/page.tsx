@@ -1,5 +1,7 @@
-import { renderMFinRoute } from "@/lib/mfin/render";
+import { getAuthSession } from "@/lib/auth/session";
+import { ProfileView } from "@/features/account/profile";
 
-export default function Page() {
-  return renderMFinRoute("/profile");
+export default async function Page() {
+  const session = await getAuthSession();
+  return <ProfileView user={session?.user ?? null} />;
 }

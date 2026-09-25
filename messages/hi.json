@@ -101,6 +101,11 @@
       "description": "क्या आप वाकई इस अनुरोध को अस्वीकार करना चाहते हैं?",
       "button": "अस्वीकार करें"
     },
+    "logout": {
+      "title": "साइन आउट करें?",
+      "description": "क्या आप वाकई अपने स्टाफ सत्र से साइन आउट करना चाहते हैं?",
+      "button": "साइन आउट"
+    },
     "keywordPrompt": "पुष्टि करने के लिए, कृपया नीचे \"{keyword}\" लिखें:",
     "keywordPlaceholder": "पुष्टिकरण शब्द दर्ज करें",
     "targetItem": "लक्षित आइटम",
@@ -223,8 +228,27 @@
     }
   },
   "account": {
+    "profile": {
+      "detailsTitle": "प्रोफ़ाइल विवरण",
+      "auditNote": "सभी अपडेट ऑडिट लॉग में समय-चिह्नित होते हैं।",
+      "refresh": "रिफ़्रेश",
+      "save": "कॉन्फ़िगरेशन सहेजें",
+      "fields": {
+        "name": "अंग्रेज़ी नाम",
+        "shortName": "संक्षिप्त नाम",
+        "employeeId": "कर्मचारी आईडी",
+        "designation": "पदनाम",
+        "branch": "शाखा",
+        "status": "स्थिति",
+        "active": "सक्रिय",
+        "inactive": "निष्क्रिय",
+        "admin": "प्रशासक",
+        "mobile": "मोबाइल",
+        "email": "ईमेल"
+      }
+    },
     "changePassword": {
-      "title": "पासवर्ड बदलें",
+      "title": "पासवर्ड अपडेट",
       "description": "साइन-इन किए स्टाफ खाते का पासवर्ड अपडेट करें।",
       "current": "वर्तमान पासवर्ड",
       "new": "नया पासवर्ड",
@@ -348,6 +372,76 @@
         "invalidEod": "दिन समाप्ति HH:mm AM/PM में दर्ज करें (जैसे 07:30 PM)",
         "invalidBatch": "बैच समय HH:mm AM/PM में दर्ज करें (जैसे 10:00 PM)",
         "invalidSession": "सत्र टाइमआउट HH:mm में दर्ज करें (जैसे 00:30)"
+      }
+    },
+    "globalSettings": {
+      "title": "ग्लोबल सेटिंग्स",
+      "description": "संस्थान-व्यापी लोकेल, अकाउंटिंग और परिचालन डिफ़ॉल्ट",
+      "loading": "ग्लोबल सेटिंग्स लोड हो रही हैं…",
+      "save": "ग्लोबल सेटिंग्स सहेजें",
+      "saving": "सहेजा जा रहा है…",
+      "saveSuccess": "ग्लोबल सेटिंग्स सफलतापूर्वक सहेजी गईं।",
+      "validationFailed": "फ़ॉर्म जाँचें और हाइलाइट किए गए फ़ील्ड ठीक करें।",
+      "localOnlyHint": "बैकएंड ग्लोबल सेटिंग्स API उपलब्ध होने तक सेटिंग्स इस ब्राउज़र में संग्रहीत होती हैं।",
+      "sections": {
+        "locale": {
+          "title": "लोकेल और प्रदर्शन",
+          "hint": "संस्थान का टाइमज़ोन, दिनांक प्रारूप, मुद्रा और डिफ़ॉल्ट भाषा।"
+        },
+        "accounting": {
+          "title": "अकाउंटिंग डिफ़ॉल्ट",
+          "hint": "ब्याज दिन-गणना, राउंडिंग और बैकडेटेड लेनदेन नियंत्रण।"
+        },
+        "controls": {
+          "title": "परिचालन नियंत्रण",
+          "hint": "शाखा पहुँच, मास्टर पर मेकर-चेकर, EOD बाध्यता और ऑडिट प्रतिधारण।"
+        }
+      },
+      "fields": {
+        "timezone": "टाइमज़ोन",
+        "dateFormat": "दिनांक प्रारूप",
+        "currencyCode": "मूल मुद्रा",
+        "decimalPlaces": "राशि दशमलव स्थान",
+        "defaultLocale": "डिफ़ॉल्ट भाषा",
+        "dayCountBasis": "ब्याज दिन-गणना आधार",
+        "roundingMode": "राशि राउंडिंग",
+        "allowBackdatedTxn": "बैकडेटेड लेनदेन अनुमति दें",
+        "maxBackdateDays": "अधिकतम बैकडेट दिन",
+        "multiBranchAccess": "मल्टी-शाखा उपयोगकर्ता पहुँच अनुमति दें",
+        "requireMakerCheckerMasters": "मास्टर परिवर्तनों के लिए मेकर-चेकर आवश्यक",
+        "forceEodBeforeNextDay": "अगले व्यावसायिक दिन से पहले EOD अनिवार्य",
+        "auditRetentionDays": "ऑडिट लॉग प्रतिधारण (दिन)"
+      },
+      "hints": {
+        "decimalPlaces": "INR राशियों के लिए आमतौर पर 2।",
+        "maxBackdateDays": "अतीत में कितने दिनों तक वाउचर पोस्ट किए जा सकते हैं।",
+        "auditRetentionDays": "ऑडिट ट्रेल कितने दिन रखा जाएगा (30–3650)।"
+      },
+      "options": {
+        "timezone": {
+          "kolkata": "Asia/Kolkata (IST)",
+          "dhaka": "Asia/Dhaka (BST)",
+          "utc": "UTC"
+        },
+        "currency": {
+          "inr": "INR — भारतीय रुपया",
+          "usd": "USD — अमेरिकी डॉलर"
+        },
+        "locale": {
+          "en": "English",
+          "bn": "বাংলা",
+          "hi": "हिन्दी",
+          "or": "ଓଡ଼ିଆ"
+        },
+        "dayCount": {
+          "365": "Actual / 365",
+          "360": "Actual / 360"
+        },
+        "rounding": {
+          "nearest": "निकटतम पर राउंड",
+          "up": "ऊपर राउंड",
+          "down": "नीचे राउंड"
+        }
       }
     },
     "smsSettings": {
@@ -532,6 +626,10 @@
         "isAdmin": "एडमिनिस्ट्रेटर रोल",
         "status": "स्थिति"
       },
+      "errors": {
+        "roleNameRequired": "रोल नाम आवश्यक है",
+        "descriptionMax": "विवरण अधिकतम 255 अक्षर का हो सकता है"
+      },
       "menuPermissions": {
         "title": "मेनू अनुमतियाँ",
         "subtitle": "{roleName} के लिए मेनू एक्सेस कॉन्फ़िगर करें",
@@ -562,6 +660,70 @@
           "reverse": "रिवर्स",
           "print": "प्रिंट"
         }
+      }
+    },
+    "makerChecker": {
+      "title": "मेकर-चेकर नियम",
+      "description": "वाउचर प्रकार के अनुसार डुअल-ऑथ थ्रेशहोल्ड और चेकर रोल",
+      "add": "नियम जोड़ें",
+      "edit": "संपादित करें",
+      "deactivate": "निष्क्रिय",
+      "activate": "सक्रिय",
+      "deactivateSuccess": "मेकर-चेकर नियम सफलतापूर्वक निष्क्रिय किया गया।",
+      "activateSuccess": "मेकर-चेकर नियम सफलतापूर्वक सक्रिय किया गया।",
+      "createTitle": "मेकर-चेकर नियम जोड़ें",
+      "editTitle": "मेकर-चेकर नियम संपादित करें",
+      "save": "नियम सहेजें",
+      "saving": "सहेजा जा रहा है…",
+      "cancel": "रद्द करें",
+      "createSuccess": "मेकर-चेकर नियम सफलतापूर्वक बनाया गया।",
+      "updateSuccess": "मेकर-चेकर नियम सफलतापूर्वक अपडेट किया गया।",
+      "loadErrorTitle": "मेकर-चेकर नियम लोड नहीं हो सके",
+      "emptyTitle": "कोई मेकर-चेकर नियम नहीं मिला",
+      "emptyMessage": "वर्तमान फ़िल्टर से कोई नियम मेल नहीं खाता।",
+      "tableCaption": "मेकर-चेकर नियमों की सूची",
+      "statusActive": "सक्रिय",
+      "statusInactive": "निष्क्रिय",
+      "yes": "हाँ",
+      "no": "नहीं",
+      "confirmItemType": "मेकर-चेकर नियम",
+      "confirmItemName": "वाउचर प्रकार {voucherType}",
+      "filters": {
+        "voucherType": "वाउचर प्रकार",
+        "voucherTypeHint": "वाउचर प्रकार कोड से फ़िल्टर करें",
+        "status": "स्थिति",
+        "statusAll": "सभी"
+      },
+      "columns": {
+        "id": "आईडी",
+        "voucherType": "वाउचर प्रकार",
+        "thresholdLimit": "थ्रेशहोल्ड",
+        "checkerRole": "चेकर रोल",
+        "dualAuthReq": "डुअल ऑथ",
+        "autoApprv": "ऑटो-अप्रूव",
+        "status": "स्थिति",
+        "createdAt": "बनाया गया",
+        "actions": "क्रियाएँ"
+      },
+      "fields": {
+        "voucherType": "वाउचर प्रकार",
+        "thresholdLimit": "थ्रेशहोल्ड सीमा",
+        "checkerRoleId": "चेकर रोल",
+        "checkerRolePlaceholder": "चेकर रोल चुनें…",
+        "dualAuthReq": "डुअल प्रमाणीकरण आवश्यक",
+        "autoApprv": "थ्रेशहोल्ड से नीचे ऑटो-अप्रूव",
+        "isActive": "सक्रिय"
+      },
+      "hints": {
+        "voucherType": "वाउचर प्रकार कोड (पूर्णांक ≥ 1)। प्रति प्रकार एक नियम।",
+        "thresholdLimit": "इस सीमा पर या उससे अधिक चेकर अनुमोदन आवश्यक।"
+      },
+      "errors": {
+        "voucherTypeRequired": "वाउचर प्रकार आवश्यक है",
+        "voucherTypeMin": "वाउचर प्रकार कम से कम 1 होना चाहिए",
+        "thresholdLimitRequired": "थ्रेशहोल्ड सीमा आवश्यक है",
+        "thresholdLimitMin": "थ्रेशहोल्ड कम से कम 0 होना चाहिए",
+        "checkerRoleRequired": "चेकर रोल आवश्यक है"
       }
     },
     "finYear": {
@@ -752,11 +914,8 @@
       "emptyMessage": "वर्तमान फ़िल्टर से मेल खाने वाली कोई श्रेणी नहीं है।",
       "tableCaption": "खाता श्रेणी सूची",
       "types": {
-        "AS": "संपत्ति (AS)",
-        "LI": "दायित्व (LI)",
-        "EQ": "इक्विटी (EQ)",
-        "IN": "आय (IN)",
-        "EX": "व्यय (EX)"
+        "CR": "क्रेडिट (CR)",
+        "DR": "डेबिट (DR)"
       },
       "filters": {
         "search": "खोजें",
@@ -775,8 +934,7 @@
         "categName": "श्रेणी नाम",
         "categCode": "श्रेणी कोड",
         "categoryType": "श्रेणी प्रकार",
-        "categoryTypePlaceholder": "प्रकार चुनें",
-        "categoryTypeNone": "कोई नहीं"
+        "categoryTypePlaceholder": "प्रकार चुनें"
       },
       "hints": {
         "categCode": "वैकल्पिक। खाली छोड़ने पर कोड सीरीज़ से स्वतः बनेगा।"

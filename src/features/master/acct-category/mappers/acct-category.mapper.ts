@@ -24,18 +24,13 @@ function mapWritable(
 ): Omit<AcctCategoryCreateDto, never> {
   const dto: AcctCategoryCreateDto = {
     categ_name: input.categName.trim(),
+    categy_type: input.categoryType.trim().toUpperCase(),
   };
   if (input.categCode !== undefined) {
     dto.categ_code =
       input.categCode == null || input.categCode.trim() === ""
         ? null
         : input.categCode.trim();
-  }
-  if (input.categoryType !== undefined) {
-    dto.categy_type =
-      input.categoryType == null || input.categoryType.trim() === ""
-        ? null
-        : input.categoryType.trim().toUpperCase();
   }
   return dto;
 }

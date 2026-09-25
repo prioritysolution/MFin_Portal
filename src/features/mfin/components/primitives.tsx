@@ -42,7 +42,7 @@ export function MetricGrid({ metrics }: { metrics: MFinMetric[] }) {
       {metrics.map((metric) => (
         <div
           key={metric.label}
-          className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)]"
+          className="rounded-[var(--radius-card)] border border-border bg-surface p-4 shadow-[var(--shadow-card)]"
         >
           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-soft">
             {metric.label}
@@ -151,7 +151,7 @@ export function InfoCards({
       {cards.map((card) => (
         <article
           key={card.title}
-          className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)]"
+          className="rounded-[var(--radius-card)] border border-border bg-surface p-4 shadow-[var(--shadow-card)]"
         >
           <div className="flex items-start justify-between gap-2">
             <h3 className="text-sm font-semibold text-slate-900">{card.title}</h3>
@@ -170,7 +170,7 @@ export function InfoCards({
 
 export function NotesPanel({ notes }: { notes: string[] }) {
   return (
-    <section className="rounded-2xl border border-dashed border-border bg-surface-muted/70 p-4">
+    <section className="rounded-[var(--radius-card)] border border-dashed border-border bg-surface-muted p-4">
       <ul className="space-y-2 text-sm leading-6 text-muted">
         {notes.map((note) => (
           <li key={note}>• {note}</li>

@@ -1,10 +1,10 @@
 import type { InputHTMLAttributes } from "react";
 
 export const controlClass =
-  "w-full rounded-xl border border-border bg-surface-muted px-3 py-2.5 text-sm text-slate-800 outline-none transition placeholder:text-muted-soft hover:border-slate-300 focus:border-brand/40 focus:bg-surface focus:ring-4 focus:ring-brand/10 disabled:cursor-not-allowed disabled:opacity-50";
+  "w-full rounded-[var(--radius-control)] border border-border bg-surface px-3 py-2.5 text-sm font-medium text-slate-900 outline-none transition placeholder:font-normal placeholder:text-muted-soft hover:border-border-strong focus:border-brand focus:bg-surface focus:shadow-[var(--focus-ring)] disabled:cursor-not-allowed disabled:opacity-50";
 
 export const controlReadOnlyClass =
-  "cursor-default bg-slate-50 text-slate-600 hover:border-border focus:border-border focus:ring-0";
+  "cursor-default bg-surface-muted font-normal text-slate-700 hover:border-border focus:border-border focus:shadow-none";
 
 type InputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "className"> & {
   className?: string;
