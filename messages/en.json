@@ -50,6 +50,11 @@
     "datePlaceholder": "Select date…",
     "dateClear": "Clear",
     "dateToday": "Today",
+    "timePlaceholder": "Select time…",
+    "timeLabel": "Choose time",
+    "timeHour": "Hour",
+    "timeMinute": "Minute",
+    "timeDone": "Done",
     "calendarLabel": "Calendar",
     "calendarPrevMonth": "Previous month",
     "calendarNextMonth": "Next month",
@@ -177,6 +182,25 @@
     "hints": {
       "mobile": "10 digits, starting with 6–9",
       "password": "8 to 100 characters"
+    }
+  },
+  "account": {
+    "changePassword": {
+      "title": "Change Password",
+      "description": "Update the password for your signed-in staff account.",
+      "current": "Current password",
+      "new": "New password",
+      "confirm": "Confirm new password",
+      "hint": "Follows the password rules set by the administrator.",
+      "save": "Update password",
+      "pendingApi": "Password change is not available yet. This page checks the form only.",
+      "errors": {
+        "current": "Enter your current password.",
+        "new": "Enter a new password. It must follow the rules set by the administrator.",
+        "confirm": "Enter the new password again.",
+        "mismatch": "New password and confirmation must match.",
+        "same": "Choose a password that is different from the current one."
+      }
     }
   },
   "errors": {

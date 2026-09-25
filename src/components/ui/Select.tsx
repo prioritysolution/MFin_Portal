@@ -179,7 +179,7 @@ export function Select({
           size === "sm"
             ? "rounded-lg py-1.5 text-sm"
             : "rounded-xl py-2.5 text-sm"
-        } ${canClear ? "ps-3 pe-16" : "px-3"} ${
+        } ${canClear ? "ps-3 pe-16" : "ps-3 pe-8"} ${
           open ? "border-brand/40 bg-surface ring-4 ring-brand/10" : ""
         }`}
       >

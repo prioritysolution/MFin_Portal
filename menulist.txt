@@ -1,0 +1,1585 @@
+{
+    "success": true,
+    "message": "Menu tree retrieved successfully",
+    "data": [
+        {
+            "id": 1,
+            "menuId": 1,
+            "name": "Dashboard",
+            "nameDefault": null,
+            "icon": "LayoutDashboard",
+            "route": "/",
+            "status": 1,
+            "children": []
+        },
+        {
+            "id": 7,
+            "menuId": 2,
+            "name": "Master Menu",
+            "nameDefault": null,
+            "icon": "Menu",
+            "route": null,
+            "status": 1,
+            "children": [
+                {
+                    "id": 8,
+                    "menuId": 2,
+                    "submenuId": 1,
+                    "name": "Organisation Profile",
+                    "nameDefault": null,
+                    "icon": "Building2",
+                    "route": "/master/company-profile",
+                    "status": 1
+                },
+                {
+                    "id": 9,
+                    "menuId": 2,
+                    "submenuId": 2,
+                    "name": "Branch Master",
+                    "nameDefault": null,
+                    "icon": "Vault",
+                    "route": "/master/branch-vault",
+                    "status": 1
+                },
+                {
+                    "id": 10,
+                    "menuId": 2,
+                    "submenuId": 3,
+                    "name": "Business Hours",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/master/business-hours",
+                    "status": 1
+                },
+                {
+                    "id": 11,
+                    "menuId": 2,
+                    "submenuId": 4,
+                    "name": "Kendra/Center Master",
+                    "nameDefault": null,
+                    "icon": "GitBranch",
+                    "route": "/master/kendra-jlg",
+                    "status": 1
+                },
+                {
+                    "id": 12,
+                    "menuId": 2,
+                    "submenuId": 5,
+                    "name": "Employee Master",
+                    "nameDefault": null,
+                    "icon": "UserRound",
+                    "route": "/master/staff",
+                    "status": 1
+                },
+                {
+                    "id": 13,
+                    "menuId": 2,
+                    "submenuId": 6,
+                    "name": "Ledger/Chart of A/cs Setup",
+                    "nameDefault": null,
+                    "icon": "Network",
+                    "route": "/master/coa-tree",
+                    "status": 1
+                },
+                {
+                    "id": 14,
+                    "menuId": 2,
+                    "submenuId": 7,
+                    "name": "Deposit Scheme Master",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/master/deposit-schemes",
+                    "status": 1
+                },
+                {
+                    "id": 15,
+                    "menuId": 2,
+                    "submenuId": 8,
+                    "name": "Deposit Interest Chart",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/master/deposit-interest",
+                    "status": 1
+                },
+                {
+                    "id": 16,
+                    "menuId": 2,
+                    "submenuId": 9,
+                    "name": "Loan Schemes Master",
+                    "nameDefault": null,
+                    "icon": "SlidersHorizontal",
+                    "route": "/master/loan-schemes",
+                    "status": 1
+                },
+                {
+                    "id": 17,
+                    "menuId": 2,
+                    "submenuId": 10,
+                    "name": "Loan ROI Slab Chart",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/master/loan-roi-slabs",
+                    "status": 1
+                },
+                {
+                    "id": 18,
+                    "menuId": 2,
+                    "submenuId": 11,
+                    "name": "Fiscal Year Setup",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/master/fiscal-year",
+                    "status": 1
+                },
+                {
+                    "id": 19,
+                    "menuId": 2,
+                    "submenuId": 12,
+                    "name": "Holiday Calendar",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/master/holiday-calendar",
+                    "status": 1
+                },
+                {
+                    "id": 20,
+                    "menuId": 2,
+                    "submenuId": 13,
+                    "name": "Roles & Permissions",
+                    "nameDefault": null,
+                    "icon": "Shield",
+                    "route": "/master/roles",
+                    "status": 1
+                },
+                {
+                    "id": 21,
+                    "menuId": 2,
+                    "submenuId": 14,
+                    "name": "Software Timings",
+                    "nameDefault": null,
+                    "icon": "Clock3",
+                    "route": "/master/timings",
+                    "status": 1
+                },
+                {
+                    "id": 22,
+                    "menuId": 2,
+                    "submenuId": 15,
+                    "name": "Series & Auto-Number",
+                    "nameDefault": null,
+                    "icon": "ArrowUpDown",
+                    "route": "/master/series",
+                    "status": 1
+                },
+                {
+                    "id": 23,
+                    "menuId": 2,
+                    "submenuId": 16,
+                    "name": "Global Settings",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/master/global-settings",
+                    "status": 1
+                },
+                {
+                    "id": 24,
+                    "menuId": 2,
+                    "submenuId": 17,
+                    "name": "Maker-Checker Rules",
+                    "nameDefault": null,
+                    "icon": "ShieldCheck",
+                    "route": "/master/maker-checker",
+                    "status": 1
+                },
+                {
+                    "id": 25,
+                    "menuId": 2,
+                    "submenuId": 18,
+                    "name": "SMS & WA Gateway",
+                    "nameDefault": null,
+                    "icon": "RadioTower",
+                    "route": "/master/gateway",
+                    "status": 1
+                }
+            ]
+        },
+        {
+            "id": 26,
+            "menuId": 3,
+            "name": "Customer Onboarding",
+            "nameDefault": null,
+            "icon": null,
+            "route": null,
+            "status": 1,
+            "children": [
+                {
+                    "id": 161,
+                    "menuId": 3,
+                    "submenuId": 1,
+                    "name": "Group Registration",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/onboarding/group-registration",
+                    "status": 1
+                },
+                {
+                    "id": 27,
+                    "menuId": 3,
+                    "submenuId": 2,
+                    "name": "Group Management",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/onboarding/group-management",
+                    "status": 1
+                },
+                {
+                    "id": 28,
+                    "menuId": 3,
+                    "submenuId": 3,
+                    "name": "Member Registration",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/onboarding/member-registration",
+                    "status": 1
+                },
+                {
+                    "id": 29,
+                    "menuId": 3,
+                    "submenuId": 4,
+                    "name": "Share Subscription",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/onboarding/share-subscription",
+                    "status": 1
+                },
+                {
+                    "id": 30,
+                    "menuId": 3,
+                    "submenuId": 5,
+                    "name": "Group Member Mapping",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/onboarding/group-member-mapping",
+                    "status": 1
+                },
+                {
+                    "id": 31,
+                    "menuId": 3,
+                    "submenuId": 6,
+                    "name": "Membership Closure",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/onboarding/membership-closure",
+                    "status": 1
+                }
+            ]
+        },
+        {
+            "id": 32,
+            "menuId": 4,
+            "name": "Deposits & Savings",
+            "nameDefault": null,
+            "icon": "PiggyBank",
+            "route": null,
+            "status": 1,
+            "children": [
+                {
+                    "id": 33,
+                    "menuId": 4,
+                    "submenuId": 1,
+                    "name": "New Savings Accounts",
+                    "nameDefault": null,
+                    "icon": "PiggyBank",
+                    "route": "/deposits/savings",
+                    "status": 1
+                },
+                {
+                    "id": 34,
+                    "menuId": 4,
+                    "submenuId": 2,
+                    "name": "New Term Deposits",
+                    "nameDefault": null,
+                    "icon": "Landmark",
+                    "route": "/deposits/fd",
+                    "status": 1
+                },
+                {
+                    "id": 35,
+                    "menuId": 4,
+                    "submenuId": 3,
+                    "name": "Savings Collection",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/deposits/savings-collection",
+                    "status": 1
+                },
+                {
+                    "id": 36,
+                    "menuId": 4,
+                    "submenuId": 4,
+                    "name": "Savings Withdrawal",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/deposits/savings-withdrawal",
+                    "status": 1
+                },
+                {
+                    "id": 37,
+                    "menuId": 4,
+                    "submenuId": 5,
+                    "name": "Interest Posting",
+                    "nameDefault": null,
+                    "icon": "Banknote",
+                    "route": "/deposits/interest",
+                    "status": 1
+                },
+                {
+                    "id": 38,
+                    "menuId": 4,
+                    "submenuId": 6,
+                    "name": "Term Deposit Settlement",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/deposits/fd-settlement",
+                    "status": 1
+                },
+                {
+                    "id": 39,
+                    "menuId": 4,
+                    "submenuId": 7,
+                    "name": "Charges Collection",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/deposits/charges",
+                    "status": 1
+                },
+                {
+                    "id": 40,
+                    "menuId": 4,
+                    "submenuId": 8,
+                    "name": "Member Ledger",
+                    "nameDefault": null,
+                    "icon": "BookMarked",
+                    "route": "/deposits/member-ledger",
+                    "status": 1
+                },
+                {
+                    "id": 41,
+                    "menuId": 4,
+                    "submenuId": 9,
+                    "name": "Specimen Update",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/deposits/specimen-update",
+                    "status": 1
+                }
+            ]
+        },
+        {
+            "id": 42,
+            "menuId": 5,
+            "name": "Lending & Loans",
+            "nameDefault": null,
+            "icon": "HandCoins",
+            "route": null,
+            "status": 1,
+            "children": [
+                {
+                    "id": 43,
+                    "menuId": 5,
+                    "submenuId": 1,
+                    "name": "Borrower KYC Registry",
+                    "nameDefault": null,
+                    "icon": "UserRoundPlus",
+                    "route": "/customer-kyc",
+                    "status": 1
+                },
+                {
+                    "id": 44,
+                    "menuId": 5,
+                    "submenuId": 2,
+                    "name": "New Loan Application",
+                    "nameDefault": null,
+                    "icon": "FileSpreadsheet",
+                    "route": "/los/applications",
+                    "status": 1
+                },
+                {
+                    "id": 45,
+                    "menuId": 5,
+                    "submenuId": 3,
+                    "name": "Application Tracking",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/los/tracking",
+                    "status": 1
+                },
+                {
+                    "id": 46,
+                    "menuId": 5,
+                    "submenuId": 4,
+                    "name": "Credit Assessment",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/los/credit-assessment",
+                    "status": 1
+                },
+                {
+                    "id": 47,
+                    "menuId": 5,
+                    "submenuId": 5,
+                    "name": "Field Verification",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/los/field-verification",
+                    "status": 1
+                },
+                {
+                    "id": 48,
+                    "menuId": 5,
+                    "submenuId": 6,
+                    "name": "Approval / Sanction",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/los/approval",
+                    "status": 1
+                },
+                {
+                    "id": 49,
+                    "menuId": 5,
+                    "submenuId": 7,
+                    "name": "Disbursement",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/lms/disbursement",
+                    "status": 1
+                },
+                {
+                    "id": 50,
+                    "menuId": 5,
+                    "submenuId": 8,
+                    "name": "Repayment Schedule",
+                    "nameDefault": null,
+                    "icon": "NotebookTabs",
+                    "route": "/lms/repayment-schedule",
+                    "status": 1
+                },
+                {
+                    "id": 51,
+                    "menuId": 5,
+                    "submenuId": 9,
+                    "name": "Loan Recovery / Collections",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/lms/recovery",
+                    "status": 1
+                },
+                {
+                    "id": 52,
+                    "menuId": 5,
+                    "submenuId": 10,
+                    "name": "Advance Collection",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/lms/advance-collection",
+                    "status": 1
+                },
+                {
+                    "id": 53,
+                    "menuId": 5,
+                    "submenuId": 11,
+                    "name": "Overdue Recovery",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/lms/overdue-recovery",
+                    "status": 1
+                },
+                {
+                    "id": 54,
+                    "menuId": 5,
+                    "submenuId": 12,
+                    "name": "Loan Adjustment",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/lms/adjustment",
+                    "status": 1
+                },
+                {
+                    "id": 55,
+                    "menuId": 5,
+                    "submenuId": 13,
+                    "name": "Loan Closure",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/lms/closure",
+                    "status": 1
+                },
+                {
+                    "id": 56,
+                    "menuId": 5,
+                    "submenuId": 14,
+                    "name": "Member Ledger",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/lms/member-ledger",
+                    "status": 1
+                },
+                {
+                    "id": 57,
+                    "menuId": 5,
+                    "submenuId": 15,
+                    "name": "Loan Amortization Schedule",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/lms/amortization",
+                    "status": 1
+                }
+            ]
+        },
+        {
+            "id": 58,
+            "menuId": 6,
+            "name": "Treasury & Investment",
+            "nameDefault": null,
+            "icon": null,
+            "route": null,
+            "status": 1,
+            "children": [
+                {
+                    "id": 59,
+                    "menuId": 6,
+                    "submenuId": 1,
+                    "name": "Bank Loan / Borrowing",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/treasury/bank-loan",
+                    "status": 1
+                },
+                {
+                    "id": 60,
+                    "menuId": 6,
+                    "submenuId": 2,
+                    "name": "Loan Repayment",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/treasury/loan-repayment",
+                    "status": 1
+                },
+                {
+                    "id": 61,
+                    "menuId": 6,
+                    "submenuId": 3,
+                    "name": "Bank Deposit / Investment",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/treasury/bank-deposit",
+                    "status": 1
+                },
+                {
+                    "id": 62,
+                    "menuId": 6,
+                    "submenuId": 4,
+                    "name": "Investment Maturity",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/treasury/investment-maturity",
+                    "status": 1
+                },
+                {
+                    "id": 63,
+                    "menuId": 6,
+                    "submenuId": 5,
+                    "name": "Investment Renewal",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/treasury/investment-renewal",
+                    "status": 1
+                },
+                {
+                    "id": 64,
+                    "menuId": 6,
+                    "submenuId": 6,
+                    "name": "Investment Reports",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/treasury/investment-reports",
+                    "status": 1
+                },
+                {
+                    "id": 65,
+                    "menuId": 6,
+                    "submenuId": 7,
+                    "name": "External Finance Reports",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/treasury/external-finance-reports",
+                    "status": 1
+                }
+            ]
+        },
+        {
+            "id": 66,
+            "menuId": 7,
+            "name": "Finance & GL",
+            "nameDefault": null,
+            "icon": "Landmark",
+            "route": null,
+            "status": 1,
+            "children": [
+                {
+                    "id": 67,
+                    "menuId": 7,
+                    "submenuId": 1,
+                    "name": "Voucher Entry",
+                    "nameDefault": null,
+                    "icon": "Receipt",
+                    "route": "/accounting/voucher-entry",
+                    "status": 1
+                },
+                {
+                    "id": 68,
+                    "menuId": 7,
+                    "submenuId": 2,
+                    "name": "Journal Adjustment",
+                    "nameDefault": null,
+                    "icon": "BookOpen",
+                    "route": "/accounting/journal-adjustment",
+                    "status": 1
+                },
+                {
+                    "id": 69,
+                    "menuId": 7,
+                    "submenuId": 3,
+                    "name": "Contra Transfer",
+                    "nameDefault": null,
+                    "icon": "ArrowLeftRight",
+                    "route": "/accounting/contra-transfer",
+                    "status": 1
+                }
+            ]
+        },
+        {
+            "id": 70,
+            "menuId": 8,
+            "name": "Collection Reports",
+            "nameDefault": null,
+            "icon": null,
+            "route": null,
+            "status": 1,
+            "children": [
+                {
+                    "id": 71,
+                    "menuId": 8,
+                    "submenuId": 1,
+                    "name": "Savings Collection",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/reports/collection/savings",
+                    "status": 1
+                },
+                {
+                    "id": 72,
+                    "menuId": 8,
+                    "submenuId": 2,
+                    "name": "Loan Collection",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/reports/collection/loan",
+                    "status": 1
+                },
+                {
+                    "id": 73,
+                    "menuId": 8,
+                    "submenuId": 3,
+                    "name": "Agent Collection",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/reports/collection/agent",
+                    "status": 1
+                },
+                {
+                    "id": 74,
+                    "menuId": 8,
+                    "submenuId": 4,
+                    "name": "Other Collection",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/reports/collection/other",
+                    "status": 1
+                },
+                {
+                    "id": 75,
+                    "menuId": 8,
+                    "submenuId": 5,
+                    "name": "Collection Summary",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/reports/collection/summary",
+                    "status": 1
+                }
+            ]
+        },
+        {
+            "id": 76,
+            "menuId": 9,
+            "name": "Document Printing",
+            "nameDefault": null,
+            "icon": null,
+            "route": null,
+            "status": 1,
+            "children": [
+                {
+                    "id": 77,
+                    "menuId": 9,
+                    "submenuId": 1,
+                    "name": "Passbook Printing",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/printing/passbook",
+                    "status": 1
+                },
+                {
+                    "id": 78,
+                    "menuId": 9,
+                    "submenuId": 2,
+                    "name": "Account Statement",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/printing/account-statement",
+                    "status": 1
+                },
+                {
+                    "id": 79,
+                    "menuId": 9,
+                    "submenuId": 3,
+                    "name": "Interest Certificate",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/printing/interest-certificate",
+                    "status": 1
+                },
+                {
+                    "id": 80,
+                    "menuId": 9,
+                    "submenuId": 4,
+                    "name": "Membership Certificate",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/printing/membership-certificate",
+                    "status": 1
+                },
+                {
+                    "id": 81,
+                    "menuId": 9,
+                    "submenuId": 5,
+                    "name": "Share Certificate",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/printing/share-certificate",
+                    "status": 1
+                },
+                {
+                    "id": 82,
+                    "menuId": 9,
+                    "submenuId": 6,
+                    "name": "Loan Certificate",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/printing/loan-certificate",
+                    "status": 1
+                },
+                {
+                    "id": 83,
+                    "menuId": 9,
+                    "submenuId": 7,
+                    "name": "Loan NOC Issuance",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/printing/loan-noc",
+                    "status": 1
+                }
+            ]
+        },
+        {
+            "id": 84,
+            "menuId": 10,
+            "name": "Savings MIS Reports",
+            "nameDefault": null,
+            "icon": null,
+            "route": null,
+            "status": 1,
+            "children": [
+                {
+                    "id": 85,
+                    "menuId": 10,
+                    "submenuId": 1,
+                    "name": "Productwise Account Summary",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/savings/productwise-summary",
+                    "status": 1
+                },
+                {
+                    "id": 86,
+                    "menuId": 10,
+                    "submenuId": 2,
+                    "name": "Deposit Collection Report",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/savings/deposit-collection",
+                    "status": 1
+                },
+                {
+                    "id": 87,
+                    "menuId": 10,
+                    "submenuId": 3,
+                    "name": "Withdrawal Report",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/savings/withdrawal",
+                    "status": 1
+                },
+                {
+                    "id": 88,
+                    "menuId": 10,
+                    "submenuId": 4,
+                    "name": "Savings Balance Report",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/savings/balance",
+                    "status": 1
+                },
+                {
+                    "id": 89,
+                    "menuId": 10,
+                    "submenuId": 5,
+                    "name": "Dormant Account Report",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/savings/dormant",
+                    "status": 1
+                },
+                {
+                    "id": 90,
+                    "menuId": 10,
+                    "submenuId": 6,
+                    "name": "New Account Report",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/savings/new-accounts",
+                    "status": 1
+                },
+                {
+                    "id": 91,
+                    "menuId": 10,
+                    "submenuId": 7,
+                    "name": "Savings Detailed List",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/savings/detailed-list",
+                    "status": 1
+                }
+            ]
+        },
+        {
+            "id": 92,
+            "menuId": 11,
+            "name": "Loan MIS Reports",
+            "nameDefault": null,
+            "icon": null,
+            "route": null,
+            "status": 1,
+            "children": [
+                {
+                    "id": 93,
+                    "menuId": 11,
+                    "submenuId": 1,
+                    "name": "Loan Portfolio Summary",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/loans/portfolio-summary",
+                    "status": 1
+                },
+                {
+                    "id": 94,
+                    "menuId": 11,
+                    "submenuId": 2,
+                    "name": "Loan Register",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/loans/register",
+                    "status": 1
+                },
+                {
+                    "id": 95,
+                    "menuId": 11,
+                    "submenuId": 3,
+                    "name": "Loan Outstanding",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/loans/outstanding",
+                    "status": 1
+                },
+                {
+                    "id": 96,
+                    "menuId": 11,
+                    "submenuId": 4,
+                    "name": "Loan Performance Analysis",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/loans/performance",
+                    "status": 1
+                },
+                {
+                    "id": 97,
+                    "menuId": 11,
+                    "submenuId": 5,
+                    "name": "Disbursement Report",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/loans/disbursement",
+                    "status": 1
+                },
+                {
+                    "id": 98,
+                    "menuId": 11,
+                    "submenuId": 6,
+                    "name": "Collection Register",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/loans/collection-register",
+                    "status": 1
+                },
+                {
+                    "id": 99,
+                    "menuId": 11,
+                    "submenuId": 7,
+                    "name": "Loan Demand Sheet",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/loans/demand-sheet",
+                    "status": 1
+                },
+                {
+                    "id": 100,
+                    "menuId": 11,
+                    "submenuId": 8,
+                    "name": "Demand Vs Collection Report",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/loans/demand-vs-collection",
+                    "status": 1
+                },
+                {
+                    "id": 101,
+                    "menuId": 11,
+                    "submenuId": 9,
+                    "name": "Overdue Loan Report",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/loans/overdue",
+                    "status": 1
+                },
+                {
+                    "id": 102,
+                    "menuId": 11,
+                    "submenuId": 10,
+                    "name": "Overdue Aging",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/loans/overdue-aging",
+                    "status": 1
+                },
+                {
+                    "id": 103,
+                    "menuId": 11,
+                    "submenuId": 11,
+                    "name": "NPA / Classification",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/loans/npa",
+                    "status": 1
+                },
+                {
+                    "id": 104,
+                    "menuId": 11,
+                    "submenuId": 12,
+                    "name": "Loan Closure Report",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/loans/closure",
+                    "status": 1
+                },
+                {
+                    "id": 105,
+                    "menuId": 11,
+                    "submenuId": 13,
+                    "name": "Pre-closure / Settlement Report",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/loans/pre-closure",
+                    "status": 1
+                },
+                {
+                    "id": 106,
+                    "menuId": 11,
+                    "submenuId": 14,
+                    "name": "Loan Detailed List",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/loans/detailed-list",
+                    "status": 1
+                }
+            ]
+        },
+        {
+            "id": 107,
+            "menuId": 12,
+            "name": "Customer MIS Reports",
+            "nameDefault": null,
+            "icon": null,
+            "route": null,
+            "status": 1,
+            "children": [
+                {
+                    "id": 108,
+                    "menuId": 12,
+                    "submenuId": 1,
+                    "name": "Group Register",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/customer/group-register",
+                    "status": 1
+                },
+                {
+                    "id": 109,
+                    "menuId": 12,
+                    "submenuId": 2,
+                    "name": "Group Member Report",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/customer/group-members",
+                    "status": 1
+                },
+                {
+                    "id": 110,
+                    "menuId": 12,
+                    "submenuId": 3,
+                    "name": "New Customer",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/customer/new",
+                    "status": 1
+                },
+                {
+                    "id": 111,
+                    "menuId": 12,
+                    "submenuId": 4,
+                    "name": "Active / Inactive Customer",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/customer/active-inactive",
+                    "status": 1
+                },
+                {
+                    "id": 112,
+                    "menuId": 12,
+                    "submenuId": 5,
+                    "name": "KYC Pending Report",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/customer/kyc-pending",
+                    "status": 1
+                },
+                {
+                    "id": 113,
+                    "menuId": 12,
+                    "submenuId": 6,
+                    "name": "Share Register",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/customer/share-register",
+                    "status": 1
+                },
+                {
+                    "id": 114,
+                    "menuId": 12,
+                    "submenuId": 7,
+                    "name": "Customer Transaction Activity",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/customer/transaction-activity",
+                    "status": 1
+                },
+                {
+                    "id": 115,
+                    "menuId": 12,
+                    "submenuId": 8,
+                    "name": "Customer Growth Analysis",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/customer/growth",
+                    "status": 1
+                },
+                {
+                    "id": 116,
+                    "menuId": 12,
+                    "submenuId": 9,
+                    "name": "Customer Classification",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/customer/classification",
+                    "status": 1
+                },
+                {
+                    "id": 117,
+                    "menuId": 12,
+                    "submenuId": 10,
+                    "name": "Shareholding Reports",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/customer/shareholding",
+                    "status": 1
+                }
+            ]
+        },
+        {
+            "id": 118,
+            "menuId": 13,
+            "name": "MIS & Reporting",
+            "nameDefault": null,
+            "icon": "BarChart3",
+            "route": null,
+            "status": 1,
+            "children": [
+                {
+                    "id": 119,
+                    "menuId": 13,
+                    "submenuId": 1,
+                    "name": "Daily Business MIS",
+                    "nameDefault": null,
+                    "icon": "ClipboardList",
+                    "route": "/mis/daily-business",
+                    "status": 1
+                },
+                {
+                    "id": 120,
+                    "menuId": 13,
+                    "submenuId": 2,
+                    "name": "Portfolio Health",
+                    "nameDefault": null,
+                    "icon": "Activity",
+                    "route": "/mis/portfolio-health",
+                    "status": 1
+                },
+                {
+                    "id": 121,
+                    "menuId": 13,
+                    "submenuId": 3,
+                    "name": "Agent Performance",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/agent-performance",
+                    "status": 1
+                },
+                {
+                    "id": 122,
+                    "menuId": 13,
+                    "submenuId": 4,
+                    "name": "Branch Scorecard",
+                    "nameDefault": null,
+                    "icon": "Building2",
+                    "route": "/mis/branch-scorecard",
+                    "status": 1
+                },
+                {
+                    "id": 123,
+                    "menuId": 13,
+                    "submenuId": 5,
+                    "name": "PAR Aging",
+                    "nameDefault": null,
+                    "icon": "Clock3",
+                    "route": "/mis/par-aging",
+                    "status": 1
+                },
+                {
+                    "id": 124,
+                    "menuId": 13,
+                    "submenuId": 6,
+                    "name": "NPA Provisioning",
+                    "nameDefault": null,
+                    "icon": "Scale",
+                    "route": "/mis/npa-provisioning",
+                    "status": 1
+                },
+                {
+                    "id": 125,
+                    "menuId": 13,
+                    "submenuId": 7,
+                    "name": "Defaulters & Legal",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/mis/defaulters-legal",
+                    "status": 1
+                },
+                {
+                    "id": 126,
+                    "menuId": 13,
+                    "submenuId": 8,
+                    "name": "Scheduled Exports",
+                    "nameDefault": null,
+                    "icon": "FileSpreadsheet",
+                    "route": "/mis/exports",
+                    "status": 1
+                }
+            ]
+        },
+        {
+            "id": 127,
+            "menuId": 14,
+            "name": "Teller Reports",
+            "nameDefault": null,
+            "icon": null,
+            "route": null,
+            "status": 1,
+            "children": [
+                {
+                    "id": 128,
+                    "menuId": 14,
+                    "submenuId": 1,
+                    "name": "Teller Transaction",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/reports/teller/transactions",
+                    "status": 1
+                },
+                {
+                    "id": 129,
+                    "menuId": 14,
+                    "submenuId": 2,
+                    "name": "Collection Short / Excess",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/reports/teller/short-excess",
+                    "status": 1
+                },
+                {
+                    "id": 130,
+                    "menuId": 14,
+                    "submenuId": 3,
+                    "name": "Branch Cash Position",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/reports/teller/cash-position",
+                    "status": 1
+                }
+            ]
+        },
+        {
+            "id": 131,
+            "menuId": 15,
+            "name": "Accounting Reports",
+            "nameDefault": null,
+            "icon": null,
+            "route": null,
+            "status": 1,
+            "children": [
+                {
+                    "id": 132,
+                    "menuId": 15,
+                    "submenuId": 1,
+                    "name": "Cash Book",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/reports/accounting/cash-book",
+                    "status": 1
+                },
+                {
+                    "id": 133,
+                    "menuId": 15,
+                    "submenuId": 2,
+                    "name": "Bank Book",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/reports/accounting/bank-book",
+                    "status": 1
+                },
+                {
+                    "id": 134,
+                    "menuId": 15,
+                    "submenuId": 3,
+                    "name": "Day Book",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/reports/accounting/day-book",
+                    "status": 1
+                },
+                {
+                    "id": 135,
+                    "menuId": 15,
+                    "submenuId": 4,
+                    "name": "General Ledger",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/reports/accounting/general-ledger",
+                    "status": 1
+                },
+                {
+                    "id": 136,
+                    "menuId": 15,
+                    "submenuId": 5,
+                    "name": "Journal Register",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/reports/accounting/journal-register",
+                    "status": 1
+                },
+                {
+                    "id": 137,
+                    "menuId": 15,
+                    "submenuId": 6,
+                    "name": "Trial Balance",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/reports/accounting/trial-balance",
+                    "status": 1
+                },
+                {
+                    "id": 138,
+                    "menuId": 15,
+                    "submenuId": 7,
+                    "name": "Profit & Loss",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/reports/accounting/profit-loss",
+                    "status": 1
+                },
+                {
+                    "id": 139,
+                    "menuId": 15,
+                    "submenuId": 8,
+                    "name": "Profit & Loss Appropriation",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/reports/accounting/pl-appropriation",
+                    "status": 1
+                },
+                {
+                    "id": 140,
+                    "menuId": 15,
+                    "submenuId": 9,
+                    "name": "Balance Sheet",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/reports/accounting/balance-sheet",
+                    "status": 1
+                }
+            ]
+        },
+        {
+            "id": 141,
+            "menuId": 16,
+            "name": "HR",
+            "nameDefault": null,
+            "icon": "UsersRound",
+            "route": null,
+            "status": 1,
+            "children": [
+                {
+                    "id": 142,
+                    "menuId": 16,
+                    "submenuId": 1,
+                    "name": "Staff Directory",
+                    "nameDefault": null,
+                    "icon": "UserRound",
+                    "route": "/hr/staff",
+                    "status": 1
+                },
+                {
+                    "id": 143,
+                    "menuId": 16,
+                    "submenuId": 2,
+                    "name": "Employee Transfers",
+                    "nameDefault": null,
+                    "icon": "ArrowUpDown",
+                    "route": "/hr/transfers",
+                    "status": 1
+                },
+                {
+                    "id": 144,
+                    "menuId": 16,
+                    "submenuId": 3,
+                    "name": "SMS & WA Broadcast",
+                    "nameDefault": null,
+                    "icon": "RadioTower",
+                    "route": "/hr/messaging",
+                    "status": 1
+                }
+            ]
+        },
+        {
+            "id": 145,
+            "menuId": 17,
+            "name": "User & Security",
+            "nameDefault": null,
+            "icon": "ShieldCheck",
+            "route": null,
+            "status": 1,
+            "children": [
+                {
+                    "id": 146,
+                    "menuId": 17,
+                    "submenuId": 1,
+                    "name": "User Profile",
+                    "nameDefault": null,
+                    "icon": "UserCircle2",
+                    "route": "/profile",
+                    "status": 1
+                },
+                {
+                    "id": 147,
+                    "menuId": 17,
+                    "submenuId": 3,
+                    "name": "Security Role Master",
+                    "nameDefault": null,
+                    "icon": "Shield",
+                    "route": "/security/roles",
+                    "status": 1
+                },
+                {
+                    "id": 148,
+                    "menuId": 17,
+                    "submenuId": 4,
+                    "name": "Role-Menu Matrix",
+                    "nameDefault": null,
+                    "icon": "Network",
+                    "route": "/security/menu-matrix",
+                    "status": 1
+                },
+                {
+                    "id": 149,
+                    "menuId": 17,
+                    "submenuId": 5,
+                    "name": "Page Action Perms",
+                    "nameDefault": null,
+                    "icon": "ShieldCheck",
+                    "route": "/security/permissions",
+                    "status": 1
+                },
+                {
+                    "id": 150,
+                    "menuId": 17,
+                    "submenuId": 6,
+                    "name": "Audit & Security",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/security/audit-logs",
+                    "status": 1
+                },
+                {
+                    "id": 163,
+                    "menuId": 17,
+                    "submenuId": 7,
+                    "name": "Login Settings",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/security/login-settings",
+                    "status": 1
+                }
+            ]
+        },
+        {
+            "id": 151,
+            "menuId": 18,
+            "name": "Branch Vault & Sync",
+            "nameDefault": null,
+            "icon": "Vault",
+            "route": null,
+            "status": 1,
+            "children": [
+                {
+                    "id": 152,
+                    "menuId": 18,
+                    "submenuId": 1,
+                    "name": "Vault Cash Position",
+                    "nameDefault": null,
+                    "icon": "Vault",
+                    "route": "/branch-vault/cash-position",
+                    "status": 1
+                },
+                {
+                    "id": 153,
+                    "menuId": 18,
+                    "submenuId": 2,
+                    "name": "Field Wallet Hand-in",
+                    "nameDefault": null,
+                    "icon": "Wallet",
+                    "route": "/branch-vault/hand-in",
+                    "status": 1
+                },
+                {
+                    "id": 154,
+                    "menuId": 18,
+                    "submenuId": 3,
+                    "name": "Offline Sync Queue",
+                    "nameDefault": null,
+                    "icon": "Wifi",
+                    "route": "/branch-vault/sync-queue",
+                    "status": 1
+                }
+            ]
+        },
+        {
+            "id": 155,
+            "menuId": 19,
+            "name": "Support & Service",
+            "nameDefault": null,
+            "icon": null,
+            "route": null,
+            "status": 1,
+            "children": [
+                {
+                    "id": 156,
+                    "menuId": 19,
+                    "submenuId": 1,
+                    "name": "Raise Support Ticket",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/support/raise-ticket",
+                    "status": 1
+                },
+                {
+                    "id": 157,
+                    "menuId": 19,
+                    "submenuId": 2,
+                    "name": "My Tickets",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/support/my-tickets",
+                    "status": 1
+                }
+            ]
+        },
+        {
+            "id": 158,
+            "menuId": 20,
+            "name": "User Account",
+            "nameDefault": null,
+            "icon": null,
+            "route": null,
+            "status": 1,
+            "children": [
+                {
+                    "id": 159,
+                    "menuId": 20,
+                    "submenuId": 1,
+                    "name": "Change Password",
+                    "nameDefault": null,
+                    "icon": null,
+                    "route": "/account/change-password",
+                    "status": 1
+                }
+            ]
+        }
+    ]
+}

@@ -30,7 +30,9 @@ export function Card({
               <p className="mt-1 text-sm text-muted">{description}</p>
             ) : null}
           </div>
-          {trailing}
+          {trailing ? (
+            <div className="flex shrink-0 justify-end">{trailing}</div>
+          ) : null}
         </div>
       ) : null}
       {children}

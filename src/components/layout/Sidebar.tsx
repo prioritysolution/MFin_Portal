@@ -224,10 +224,8 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
   }, [pathname]);
 
   useEffect(() => {
-    if (!menusHydrated || !activeNodeKey) return;
-    setOpenKeys((prev) =>
-      prev.includes(activeNodeKey) ? prev : [...prev, activeNodeKey],
-    );
+    if (!menusHydrated) return;
+    setOpenKeys(activeNodeKey ? [activeNodeKey] : []);
   }, [activeNodeKey, menusHydrated, pathname]);
 
   useEffect(() => {

@@ -46,32 +46,35 @@ export function DataTablePagination({
         {t("showingRecords", { from, to, total })}
       </p>
 
-      <div className="flex flex-wrap items-center gap-2">
-        {onPageSizeChange ? (
-          <label className="inline-flex items-center gap-2 text-xs text-muted">
-            <span className="whitespace-nowrap">{t("rowsPerPage")}</span>
-            <Select
-              size="sm"
-              searchable={false}
-              className="w-[4.5rem]"
-              aria-label={t("rowsPerPage")}
-              value={String(pageSize)}
-              onChange={(next) =>
-                onPageSizeChange(Number(next) || pageSize)
-              }
-              options={pageSizeOptions.map((size) => ({
-                value: String(size),
-                label: String(size),
-              }))}
-            />
-          </label>
-        ) : null}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+        <div className="flex items-center justify-between gap-3 sm:justify-start sm:gap-4">
+          {onPageSizeChange ? (
+            <label className="inline-flex min-w-0 items-center gap-2 text-xs text-muted">
+              <span className="whitespace-nowrap">{t("rowsPerPage")}</span>
+              <Select
+                size="sm"
+                searchable={false}
+                clearable={false}
+                className="w-[4.75rem] shrink-0"
+                aria-label={t("rowsPerPage")}
+                value={String(pageSize)}
+                onChange={(next) =>
+                  onPageSizeChange(Number(next) || pageSize)
+                }
+                options={pageSizeOptions.map((size) => ({
+                  value: String(size),
+                  label: String(size),
+                }))}
+              />
+            </label>
+          ) : null}
 
-        <p className="text-xs font-medium text-slate-600">
-          {t("pageOf", { page: safePage, totalPages })}
-        </p>
+          <p className="whitespace-nowrap text-xs font-medium text-slate-600">
+            {t("pageOf", { page: safePage, totalPages })}
+          </p>
+        </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center justify-end gap-1.5">
           <Button
             type="button"
             variant="secondary"

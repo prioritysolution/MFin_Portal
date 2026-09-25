@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import { Select, type SelectOption } from "@/components/ui/Select";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { DatePicker } from "@/components/ui/DatePicker";
+import { TimePicker } from "@/components/ui/TimePicker";
 
 /** @deprecated Use `controlClass` from `@/components/ui/Input`. */
 export { controlClass as formControlClass } from "@/components/ui/Input";
@@ -154,12 +155,46 @@ export function TextField({
     onChange?.(next);
   }
 
-  const countLabel =
-    maxLength != null
-      ? t("charCount", { count: textValue.length, max: maxLength })
-      : type === "number" && min != null && max != null
-        ? t("numberRange", { min: String(min), max: String(max) })
-        : null;
+  const rangeLabel =
+    type === "number" && min != null && max != null
+      ? t("numberRange", { min: String(min), max: String(max) })
+      : null;
+
+  if (type === "date" || type === "time") {
+    const pickerLabel =
+      typeof rest["aria-label"] === "string" ? rest["aria-label"] : label;
+    return (
+      <FormField
+        label={label}
+        required={required}
+        error={shownError}
+        hint={hint}
+        className={className}
+      >
+        {type === "date" ? (
+          <DatePicker
+            id={typeof rest.id === "string" ? rest.id : undefined}
+            value={textValue}
+            disabled={Boolean(rest.disabled)}
+            min={typeof rest.min === "string" ? rest.min : undefined}
+            max={typeof rest.max === "string" ? rest.max : undefined}
+            onChange={(next) => commit(next, true)}
+            aria-label={pickerLabel}
+            aria-invalid={shownError ? true : undefined}
+          />
+        ) : (
+          <TimePicker
+            id={typeof rest.id === "string" ? rest.id : undefined}
+            value={textValue}
+            disabled={Boolean(rest.disabled)}
+            onChange={(next) => commit(next, true)}
+            aria-label={pickerLabel}
+            aria-invalid={shownError ? true : undefined}
+          />
+        )}
+      </FormField>
+    );
+  }
 
   return (
     <FormField
@@ -168,7 +203,7 @@ export function TextField({
       error={shownError}
       hint={hint}
       className={className}
-      meta={countLabel}
+      meta={rangeLabel}
     >
       <div className={trailing ? "relative" : undefined}>
         <Input
@@ -232,7 +267,6 @@ export function TextAreaField({
   maxLength,
   validate,
 }: TextAreaFieldProps) {
-  const t = useTranslations("ui");
   const [touched, setTouched] = useState(false);
   const [liveError, setLiveError] = useState<string | undefined>();
   const shownError = touched ? liveError : error;
@@ -243,11 +277,6 @@ export function TextAreaField({
       required={required}
       error={shownError}
       hint={hint}
-      meta={
-        maxLength != null
-          ? t("charCount", { count: value.length, max: maxLength })
-          : null
-      }
     >
       <Textarea
         rows={rows}

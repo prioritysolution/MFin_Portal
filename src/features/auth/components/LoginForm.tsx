@@ -174,16 +174,6 @@ export function LoginForm() {
         <LogIn className="h-4 w-4" />
         {submitting ? t("signingIn") : t("signIn")}
       </button>
-
-      <p className="text-center text-sm text-slate-500">
-        {t("newStaffUser")}{" "}
-        <Link
-          href="/register"
-          className="font-semibold text-brand-ink hover:underline"
-        >
-          {t("registerAccount")}
-        </Link>
-      </p>
     </form>
   );
 }

@@ -28,7 +28,9 @@ function TableHeading({
           <p className="mt-1 text-sm text-muted">{description}</p>
         ) : null}
       </div>
-      {actions ? <div className="shrink-0">{actions}</div> : null}
+      {actions ? (
+        <div className="flex shrink-0 justify-end">{actions}</div>
+      ) : null}
     </div>
   );
 }

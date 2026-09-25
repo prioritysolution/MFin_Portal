@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
-import { ChevronDown, LogOut, Menu, Settings, UserRound } from "lucide-react";
+import { ChevronDown, Globe, LogOut, Menu, Settings, UserRound } from "lucide-react";
 import type { AppLocale } from "@/i18n/routing";
 import type { AuthUser } from "@/features/auth/types/auth";
 import { clearMenuClientCache } from "@/features/navigation/services/menu-client";
@@ -25,6 +25,7 @@ const languages: Array<{ code: AppLocale; label: string; short: string }> = [
 
 export function Header({ onMenuClick, user }: HeaderProps) {
   const t = useTranslations("navigation");
+  const tAuth = useTranslations("auth");
   const pathname = usePathname();
   const router = useRouter();
   const locale = useLocale();
@@ -33,12 +34,11 @@ export function Header({ onMenuClick, user }: HeaderProps) {
   const [loggingOut, setLoggingOut] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
   const accountRef = useRef<HTMLDivElement>(null);
-
   const currentLang =
     languages.find((lang) => lang.code === locale) ?? languages[0]!;
 
   useEffect(() => {
-    if (!langOpen && !accountOpen) return;
+    if (!accountOpen && !langOpen) return;
 
     function onPointerDown(event: MouseEvent) {
       const target = event.target;
@@ -102,14 +102,36 @@ export function Header({ onMenuClick, user }: HeaderProps) {
               <Menu className="h-4 w-4" />
             </button>
 
-            <div className="relative min-w-0 flex-1 md:max-w-md">
-              <QuickSearch user={user} showShortcut />
+            <Link
+              href="/"
+              className="flex min-w-0 items-center gap-2.5 lg:hidden"
+            >
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand text-xs font-bold text-white shadow-sm">
+                eZ
+              </span>
+              <span className="min-w-0">
+                <span className="block truncate text-sm font-semibold tracking-tight text-slate-900">
+                  {tAuth("brandName")}
+                </span>
+                <span className="hidden truncate text-[10px] font-medium uppercase tracking-[0.12em] text-muted-soft sm:block">
+                  {tAuth("brandTagline")}
+                </span>
+              </span>
+            </Link>
+
+            <div className="relative hidden min-w-0 flex-1 md:block md:max-w-md">
+              <QuickSearch user={user} variant="field" showShortcut />
             </div>
           </div>
 
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-            <ThemeToggle />
-            <div className="relative" ref={langRef}>
+            <div className="md:hidden">
+              <QuickSearch user={user} variant="icon" showShortcut={false} />
+            </div>
+            <div className="hidden lg:block">
+              <ThemeToggle />
+            </div>
+            <div className="relative hidden lg:block" ref={langRef}>
               <button
                 type="button"
                 onClick={() => {
@@ -189,8 +211,42 @@ export function Header({ onMenuClick, user }: HeaderProps) {
                 <div
                   role="menu"
                   aria-label={t("accountMenu")}
-                  className="absolute top-full right-0 z-40 mt-1.5 min-w-[11rem] overflow-hidden rounded-xl border border-border bg-white py-1 shadow-[var(--shadow-card)]"
+                  className="absolute top-full right-0 z-40 mt-1.5 max-h-[min(70vh,28rem)] min-w-[11rem] overflow-y-auto rounded-xl border border-border bg-white py-1 shadow-[var(--shadow-card)] md:min-w-[11rem]"
                 >
+                  <div className="lg:hidden">
+                    <ThemeToggle variant="menu" />
+                    <div className="my-1 border-t border-border" />
+                    <p className="flex items-center gap-2 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-soft">
+                      <Globe className="h-3.5 w-3.5" aria-hidden />
+                      {tAuth("language")}
+                    </p>
+                    {languages.map((lang) => (
+                      <button
+                        key={lang.code}
+                        type="button"
+                        role="menuitemradio"
+                        aria-checked={locale === lang.code}
+                        onClick={() => {
+                          setAccountOpen(false);
+                          if (lang.code !== locale) {
+                            router.replace(pathname, { locale: lang.code });
+                            router.refresh();
+                          }
+                        }}
+                        className={`flex w-full items-center gap-2 px-3 py-2 text-left text-xs transition hover:bg-surface-muted ${
+                          locale === lang.code
+                            ? "font-semibold text-brand-ink"
+                            : "text-slate-600"
+                        }`}
+                      >
+                        <span className="w-6 shrink-0 font-semibold">
+                          {lang.short}
+                        </span>
+                        {lang.label}
+                      </button>
+                    ))}
+                    <div className="my-1 border-t border-border" />
+                  </div>
                   <Link
                     href="/profile"
                     role="menuitem"

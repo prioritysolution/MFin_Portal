@@ -25,8 +25,8 @@ export function AppShell({ children, user }: AppShellProps) {
         />
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
           <Header onMenuClick={() => setSidebarOpen(true)} user={user} />
-          <main className="min-h-0 flex-1 overflow-y-auto scrollbar-thin">
-            <div className="app-content">
+          <main className="flex min-h-0 flex-1 flex-col overflow-y-auto scrollbar-thin">
+            <div className="app-content shrink-0 grow">
               <div className="app-content-inner">{children}</div>
             </div>
             <div className="md:hidden">

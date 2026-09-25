@@ -4,7 +4,7 @@ import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { FilterPanel } from "@/components/shared/FilterPanel";
 import { Input } from "@/components/ui/Input";
-import { SelectField } from "@/components/ui/Form";
+import { DateField, SelectField } from "@/components/ui/Form";
 import { AUDIT_ACTIONS } from "@/features/security/audit-log/types/audit-log.types";
 
 export type AuditLogFilterValues = {
@@ -98,33 +98,19 @@ export function AuditLogFilters({
         </div>
 
         <div className="min-w-[9rem] sm:max-w-[11rem]">
-          <label className="block">
-            <span className="mb-1.5 block text-xs font-semibold text-slate-600">
-              {t("filters.dateFrom")}
-            </span>
-            <Input
-              type="date"
-              value={values.dateFrom}
-              onChange={(event) =>
-                onChange({ ...values, dateFrom: event.target.value })
-              }
-            />
-          </label>
+          <DateField
+            label={t("filters.dateFrom")}
+            value={values.dateFrom}
+            onChange={(dateFrom) => onChange({ ...values, dateFrom })}
+          />
         </div>
 
         <div className="min-w-[9rem] sm:max-w-[11rem]">
-          <label className="block">
-            <span className="mb-1.5 block text-xs font-semibold text-slate-600">
-              {t("filters.dateTo")}
-            </span>
-            <Input
-              type="date"
-              value={values.dateTo}
-              onChange={(event) =>
-                onChange({ ...values, dateTo: event.target.value })
-              }
-            />
-          </label>
+          <DateField
+            label={t("filters.dateTo")}
+            value={values.dateTo}
+            onChange={(dateTo) => onChange({ ...values, dateTo })}
+          />
         </div>
 
     </FilterPanel>
