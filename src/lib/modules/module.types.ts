@@ -22,6 +22,7 @@ export type ModuleId =
   | "master.smsSettings"
   | "master.globalSettings"
   | "master.makerChecker"
+  | "master.depositSchemes"
   | "security.auditLog"
   | "security.loginSettings";
 
@@ -197,6 +198,13 @@ export const masterModulePages = {
     id: "master.makerChecker",
     route: "/master/maker-checker",
     messageNamespace: "master.makerChecker",
+    titleKey: "title",
+    descriptionKey: "description",
+  }),
+  depositSchemes: new ModulePage({
+    id: "master.depositSchemes",
+    route: "/master/deposit-schemes",
+    messageNamespace: "master.depositSchemes",
     titleKey: "title",
     descriptionKey: "description",
   }),

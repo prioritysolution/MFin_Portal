@@ -434,8 +434,8 @@
           "or": "ଓଡ଼ିଆ"
         },
         "dayCount": {
-          "365": "Actual / 365",
-          "360": "Actual / 360"
+          "360": "Actual / 360",
+          "365": "Actual / 365"
         },
         "rounding": {
           "nearest": "ନିକଟତମକୁ ରାଉଣ୍ଡ",
@@ -1343,6 +1343,178 @@
         "aadhaar": "୧୨ ଅଙ୍କ",
         "pan": "୧୦ ଅକ୍ଷର, AAAAA9999A",
         "userPass": "ପ୍ରଶାସକଙ୍କ ନିର୍ଦ୍ଧାରିତ ପାସୱାର୍ଡ ନିୟମ ମାନେ"
+      }
+    },
+    "depositSchemes": {
+      "title": "ଜମା ଯୋଜନା ମାଷ୍ଟର",
+      "description": "ଜମା ଯୋଜନା ସେଟଅପ୍ ଏବଂ ସମ୍ପର୍କିତ ଶୁଳ୍କ ପରିଚାଳନା କରନ୍ତୁ",
+      "tabs": {
+        "setup": "ଜମା ଯୋଜନା ସେଟଅପ୍",
+        "charges": "ଜମା ଯୋଜନା ଶୁଳ୍କ"
+      },
+      "columns": {
+        "actions": "କାର୍ଯ୍ୟ"
+      },
+      "statusActive": "ସକ୍ରିୟ",
+      "statusInactive": "ନିଷ୍କ୍ରିୟ",
+      "confirm": {
+        "itemTypeSetup": "ଯୋଜନା ସେଟଅପ୍",
+        "itemTypeCharge": "ଯୋଜନା ଶୁଳ୍କ"
+      },
+      "setup": {
+        "add": "ସେଟଅପ୍ ଯୋଗ କରନ୍ତୁ",
+        "edit": "ସମ୍ପାଦନା",
+        "deactivate": "ନିଷ୍କ୍ରିୟ କରନ୍ତୁ",
+        "activate": "ସକ୍ରିୟ କରନ୍ତୁ",
+        "deactivateSuccess": "ଯୋଜନା ସଫଳତାର ସହିତ ନିଷ୍କ୍ରିୟ ହୋଇଛି।",
+        "activateSuccess": "ଯୋଜନା ସଫଳତାର ସହିତ ସକ୍ରିୟ ହୋଇଛି।",
+        "createTitle": "ଜମା ଯୋଜନା ସେଟଅପ୍ ଯୋଗ କରନ୍ତୁ",
+        "editTitle": "ଜମା ଯୋଜନା ସେଟଅପ୍ ସମ୍ପାଦନା କରନ୍ତୁ",
+        "save": "ସେଟଅପ୍ ସଂରକ୍ଷଣ କରନ୍ତୁ",
+        "saving": "ସଂରକ୍ଷଣ ହେଉଛି…",
+        "cancel": "ବାତିଲ୍",
+        "createSuccess": "ସେଟଅପ୍ ସଫଳତାର ସହିତ ତିଆରି ହୋଇଛି।",
+        "updateSuccess": "ସେଟଅପ୍ ସଫଳତାର ସହିତ ଅଦ୍ୟତନ ହୋଇଛି।",
+        "loadErrorTitle": "ଯୋଜନା ସେଟଅପ୍ ଲୋଡ୍ କରିହେଲା ନାହିଁ",
+        "emptyTitle": "କୌଣସି ଯୋଜନା ସେଟଅପ୍ ମିଳିଲା ନାହିଁ",
+        "emptyMessage": "ବର୍ତ୍ତମାନ ଫିଲ୍ଟର୍ ସହ ମେଳ ହେଉଥିବା କୌଣସି ଯୋଜନା ସେଟଅପ୍ ନାହିଁ।",
+        "tableCaption": "ଜମା ଯୋଜନା ସେଟଅପ୍ ତାଲିକା",
+        "statusActive": "ସକ୍ରିୟ",
+        "statusInactive": "ନିଷ୍କ୍ରିୟ",
+        "filters": {
+          "search": "ସନ୍ଧାନ",
+          "searchPlaceholder": "ଯୋଜନା ନାମ ଦ୍ୱାରା ଖୋଜନ୍ତୁ…",
+          "depositType": "ଜମା ପ୍ରକାର",
+          "depositTypeAll": "ସମସ୍ତ ଜମା ପ୍ରକାର",
+          "status": "ସ୍ଥିତି",
+          "statusAll": "ସବୁ"
+        },
+        "fields": {
+          "schemeCode": "ଯୋଜନା କୋଡ୍",
+          "schemeName": "ଯୋଜନା ନାମ",
+          "depositType": "ଜମା ପ୍ରକାର",
+          "productType": "ପ୍ରଡକ୍ଟ ପ୍ରକାର",
+          "roiPercentage": "ସୁଧ ହାର (%)",
+          "interestType": "ସୁଧ ପ୍ରକାର",
+          "interestPayout": "ସୁଧ ପ୍ରଦାନ",
+          "minimumBalance": "ସର୍ବନିମ୍ନ ବାଲାନ୍ସ",
+          "withdrawalAllow": "ଉଠାଣ ଅନୁମତି ଦିଅନ୍ତୁ",
+          "maxWithdrawal": "ସର୍ବାଧିକ ଉଠାଣ ପରିମାଣ",
+          "iterationDays": "ନିଷ୍କ୍ରିୟ ଦିନ",
+          "principalLedger": "ମୂଳ ଖାତାବହି",
+          "interestLedger": "ସୁଧ ଖାତାବହି",
+          "fieldCollection": "ଫିଲ୍ଡ ସଂଗ୍ରହ",
+          "isActive": "ସ୍ଥିତି"
+        }
+      },
+      "charges": {
+        "add": "ଶୁଳ୍କ ଯୋଗ କରନ୍ତୁ",
+        "edit": "ସମ୍ପାଦନା",
+        "deactivate": "ନିଷ୍କ୍ରିୟ କରନ୍ତୁ",
+        "activate": "ସକ୍ରିୟ କରନ୍ତୁ",
+        "deactivateSuccess": "ଶୁଳ୍କ ସଫଳତାର ସହିତ ନିଷ୍କ୍ରିୟ ହୋଇଛି।",
+        "activateSuccess": "ଶୁଳ୍କ ସଫଳତାର ସହିତ ସକ୍ରିୟ ହୋଇଛି।",
+        "createTitle": "ଯୋଜନା ଶୁଳ୍କ ଯୋଗ କରନ୍ତୁ",
+        "editTitle": "ଯୋଜନା ଶୁଳ୍କ ସମ୍ପାଦନା କରନ୍ତୁ",
+        "save": "ଶୁଳ୍କ ସଂରକ୍ଷଣ କରନ୍ତୁ",
+        "saving": "ସଂରକ୍ଷଣ ହେଉଛି…",
+        "cancel": "ବାତିଲ୍",
+        "createSuccess": "ଶୁଳ୍କ ସଫଳତାର ସହିତ ତିଆରି ହୋଇଛି।",
+        "updateSuccess": "ଶୁଳ୍କ ସଫଳତାର ସହିତ ଅଦ୍ୟତନ ହୋଇଛି।",
+        "loadErrorTitle": "ଯୋଜନା ଶୁଳ୍କ ଲୋଡ୍ କରିହେଲା ନାହିଁ",
+        "emptyTitle": "କୌଣସି ଶୁଳ୍କ ମିଳିଲା ନାହିଁ",
+        "emptyMessage": "ବର୍ତ୍ତମାନ ଫିଲ୍ଟର୍ ସହ ମେଳ ହେଉଥିବା କୌଣସି ଶୁଳ୍କ ନାହିଁ।",
+        "tableCaption": "ଜମା ଯୋଜନା ଶୁଳ୍କ ତାଲିକା",
+        "statusActive": "ସକ୍ରିୟ",
+        "statusInactive": "ନିଷ୍କ୍ରିୟ",
+        "filters": {
+          "search": "ସନ୍ଧାନ",
+          "searchPlaceholder": "ଯୋଜନା ବା ଶୁଳ୍କ ପ୍ରକାର ଦ୍ୱାରା ଖୋଜନ୍ତୁ…",
+          "scheme": "ଯୋଜନା",
+          "schemeAll": "ସମସ୍ତ ଯୋଜନା",
+          "chargesType": "ଶୁଳ୍କ ପ୍ରକାର",
+          "chargesTypeAll": "ସମସ୍ତ ଶୁଳ୍କ ପ୍ରକାର",
+          "status": "ସ୍ଥିତି",
+          "statusAll": "ସବୁ"
+        },
+        "fields": {
+          "scheme": "ଜମା ଯୋଜନା",
+          "schemeCode": "ଯୋଜନା କୋଡ୍",
+          "schemeName": "ଯୋଜନା ନାମ",
+          "chargesType": "ଯୋଜନା ଶୁଳ୍କ ପ୍ରକାର",
+          "chargesFigures": "ଶୁଳ୍କ ପରିମାଣ",
+          "figureType": "ମୂଲ୍ୟ ପ୍ରକାର",
+          "chargesGl": "ଶୁଳ୍କ ଜିଏଲ୍",
+          "runDuration": "ଅବଧି",
+          "effectFrom": "ପ୍ରଭାବୀ ଆରମ୍ଭ ତାରିଖ",
+          "effectTo": "ପ୍ରଭାବୀ ଶେଷ ତାରିଖ",
+          "openEnded": "ଅନିର୍ଦ୍ଦିଷ୍ଟ କାଳ",
+          "isActive": "ସ୍ଥିତି"
+        }
+      },
+      "options": {
+        "depositType": {
+          "fixed": "ମିଆଦି ଜମା (Fixed Deposit)",
+          "recurring": "ଆବର୍ତ୍ତୀ ଜମା (Recurring Deposit)",
+          "savings": "ସଞ୍ଚୟ (Savings)"
+        },
+        "productType": {
+          "standard": "ଷ୍ଟାଣ୍ଡାର୍ଡ",
+          "premium": "ପ୍ରିମିୟମ"
+        },
+        "interestType": {
+          "simple": "ସରଳ ସୁଧ (Simple)",
+          "compound": "ଚକ୍ରବୃଦ୍ଧି ସୁଧ (Compound)"
+        },
+        "interestPayout": {
+          "monthly": "ମାସିକ",
+          "quarterly": "ତ୍ରୈମାସିକ",
+          "halfYearly": "ଅର୍ଦ୍ଧବାର୍ଷିକ",
+          "maturity": "ପରିପକ୍ୱତା"
+        },
+        "figureType": {
+          "percentage": "ପ୍ରତିଶତ (%)",
+          "flat": "ନିର୍ଦ୍ଦିଷ୍ଟ ପରିମାଣ (Flat)"
+        },
+        "chargesType": {
+          "prematureWithdrawal": "ଅବଧି ପୂର୍ବରୁ ଉଠାଣ ଶୁଳ୍କ",
+          "latePayment": "ବିଳମ୍ବ ଜୋରିମାନା"
+        },
+        "mockLedgers": {
+          "fdPrincipal": "ଏଫଡି ମୂଳ ଖାତା",
+          "rdPrincipal": "ଆରଡି ମୂଳ ଖାତା",
+          "fdInterest": "ଏଫଡି ସୁଧ ଖାତା",
+          "rdInterest": "ଆରଡି ସୁଧ ଖାତା",
+          "penaltyGl": "ଜୋରିମାନା ଜିଏଲ୍",
+          "lateGl": "ବିଳମ୍ବ ଫି ଜିଏଲ୍"
+        }
+      },
+      "hints": {
+        "isActive": "ସକ୍ରିୟ କରିବା ପାଇଁ ଚିହ୍ନଟ କରନ୍ତୁ"
+      },
+      "errors": {
+        "schemeName": "ଯୋଜନା ନାମ ଆବଶ୍ୟକ",
+        "depositType": "ଜମା ପ୍ରକାର ବାଛିବା ଆବଶ୍ୟକ",
+        "productType": "ପ୍ରଡକ୍ଟ ପ୍ରକାର ବାଛିବା ଆବଶ୍ୟକ",
+        "roiPercentage": "ବୈଧ ସୁଧ ହାର ଦିଅନ୍ତୁ",
+        "interestType": "ସୁଧ ପ୍ରକାର ବାଛିବା ଆବଶ୍ୟକ",
+        "interestPayout": "ସୁଧ ପ୍ରଦାନ ବାଛିବା ଆବଶ୍ୟକ",
+        "minimumBalance": "ସର୍ବନିମ୍ନ ବାଲାନ୍ସ ଆବଶ୍ୟକ",
+        "iterationDays": "ନିଷ୍କ୍ରିୟ ଦିନ ଉଲ୍ଲେଖ ଆବଶ୍ୟକ",
+        "principalLedger": "ମୂଳ ଖାତା ବାଛିବା ଆବଶ୍ୟକ",
+        "interestLedger": "ସୁଧ ଖାତା ବାଛିବା ଆବଶ୍ୟକ",
+        "sameLedgers": "ମୂଳ ଖାତା ଏବଂ ସୁଧ ଖାତା ଭିନ୍ନ ହେବା ଆବଶ୍ୟକ",
+        "maxWithdrawal": "ଉଠାଣ ଅନୁମତି ଥିଲେ ସର୍ବାଧିକ ଉଠାଣ ପରିମାଣ ଆବଶ୍ୟକ",
+        "schemeId": "ଜମା ଯୋଜନା ବାଛିବା ଆବଶ୍ୟକ",
+        "chargesType": "ଶୁଳ୍କ ପ୍ରକାର ବାଛିବା ଆବଶ୍ୟକ",
+        "chargesFigures": "ବୈଧ ଶୁଳ୍କ ପରିମାଣ ଦିଅନ୍ତୁ",
+        "percentageMax": "ପ୍ରତିଶତ ମୂଲ୍ୟ ୧୦୦ ରୁ ଅଧିକ ହୋଇପାରିବ ନାହିଁ",
+        "figureType": "ମୂଲ୍ୟ ପ୍ରକାର ବାଛିବା ଆବଶ୍ୟକ",
+        "chargesGl": "ଶୁଳ୍କ ଜିଏଲ୍ ବାଛିବା ଆବଶ୍ୟକ",
+        "runDuration": "ଅବଧି ଆବଶ୍ୟକ",
+        "effectFrom": "ପ୍ରଭାବୀ ଆରମ୍ଭ ତାରିଖ ଆବଶ୍ୟକ",
+        "effectTo": "ପ୍ରଭାବୀ ଶେଷ ତାରିଖ ଆବଶ୍ୟକ",
+        "effectToAfterFrom": "ପ୍ରଭାବୀ ଶେଷ ତାରିଖ ଆରମ୍ଭ ତାରିଖର ସମାନ ବା ପରର ହେବା ଆବଶ୍ୟକ"
       }
     }
   },

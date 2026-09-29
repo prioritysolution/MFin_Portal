@@ -434,8 +434,8 @@
           "or": "ଓଡ଼ିଆ"
         },
         "dayCount": {
-          "365": "Actual / 365",
-          "360": "Actual / 360"
+          "360": "Actual / 360",
+          "365": "Actual / 365"
         },
         "rounding": {
           "nearest": "Round to nearest",
@@ -1343,6 +1343,178 @@
         "aadhaar": "12 digits",
         "pan": "10 characters, AAAAA9999A",
         "userPass": "Follows the password rules set by the administrator"
+      }
+    },
+    "depositSchemes": {
+      "title": "Deposit Schemes",
+      "description": "Manage deposit scheme setups and charges",
+      "tabs": {
+        "setup": "Deposit Scheme Setup",
+        "charges": "Deposit Scheme Charges"
+      },
+      "columns": {
+        "actions": "Actions"
+      },
+      "statusActive": "Active",
+      "statusInactive": "Inactive",
+      "confirm": {
+        "itemTypeSetup": "Scheme Setup",
+        "itemTypeCharge": "Scheme Charge"
+      },
+      "setup": {
+        "add": "Add Setup",
+        "edit": "Edit",
+        "deactivate": "Deactivate",
+        "activate": "Activate",
+        "deactivateSuccess": "Scheme deactivated successfully.",
+        "activateSuccess": "Scheme activated successfully.",
+        "createTitle": "Add Deposit Scheme Setup",
+        "editTitle": "Edit Deposit Scheme Setup",
+        "save": "Save Setup",
+        "saving": "Saving...",
+        "cancel": "Cancel",
+        "createSuccess": "Setup created successfully.",
+        "updateSuccess": "Setup updated successfully.",
+        "loadErrorTitle": "Unable to load scheme setups",
+        "emptyTitle": "No scheme setups found",
+        "emptyMessage": "No scheme setups match the current filters.",
+        "tableCaption": "Deposit Scheme Setups",
+        "statusActive": "Active",
+        "statusInactive": "Inactive",
+        "filters": {
+          "search": "Search",
+          "searchPlaceholder": "Search scheme name...",
+          "depositType": "Deposit Type",
+          "depositTypeAll": "All Deposit Types",
+          "status": "Status",
+          "statusAll": "All"
+        },
+        "fields": {
+          "schemeCode": "Scheme Code",
+          "schemeName": "Scheme Name",
+          "depositType": "Deposit Type",
+          "productType": "Product Type",
+          "roiPercentage": "ROI Percentage",
+          "interestType": "Interest Type",
+          "interestPayout": "Interest Payout",
+          "minimumBalance": "Minimum Balance",
+          "withdrawalAllow": "Allow Withdrawal",
+          "maxWithdrawal": "Max Withdrawal Amount",
+          "iterationDays": "Inoperative Days",
+          "principalLedger": "Principal Ledger",
+          "interestLedger": "Interest Ledger",
+          "fieldCollection": "Field Collection",
+          "isActive": "Status"
+        }
+      },
+      "charges": {
+        "add": "Add Charge",
+        "edit": "Edit",
+        "deactivate": "Deactivate",
+        "activate": "Activate",
+        "deactivateSuccess": "Charge deactivated successfully.",
+        "activateSuccess": "Charge activated successfully.",
+        "createTitle": "Add Scheme Charge",
+        "editTitle": "Edit Scheme Charge",
+        "save": "Save Charge",
+        "saving": "Saving...",
+        "cancel": "Cancel",
+        "createSuccess": "Charge created successfully.",
+        "updateSuccess": "Charge updated successfully.",
+        "loadErrorTitle": "Unable to load scheme charges",
+        "emptyTitle": "No scheme charges found",
+        "emptyMessage": "No scheme charges match the current filters.",
+        "tableCaption": "Deposit Scheme Charges",
+        "statusActive": "Active",
+        "statusInactive": "Inactive",
+        "filters": {
+          "search": "Search",
+          "searchPlaceholder": "Search by scheme or charge type...",
+          "scheme": "Scheme",
+          "schemeAll": "All Schemes",
+          "chargesType": "Charge Type",
+          "chargesTypeAll": "All Charge Types",
+          "status": "Status",
+          "statusAll": "All"
+        },
+        "fields": {
+          "scheme": "Deposit Scheme",
+          "schemeCode": "Scheme Code",
+          "schemeName": "Scheme Name",
+          "chargesType": "Scheme Charges Type",
+          "chargesFigures": "Charges Figure",
+          "figureType": "Figure In",
+          "chargesGl": "Charges GL",
+          "runDuration": "Duration",
+          "effectFrom": "Effective From",
+          "effectTo": "Effective Upto",
+          "openEnded": "Open-ended",
+          "isActive": "Status"
+        }
+      },
+      "options": {
+        "depositType": {
+          "fixed": "Fixed Deposit",
+          "recurring": "Recurring Deposit",
+          "savings": "Savings"
+        },
+        "productType": {
+          "standard": "Standard",
+          "premium": "Premium"
+        },
+        "interestType": {
+          "simple": "Simple",
+          "compound": "Compound"
+        },
+        "interestPayout": {
+          "monthly": "Monthly",
+          "quarterly": "Quarterly",
+          "halfYearly": "Half-Yearly",
+          "maturity": "Maturity"
+        },
+        "figureType": {
+          "percentage": "Percentage",
+          "flat": "Flat"
+        },
+        "chargesType": {
+          "prematureWithdrawal": "Premature Withdrawal",
+          "latePayment": "Late Payment"
+        },
+        "mockLedgers": {
+          "fdPrincipal": "FD Principal",
+          "rdPrincipal": "RD Principal",
+          "fdInterest": "FD Interest",
+          "rdInterest": "RD Interest",
+          "penaltyGl": "Penalty GL",
+          "lateGl": "Late GL"
+        }
+      },
+      "hints": {
+        "isActive": "Check to make it active"
+      },
+      "errors": {
+        "schemeName": "Scheme Name is required",
+        "depositType": "Deposit Type is required",
+        "productType": "Product Type is required",
+        "roiPercentage": "ROI Percentage must be valid",
+        "interestType": "Interest Type is required",
+        "interestPayout": "Interest Payout is required",
+        "minimumBalance": "Minimum Balance is required",
+        "iterationDays": "Inoperative Days must be valid",
+        "principalLedger": "Principal Ledger is required",
+        "interestLedger": "Interest Ledger is required",
+        "sameLedgers": "Principal ledger and interest ledger must be different",
+        "maxWithdrawal": "Max Withdrawal is required when allowed",
+        "schemeId": "Deposit Scheme is required",
+        "chargesType": "Charges Type is required",
+        "chargesFigures": "Charges Figures must be valid",
+        "percentageMax": "Percentage cannot exceed 100",
+        "figureType": "Figure Type is required",
+        "chargesGl": "Charges GL is required",
+        "runDuration": "Run Duration is required",
+        "effectFrom": "Effective From date is required",
+        "effectTo": "Effective Upto date is required",
+        "effectToAfterFrom": "Effective Upto date must be on or after Effective From date"
       }
     }
   },

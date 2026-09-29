@@ -1315,4 +1315,115 @@ List-only security audit trail (no create/update endpoints).
 |------|------|
 | `401` | Unauthorized |
 
+---
+
+# DepositScheme API
+
+### Option code mapping (`mst_appl_options`)
+
+| Field | `Opt_Grp_Id` | Dropdown API |
+|-------|--------------|--------------|
+| `deposit_type_cd` | 3 (Deposit Type) | `GET /api/ApplOptionsList?opt_grp_id=3` |
+| `prod_type_cd` | 5 (SB Product Type) if `deposit_type_cd = 1`, 6 (TD Product Type) if `deposit_type_cd = 2` | `GET /api/ApplOptionsList?opt_grp_id=5` or `=6` |
+| `intt_type_cd` | 12 (Deposit Intt Type) | `GET /api/ApplOptionsList?opt_grp_id=12` |
+| `intt_payout_cd` | 10 (Interest Payout) | `GET /api/ApplOptionsList?opt_grp_id=10` |
+
+Only **active** options are accepted on Add/Edit. List responses include the matching `*_desc` labels.
+
+### Ledger mapping (`mst_acct_ledger`)
+
+| Field | Column | Source | Dropdown API |
+|-------|--------|--------|--------------|
+| `prn_ledger` | `Prn_Ledger` | `mst_acct_ledger.Ledger_Id` (principal / deposit liability ledger) | `GET /api/AcctLedgerList?is_active=1&per_page=200` |
+| `intt_ledg` | `Intt_Ledg` | `mst_acct_ledger.Ledger_Id` (interest ledger) | `GET /api/AcctLedgerList?is_active=1&per_page=200` |
+
+Rules (Add/Edit):
+
+- The ledger must exist in `mst_acct_ledger` → otherwise `404` (`Principal ledger not found` / `Interest ledger not found`).
+- The ledger must be **active** → otherwise `422` (`Principal ledger is inactive` / `Interest ledger is inactive`). On Edit, a ledger already linked to the scheme is still accepted if it was deactivated later, so other fields can be edited.
+- `prn_ledger` and `intt_ledg` must be different.
+
+### Columns
+
+`Scheme_Id`, `Scheme_Name`, `Scheme_Code`, `Deposit_Type_Cd`, `Prod_Type_Cd`, `RoI_Percent`, `Intt_Type_Cd`, `Intt_Payout_Cd`, `Min_Balance`, `Withd_Allow`, `Max_Withd_Amt`, `Inop_Days`, `Prn_Ledger`, `Intt_Ledg`, `Field_Coll`, `Is_Active`, `Created_By`, `Created_At`, `Updated_By`, `Updated_At`
+
+---
+
+## 1. DepositSchemeList
+
+```
+GET /api/DepositSchemeList
+```
+
+| Query | Type | Required | Description |
+|-------|------|----------|-------------|
+| `page` / `per_page` | int | No | Pagination (default 50, max 200) |
+| `scheme_id` | int | No | Exact id |
+| `keyword` / `search` | string | No | Scheme name or code |
+| `deposit_type_cd` | int | No | Filter by deposit type |
+| `prod_type_cd` | int | No | Filter by product type |
+| `is_active` / `status` | int | No | `1` / `0` |
+
+---
+
+## 2. DepositSchemeAdd
+
+```
+POST /api/DepositSchemeAdd
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `scheme_name` | string | Yes | Max 100, unique (case-insensitive) |
+| `deposit_type_cd` | int | Yes | Group 3 |
+| `prod_type_cd` | int | Yes | Group 5 (Savings) / 6 (Term Deposit) |
+| `roi_percent` | decimal | No | 0 – 100, max 2 decimals |
+| `intt_type_cd` | int | No | Group 12 |
+| `intt_payout_cd` | int | No | Group 10 |
+| `min_balance` | decimal | No | 0 – 999999.99 |
+| `withd_allow` | bool | No | Default `false` |
+| `max_withd_amt` | decimal | No | 0 – 999999.99; stored only when `withd_allow = true` |
+| `inop_days` | int | No | 0 – 32767 |
+| `prn_ledger` | int | No | Active `mst_acct_ledger.Ledger_Id` (principal) |
+| `intt_ledg` | int | No | Active `mst_acct_ledger.Ledger_Id` (interest), different from `prn_ledger` |
+| `field_coll` | bool | No | Field collection allowed, default `false` |
+| `is_active` | bool | No | Default `true` |
+
+---
+
+## 3. DepositSchemeEdit
+
+```
+POST /api/DepositSchemeEdit
+```
+
+---
+
+## 4. DepositSchemeStatus (Active / Inactive)
+
+```
+POST /api/DepositSchemeStatus
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `scheme_id` | int | Yes | Primary key |
+| `is_active` | bool | Yes | `true` / `1` = activate, `false` / `0` = deactivate |
+
+---
+
+# ApplOptions API
+
+## 1. ApplOptionsList
+
+```
+GET /api/ApplOptionsList?opt_grp_id=3
+```
+
+| Query | Type | Required | Description |
+|-------|------|----------|-------------|
+| `opt_grp_id` | int | Yes | Option group id |
+| `include_inactive` | bool | No | Default `false` (active options only) |
+
+
 

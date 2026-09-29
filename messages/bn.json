@@ -434,8 +434,8 @@
           "or": "ଓଡ଼ିଆ"
         },
         "dayCount": {
-          "365": "Actual / 365",
-          "360": "Actual / 360"
+          "360": "Actual / 360",
+          "365": "Actual / 365"
         },
         "rounding": {
           "nearest": "নিকটতমে রাউন্ড",
@@ -1343,6 +1343,178 @@
         "aadhaar": "১২ সংখ্যা",
         "pan": "১০ অক্ষর, AAAAA9999A",
         "userPass": "প্রশাসকের নির্ধারিত পাসওয়ার্ড নিয়ম মেনে চলে"
+      }
+    },
+    "depositSchemes": {
+      "title": "আমানত প্রকল্প মাস্টার",
+      "description": "আমানত প্রকল্প সেটআপ এবং সংশ্লিষ্ট চার্জ পরিচালনা করুন",
+      "tabs": {
+        "setup": "আমানত প্রকল্প সেটআপ",
+        "charges": "আমানত প্রকল্প চার্জ"
+      },
+      "columns": {
+        "actions": "কার্যক্রম"
+      },
+      "statusActive": "সক্রিয়",
+      "statusInactive": "নিষ্ক্রিয়",
+      "confirm": {
+        "itemTypeSetup": "প্রকল্প সেটআপ",
+        "itemTypeCharge": "প্রকল্প চার্জ"
+      },
+      "setup": {
+        "add": "সেটআপ যোগ করুন",
+        "edit": "সম্পাদনা",
+        "deactivate": "নিষ্ক্রিয় করুন",
+        "activate": "সক্রিয় করুন",
+        "deactivateSuccess": "প্রকল্প সফলভাবে নিষ্ক্রিয় করা হয়েছে।",
+        "activateSuccess": "প্রকল্প সফলভাবে সক্রিয় করা হয়েছে।",
+        "createTitle": "আমানত প্রকল্প সেটআপ যোগ করুন",
+        "editTitle": "আমানত প্রকল্প সেটআপ সম্পাদনা করুন",
+        "save": "সেটআপ সংরক্ষণ করুন",
+        "saving": "সংরক্ষণ হচ্ছে…",
+        "cancel": "বাতিল",
+        "createSuccess": "সেটআপ সফলভাবে তৈরি হয়েছে।",
+        "updateSuccess": "সেটআপ সফলভাবে আপডেট হয়েছে।",
+        "loadErrorTitle": "প্রকল্প সেটআপ লোড করা যায়নি",
+        "emptyTitle": "কোনো প্রকল্প সেটআপ পাওয়া যায়নি",
+        "emptyMessage": "বর্তমান ফিল্টারের সাথে মিলে এমন কোনো প্রকল্প সেটআপ নেই।",
+        "tableCaption": "আমানত প্রকল্প সেটআপ তালিকা",
+        "statusActive": "সক্রিয়",
+        "statusInactive": "নিষ্ক্রিয়",
+        "filters": {
+          "search": "অনুসন্ধান",
+          "searchPlaceholder": "প্রকল্পের নাম দিয়ে খুঁজুন…",
+          "depositType": "আমানতের ধরন",
+          "depositTypeAll": "সকল আমানত ধরন",
+          "status": "স্ট্যাটাস",
+          "statusAll": "সব"
+        },
+        "fields": {
+          "schemeCode": "প্রকল্প কোড",
+          "schemeName": "প্রকল্পের নাম",
+          "depositType": "আমানতের ধরন",
+          "productType": "পণ্যের ধরন",
+          "roiPercentage": "সুদের হার (%)",
+          "interestType": "সুদের ধরন",
+          "interestPayout": "সুদ প্রদান",
+          "minimumBalance": "সর্বনিম্ন ব্যালেন্স",
+          "withdrawalAllow": "উত্তোলনের অনুমতি দিন",
+          "maxWithdrawal": "সর্বোচ্চ উত্তোলনের পরিমাণ",
+          "iterationDays": "নিষ্ক্রিয় দিন",
+          "principalLedger": "আসল খতিয়ান",
+          "interestLedger": "সুদ খতিয়ান",
+          "fieldCollection": "ফিল্ড কালেকশন",
+          "isActive": "স্ট্যাটাস"
+        }
+      },
+      "charges": {
+        "add": "চার্জ যোগ করুন",
+        "edit": "সম্পাদনা",
+        "deactivate": "নিষ্ক্রিয় করুন",
+        "activate": "সক্রিয় করুন",
+        "deactivateSuccess": "চার্জ সফলভাবে নিষ্ক্রিয় হয়েছে।",
+        "activateSuccess": "চার্জ সফলভাবে সক্রিয় হয়েছে।",
+        "createTitle": "প্রকল্প চার্জ যোগ করুন",
+        "editTitle": "প্রকল্প চার্জ সম্পাদনা করুন",
+        "save": "চার্জ সংরক্ষণ করুন",
+        "saving": "সংরক্ষণ হচ্ছে…",
+        "cancel": "বাতিল",
+        "createSuccess": "চার্জ সফলভাবে তৈরি হয়েছে।",
+        "updateSuccess": "চার্জ সফলভাবে আপডেট হয়েছে।",
+        "loadErrorTitle": "প্রকল্প চার্জ লোড করা যায়নি",
+        "emptyTitle": "কোনো চার্জ পাওয়া যায়নি",
+        "emptyMessage": "বর্তমান ফিল্টারের সাথে মিলে এমন কোনো চার্জ নেই।",
+        "tableCaption": "আমানত প্রকল্প চার্জ তালিকা",
+        "statusActive": "সক্রিয়",
+        "statusInactive": "নিষ্ক্রিয়",
+        "filters": {
+          "search": "অনুসন্ধান",
+          "searchPlaceholder": "প্রকল্প বা চার্জের ধরন দিয়ে খুঁজুন…",
+          "scheme": "প্রকল্প",
+          "schemeAll": "সকল প্রকল্প",
+          "chargesType": "চার্জের ধরন",
+          "chargesTypeAll": "সকল চার্জের ধরন",
+          "status": "স্ট্যাটাস",
+          "statusAll": "সব"
+        },
+        "fields": {
+          "scheme": "আমানত প্রকল্প",
+          "schemeCode": "প্রকল্প কোড",
+          "schemeName": "প্রকল্পের নাম",
+          "chargesType": "প্রকল্প চার্জের ধরন",
+          "chargesFigures": "চার্জের মান / পরিমাণ",
+          "figureType": "মানের ধরন",
+          "chargesGl": "চার্জ জিএল",
+          "runDuration": "মেয়াদ",
+          "effectFrom": "কার্যকর শুরুর তারিখ",
+          "effectTo": "কার্যকর শেষ তারিখ",
+          "openEnded": "অনির্দিষ্টকাল",
+          "isActive": "স্ট্যাটাস"
+        }
+      },
+      "options": {
+        "depositType": {
+          "fixed": "মেয়াদি আমানত (Fixed Deposit)",
+          "recurring": "পুনরাবৃত্ত আমানত (Recurring Deposit)",
+          "savings": "সঞ্চয় (Savings)"
+        },
+        "productType": {
+          "standard": "স্ট্যান্ডার্ড",
+          "premium": "প্রিমিয়াম"
+        },
+        "interestType": {
+          "simple": "সরল সুদ (Simple)",
+          "compound": "চক্রবৃদ্ধি সুদ (Compound)"
+        },
+        "interestPayout": {
+          "monthly": "মাসিক",
+          "quarterly": "ত্রৈমাসিক",
+          "halfYearly": "ষাণ্মাসিক",
+          "maturity": "মেয়াদপূর্তিতে"
+        },
+        "figureType": {
+          "percentage": "শতাংশ (%)",
+          "flat": "নির্দিষ্ট পরিমাণ (Flat)"
+        },
+        "chargesType": {
+          "prematureWithdrawal": "মেয়াদপূর্ব উত্তোলন চার্জ",
+          "latePayment": "দেরিতে প্রদানের জরিমানা"
+        },
+        "mockLedgers": {
+          "fdPrincipal": "এফডি আসল খতিয়ান",
+          "rdPrincipal": "আরডি আসল খতিয়ান",
+          "fdInterest": "এফডি সুদ খতিয়ান",
+          "rdInterest": "আরডি সুদ খতিয়ান",
+          "penaltyGl": "জরিমানা জিএল",
+          "lateGl": "লেট ফি জিএল"
+        }
+      },
+      "hints": {
+        "isActive": "সক্রিয় করতে টিক দিন"
+      },
+      "errors": {
+        "schemeName": "প্রকল্পের নাম আবশ্যক",
+        "depositType": "আমানতের ধরন নির্বাচন আবশ্যক",
+        "productType": "পণ্যের ধরন নির্বাচন আবশ্যক",
+        "roiPercentage": "বৈধ সুদের হার লিখুন",
+        "interestType": "সুদের ধরন নির্বাচন আবশ্যক",
+        "interestPayout": "সুদ প্রদান নির্বাচন আবশ্যক",
+        "minimumBalance": "সর্বনিম্ন ব্যালেন্স আবশ্যক",
+        "iterationDays": "নিষ্ক্রিয় দিন উল্লেখ আবশ্যক",
+        "principalLedger": "আসল খতিয়ান নির্বাচন আবশ্যক",
+        "interestLedger": "সুদ খতিয়ান নির্বাচন আবশ্যক",
+        "sameLedgers": "আসল খতিয়ান এবং সুদ খতিয়ান আলাদা হতে হবে",
+        "maxWithdrawal": "উত্তোলনের অনুমতি থাকলে সর্বোচ্চ উত্তোলনের পরিমাণ আবশ্যক",
+        "schemeId": "আমানত প্রকল্প নির্বাচন আবশ্যক",
+        "chargesType": "চার্জের ধরন নির্বাচন আবশ্যক",
+        "chargesFigures": "বৈধ চার্জের পরিমাণ লিখুন",
+        "percentageMax": "শতাংশের মান ১০০-এর বেশি হতে পারে না",
+        "figureType": "মানের ধরন নির্বাচন আবশ্যক",
+        "chargesGl": "চার্জ জিএল নির্বাচন আবশ্যক",
+        "runDuration": "মেয়াদ উল্লেখ আবশ্যক",
+        "effectFrom": "কার্যকর শুরুর তারিখ আবশ্যক",
+        "effectTo": "কার্যকর শেষ তারিখ আবশ্যক",
+        "effectToAfterFrom": "কার্যকর শেষ তারিখ শুরুর তারিখের সমান বা পরের হতে হবে"
       }
     }
   },

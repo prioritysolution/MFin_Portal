@@ -71,7 +71,7 @@ function limitValue(
   }
   if (restrict === "code") next = next.toUpperCase().replace(/[^A-Z0-9]/g, "");
   if (restrict === "decimal") {
-    next = next.replace(/[^\d.]/g, "");
+    next = next.replace(/[^\d.-]/g, "").replace(/(?!^)-/g, "");
     const [whole, ...rest] = next.split(".");
     next = rest.length > 0 ? `${whole}.${rest.join("")}` : whole;
   }
@@ -121,16 +121,26 @@ export function TextField({
   const max = rest.max;
   const type = rest.type;
   const inputMode = rest.inputMode;
+  const isDecimal =
+    inputMode === "decimal" ||
+    (type === "number" &&
+      (rest.step === "any" ||
+        rest.step == null ||
+        (typeof rest.step === "string" && rest.step.includes(".")) ||
+        (typeof rest.step === "number" && !Number.isInteger(rest.step))));
+
   const activeRestrict: FieldRestrict | undefined =
     restrict ??
     (inputMode === "numeric" || inputMode === "decimal"
-      ? inputMode === "decimal"
+      ? isDecimal
         ? "decimal"
         : "digits"
       : type === "tel"
         ? "phone"
         : type === "number"
-          ? "digits"
+          ? isDecimal
+            ? "decimal"
+            : "digits"
           : undefined);
 
   const textValue = String(value ?? "");

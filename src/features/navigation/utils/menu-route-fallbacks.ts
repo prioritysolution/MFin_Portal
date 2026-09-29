@@ -39,6 +39,9 @@ export const ACCOUNT_SUBLEDGERS_ROUTE = "/master/account-subledgers";
 export const ACCOUNT_SUBLEDGER_BRANCHES_ROUTE =
   "/master/account-subledger-branches";
 
+/** Canonical Deposit Schemes page. */
+export const DEPOSIT_SCHEMES_ROUTE = "/master/deposit-schemes";
+
 /** Stable keys: `${menuId}:${submenuId}` for children; `${menuId}` for parents. */
 const MENU_ROUTE_FALLBACKS: Record<string, string> = {
   // Master Menu → Business Hours (Operational Days)
@@ -156,6 +159,12 @@ export function resolveMenuRoute(options: {
     name === "acct subledger branch"
   ) {
     return ACCOUNT_SUBLEDGER_BRANCHES_ROUTE;
+  }
+  if (
+    name === "deposit schemes" ||
+    name === "deposit scheme setups"
+  ) {
+    return DEPOSIT_SCHEMES_ROUTE;
   }
 
   return null;

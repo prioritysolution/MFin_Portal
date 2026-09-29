@@ -28,9 +28,27 @@ export const endpoints = {
     acctSubledger: "/api/master/acct-subledger",
     acctSubledgerBranch: "/api/master/acct-subledger-branch",
     makerChecker: "/api/master/maker-checker",
+    depositSchemes: "/api/master/deposit-schemes",
+    depositSchemeCharges: "/api/master/deposit-schemes/charges",
+    applOptions: "/api/master/appl-options",
   },
   menuTree: "/api/MenuTree",
   stateList: "/api/StateList",
+  applOptions: {
+    list: "/api/ApplOptionsList",
+  },
+  depositScheme: {
+    list: "/api/DepositSchemeList",
+    add: "/api/DepositSchemeAdd",
+    edit: "/api/DepositSchemeEdit",
+    status: "/api/DepositSchemeStatus",
+  },
+  depositSchemeCharges: {
+    list: "/api/DepositSchemeChargesList",
+    add: "/api/DepositSchemeChargesAdd",
+    edit: "/api/DepositSchemeChargesEdit",
+    status: "/api/DepositSchemeChargesStatus",
+  },
   role: {
     list: "/api/RoleList",
     add: "/api/RoleAdd",

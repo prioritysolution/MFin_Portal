@@ -434,8 +434,8 @@
           "or": "ଓଡ଼ିଆ"
         },
         "dayCount": {
-          "365": "Actual / 365",
-          "360": "Actual / 360"
+          "360": "Actual / 360",
+          "365": "Actual / 365"
         },
         "rounding": {
           "nearest": "निकटतम पर राउंड",
@@ -1343,6 +1343,178 @@
         "aadhaar": "12 अंक",
         "pan": "10 अक्षर, AAAAA9999A",
         "userPass": "व्यवस्थापक द्वारा तय पासवर्ड नियमों का पालन करता है"
+      }
+    },
+    "depositSchemes": {
+      "title": "जमा योजना मास्टर",
+      "description": "जमा योजना सेटअप और संबंधित शुल्क प्रबंधित करें",
+      "tabs": {
+        "setup": "जमा योजना सेटअप",
+        "charges": "जमा योजना शुल्क"
+      },
+      "columns": {
+        "actions": "क्रियाएँ"
+      },
+      "statusActive": "सक्रिय",
+      "statusInactive": "निष्क्रिय",
+      "confirm": {
+        "itemTypeSetup": "योजना सेटअप",
+        "itemTypeCharge": "योजना शुल्क"
+      },
+      "setup": {
+        "add": "सेटअप जोड़ें",
+        "edit": "संपादित करें",
+        "deactivate": "निष्क्रिय करें",
+        "activate": "सक्रिय करें",
+        "deactivateSuccess": "योजना सफलतापूर्वक निष्क्रिय की गई।",
+        "activateSuccess": "योजना सफलतापूर्वक सक्रिय की गई।",
+        "createTitle": "जमा योजना सेटअप जोड़ें",
+        "editTitle": "जमा योजना सेटअप संपादित करें",
+        "save": "सेटअप सहेजें",
+        "saving": "सहेजा जा रहा है…",
+        "cancel": "रद्द करें",
+        "createSuccess": "सेटअप सफलतापूर्वक बनाया गया।",
+        "updateSuccess": "सेटअप सफलतापूर्वक अपडेट किया गया।",
+        "loadErrorTitle": "योजना सेटअप लोड नहीं हो सके",
+        "emptyTitle": "कोई योजना सेटअप नहीं मिला",
+        "emptyMessage": "वर्तमान फ़िल्टर से मेल खाने वाला कोई योजना सेटअप नहीं है।",
+        "tableCaption": "जमा योजना सेटअप सूची",
+        "statusActive": "सक्रिय",
+        "statusInactive": "निष्क्रिय",
+        "filters": {
+          "search": "खोजें",
+          "searchPlaceholder": "योजना के नाम से खोजें…",
+          "depositType": "जमा प्रकार",
+          "depositTypeAll": "सभी जमा प्रकार",
+          "status": "स्थिति",
+          "statusAll": "सभी"
+        },
+        "fields": {
+          "schemeCode": "योजना कोड",
+          "schemeName": "योजना का नाम",
+          "depositType": "जमा प्रकार",
+          "productType": "उत्पाद प्रकार",
+          "roiPercentage": "ब्याज दर (%)",
+          "interestType": "ब्याज प्रकार",
+          "interestPayout": "ब्याज भुगतान",
+          "minimumBalance": "न्यूनतम शेष राशि",
+          "withdrawalAllow": "निकासी की अनुमति दें",
+          "maxWithdrawal": "अधिकतम निकासी राशि",
+          "iterationDays": "निष्क्रिय दिन",
+          "principalLedger": "मूलधन खाता बही",
+          "interestLedger": "ब्याज खाता बही",
+          "fieldCollection": "फ़ील्ड संग्रह",
+          "isActive": "स्थिति"
+        }
+      },
+      "charges": {
+        "add": "शुल्क जोड़ें",
+        "edit": "संपादित करें",
+        "deactivate": "निष्क्रिय करें",
+        "activate": "सक्रिय करें",
+        "deactivateSuccess": "शुल्क सफलतापूर्वक निष्क्रिय किया गया।",
+        "activateSuccess": "शुल्क सफलतापूर्वक सक्रिय किया गया।",
+        "createTitle": "योजना शुल्क जोड़ें",
+        "editTitle": "योजना शुल्क संपादित करें",
+        "save": "शुल्क सहेजें",
+        "saving": "सहेजा जा रहा है…",
+        "cancel": "रद्द करें",
+        "createSuccess": "शुल्क सफलतापूर्वक बनाया गया।",
+        "updateSuccess": "शुल्क सफलतापूर्वक अपडेट किया गया।",
+        "loadErrorTitle": "योजना शुल्क लोड नहीं हो सके",
+        "emptyTitle": "कोई शुल्क नहीं मिला",
+        "emptyMessage": "वर्तमान फ़िल्टर से मेल खाने वाला कोई शुल्क नहीं है।",
+        "tableCaption": "जमा योजना शुल्क सूची",
+        "statusActive": "सक्रिय",
+        "statusInactive": "निष्क्रिय",
+        "filters": {
+          "search": "खोजें",
+          "searchPlaceholder": "योजना या शुल्क प्रकार से खोजें…",
+          "scheme": "योजना",
+          "schemeAll": "सभी योजनाएं",
+          "chargesType": "शुल्क प्रकार",
+          "chargesTypeAll": "सभी शुल्क प्रकार",
+          "status": "स्थिति",
+          "statusAll": "सभी"
+        },
+        "fields": {
+          "scheme": "जमा योजना",
+          "schemeCode": "योजना कोड",
+          "schemeName": "योजना का नाम",
+          "chargesType": "योजना शुल्क प्रकार",
+          "chargesFigures": "शुल्क मान / राशि",
+          "figureType": "मान प्रकार",
+          "chargesGl": "शुल्क जीएल",
+          "runDuration": "अवधि",
+          "effectFrom": "प्रभावी प्रारंभ तिथि",
+          "effectTo": "प्रभावी समाप्ति तिथि",
+          "openEnded": "खुली अवधि",
+          "isActive": "स्थिति"
+        }
+      },
+      "options": {
+        "depositType": {
+          "fixed": "सावधि जमा (Fixed Deposit)",
+          "recurring": "आवर्ती जमा (Recurring Deposit)",
+          "savings": "बचत (Savings)"
+        },
+        "productType": {
+          "standard": "मानक (Standard)",
+          "premium": "प्रीमियम (Premium)"
+        },
+        "interestType": {
+          "simple": "साधारण ब्याज (Simple)",
+          "compound": "चक्रवृद्धि ब्याज (Compound)"
+        },
+        "interestPayout": {
+          "monthly": "मासिक",
+          "quarterly": "त्रैमासिक",
+          "halfYearly": "अर्धवार्षिक",
+          "maturity": "परिपक्वता पर"
+        },
+        "figureType": {
+          "percentage": "प्रतिशत (%)",
+          "flat": "निश्चित राशि (Flat)"
+        },
+        "chargesType": {
+          "prematureWithdrawal": "समयपूर्व निकासी शुल्क",
+          "latePayment": "विलंब शुल्क"
+        },
+        "mockLedgers": {
+          "fdPrincipal": "एफडी मूलधन खाता",
+          "rdPrincipal": "आरडी मूलधन खाता",
+          "fdInterest": "एफडी ब्याज खाता",
+          "rdInterest": "आरडी ब्याज खाता",
+          "penaltyGl": "जुर्माना जीएल",
+          "lateGl": "विलंब शुल्क जीएल"
+        }
+      },
+      "hints": {
+        "isActive": "सक्रिय करने के लिए चिह्नित करें"
+      },
+      "errors": {
+        "schemeName": "योजना का नाम आवश्यक है",
+        "depositType": "जमा प्रकार चुनना आवश्यक है",
+        "productType": "उत्पाद प्रकार चुनना आवश्यक है",
+        "roiPercentage": "वैध ब्याज दर दर्ज करें",
+        "interestType": "ब्याज प्रकार चुनना आवश्यक है",
+        "interestPayout": "ब्याज भुगतान चुनना आवश्यक है",
+        "minimumBalance": "न्यूनतम शेष राशि आवश्यक है",
+        "iterationDays": "निष्क्रिय दिन दर्ज करें",
+        "principalLedger": "मूलधन खाता चुनना आवश्यक है",
+        "interestLedger": "ब्याज खाता चुनना आवश्यक है",
+        "sameLedgers": "मूलधन खाता और ब्याज खाता अलग होने चाहिए",
+        "maxWithdrawal": "निकासी की अनुमति होने पर अधिकतम निकासी राशि आवश्यक है",
+        "schemeId": "जमा योजना चुनना आवश्यक है",
+        "chargesType": "शुल्क प्रकार चुनना आवश्यक है",
+        "chargesFigures": "वैध शुल्क मान दर्ज करें",
+        "percentageMax": "प्रतिशत मान 100 से अधिक नहीं हो सकता",
+        "figureType": "मान प्रकार चुनना आवश्यक है",
+        "chargesGl": "शुल्क जीएल चुनना आवश्यक है",
+        "runDuration": "अवधि दर्ज करना आवश्यक है",
+        "effectFrom": "प्रभावी प्रारंभ तिथि आवश्यक है",
+        "effectTo": "प्रभावी समाप्ति तिथि आवश्यक है",
+        "effectToAfterFrom": "प्रभावी समाप्ति तिथि प्रारंभ तिथि के समान या बाद की होनी चाहिए"
       }
     }
   },

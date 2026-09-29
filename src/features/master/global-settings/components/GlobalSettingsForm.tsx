@@ -204,19 +204,21 @@ export function GlobalSettingsForm() {
     <div className="flex min-w-0 flex-col gap-4 sm:gap-5">
       <PageToast message={successMessage} />
 
-      {formError ? <Alert tone="error">{formError}</Alert> : null}
-
-      <Alert tone="info">{t("localOnlyHint")}</Alert>
-
-      <form
-        id="global-settings-form"
-        onSubmit={(event) => void handleSubmit(event)}
-      >
+      <Card title={t("title")} description={t("description")}>
         <div className="flex min-w-0 flex-col gap-4 sm:gap-5">
-          <Card
-            title={t("sections.locale.title")}
-            description={t("sections.locale.hint")}
+          <Alert tone="info">{t("localOnlyHint")}</Alert>
+          {formError ? <Alert tone="error">{formError}</Alert> : null}
+
+          <form
+            id="global-settings-form"
+            onSubmit={(event) => void handleSubmit(event)}
           >
+            <div className="flex min-w-0 flex-col gap-4 sm:gap-5">
+              <section className="rounded-xl border border-border p-4 sm:p-5">
+                <div className="mb-4">
+                  <h3 className="text-sm font-semibold text-slate-900">{t("sections.locale.title")}</h3>
+                  <p className="mt-1 text-sm text-muted">{t("sections.locale.hint")}</p>
+                </div>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               <SelectField
                 label={t("fields.timezone")}
@@ -269,12 +271,13 @@ export function GlobalSettingsForm() {
                 }
               />
             </div>
-          </Card>
+              </section>
 
-          <Card
-            title={t("sections.accounting.title")}
-            description={t("sections.accounting.hint")}
-          >
+              <section className="rounded-xl border border-border p-4 sm:p-5">
+                <div className="mb-4">
+                  <h3 className="text-sm font-semibold text-slate-900">{t("sections.accounting.title")}</h3>
+                  <p className="mt-1 text-sm text-muted">{t("sections.accounting.hint")}</p>
+                </div>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               <SelectField
                 label={t("fields.dayCountBasis")}
@@ -298,17 +301,6 @@ export function GlobalSettingsForm() {
                   updateField("roundingMode", value as RoundingMode)
                 }
               />
-              <TextField
-                label={t("fields.maxBackdateDays")}
-                value={form.maxBackdateDays}
-                required
-                inputMode="numeric"
-                restrict="digits"
-                disabled={!form.allowBackdatedTxn}
-                hint={t("hints.maxBackdateDays")}
-                error={fieldErrors.maxBackdateDays || undefined}
-                onChange={(value) => updateField("maxBackdateDays", value)}
-              />
             </div>
 
             <div className="mt-4 flex flex-col gap-3">
@@ -324,12 +316,27 @@ export function GlobalSettingsForm() {
                 }}
               />
             </div>
-          </Card>
 
-          <Card
-            title={t("sections.controls.title")}
-            description={t("sections.controls.hint")}
-          >
+            <div className="mt-3 max-w-md">
+              <TextField
+                label={t("fields.maxBackdateDays")}
+                value={form.maxBackdateDays}
+                required
+                inputMode="numeric"
+                restrict="digits"
+                disabled={!form.allowBackdatedTxn}
+                hint={t("hints.maxBackdateDays")}
+                error={fieldErrors.maxBackdateDays || undefined}
+                onChange={(value) => updateField("maxBackdateDays", value)}
+              />
+            </div>
+              </section>
+
+              <section className="rounded-xl border border-border p-4 sm:p-5">
+                <div className="mb-4">
+                  <h3 className="text-sm font-semibold text-slate-900">{t("sections.controls.title")}</h3>
+                  <p className="mt-1 text-sm text-muted">{t("sections.controls.hint")}</p>
+                </div>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               <TextField
                 label={t("fields.auditRetentionDays")}
@@ -365,14 +372,16 @@ export function GlobalSettingsForm() {
               />
             </div>
 
-            <div className="btn-actions mt-5 border-t border-border pt-4">
-              <Button type="submit" disabled={saving} icon={Settings}>
-                {saving ? t("saving") : t("save")}
-              </Button>
+              </section>
+              <div className="btn-actions border-t border-border pt-4">
+                <Button type="submit" disabled={saving} icon={Settings}>
+                  {saving ? t("saving") : t("save")}
+                </Button>
+              </div>
             </div>
-          </Card>
+          </form>
         </div>
-      </form>
+      </Card>
     </div>
   );
 }
