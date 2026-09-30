@@ -2,7 +2,7 @@
 
 import { useMemo, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
-import { Ban, CircleCheck, Pencil } from "lucide-react";
+import { Ban, CircleCheck } from "lucide-react";
 import { DataTable } from "@/components/shared/DataTable";
 import type { DataTableColumn } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/Badge";
@@ -24,7 +24,7 @@ type DepositSchemeChargesTableProps = {
   onRetry: () => void;
   onPageChange: (page: number) => void;
   onPageSizeChange: (pageSize: number) => void;
-  onEdit: (row: DepositSchemeCharge) => void;
+  onEdit?: (row: DepositSchemeCharge) => void;
   onToggleActive: (row: DepositSchemeCharge) => void;
   headerActions?: ReactNode;
 };
@@ -40,7 +40,6 @@ export function DepositSchemeChargesTable({
   onRetry,
   onPageChange,
   onPageSizeChange,
-  onEdit,
   onToggleActive,
   statusBusyId = null,
   headerActions,
@@ -156,14 +155,6 @@ export function DepositSchemeChargesTable({
         header: tGlobal("columns.actions", { fallback: "Actions" }),
         render: (row) => (
           <div className="inline-flex items-center gap-1.5">
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              icon={Pencil}
-              tooltip={t("edit")}
-              onClick={() => onEdit(row)}
-            />
             <Button
               type="button"
               variant={row.isActive ? "warning" : "success"}

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
-import { Save } from "lucide-react";
+import { AlertTriangle, Save } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { PageToast } from "@/components/ui/PageToast";
 import { Button } from "@/components/ui/Button";
@@ -15,6 +15,7 @@ import {
 import { depositSchemeChargeSaveInputSchema } from "@/features/master/deposit-schemes/schemas/deposit-schemes.schema";
 import { fetchApplOptions } from "@/features/master/appl-options";
 import { fetchAcctLedgerList } from "@/features/master/acct-ledger";
+import { fetchDepositSchemeCharges } from "@/features/master/deposit-schemes/services/deposit-schemes-client";
 import type { ApplOption } from "@/features/master/appl-options";
 import type { AcctLedger } from "@/features/master/acct-ledger/types/acct-ledger.types";
 import type {
@@ -44,6 +45,18 @@ type FormState = {
   effectUpto: string;
   isActive: boolean;
 };
+
+function checkDateOverlap(
+  startA: string,
+  endA: string | null | undefined,
+  startB: string,
+  endB: string | null | undefined,
+): boolean {
+  if (!startA || !startB) return false;
+  const aStartsBeforeBEnds = !endB || startA <= endB;
+  const bStartsBeforeAEnds = !endA || startB <= endA;
+  return aStartsBeforeBEnds && bStartsBeforeAEnds;
+}
 
 function toFormState(charge: DepositSchemeCharge | null): FormState {
   if (!charge) {
@@ -144,12 +157,16 @@ function DepositSchemeChargesFormBody({
 
   const [form, setForm] = useState<FormState>(() => toFormState(charge));
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [internalError, setInternalError] = useState<string | null>(null);
 
   // Dynamic Options from API
   const [chargesCdOptions, setChargesCdOptions] = useState<ApplOption[]>([]);
   const [figureCdOptions, setFigureCdOptions] = useState<ApplOption[]>([]);
   const [durationOptions, setDurationOptions] = useState<ApplOption[]>([]);
   const [ledgers, setLedgers] = useState<AcctLedger[]>([]);
+  const [existingSchemeCharges, setExistingSchemeCharges] = useState<
+    DepositSchemeCharge[]
+  >([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -178,13 +195,91 @@ function DepositSchemeChargesFormBody({
     };
   }, []);
 
+  useEffect(() => {
+    if (!form.schemeId) {
+      setExistingSchemeCharges([]);
+      return;
+    }
+
+    let cancelled = false;
+    async function loadSchemeCharges() {
+      try {
+        const res = await fetchDepositSchemeCharges({
+          schemeId: Number(form.schemeId),
+          perPage: 200,
+        });
+        if (!cancelled) {
+          setExistingSchemeCharges(res.items);
+        }
+      } catch {
+        // Silently keep empty fallback
+      }
+    }
+
+    void loadSchemeCharges();
+    return () => {
+      cancelled = true;
+    };
+  }, [form.schemeId]);
+
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
+    setInternalError(null);
   }
+
+  // Active conflict detection for same scheme & charge type with overlapping date period
+  const conflictingActiveCharge = useMemo(() => {
+    if (!form.schemeId || !form.chargesCd || !form.effectFrm) return null;
+    const schemeNum = Number(form.schemeId);
+    const chargesCdNum = Number(form.chargesCd);
+
+    return (
+      existingSchemeCharges.find((c) => {
+        if (mode === "edit" && charge && c.id === charge.id) return false;
+        if (c.schemeId !== schemeNum || c.chargesCd !== chargesCdNum)
+          return false;
+        // Only active existing charges cause restriction
+        if (!c.isActive) return false;
+        return checkDateOverlap(
+          form.effectFrm,
+          form.effectUpto,
+          c.effectFrm,
+          c.effectUpto,
+        );
+      }) ?? null
+    );
+  }, [
+    form.schemeId,
+    form.chargesCd,
+    form.effectFrm,
+    form.effectUpto,
+    existingSchemeCharges,
+    mode,
+    charge,
+  ]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFieldErrors({});
+    setInternalError(null);
+
+    // Overlapping active charge validation
+    if (conflictingActiveCharge) {
+      const dateRangeStr = `${conflictingActiveCharge.effectFrm} → ${conflictingActiveCharge.effectUpto || t("fields.openEnded", { fallback: "Open-ended" })}`;
+      const errorMsg = tGlobal("errors.activeChargeOverlap", {
+        from: conflictingActiveCharge.effectFrm,
+        to:
+          conflictingActiveCharge.effectUpto ||
+          t("fields.openEnded", { fallback: "Open-ended" }),
+        fallback: `An active charge already exists for this scheme and charge type during ${dateRangeStr}. Please deactivate the previous charge before creating a new one.`,
+      });
+      setFieldErrors((prev) => ({
+        ...prev,
+        effectFrm: errorMsg,
+      }));
+      setInternalError(errorMsg);
+      return;
+    }
 
     const payload: DepositSchemeChargeSaveInput = {
       ...(mode === "edit" && charge ? { id: charge.id } : {}),
@@ -308,13 +403,40 @@ function DepositSchemeChargesFormBody({
     return opts;
   }, [ledgers, charge]);
 
+  const displayError = internalError || errorMessage || null;
+
   return (
     <form
       id="deposit-scheme-charges-form"
       className="space-y-4"
       onSubmit={(e) => void handleSubmit(e)}
     >
-      <PageToast message={errorMessage ?? null} tone="error" />
+      <PageToast message={displayError} tone="error" />
+
+      {conflictingActiveCharge ? (
+        <div
+          role="alert"
+          className="flex items-start gap-3 rounded-xl border border-amber-300/80 bg-amber-50/90 p-3.5 text-xs text-amber-900 shadow-xs dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-200"
+        >
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+          <div className="space-y-1">
+            <p className="font-semibold text-amber-950 dark:text-amber-100">
+              {tGlobal("errors.activeChargeOverlapWarningTitle", {
+                fallback: "Active Charge Already Exists",
+              })}
+            </p>
+            <p className="leading-relaxed">
+              {tGlobal("errors.activeChargeOverlap", {
+                from: conflictingActiveCharge.effectFrm,
+                to:
+                  conflictingActiveCharge.effectUpto ||
+                  t("fields.openEnded", { fallback: "Open-ended" }),
+                fallback: `An active charge already exists for this scheme and charge type during ${conflictingActiveCharge.effectFrm} → ${conflictingActiveCharge.effectUpto || "Open-ended"}. Please deactivate the previous charge before creating a new one.`,
+              })}
+            </p>
+          </div>
+        </div>
+      ) : null}
 
       <SelectField
         label={t("fields.scheme")}

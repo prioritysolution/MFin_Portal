@@ -23,6 +23,7 @@ export type ModuleId =
   | "master.globalSettings"
   | "master.makerChecker"
   | "master.depositSchemes"
+  | "master.depositInterest"
   | "security.auditLog"
   | "security.loginSettings";
 
@@ -205,6 +206,13 @@ export const masterModulePages = {
     id: "master.depositSchemes",
     route: "/master/deposit-schemes",
     messageNamespace: "master.depositSchemes",
+    titleKey: "title",
+    descriptionKey: "description",
+  }),
+  depositInterest: new ModulePage({
+    id: "master.depositInterest",
+    route: "/master/deposit-interest",
+    messageNamespace: "master.depositInterest",
     titleKey: "title",
     descriptionKey: "description",
   }),

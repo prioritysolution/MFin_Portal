@@ -30,6 +30,7 @@ export const endpoints = {
     makerChecker: "/api/master/maker-checker",
     depositSchemes: "/api/master/deposit-schemes",
     depositSchemeCharges: "/api/master/deposit-schemes/charges",
+    depositInterest: "/api/master/deposit-interest",
     applOptions: "/api/master/appl-options",
   },
   menuTree: "/api/MenuTree",
@@ -48,6 +49,11 @@ export const endpoints = {
     add: "/api/DepositSchemeChargesAdd",
     edit: "/api/DepositSchemeChargesEdit",
     status: "/api/DepositSchemeChargesStatus",
+  },
+  depositSchemeSlab: {
+    list: "/api/DepositSchemeSlabList",
+    add: "/api/DepositSchemeSlabAdd",
+    status: "/api/DepositSchemeSlabStatus",
   },
   role: {
     list: "/api/RoleList",
