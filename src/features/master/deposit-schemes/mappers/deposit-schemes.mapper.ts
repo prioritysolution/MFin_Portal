@@ -1,6 +1,6 @@
 import type {
   DepositSchemeCharge,
-  DepositSchemeChargeDto,
+  DepositSchemeChargeAssignResult,
   DepositSchemeChargeSaveInput,
   DepositSchemeDto,
   DepositSchemeSetup,
@@ -82,53 +82,93 @@ export function mapDepositSchemeSaveToDto(
   return payload;
 }
 
-export function mapDepositSchemeChargeDto(
-  dto: DepositSchemeChargeDto,
-): DepositSchemeCharge {
+export function parseDepositSchemeChargeRow(
+  raw: unknown,
+): DepositSchemeCharge | null {
+  if (!raw || typeof raw !== "object") return null;
+  const dto = raw as Record<string, unknown>;
+  const id = asNumber(dto.id);
+  const schemeId = asNumber(dto.scheme_id);
+  const chargesId = asNumber(dto.charges_id);
+  if (id == null || id < 1 || schemeId == null || chargesId == null) return null;
+
   return {
-    id: dto.id,
-    schemeId: dto.scheme_id,
-    schemeCode: dto.scheme_code ?? "",
-    schemeName: dto.scheme_name ?? "",
-    chargesCd: dto.charges_cd,
-    chargesDesc: dto.charges_desc ?? "",
-    chargesFig: Number(dto.charges_fig ?? 0),
-    figureCd: dto.figure_cd,
-    figureDesc: dto.figure_desc ?? "",
-    chargesGl: dto.charges_gl != null ? Number(dto.charges_gl) : null,
-    chargesGlCode: dto.charges_gl_code ?? null,
-    chargesGlName: dto.charges_gl_name ?? null,
-    runDurationCd:
-      dto.run_duration_cd != null ? Number(dto.run_duration_cd) : null,
-    runDurationDesc: dto.run_duration_desc ?? null,
-    effectFrm: dto.effect_frm,
-    effectUpto: dto.effect_upto ?? null,
-    isActive: dto.is_active !== false,
-    createdBy: dto.created_by ?? null,
-    createdAt: dto.created_at ?? null,
+    id,
+    schemeId,
+    schemeCode: asText(dto.scheme_code),
+    schemeName: asText(dto.scheme_name),
+    chargesId,
+    chargeName: asText(dto.charge_name),
+    chargeRate: asNumber(dto.charge_rate),
+    figureCd: asNumber(dto.figure_cd),
+    figureDesc: asText(dto.figure_desc),
+    maxAmount: asNumber(dto.max_amount),
+    taxPercent: asNumber(dto.tax_prcent) ?? 0,
+    chargesDuringCd: asNumber(dto.charges_during_cd),
+    chargesDuringDesc: asText(dto.charges_during_desc),
+    chargesGl: asNumber(dto.charges_gl),
+    chargesGlCode: asText(dto.charges_gl_code) || null,
+    chargesGlName: asText(dto.charges_gl_name) || null,
+    chargeIsActive: asActive(dto.charge_is_active),
+    isActive: asActive(dto.is_active),
+    createdBy: asNumber(dto.created_by),
+    createdAt: asText(dto.created_at) || null,
+  };
+}
+
+export function parseDepositSchemeChargeAssignResult(
+  raw: unknown,
+): DepositSchemeChargeAssignResult | null {
+  if (!raw || typeof raw !== "object") return null;
+  const body = raw as Record<string, unknown>;
+  const schemeId = asNumber(body.scheme_id);
+  if (schemeId == null) return null;
+
+  const summaryRaw =
+    body.summary && typeof body.summary === "object"
+      ? (body.summary as Record<string, unknown>)
+      : {};
+  const charges = Array.isArray(body.charges)
+    ? body.charges.flatMap((row) => {
+        const item = parseDepositSchemeChargeRow(row);
+        return item ? [item] : [];
+      })
+    : [];
+
+  return {
+    schemeId,
+    summary: {
+      inserted: asNumber(summaryRaw.inserted) ?? 0,
+      reactivated: asNumber(summaryRaw.reactivated) ?? 0,
+      deactivated: asNumber(summaryRaw.deactivated) ?? 0,
+      unchanged: asNumber(summaryRaw.unchanged) ?? 0,
+    },
+    charges,
   };
 }
 
 export function mapDepositSchemeChargeSaveToDto(
   input: DepositSchemeChargeSaveInput,
 ): Record<string, unknown> {
-  const payload: Record<string, unknown> = {
+  return {
     scheme_id: input.schemeId,
-    charges_cd: input.chargesCd,
-    charges_fig: input.chargesFig,
-    figure_cd: input.figureCd,
-    charges_gl: input.chargesGl ?? null,
-    run_duration_cd: input.runDurationCd ?? null,
-    effect_frm: input.effectFrm,
-    effect_upto: input.effectUpto ?? null,
+    charges_ids: [...new Set(input.chargesIds)],
   };
+}
 
-  if (input.id != null) {
-    payload.id = input.id;
+function asNumber(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string" && value.trim() !== "") {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
   }
-  if (input.isActive != null) {
-    payload.is_active = input.isActive;
-  }
+  return null;
+}
 
-  return payload;
+function asText(value: unknown): string {
+  return typeof value === "string" ? value : "";
+}
+
+function asActive(value: unknown): boolean {
+  return value === true || value === 1 || value === "1";
 }

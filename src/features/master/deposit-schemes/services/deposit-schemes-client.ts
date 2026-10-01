@@ -3,9 +3,10 @@
  */
 
 import { endpoints } from "@/lib/api/endpoints";
-import { dedupeRequest } from "@/lib/client/request-dedupe";
+import { clearDedupe, dedupeRequest } from "@/lib/client/request-dedupe";
 import type {
   DepositSchemeCharge,
+  DepositSchemeChargeAssignResult,
   DepositSchemeChargeListQuery,
   DepositSchemeChargeListResult,
   DepositSchemeChargeSaveInput,
@@ -163,10 +164,8 @@ function chargesQueryKey(query: DepositSchemeChargeListQuery): string {
   if (query.perPage != null) params.set("per_page", String(query.perPage));
   if (query.id != null) params.set("id", String(query.id));
   if (query.schemeId != null) params.set("scheme_id", String(query.schemeId));
-  if (query.chargesCd != null) params.set("charges_cd", String(query.chargesCd));
-  if (query.effectiveOn) params.set("effective_on", query.effectiveOn);
+  if (query.chargesId != null) params.set("charges_id", String(query.chargesId));
   if (query.isActive != null) params.set("is_active", String(query.isActive));
-  if (query.search) params.set("search", query.search);
   return params.toString() || "default";
 }
 
@@ -194,8 +193,7 @@ export async function fetchDepositSchemeCharges(
 
 export async function saveDepositSchemeCharge(
   input: DepositSchemeChargeSaveInput,
-): Promise<DepositSchemeCharge> {
-  const isUpdate = Boolean(input.id);
+): Promise<DepositSchemeChargeAssignResult> {
   const response = await fetch(endpoints.bff.depositSchemeCharges, {
     method: "POST",
     headers: {
@@ -204,11 +202,14 @@ export async function saveDepositSchemeCharge(
     },
     credentials: "same-origin",
     body: JSON.stringify({
-      action: isUpdate ? "update" : "create",
-      ...input,
+      action: input.mode === "edit" ? "update" : "create",
+      schemeId: input.schemeId,
+      chargesIds: input.chargesIds,
     }),
   });
-  return parseEnvelope<DepositSchemeCharge>(response);
+  const data = await parseEnvelope<DepositSchemeChargeAssignResult>(response);
+  clearDedupe();
+  return data;
 }
 
 export async function toggleDepositSchemeChargeStatus(
@@ -228,6 +229,8 @@ export async function toggleDepositSchemeChargeStatus(
       isActive,
     }),
   });
-  return parseEnvelope<DepositSchemeCharge>(response);
+  const data = await parseEnvelope<DepositSchemeCharge>(response);
+  clearDedupe();
+  return data;
 }
 

@@ -1,20 +1,28 @@
 "use client";
 
-import { useMemo, type ReactNode } from "react";
-import { useTranslations } from "next-intl";
-import { Ban, CircleCheck } from "lucide-react";
-import { DataTable } from "@/components/shared/DataTable";
-import type { DataTableColumn } from "@/components/shared/DataTable";
+import { useMemo, useState, type ReactNode } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { Ban, ChevronDown, ChevronRight, CircleCheck, Pencil } from "lucide-react";
+import { DataTablePagination } from "@/components/shared/DataTable/DataTablePagination";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { ErrorState } from "@/components/shared/ErrorState";
+import { DataTableSkeleton } from "@/components/shared/skeletons/DataTableSkeleton";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import type {
-  DepositSchemeCharge,
-  PaginationMeta,
-} from "@/features/master/deposit-schemes/types/deposit-schemes.types";
+import { FIGURE_PERCENT_OPT_CODE } from "@/features/master/charges-setup/constants";
+import type { DepositSchemeCharge } from "@/features/master/deposit-schemes/types/deposit-schemes.types";
+
+const EMPTY = "—";
+
+type SchemeGroup = {
+  schemeId: number;
+  schemeName: string;
+  schemeCode: string;
+  charges: DepositSchemeCharge[];
+};
 
 type DepositSchemeChargesTableProps = {
   items: DepositSchemeCharge[];
-  meta: PaginationMeta | null;
   page: number;
   pageSize: number;
   loading: boolean;
@@ -24,14 +32,13 @@ type DepositSchemeChargesTableProps = {
   onRetry: () => void;
   onPageChange: (page: number) => void;
   onPageSizeChange: (pageSize: number) => void;
-  onEdit?: (row: DepositSchemeCharge) => void;
+  onEdit: (row: DepositSchemeCharge) => void;
   onToggleActive: (row: DepositSchemeCharge) => void;
   headerActions?: ReactNode;
 };
 
 export function DepositSchemeChargesTable({
   items,
-  meta,
   page,
   pageSize,
   loading,
@@ -40,142 +47,286 @@ export function DepositSchemeChargesTable({
   onRetry,
   onPageChange,
   onPageSizeChange,
+  onEdit,
   onToggleActive,
   statusBusyId = null,
   headerActions,
 }: DepositSchemeChargesTableProps) {
   const t = useTranslations("master.depositSchemes.charges");
   const tGlobal = useTranslations("master.depositSchemes");
-
-  const columns = useMemo<DataTableColumn<DepositSchemeCharge>[]>(
-    () => [
-      {
-        id: "schemeName",
-        header: t("fields.scheme"),
-        cell: (row) => (
-          <div className="flex flex-col">
-            <span className="font-semibold text-slate-800">{row.schemeName}</span>
-            {row.schemeCode ? (
-              <span className="font-mono text-xs text-slate-500">
-                {row.schemeCode}
-              </span>
-            ) : null}
-          </div>
-        ),
-      },
-      {
-        id: "chargesDesc",
-        header: t("fields.chargesType"),
-        cell: (row) => (
-          <span className="font-medium text-slate-700">
-            {row.chargesDesc || `Charge #${row.chargesCd}`}
-          </span>
-        ),
-      },
-      {
-        id: "chargesFig",
-        header: t("fields.chargesFigures"),
-        cell: (row) => {
-          const isPercent =
-            row.figureCd === 2 ||
-            row.figureDesc?.toLowerCase().includes("percent");
-          return (
-            <span className="font-semibold text-slate-700">
-              {row.chargesFig}
-              {isPercent ? "%" : ` (${row.figureDesc || "Amount"})`}
-            </span>
-          );
-        },
-      },
-      {
-        id: "chargesGl",
-        header: t("fields.chargesGl"),
-        cell: (row) => (
-          <span className="text-slate-700">
-            {row.chargesGlName
-              ? `${row.chargesGlName} (${row.chargesGlCode || `LD-${row.chargesGl}`})`
-              : row.chargesGl
-                ? `Ledger #${row.chargesGl}`
-                : "—"}
-          </span>
-        ),
-      },
-      {
-        id: "runDuration",
-        header: t("fields.runDuration"),
-        cell: (row) => (
-          <span className="text-slate-700">
-            {row.runDurationDesc ||
-              (row.runDurationCd ? `Duration #${row.runDurationCd}` : "—")}
-          </span>
-        ),
-      },
-      {
-        id: "effectiveDates",
-        header: t("fields.effectFrom"),
-        cell: (row) => (
-          <div className="text-xs text-slate-600">
-            <span>{row.effectFrm}</span>
-            <span className="mx-1 text-slate-400">→</span>
-            <span>{row.effectUpto || t("fields.openEnded", { fallback: "Open-ended" })}</span>
-          </div>
-        ),
-      },
-      {
-        id: "isActive",
-        header: t("fields.isActive"),
-        cell: (row) => (
-          <Badge tone={row.isActive ? "success" : "neutral"} caps>
-            {row.isActive ? t("statusActive") : t("statusInactive")}
-          </Badge>
-        ),
-      },
-    ],
-    [t],
+  const locale = useLocale();
+  const [openSchemeId, setOpenSchemeId] = useState<number | null>(null);
+  const numberFormat = useMemo(
+    () => new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }),
+    [locale],
   );
+
+  const groups = useMemo(() => groupByScheme(items), [items]);
+  const pageGroups = groups.slice((page - 1) * pageSize, page * pageSize);
+  const cardClass =
+    "rounded-[var(--radius-card)] border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5";
+
+  const heading = (
+    <div className="mb-4 flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="min-w-0">
+        <h2 className="text-base font-semibold text-foreground">
+          {t("tableCaption")}
+        </h2>
+        <p className="mt-1 text-sm text-muted">{t("groupHint")}</p>
+      </div>
+      {headerActions ? (
+        <div className="flex shrink-0 justify-end">{headerActions}</div>
+      ) : null}
+    </div>
+  );
+
+  if (loading && items.length === 0) {
+    return (
+      <section className={cardClass}>
+        {heading}
+        <DataTableSkeleton bare columns={4} />
+      </section>
+    );
+  }
+
+  if (error && items.length === 0) {
+    return (
+      <section className={cardClass}>
+        {heading}
+        <ErrorState
+          title={t("loadErrorTitle")}
+          message={errorMessage}
+          onRetry={onRetry}
+        />
+      </section>
+    );
+  }
+
+  if (groups.length === 0) {
+    return (
+      <section className={cardClass}>
+        {heading}
+        <EmptyState title={t("emptyTitle")} message={t("emptyMessage")} />
+      </section>
+    );
+  }
 
   return (
-    <DataTable<DepositSchemeCharge>
-      title={t("tableCaption")}
-      description={""}
-      actions={headerActions}
-      data={items}
-      columns={columns}
-      getRowKey={(row) => String(row.id)}
-      loading={loading}
-      error={error}
-      errorTitle={t("loadErrorTitle")}
-      errorMessage={errorMessage}
-      onRetry={onRetry}
-      emptyTitle={t("emptyTitle")}
-      emptyMessage={t("emptyMessage")}
-      minWidth="980px"
-      caption={t("tableCaption")}
-      rowActions={{
-        header: tGlobal("columns.actions", { fallback: "Actions" }),
-        render: (row) => (
-          <div className="inline-flex items-center gap-1.5">
-            <Button
-              type="button"
-              variant={row.isActive ? "warning" : "success"}
-              size="sm"
-              icon={row.isActive ? Ban : CircleCheck}
-              tooltip={row.isActive ? t("deactivate") : t("activate")}
-              disabled={statusBusyId === row.id}
-              onClick={() => onToggleActive(row)}
-            />
-          </div>
-        ),
-      }}
-      pagination={{
-        page,
-        pageSize,
-        total: meta?.total ?? items.length,
-        totalPages: meta?.lastPage,
-        pageSizeOptions: [20, 50, 100, 200],
-        onPageChange,
-        onPageSizeChange,
-      }}
-    />
+    <section className={`relative ${cardClass}`}>
+      <div
+        className={`relative -mx-4 -mt-2 mb-3 h-0.5 overflow-hidden bg-slate-100 sm:-mx-5 transition-opacity duration-200 ${
+          loading ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+        aria-hidden="true"
+      />
+      {heading}
+      <div className="space-y-2">
+        {pageGroups.map((group) => {
+          const open = openSchemeId === group.schemeId;
+          const activeCount = group.charges.filter((charge) => charge.isActive)
+            .length;
+          return (
+            <div
+              key={group.schemeId}
+              className={`overflow-hidden rounded-xl border transition-colors duration-200 motion-reduce:transition-none ${
+                open ? "border-brand/40" : "border-border"
+              }`}
+            >
+              <div
+                className={`flex items-center gap-2 px-2 py-1.5 ${
+                  open ? "bg-surface-muted/80" : ""
+                }`}
+              >
+                <button
+                  type="button"
+                  className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-lg px-1 py-1.5 text-start transition-colors duration-200 hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 motion-reduce:transition-none"
+                  aria-expanded={open}
+                  onClick={() =>
+                    setOpenSchemeId(open ? null : group.schemeId)
+                  }
+                >
+                  {open ? (
+                    <ChevronDown className="h-4 w-4 shrink-0 text-muted" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4 shrink-0 text-muted" />
+                  )}
+                  <span className="min-w-0">
+                    <span className="block truncate font-semibold text-foreground">
+                      {group.schemeName || EMPTY}
+                    </span>
+                    {group.schemeCode ? (
+                      <span className="block font-mono text-xs text-muted">
+                        {group.schemeCode}
+                      </span>
+                    ) : null}
+                  </span>
+                  <span className="ms-auto shrink-0 whitespace-nowrap text-xs font-medium text-foreground">
+                    <span className="sr-only">
+                      {open ? t("group.collapse") : t("group.expand")}
+                    </span>
+                    {t("group.summary", {
+                      total: group.charges.length,
+                      active: activeCount,
+                    })}
+                  </span>
+                </button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  icon={Pencil}
+                  tooltip={t("edit")}
+                  onClick={() => onEdit(group.charges[0])}
+                />
+              </div>
+              {open ? (
+                <div className="border-t border-border bg-surface-muted/60 px-3 py-3">
+                  <div className="table-scroll">
+                    <table className="w-full min-w-[880px] text-left text-sm">
+                      <caption className="sr-only">
+                        {group.schemeName || t("fields.charges")}
+                      </caption>
+                      <thead>
+                        <tr className="whitespace-nowrap border-b border-border text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-soft">
+                          <th className="pb-2 pe-3">{t("fields.chargeName")}</th>
+                          <th className="pb-2 pe-3">{t("fields.chargeRate")}</th>
+                          <th className="pb-2 pe-3">{t("fields.figureCd")}</th>
+                          <th className="pb-2 pe-3">{t("fields.maxAmount")}</th>
+                          <th className="pb-2 pe-3">{t("fields.taxPercent")}</th>
+                          <th className="pb-2 pe-3">
+                            {t("fields.chargesDuringCd")}
+                          </th>
+                          <th className="pb-2 pe-3">{t("fields.chargesGl")}</th>
+                          <th className="pb-2 pe-3">
+                            {t("fields.chargeStatus")}
+                          </th>
+                          <th className="pb-2 pe-3">{t("fields.isActive")}</th>
+                          <th className="pb-2">{tGlobal("columns.actions")}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {group.charges.map((charge) => (
+                          <tr
+                            key={charge.id}
+                            className="border-b border-border/70 last:border-0"
+                          >
+                            <td className="whitespace-nowrap py-2.5 pe-3 font-medium text-foreground">
+                              {charge.chargeName || EMPTY}
+                            </td>
+                            <td className="whitespace-nowrap py-2.5 pe-3 text-foreground">
+                              {formatRate(charge, numberFormat)}
+                            </td>
+                            <td className="whitespace-nowrap py-2.5 pe-3 text-foreground">
+                              {charge.figureDesc || EMPTY}
+                            </td>
+                            <td className="whitespace-nowrap py-2.5 pe-3 text-foreground">
+                              {charge.maxAmount == null
+                                ? EMPTY
+                                : numberFormat.format(charge.maxAmount)}
+                            </td>
+                            <td className="whitespace-nowrap py-2.5 pe-3 text-foreground">
+                              {numberFormat.format(charge.taxPercent)}%
+                            </td>
+                            <td className="whitespace-nowrap py-2.5 pe-3 text-foreground">
+                              {charge.chargesDuringDesc || EMPTY}
+                            </td>
+                            <td className="whitespace-nowrap py-2.5 pe-3 text-foreground">
+                              {formatGl(charge)}
+                            </td>
+                            <td className="py-2.5 pe-3">
+                              <Badge
+                                tone={
+                                  charge.chargeIsActive ? "success" : "neutral"
+                                }
+                                caps
+                              >
+                                {charge.chargeIsActive
+                                  ? t("statusActive")
+                                  : t("statusInactive")}
+                              </Badge>
+                            </td>
+                            <td className="py-2.5 pe-3">
+                              <Badge
+                                tone={charge.isActive ? "success" : "neutral"}
+                                caps
+                              >
+                                {charge.isActive
+                                  ? t("statusActive")
+                                  : t("statusInactive")}
+                              </Badge>
+                            </td>
+                            <td className="py-2.5">
+                              <Button
+                                type="button"
+                                variant={
+                                  charge.isActive ? "warning" : "success"
+                                }
+                                size="sm"
+                                icon={charge.isActive ? Ban : CircleCheck}
+                                tooltip={
+                                  charge.isActive
+                                    ? t("deactivate")
+                                    : t("activate")
+                                }
+                                disabled={statusBusyId === charge.id}
+                                onClick={() => onToggleActive(charge)}
+                              />
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+      <DataTablePagination
+        className="mt-3"
+        page={page}
+        pageSize={pageSize}
+        total={groups.length}
+        pageSizeOptions={[20, 50, 100, 200]}
+        onPageChange={onPageChange}
+        onPageSizeChange={onPageSizeChange}
+      />
+    </section>
   );
+}
+
+function groupByScheme(items: DepositSchemeCharge[]): SchemeGroup[] {
+  const groups = new Map<number, SchemeGroup>();
+  for (const item of items) {
+    const existing = groups.get(item.schemeId);
+    if (existing) {
+      existing.charges.push(item);
+      continue;
+    }
+    groups.set(item.schemeId, {
+      schemeId: item.schemeId,
+      schemeName: item.schemeName,
+      schemeCode: item.schemeCode,
+      charges: [item],
+    });
+  }
+  return [...groups.values()];
+}
+
+function formatRate(
+  row: DepositSchemeCharge,
+  numberFormat: Intl.NumberFormat,
+): string {
+  if (row.chargeRate == null) return EMPTY;
+  const formatted = numberFormat.format(row.chargeRate);
+  return row.figureCd === FIGURE_PERCENT_OPT_CODE ? `${formatted}%` : formatted;
+}
+
+function formatGl(row: DepositSchemeCharge): string {
+  if (!row.chargesGlName && row.chargesGl == null) return EMPTY;
+  if (row.chargesGlName && row.chargesGlCode) {
+    return `${row.chargesGlName} (${row.chargesGlCode})`;
+  }
+  return row.chargesGlName || EMPTY;
 }

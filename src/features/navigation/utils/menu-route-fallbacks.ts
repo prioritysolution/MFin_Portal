@@ -42,6 +42,18 @@ export const ACCOUNT_SUBLEDGER_BRANCHES_ROUTE =
 /** Canonical Deposit Schemes page. */
 export const DEPOSIT_SCHEMES_ROUTE = "/master/deposit-schemes";
 
+/** Canonical Charges Setup page. */
+export const CHARGES_SETUP_ROUTE = "/master/charges-setup";
+
+/** Canonical Loan Schemes page. */
+export const LOAN_SCHEMES_ROUTE = "/master/loan-schemes";
+
+/** Canonical Loan Interest Slabs page. */
+export const LOAN_ROI_SLABS_ROUTE = "/master/loan-roi-slabs";
+
+/** Canonical Loan Eligibility Setup page. */
+export const LOAN_ELIGIBILITY_ROUTE = "/master/loan-eligibility-setup";
+
 /** Stable keys: `${menuId}:${submenuId}` for children; `${menuId}` for parents. */
 const MENU_ROUTE_FALLBACKS: Record<string, string> = {
   // Master Menu → Business Hours (Operational Days)
@@ -165,6 +177,34 @@ export function resolveMenuRoute(options: {
     name === "deposit scheme setups"
   ) {
     return DEPOSIT_SCHEMES_ROUTE;
+  }
+  if (
+    name === "charges setup" ||
+    name === "charge setup" ||
+    name === "charges-setup"
+  ) {
+    return CHARGES_SETUP_ROUTE;
+  }
+  if (name === "loan schemes" || name === "loan scheme") {
+    return LOAN_SCHEMES_ROUTE;
+  }
+  if (
+    name === "loan interest slabs" ||
+    name === "loan interest slab" ||
+    name === "loan roi slabs" ||
+    name === "loan roi slab" ||
+    name === "loan scheme slabs" ||
+    name === "loan scheme slab"
+  ) {
+    return LOAN_ROI_SLABS_ROUTE;
+  }
+  if (
+    name === "loan eligibility setup" ||
+    name === "loan eligibility" ||
+    name === "loan eligibility parameters" ||
+    name === "loan eligibility parameter"
+  ) {
+    return LOAN_ELIGIBILITY_ROUTE;
   }
 
   return null;

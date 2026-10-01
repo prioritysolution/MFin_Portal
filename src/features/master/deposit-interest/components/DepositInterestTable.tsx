@@ -53,11 +53,11 @@ export function DepositInterestTable({
         header: t("fields.scheme", { fallback: "Deposit Scheme" }),
         cell: (row) => (
           <div className="flex flex-col">
-            <span className="font-semibold text-slate-800 dark:text-slate-100">
+            <span className="font-semibold text-foreground">
               {row.schemeName}
             </span>
             {row.schemeCode ? (
-              <span className="font-mono text-xs text-slate-500 dark:text-slate-400">
+              <span className="font-mono text-xs text-muted">
                 {row.schemeCode}
               </span>
             ) : null}
@@ -68,7 +68,7 @@ export function DepositInterestTable({
         id: "duration",
         header: t("fields.durationRange", { fallback: "Duration Range" }),
         cell: (row) => (
-          <span className="font-medium text-slate-700 dark:text-slate-300">
+          <span className="font-medium text-foreground">
             {row.minDuration} – {row.maxDuration} {row.termDesc}
           </span>
         ),
@@ -77,7 +77,7 @@ export function DepositInterestTable({
         id: "roi",
         header: t("fields.roi", { fallback: "RoI (%)" }),
         cell: (row) => (
-          <span className="inline-flex items-center font-bold text-slate-900 dark:text-slate-100">
+          <span className="inline-flex items-center font-bold text-foreground">
             {Number(row.roi).toFixed(2)}%
           </span>
         ),
@@ -86,7 +86,7 @@ export function DepositInterestTable({
         id: "lockPeriod",
         header: t("fields.lockPeriod", { fallback: "Lock Period" }),
         cell: (row) => (
-          <span className="text-slate-600 dark:text-slate-400">
+          <span className="text-foreground">
             {row.lockPeriod != null
               ? `${row.lockPeriod} ${row.termDesc}`
               : "—"}
@@ -97,9 +97,9 @@ export function DepositInterestTable({
         id: "effectivePeriod",
         header: t("fields.effectivePeriod", { fallback: "Effective Period" }),
         cell: (row) => (
-          <div className="flex items-center text-xs text-slate-600 dark:text-slate-400">
+          <div className="flex items-center text-xs text-foreground">
             <span>{row.effectFrm}</span>
-            <span className="mx-1 text-slate-400">→</span>
+            <span className="mx-1 text-muted">→</span>
             <span>
               {row.effectUpto ||
                 t("fields.openEnded", { fallback: "Open-ended" })}

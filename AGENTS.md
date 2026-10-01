@@ -9,63 +9,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 <!-- END:nextjs-agent-rules -->
 
 
-# MFIN Portal Project Rules
+# MFIN Portal
 
-## Project Architecture
+Production Next.js app. Backend is Laravel. Auth and protected APIs go through the BFF only. Do not invent endpoints, mock APIs, or a second auth mechanism. Map APIs in the feature service layer. Reuse `src/components/shared` and existing tokens. No new UI library without approval.
 
-- This is a production Next.js application.
-- Follow `PROJECT_BLUEPRINT.md` before making architectural changes.
-- Follow the rules in `.cursor/rules/`.
-- Do not create fake APIs or mock backend responses unless explicitly requested.
-- Backend is Laravel.
-- Use the BFF architecture for authentication and protected API communication.
-
-## Before Modifying Code
-
-1. Inspect the existing implementation.
-2. Read the relevant `.cursor/rules/*.mdc` file.
-3. Check `PROJECT_BLUEPRINT.md`.
-4. Reuse existing components, services, types, and utilities.
-5. Do not create duplicate implementations.
-
-## Authentication
-
-- Authentication is handled through the BFF.
-- Do not expose authentication tokens to client-side JavaScript.
-- Use the existing encrypted `httpOnly` session cookie mechanism.
-- Do not implement a second authentication mechanism.
-
-## API Rules
-
-- Do not invent API endpoints.
-- Follow the Laravel API contract.
-- Keep API mapping inside the appropriate feature/service layer.
-- Validate API responses where required.
-
-## UI Rules
-
-- Reuse shared components from `src/components/shared`.
-- Follow the existing design tokens.
-- Keep responsive behavior consistent with the existing application.
-- Do not introduce a new UI library without approval.
-
-## Internationalization
-
-Supported locales:
-
-- `en`
-- `bn`
-- `hi`
-- `or`
-
-All user-facing text should use the existing i18n system.
-
-## Code Quality
-
-Before considering a change complete:
-
-```bash
-pnpm typecheck
-pnpm lint
-pnpm test
-pnpm build
+Locales: `en`, `bn`, `hi`, `or`. When a change is complete, run `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build` if they apply.

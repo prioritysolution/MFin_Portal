@@ -1076,6 +1076,30 @@ html.dark .bg-gray-100 {
   background-color: #1c2b40;
 }
 
+/* Slate utilities inside table cells render pale with antialiased text.
+   Body copy follows the foreground token; secondary lines follow muted. */
+html:not(.dark) tbody td :is(
+  .text-slate-900,
+  .text-slate-800,
+  .text-slate-700,
+  .text-slate-600,
+  .text-gray-900,
+  .text-gray-800,
+  .text-gray-700,
+  .text-gray-600
+) {
+  color: var(--foreground);
+}
+
+html:not(.dark) tbody td :is(
+  .text-slate-500,
+  .text-slate-400,
+  .text-gray-500,
+  .text-gray-400
+) {
+  color: var(--muted);
+}
+
 html.dark .text-slate-900,
 html.dark .text-slate-800,
 html.dark .text-gray-900,

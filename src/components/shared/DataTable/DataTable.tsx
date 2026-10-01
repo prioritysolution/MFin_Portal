@@ -277,7 +277,7 @@ export function DataTable<T>({
                   {columns.map((column) => (
                     <td
                       key={column.id}
-                      className={`py-3.5 pe-3 text-slate-700 ${alignClass[column.align ?? "start"]} ${column.className ?? ""}`.trim()}
+                      className={`py-3.5 pe-3 text-foreground ${alignClass[column.align ?? "start"]} ${column.className ?? ""}`.trim()}
                     >
                       {column.cell(row, rowIndex)}
                     </td>

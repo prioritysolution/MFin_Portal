@@ -116,61 +116,47 @@ export type DepositSchemeListResult = {
   meta: PaginationMeta | null;
 };
 
-export type DepositSchemeChargeDto = {
-  id: number;
-  scheme_id: number;
-  scheme_code?: string | null;
-  scheme_name?: string | null;
-  charges_cd: number;
-  charges_desc?: string | null;
-  charges_fig: number;
-  figure_cd: number;
-  figure_desc?: string | null;
-  charges_gl?: number | null;
-  charges_gl_code?: string | null;
-  charges_gl_name?: string | null;
-  run_duration_cd?: number | null;
-  run_duration_desc?: string | null;
-  effect_frm: string;
-  effect_upto?: string | null;
-  is_active: boolean;
-  created_by?: number | null;
-  created_at?: string | null;
-};
-
 export type DepositSchemeCharge = {
   id: number;
   schemeId: number;
   schemeCode: string;
   schemeName: string;
-  chargesCd: number;
-  chargesDesc: string;
-  chargesFig: number;
-  figureCd: number;
+  chargesId: number;
+  chargeName: string;
+  chargeRate: number | null;
+  figureCd: number | null;
   figureDesc: string;
+  maxAmount: number | null;
+  taxPercent: number;
+  chargesDuringCd: number | null;
+  chargesDuringDesc: string;
   chargesGl: number | null;
   chargesGlCode: string | null;
   chargesGlName: string | null;
-  runDurationCd: number | null;
-  runDurationDesc: string | null;
-  effectFrm: string;
-  effectUpto: string | null;
+  chargeIsActive: boolean;
   isActive: boolean;
-  createdBy?: number | null;
-  createdAt?: string | null;
+  createdBy: number | null;
+  createdAt: string | null;
 };
 
 export type DepositSchemeChargeSaveInput = {
-  id?: number;
   schemeId: number;
-  chargesCd: number;
-  chargesFig: number;
-  figureCd: number;
-  chargesGl?: number | null;
-  runDurationCd?: number | null;
-  effectFrm: string;
-  effectUpto?: string | null;
-  isActive?: boolean;
+  chargesIds: number[];
+  /** Edit replaces the scheme's active charges. Add only inserts or reactivates. */
+  mode: "create" | "edit";
+};
+
+export type DepositSchemeChargeAssignSummary = {
+  inserted: number;
+  reactivated: number;
+  deactivated: number;
+  unchanged: number;
+};
+
+export type DepositSchemeChargeAssignResult = {
+  schemeId: number;
+  summary: DepositSchemeChargeAssignSummary;
+  charges: DepositSchemeCharge[];
 };
 
 export type DepositSchemeChargeListQuery = {
@@ -178,10 +164,8 @@ export type DepositSchemeChargeListQuery = {
   perPage?: number;
   id?: number;
   schemeId?: number;
-  chargesCd?: number;
-  effectiveOn?: string;
+  chargesId?: number;
   isActive?: number;
-  search?: string;
 };
 
 export type DepositSchemeChargeListResult = {

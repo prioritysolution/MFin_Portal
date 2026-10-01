@@ -33,10 +33,7 @@ import {
   getAllDepositSchemeSetups,
   isDepositSchemesClientError,
 } from "../services/deposit-schemes-client";
-import {
-  fetchApplOptions,
-  type ApplOption,
-} from "@/features/master/appl-options";
+import { fetchChargeSetups } from "@/features/master/charges-setup/services/charges-setup-client";
 
 import type {
   DepositSchemeSetup,
@@ -64,9 +61,8 @@ const DEFAULT_SETUP_FILTERS: DepositSchemeSetupFilterValues = {
 };
 
 const DEFAULT_CHARGES_FILTERS: DepositSchemeChargesFilterValues = {
-  search: "",
   schemeId: "",
-  chargesCd: "",
+  chargesId: "",
   isActive: "",
 };
 
@@ -86,9 +82,8 @@ function chargesFiltersEqual(
   b: DepositSchemeChargesFilterValues,
 ): boolean {
   return (
-    a.search === b.search &&
     a.schemeId === b.schemeId &&
-    a.chargesCd === b.chargesCd &&
+    a.chargesId === b.chargesId &&
     a.isActive === b.isActive
   );
 }
@@ -389,8 +384,9 @@ function ChargesSection() {
   const [availableSchemes, setAvailableSchemes] = useState<
     { id: number; schemeName: string }[]
   >([]);
-  const [chargeTypes, setChargeTypes] = useState<ApplOption[]>([]);
-  const [meta, setMeta] = useState<PaginationMeta | null>(null);
+  const [masterCharges, setMasterCharges] = useState<
+    { chargeId: number; chargeName: string }[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
@@ -411,13 +407,13 @@ function ChargesSection() {
     let cancelled = false;
     async function loadAuxiliaryOptions() {
       try {
-        const [schemes, cTypes] = await Promise.all([
+        const [schemes, charges] = await Promise.all([
           getAllDepositSchemeSetups(),
-          fetchApplOptions(15), // Group 15: Deposit Charges
+          loadActiveMasterCharges(),
         ]);
         if (!cancelled) {
           setAvailableSchemes(schemes);
-          setChargeTypes(cTypes);
+          setMasterCharges(charges);
         }
       } catch {
         // keep fallback
@@ -446,24 +442,31 @@ function ChargesSection() {
       setError(false);
       setErrorMessage(undefined);
       try {
-        const result = await fetchDepositSchemeCharges({
-          page,
-          perPage: pageSize,
-          search: appliedFilters.search.trim() || undefined,
-          schemeId: appliedFilters.schemeId
-            ? Number(appliedFilters.schemeId)
-            : undefined,
-          chargesCd: appliedFilters.chargesCd
-            ? Number(appliedFilters.chargesCd)
-            : undefined,
-          isActive:
-            appliedFilters.isActive === ""
-              ? undefined
-              : Number(appliedFilters.isActive),
-        });
+        const collected: DepositSchemeCharge[] = [];
+        let pageNo = 1;
+        let lastPage = 1;
+        do {
+          const result = await fetchDepositSchemeCharges({
+            page: pageNo,
+            perPage: 200,
+            schemeId: appliedFilters.schemeId
+              ? Number(appliedFilters.schemeId)
+              : undefined,
+            chargesId: appliedFilters.chargesId
+              ? Number(appliedFilters.chargesId)
+              : undefined,
+            isActive:
+              appliedFilters.isActive === ""
+                ? undefined
+                : Number(appliedFilters.isActive),
+          });
+          if (cancelled) return;
+          collected.push(...result.items);
+          lastPage = result.meta?.lastPage ?? 1;
+          pageNo += 1;
+        } while (pageNo <= lastPage && pageNo <= 20);
         if (cancelled) return;
-        setItems(result.items);
-        setMeta(result.meta);
+        setItems(collected);
       } catch (err) {
         if (cancelled) return;
         setError(true);
@@ -478,7 +481,7 @@ function ChargesSection() {
     return () => {
       cancelled = true;
     };
-  }, [page, pageSize, reloadKey, appliedFilters, tErrors]);
+  }, [reloadKey, appliedFilters, tErrors]);
 
   function openCreate() {
     setFormMode("create");
@@ -498,10 +501,14 @@ function ChargesSection() {
     setSaving(true);
     setFormError(null);
     try {
-      await saveDepositSchemeCharge(input);
+      const result = await saveDepositSchemeCharge(input);
       setFormOpen(false);
       setEditing(null);
-      setSuccessMessage(input.id ? t("updateSuccess") : t("createSuccess"));
+      setSuccessMessage(
+        input.mode === "edit"
+          ? t("updateSuccess", result.summary)
+          : t("createSuccess", result.summary),
+      );
       setReloadKey((key) => key + 1);
     } catch (err) {
       setFormError(
@@ -540,7 +547,7 @@ function ChargesSection() {
       <DepositSchemeChargesFilters
         values={filters}
         schemes={availableSchemes}
-        chargesOptions={chargeTypes}
+        charges={masterCharges}
         onChange={setFilters}
         onReset={() => {
           setFilters(DEFAULT_CHARGES_FILTERS);
@@ -552,7 +559,6 @@ function ChargesSection() {
 
       <DepositSchemeChargesTable
         items={items}
-        meta={meta}
         page={page}
         pageSize={pageSize}
         loading={loading}
@@ -599,9 +605,36 @@ function ChargesSection() {
           await executeToggleActive(target);
         }}
         actionType={statusConfirmTarget?.isActive ? "deactivate" : "activate"}
-        itemName={statusConfirmTarget?.schemeName}
+        itemName={
+          statusConfirmTarget
+            ? [statusConfirmTarget.schemeName, statusConfirmTarget.chargeName]
+                .filter(Boolean)
+                .join(" — ")
+            : undefined
+        }
         itemType={tGlobal("confirm.itemTypeCharge")}
       />
     </>
   );
+}
+
+async function loadActiveMasterCharges(): Promise<
+  { chargeId: number; chargeName: string }[]
+> {
+  const items: { chargeId: number; chargeName: string }[] = [];
+  let page = 1;
+  let lastPage = 1;
+  do {
+    const result = await fetchChargeSetups("deposit", {
+      isActive: 1,
+      page,
+      perPage: 200,
+    });
+    for (const charge of result.items) {
+      items.push({ chargeId: charge.chargeId, chargeName: charge.chargeName });
+    }
+    lastPage = result.meta?.lastPage ?? 1;
+    page += 1;
+  } while (page <= lastPage && page <= 10);
+  return items;
 }

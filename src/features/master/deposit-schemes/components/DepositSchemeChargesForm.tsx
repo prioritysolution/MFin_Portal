@@ -1,23 +1,18 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
-import { AlertTriangle, Save } from "lucide-react";
+import { Save } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { PageToast } from "@/components/ui/PageToast";
 import { Button } from "@/components/ui/Button";
-import {
-  CheckboxField,
-  TextField,
-  SelectField,
-  DateField,
-} from "@/components/ui/Form";
+import { Checkbox } from "@/components/ui/Checkbox";
+import { SelectField } from "@/components/ui/Form";
+import { FIGURE_PERCENT_OPT_CODE } from "@/features/master/charges-setup/constants";
+import { fetchChargeSetups } from "@/features/master/charges-setup/services/charges-setup-client";
+import type { ChargeSetup } from "@/features/master/charges-setup/types/charges-setup.types";
 import { depositSchemeChargeSaveInputSchema } from "@/features/master/deposit-schemes/schemas/deposit-schemes.schema";
-import { fetchApplOptions } from "@/features/master/appl-options";
-import { fetchAcctLedgerList } from "@/features/master/acct-ledger";
 import { fetchDepositSchemeCharges } from "@/features/master/deposit-schemes/services/deposit-schemes-client";
-import type { ApplOption } from "@/features/master/appl-options";
-import type { AcctLedger } from "@/features/master/acct-ledger/types/acct-ledger.types";
 import type {
   DepositSchemeCharge,
   DepositSchemeChargeSaveInput,
@@ -34,77 +29,110 @@ type DepositSchemeChargesFormProps = {
   onSubmit: (input: DepositSchemeChargeSaveInput) => Promise<void> | void;
 };
 
-type FormState = {
-  schemeId: string;
-  chargesCd: string;
-  chargesFig: string;
-  figureCd: string;
-  chargesGl: string;
-  runDurationCd: string;
-  effectFrm: string;
-  effectUpto: string;
-  isActive: boolean;
-};
-
-function checkDateOverlap(
-  startA: string,
-  endA: string | null | undefined,
-  startB: string,
-  endB: string | null | undefined,
-): boolean {
-  if (!startA || !startB) return false;
-  const aStartsBeforeBEnds = !endB || startA <= endB;
-  const bStartsBeforeAEnds = !endA || startB <= endA;
-  return aStartsBeforeBEnds && bStartsBeforeAEnds;
-}
-
-function toFormState(charge: DepositSchemeCharge | null): FormState {
-  if (!charge) {
-    return {
-      schemeId: "",
-      chargesCd: "",
-      chargesFig: "",
-      figureCd: "",
-      chargesGl: "",
-      runDurationCd: "",
-      effectFrm: new Date().toISOString().split("T")[0],
-      effectUpto: "",
-      isActive: true,
-    };
-  }
-  return {
-    schemeId: charge.schemeId ? String(charge.schemeId) : "",
-    chargesCd: charge.chargesCd ? String(charge.chargesCd) : "",
-    chargesFig: charge.chargesFig != null ? String(charge.chargesFig) : "",
-    figureCd: charge.figureCd ? String(charge.figureCd) : "",
-    chargesGl: charge.chargesGl != null ? String(charge.chargesGl) : "",
-    runDurationCd:
-      charge.runDurationCd != null ? String(charge.runDurationCd) : "",
-    effectFrm: charge.effectFrm ?? "",
-    effectUpto: charge.effectUpto ?? "",
-    isActive: charge.isActive,
-  };
-}
+const MAX_PAGES = 10;
 
 export function DepositSchemeChargesForm({
   open,
   mode,
   charge,
-  schemes,
+  schemes = [],
   saving,
   errorMessage,
   onClose,
   onSubmit,
 }: DepositSchemeChargesFormProps) {
   const t = useTranslations("master.depositSchemes.charges");
-  const formKey = mode === "edit" ? `edit-${charge?.id ?? 0}` : "create";
+  const tUi = useTranslations("ui");
+  const tErrors = useTranslations("errors");
+  const formKey = mode === "edit" ? `edit-${charge?.schemeId ?? 0}` : "create";
+
+  const [schemeId, setSchemeId] = useState("");
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [masterCharges, setMasterCharges] = useState<ChargeSetup[]>([]);
+  const [loadingOptions, setLoadingOptions] = useState(false);
+  const [optionsError, setOptionsError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<{
+    schemeId?: string;
+    chargesIds?: string;
+  }>({});
+
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+
+    async function load() {
+      setSchemeId(charge?.schemeId ? String(charge.schemeId) : "");
+      setSelectedIds([]);
+      setFieldErrors({});
+      setOptionsError(null);
+      setLoadingOptions(true);
+      try {
+        const charges = await loadActiveMasterCharges();
+        if (cancelled) return;
+        setMasterCharges(charges);
+        if (mode === "edit" && charge) {
+          const mappedIds = await loadActiveSchemeChargeIds(charge.schemeId);
+          if (cancelled) return;
+          const allowed = new Set(charges.map((item) => item.chargeId));
+          setSelectedIds(mappedIds.filter((id) => allowed.has(id)));
+        }
+      } catch {
+        if (!cancelled) setOptionsError(tErrors("generic"));
+      } finally {
+        if (!cancelled) setLoadingOptions(false);
+      }
+    }
+
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, [open, formKey, mode, charge, tErrors]);
+
+  function toggleCharge(chargeId: number, checked: boolean) {
+    setSelectedIds((current) => {
+      if (checked) {
+        return current.includes(chargeId) ? current : [...current, chargeId];
+      }
+      return current.filter((id) => id !== chargeId);
+    });
+    setFieldErrors((current) => ({ ...current, chargesIds: undefined }));
+  }
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (loadingOptions || saving) return;
+
+    const parsed = depositSchemeChargeSaveInputSchema.safeParse({
+      schemeId: schemeId ? Number(schemeId) : 0,
+      chargesIds: selectedIds,
+      mode,
+    });
+
+    if (!parsed.success) {
+      const flat = parsed.error.flatten().fieldErrors;
+      setFieldErrors({
+        schemeId: flat.schemeId ? t("errors.schemeId") : undefined,
+        chargesIds: flat.chargesIds ? t("errors.chargesIds") : undefined,
+      });
+      return;
+    }
+
+    setFieldErrors({});
+    void onSubmit(parsed.data);
+  }
+
+  const schemeOptions = schemes.map((scheme) => ({
+    value: String(scheme.id),
+    label: scheme.schemeName,
+  }));
 
   return (
     <Modal
       open={open}
       onClose={onClose}
       title={mode === "create" ? t("createTitle") : t("editTitle")}
-      size="md"
+      size="lg"
       footer={
         <>
           <Button
@@ -119,407 +147,115 @@ export function DepositSchemeChargesForm({
             type="submit"
             form="deposit-scheme-charges-form"
             icon={Save}
-            disabled={saving}
+            disabled={saving || loadingOptions}
           >
             {saving ? t("saving") : t("save")}
           </Button>
         </>
       }
     >
-      <DepositSchemeChargesFormBody
-        key={formKey}
-        mode={mode}
-        charge={charge}
-        schemes={schemes}
-        errorMessage={errorMessage}
-        onSubmit={onSubmit}
-      />
+      <form
+        id="deposit-scheme-charges-form"
+        className="space-y-4"
+        onSubmit={handleSubmit}
+      >
+        <PageToast message={errorMessage ?? optionsError} tone="error" />
+        <p className="text-sm text-slate-600">
+          {mode === "create" ? t("addHint") : t("editHint")}
+        </p>
+
+        <SelectField
+          label={t("fields.scheme")}
+          value={schemeId}
+          required
+          disabled={mode === "edit"}
+          placeholder={t("fields.schemePlaceholder")}
+          searchPlaceholder={tUi("selectSearch")}
+          emptyMessage={tUi("selectEmpty")}
+          error={fieldErrors.schemeId}
+          options={schemeOptions}
+          onChange={(value) => {
+            setSchemeId(value);
+            setFieldErrors((current) => ({ ...current, schemeId: undefined }));
+          }}
+        />
+
+        <div className="space-y-2">
+          <p className="text-xs font-semibold text-slate-600">
+            {t("fields.charges")}
+            {mode === "create" ? (
+              <span className="text-rose-500"> *</span>
+            ) : null}
+          </p>
+          {fieldErrors.chargesIds ? (
+            <span className="block text-xs text-rose-600" role="alert">
+              {fieldErrors.chargesIds}
+            </span>
+          ) : null}
+          <div className="max-h-64 space-y-2 overflow-y-auto rounded-xl border border-border p-3">
+            {loadingOptions ? (
+              <p className="text-sm text-slate-500">{t("chargesLoading")}</p>
+            ) : masterCharges.length === 0 ? (
+              <p className="text-sm text-slate-500">{t("chargesEmpty")}</p>
+            ) : (
+              masterCharges.map((item) => (
+                <Checkbox
+                  key={item.chargeId}
+                  variant="row"
+                  label={formatChargeOption(item)}
+                  checked={selectedIds.includes(item.chargeId)}
+                  disabled={saving}
+                  onChange={(checked) => toggleCharge(item.chargeId, checked)}
+                />
+              ))
+            )}
+          </div>
+        </div>
+      </form>
     </Modal>
   );
 }
 
-function DepositSchemeChargesFormBody({
-  mode,
-  charge,
-  schemes,
-  errorMessage,
-  onSubmit,
-}: {
-  mode: "create" | "edit";
-  charge: DepositSchemeCharge | null;
-  schemes?: { id: number; schemeName: string }[];
-  errorMessage?: string | null;
-  onSubmit: (input: DepositSchemeChargeSaveInput) => Promise<void> | void;
-}) {
-  const t = useTranslations("master.depositSchemes.charges");
-  const tGlobal = useTranslations("master.depositSchemes");
-  const tUi = useTranslations("ui");
+function formatChargeOption(charge: ChargeSetup): string {
+  if (charge.chargeRate == null) return charge.chargeName;
+  const rate =
+    charge.figureCd === FIGURE_PERCENT_OPT_CODE
+      ? `${charge.chargeRate}%`
+      : String(charge.chargeRate);
+  return `${charge.chargeName} (${rate})`;
+}
 
-  const [form, setForm] = useState<FormState>(() => toFormState(charge));
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [internalError, setInternalError] = useState<string | null>(null);
+async function loadActiveMasterCharges(): Promise<ChargeSetup[]> {
+  const items: ChargeSetup[] = [];
+  let page = 1;
+  let lastPage = 1;
+  do {
+    const result = await fetchChargeSetups("deposit", {
+      isActive: 1,
+      page,
+      perPage: 200,
+    });
+    items.push(...result.items);
+    lastPage = result.meta?.lastPage ?? 1;
+    page += 1;
+  } while (page <= lastPage && page <= MAX_PAGES);
+  return items;
+}
 
-  // Dynamic Options from API
-  const [chargesCdOptions, setChargesCdOptions] = useState<ApplOption[]>([]);
-  const [figureCdOptions, setFigureCdOptions] = useState<ApplOption[]>([]);
-  const [durationOptions, setDurationOptions] = useState<ApplOption[]>([]);
-  const [ledgers, setLedgers] = useState<AcctLedger[]>([]);
-  const [existingSchemeCharges, setExistingSchemeCharges] = useState<
-    DepositSchemeCharge[]
-  >([]);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadInitialOptions() {
-      try {
-        const [cOpts, fOpts, dOpts, ledgResult] = await Promise.all([
-          fetchApplOptions(15), // Group 15: Deposit Charges
-          fetchApplOptions(16), // Group 16: Figure In
-          fetchApplOptions(8), // Group 8: Duration
-          fetchAcctLedgerList({ isActive: 1, perPage: 200 }),
-        ]);
-        if (cancelled) return;
-        setChargesCdOptions(cOpts);
-        setFigureCdOptions(fOpts);
-        setDurationOptions(dOpts);
-        setLedgers(ledgResult.items);
-      } catch {
-        // Fallbacks
-      }
-    }
-
-    void loadInitialOptions();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!form.schemeId) {
-      setExistingSchemeCharges([]);
-      return;
-    }
-
-    let cancelled = false;
-    async function loadSchemeCharges() {
-      try {
-        const res = await fetchDepositSchemeCharges({
-          schemeId: Number(form.schemeId),
-          perPage: 200,
-        });
-        if (!cancelled) {
-          setExistingSchemeCharges(res.items);
-        }
-      } catch {
-        // Silently keep empty fallback
-      }
-    }
-
-    void loadSchemeCharges();
-    return () => {
-      cancelled = true;
-    };
-  }, [form.schemeId]);
-
-  function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
-    setForm((prev) => ({ ...prev, [key]: value }));
-    setInternalError(null);
-  }
-
-  // Active conflict detection for same scheme & charge type with overlapping date period
-  const conflictingActiveCharge = useMemo(() => {
-    if (!form.schemeId || !form.chargesCd || !form.effectFrm) return null;
-    const schemeNum = Number(form.schemeId);
-    const chargesCdNum = Number(form.chargesCd);
-
-    return (
-      existingSchemeCharges.find((c) => {
-        if (mode === "edit" && charge && c.id === charge.id) return false;
-        if (c.schemeId !== schemeNum || c.chargesCd !== chargesCdNum)
-          return false;
-        // Only active existing charges cause restriction
-        if (!c.isActive) return false;
-        return checkDateOverlap(
-          form.effectFrm,
-          form.effectUpto,
-          c.effectFrm,
-          c.effectUpto,
-        );
-      }) ?? null
-    );
-  }, [
-    form.schemeId,
-    form.chargesCd,
-    form.effectFrm,
-    form.effectUpto,
-    existingSchemeCharges,
-    mode,
-    charge,
-  ]);
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setFieldErrors({});
-    setInternalError(null);
-
-    // Overlapping active charge validation
-    if (conflictingActiveCharge) {
-      const dateRangeStr = `${conflictingActiveCharge.effectFrm} → ${conflictingActiveCharge.effectUpto || t("fields.openEnded", { fallback: "Open-ended" })}`;
-      const errorMsg = tGlobal("errors.activeChargeOverlap", {
-        from: conflictingActiveCharge.effectFrm,
-        to:
-          conflictingActiveCharge.effectUpto ||
-          t("fields.openEnded", { fallback: "Open-ended" }),
-        fallback: `An active charge already exists for this scheme and charge type during ${dateRangeStr}. Please deactivate the previous charge before creating a new one.`,
-      });
-      setFieldErrors((prev) => ({
-        ...prev,
-        effectFrm: errorMsg,
-      }));
-      setInternalError(errorMsg);
-      return;
-    }
-
-    const payload: DepositSchemeChargeSaveInput = {
-      ...(mode === "edit" && charge ? { id: charge.id } : {}),
-      schemeId:
-        form.schemeId !== "" ? Number(form.schemeId) : (0 as unknown as number),
-      chargesCd:
-        form.chargesCd !== "" ? Number(form.chargesCd) : (0 as unknown as number),
-      chargesFig:
-        form.chargesFig !== ""
-          ? Number(form.chargesFig)
-          : (NaN as unknown as number),
-      figureCd:
-        form.figureCd !== "" ? Number(form.figureCd) : (0 as unknown as number),
-      chargesGl: form.chargesGl !== "" ? Number(form.chargesGl) : null,
-      runDurationCd:
-        form.runDurationCd !== "" ? Number(form.runDurationCd) : null,
-      effectFrm: form.effectFrm,
-      effectUpto: form.effectUpto !== "" ? form.effectUpto : null,
-      isActive: form.isActive,
-    };
-
-    const parsed = depositSchemeChargeSaveInputSchema.safeParse(payload);
-    if (!parsed.success) {
-      const flat = parsed.error.flatten().fieldErrors;
-      const isPercentageOverflow =
-        Number(form.figureCd) === 2 && Number(form.chargesFig) > 100;
-      const isEffectUptoBeforeFrom = Boolean(
-        form.effectUpto && form.effectFrm && form.effectUpto < form.effectFrm,
-      );
-
-      setFieldErrors({
-        schemeId: flat.schemeId ? tGlobal("errors.schemeId") : "",
-        chargesCd: flat.chargesCd ? tGlobal("errors.chargesType") : "",
-        chargesFig: flat.chargesFig
-          ? isPercentageOverflow
-            ? tGlobal("errors.percentageMax")
-            : tGlobal("errors.chargesFigures")
-          : "",
-        figureCd: flat.figureCd ? tGlobal("errors.figureType") : "",
-        chargesGl: flat.chargesGl ? tGlobal("errors.chargesGl") : "",
-        runDurationCd: flat.runDurationCd ? tGlobal("errors.runDuration") : "",
-        effectFrm: flat.effectFrm ? tGlobal("errors.effectFrom") : "",
-        effectUpto: flat.effectUpto
-          ? isEffectUptoBeforeFrom
-            ? tGlobal("errors.effectToAfterFrom")
-            : tGlobal("errors.effectTo")
-          : "",
-      });
-      return;
-    }
-
-    await onSubmit(parsed.data);
-  }
-
-  const schemeSelectOptions =
-    schemes && schemes.length > 0
-      ? schemes.map((s) => ({ value: String(s.id), label: s.schemeName }))
-      : [];
-
-  const chargesCdSelectOptions =
-    chargesCdOptions.length > 0
-      ? chargesCdOptions.map((o) => ({
-          value: String(o.optCode),
-          label: o.optDescription,
-        }))
-      : [
-          { value: "1", label: "Premature Withdrawal" },
-          { value: "2", label: "Late Payment" },
-          { value: "3", label: "Service Charge" },
-          { value: "4", label: "SMS Charges" },
-        ];
-
-  const figureCdSelectOptions =
-    figureCdOptions.length > 0
-      ? figureCdOptions.map((o) => ({
-          value: String(o.optCode),
-          label: o.optDescription,
-        }))
-      : [
-          { value: "1", label: "Amount" },
-          { value: "2", label: "Percentage" },
-        ];
-
-  const durationSelectOptions = [
-    { value: "", label: "-- None --" },
-    ...(durationOptions.length > 0
-      ? durationOptions.map((o) => ({
-          value: String(o.optCode),
-          label: o.optDescription,
-        }))
-      : [
-          { value: "1", label: "Daily" },
-          { value: "2", label: "Weekly" },
-          { value: "3", label: "Fortnightly" },
-          { value: "4", label: "Monthly" },
-          { value: "5", label: "Quarterly" },
-          { value: "6", label: "Half-Yearly" },
-          { value: "7", label: "Yearly" },
-        ]),
-  ];
-
-  const ledgerSelectOptions = useMemo(() => {
-    const opts = [
-      { value: "", label: "-- None --" },
-      ...ledgers.map((l) => ({
-        value: String(l.ledgerId),
-        label: `${l.ledgerName} (${l.ledgerCode})`,
-      })),
-    ];
-    if (
-      charge?.chargesGl &&
-      !opts.some((o) => o.value === String(charge.chargesGl))
-    ) {
-      opts.push({
-        value: String(charge.chargesGl),
-        label: charge.chargesGlName
-          ? `${charge.chargesGlName} (${charge.chargesGlCode || `LD-${charge.chargesGl}`})`
-          : `Ledger #${charge.chargesGl}`,
-      });
-    }
-    return opts;
-  }, [ledgers, charge]);
-
-  const displayError = internalError || errorMessage || null;
-
-  return (
-    <form
-      id="deposit-scheme-charges-form"
-      className="space-y-4"
-      onSubmit={(e) => void handleSubmit(e)}
-    >
-      <PageToast message={displayError} tone="error" />
-
-      {conflictingActiveCharge ? (
-        <div
-          role="alert"
-          className="flex items-start gap-3 rounded-xl border border-amber-300/80 bg-amber-50/90 p-3.5 text-xs text-amber-900 shadow-xs dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-200"
-        >
-          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
-          <div className="space-y-1">
-            <p className="font-semibold text-amber-950 dark:text-amber-100">
-              {tGlobal("errors.activeChargeOverlapWarningTitle", {
-                fallback: "Active Charge Already Exists",
-              })}
-            </p>
-            <p className="leading-relaxed">
-              {tGlobal("errors.activeChargeOverlap", {
-                from: conflictingActiveCharge.effectFrm,
-                to:
-                  conflictingActiveCharge.effectUpto ||
-                  t("fields.openEnded", { fallback: "Open-ended" }),
-                fallback: `An active charge already exists for this scheme and charge type during ${conflictingActiveCharge.effectFrm} → ${conflictingActiveCharge.effectUpto || "Open-ended"}. Please deactivate the previous charge before creating a new one.`,
-              })}
-            </p>
-          </div>
-        </div>
-      ) : null}
-
-      <SelectField
-        label={t("fields.scheme")}
-        value={form.schemeId}
-        required
-        error={fieldErrors.schemeId || undefined}
-        searchPlaceholder={tUi("selectSearch")}
-        emptyMessage={tUi("selectEmpty")}
-        options={schemeSelectOptions}
-        onChange={(value) => updateField("schemeId", value)}
-      />
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <SelectField
-          label={t("fields.chargesType")}
-          value={form.chargesCd}
-          required
-          error={fieldErrors.chargesCd || undefined}
-          searchPlaceholder={tUi("selectSearch")}
-          emptyMessage={tUi("selectEmpty")}
-          options={chargesCdSelectOptions}
-          onChange={(value) => updateField("chargesCd", value)}
-        />
-        <SelectField
-          label={t("fields.figureType")}
-          value={form.figureCd}
-          required
-          error={fieldErrors.figureCd || undefined}
-          searchPlaceholder={tUi("selectSearch")}
-          emptyMessage={tUi("selectEmpty")}
-          options={figureCdSelectOptions}
-          onChange={(value) => updateField("figureCd", value)}
-        />
-        <TextField
-          label={t("fields.chargesFigures")}
-          value={form.chargesFig}
-          type="number"
-          step="0.01"
-          required
-          error={fieldErrors.chargesFig || undefined}
-          onChange={(value) => updateField("chargesFig", value)}
-        />
-        <SelectField
-          label={t("fields.chargesGl")}
-          value={form.chargesGl}
-          error={fieldErrors.chargesGl || undefined}
-          searchPlaceholder={tUi("selectSearch")}
-          emptyMessage={tUi("selectEmpty")}
-          options={ledgerSelectOptions}
-          onChange={(value) => updateField("chargesGl", value)}
-        />
-        <SelectField
-          label={t("fields.runDuration")}
-          value={form.runDurationCd}
-          error={fieldErrors.runDurationCd || undefined}
-          searchPlaceholder={tUi("selectSearch")}
-          emptyMessage={tUi("selectEmpty")}
-          options={durationSelectOptions}
-          onChange={(value) => updateField("runDurationCd", value)}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <DateField
-          label={t("fields.effectFrom")}
-          value={form.effectFrm}
-          required
-          error={fieldErrors.effectFrm || undefined}
-          onChange={(value) => updateField("effectFrm", value)}
-        />
-        <DateField
-          label={t("fields.effectTo")}
-          value={form.effectUpto}
-          error={fieldErrors.effectUpto || undefined}
-          onChange={(value) => updateField("effectUpto", value)}
-        />
-      </div>
-
-      <CheckboxField
-        label={t("fields.isActive")}
-        checked={form.isActive}
-        onChange={(checked) => updateField("isActive", checked)}
-      />
-    </form>
-  );
+async function loadActiveSchemeChargeIds(schemeId: number): Promise<number[]> {
+  const ids: number[] = [];
+  let page = 1;
+  let lastPage = 1;
+  do {
+    const result = await fetchDepositSchemeCharges({
+      schemeId,
+      isActive: 1,
+      page,
+      perPage: 200,
+    });
+    for (const item of result.items) ids.push(item.chargesId);
+    lastPage = result.meta?.lastPage ?? 1;
+    page += 1;
+  } while (page <= lastPage && page <= MAX_PAGES);
+  return [...new Set(ids)];
 }

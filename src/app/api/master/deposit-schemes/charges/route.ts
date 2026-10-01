@@ -14,20 +14,10 @@ function readOptionalNumber(raw: string | null): number | undefined {
   return Number.isFinite(value) ? value : undefined;
 }
 
-function readOptionalText(raw: string | null): string | undefined {
-  if (raw == null) return undefined;
-  const trimmed = raw.trim();
-  return trimmed === "" ? undefined : trimmed;
-}
-
 export async function GET(request: Request) {
   try {
     await requireSessionUser();
     const { searchParams } = new URL(request.url);
-
-    const search =
-      readOptionalText(searchParams.get("search")) ??
-      readOptionalText(searchParams.get("keyword"));
 
     const isActiveRaw =
       searchParams.get("is_active") ?? searchParams.get("status");
@@ -39,14 +29,10 @@ export async function GET(request: Request) {
       schemeId:
         readOptionalNumber(searchParams.get("scheme_id")) ??
         readOptionalNumber(searchParams.get("schemeId")),
-      chargesCd:
-        readOptionalNumber(searchParams.get("charges_cd")) ??
-        readOptionalNumber(searchParams.get("chargesCd")),
-      effectiveOn:
-        readOptionalText(searchParams.get("effective_on")) ??
-        readOptionalText(searchParams.get("effectiveOn")),
+      chargesId:
+        readOptionalNumber(searchParams.get("charges_id")) ??
+        readOptionalNumber(searchParams.get("chargesId")),
       isActive: readOptionalNumber(isActiveRaw),
-      search,
     });
 
     return NextResponse.json({
@@ -100,9 +86,7 @@ export async function POST(request: Request) {
       });
     }
 
-    const isUpdate =
-      body.action === "update" ||
-      (typeof body.id === "number" && body.id > 0);
+    const isUpdate = body.action === "update";
 
     if (isUpdate) {
       const payload = { ...body };

@@ -5,14 +5,14 @@ import { endpoints } from "@/lib/api/endpoints";
 import { ApiError } from "@/lib/api/errors";
 import { clearAuthSession, getAccessToken } from "@/lib/auth/session";
 import {
-  mapDepositSchemeChargeDto,
   mapDepositSchemeChargeSaveToDto,
   mapDepositSchemeDto,
   mapDepositSchemeSaveToDto,
   mapPaginationMetaDto,
+  parseDepositSchemeChargeAssignResult,
+  parseDepositSchemeChargeRow,
 } from "../mappers/deposit-schemes.mapper";
 import {
-  depositSchemeChargeDtoSchema,
   depositSchemeChargeSaveInputSchema,
   depositSchemeDtoSchema,
   depositSchemeSetupSaveInputSchema,
@@ -20,7 +20,7 @@ import {
 } from "../schemas/deposit-schemes.schema";
 import type {
   DepositSchemeCharge,
-  DepositSchemeChargeDto,
+  DepositSchemeChargeAssignResult,
   DepositSchemeChargeListQuery,
   DepositSchemeChargeListResult,
   DepositSchemeDto,
@@ -273,21 +273,13 @@ export async function toggleDepositSchemeStatus(
   });
 }
 
-function parseDepositSchemeChargeRow(
-  row: unknown,
-): DepositSchemeCharge | null {
-  const parsed = depositSchemeChargeDtoSchema.safeParse(row);
-  if (!parsed.success) return null;
-  return mapDepositSchemeChargeDto(parsed.data);
-}
-
 /** Laravel: GET /api/DepositSchemeChargesList */
 export async function listDepositSchemeCharges(
   query: DepositSchemeChargeListQuery = {},
 ): Promise<DepositSchemeChargeListResult> {
   return withUnauthorizedClear(async () => {
     const token = await requireAccessToken();
-    const payload = await api.get<LaravelResponse<DepositSchemeChargeDto[]>>(
+    const payload = await api.get<LaravelResponse<unknown[]>>(
       endpoints.depositSchemeCharges.list,
       {
         accessToken: token,
@@ -297,8 +289,7 @@ export async function listDepositSchemeCharges(
           per_page: clampPerPage(query.perPage),
           id: query.id,
           scheme_id: query.schemeId,
-          charges_cd: query.chargesCd,
-          effective_on: query.effectiveOn,
+          charges_id: query.chargesId,
           is_active: query.isActive,
         },
       },
@@ -343,11 +334,26 @@ export async function listDepositSchemeCharges(
   });
 }
 
+function parseAssignResult(data: unknown): DepositSchemeChargeAssignResult {
+  const result = parseDepositSchemeChargeAssignResult(data);
+  if (!result) {
+    throw new ApiError({
+      message: "Deposit scheme charge response shape was unexpected",
+      status: 500,
+      code: "UNEXPECTED",
+    });
+  }
+  return result;
+}
+
 /** Laravel: POST /api/DepositSchemeChargesAdd */
 export async function createDepositSchemeCharge(
   input: unknown,
-): Promise<DepositSchemeCharge> {
-  const validated = depositSchemeChargeSaveInputSchema.safeParse(input);
+): Promise<DepositSchemeChargeAssignResult> {
+  const validated = depositSchemeChargeSaveInputSchema.safeParse({
+    ...(input as object),
+    mode: "create",
+  });
   if (!validated.success) {
     throw new ApiError({
       message: "Validation failed",
@@ -360,7 +366,7 @@ export async function createDepositSchemeCharge(
   return withUnauthorizedClear(async () => {
     const token = await requireAccessToken();
     const body = mapDepositSchemeChargeSaveToDto(validated.data);
-    const data = await api.post<DepositSchemeChargeDto>(
+    const data = await api.post<unknown>(
       endpoints.depositSchemeCharges.add,
       body,
       {
@@ -377,24 +383,18 @@ export async function createDepositSchemeCharge(
       });
     }
 
-    const item = parseDepositSchemeChargeRow(data);
-    if (!item) {
-      throw new ApiError({
-        message: "Deposit scheme charge response shape was unexpected",
-        status: 500,
-        code: "UNEXPECTED",
-      });
-    }
-
-    return item;
+    return parseAssignResult(data);
   });
 }
 
 /** Laravel: POST /api/DepositSchemeChargesEdit */
 export async function updateDepositSchemeCharge(
   input: unknown,
-): Promise<DepositSchemeCharge> {
-  const validated = depositSchemeChargeSaveInputSchema.safeParse(input);
+): Promise<DepositSchemeChargeAssignResult> {
+  const validated = depositSchemeChargeSaveInputSchema.safeParse({
+    ...(input as object),
+    mode: "edit",
+  });
   if (!validated.success) {
     throw new ApiError({
       message: "Validation failed",
@@ -404,18 +404,10 @@ export async function updateDepositSchemeCharge(
     });
   }
 
-  if (!validated.data.id) {
-    throw new ApiError({
-      message: "Charge ID is required for update",
-      status: 422,
-      code: "VALIDATION",
-    });
-  }
-
   return withUnauthorizedClear(async () => {
     const token = await requireAccessToken();
     const body = mapDepositSchemeChargeSaveToDto(validated.data);
-    const data = await api.post<DepositSchemeChargeDto>(
+    const data = await api.post<unknown>(
       endpoints.depositSchemeCharges.edit,
       body,
       {
@@ -432,16 +424,7 @@ export async function updateDepositSchemeCharge(
       });
     }
 
-    const item = parseDepositSchemeChargeRow(data);
-    if (!item) {
-      throw new ApiError({
-        message: "Deposit scheme charge response shape was unexpected",
-        status: 500,
-        code: "UNEXPECTED",
-      });
-    }
-
-    return item;
+    return parseAssignResult(data);
   });
 }
 
@@ -452,7 +435,7 @@ export async function toggleDepositSchemeChargeStatus(
 ): Promise<DepositSchemeCharge> {
   return withUnauthorizedClear(async () => {
     const token = await requireAccessToken();
-    const data = await api.post<DepositSchemeChargeDto>(
+    const data = await api.post<unknown>(
       endpoints.depositSchemeCharges.status,
       {
         id,

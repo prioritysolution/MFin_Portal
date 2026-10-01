@@ -24,6 +24,10 @@ export type ModuleId =
   | "master.makerChecker"
   | "master.depositSchemes"
   | "master.depositInterest"
+  | "master.chargesSetup"
+  | "master.loanSchemes"
+  | "master.loanRoiSlabs"
+  | "master.loanEligibility"
   | "security.auditLog"
   | "security.loginSettings";
 
@@ -213,6 +217,34 @@ export const masterModulePages = {
     id: "master.depositInterest",
     route: "/master/deposit-interest",
     messageNamespace: "master.depositInterest",
+    titleKey: "title",
+    descriptionKey: "description",
+  }),
+  chargesSetup: new ModulePage({
+    id: "master.chargesSetup",
+    route: "/master/charges-setup",
+    messageNamespace: "master.chargesSetup",
+    titleKey: "title",
+    descriptionKey: "description",
+  }),
+  loanSchemes: new ModulePage({
+    id: "master.loanSchemes",
+    route: "/master/loan-schemes",
+    messageNamespace: "master.loanSchemes",
+    titleKey: "title",
+    descriptionKey: "description",
+  }),
+  loanRoiSlabs: new ModulePage({
+    id: "master.loanRoiSlabs",
+    route: "/master/loan-roi-slabs",
+    messageNamespace: "master.loanRoiSlabs",
+    titleKey: "title",
+    descriptionKey: "description",
+  }),
+  loanEligibility: new ModulePage({
+    id: "master.loanEligibility",
+    route: "/master/loan-eligibility-setup",
+    messageNamespace: "master.loanEligibility",
     titleKey: "title",
     descriptionKey: "description",
   }),

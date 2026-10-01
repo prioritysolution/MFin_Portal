@@ -90,65 +90,13 @@ export const depositSchemeSetupSaveInputSchema = z
     },
   );
 
-export const depositSchemeChargeDtoSchema = z.object({
-  id: z.number(),
-  scheme_id: z.number(),
-  scheme_code: z.string().nullable().optional(),
-  scheme_name: z.string().nullable().optional(),
-  charges_cd: z.number(),
-  charges_desc: z.string().nullable().optional(),
-  charges_fig: z.number(),
-  figure_cd: z.number(),
-  figure_desc: z.string().nullable().optional(),
-  charges_gl: z.number().nullable().optional(),
-  charges_gl_code: z.string().nullable().optional(),
-  charges_gl_name: z.string().nullable().optional(),
-  run_duration_cd: z.number().nullable().optional(),
-  run_duration_desc: z.string().nullable().optional(),
-  effect_frm: z.string(),
-  effect_upto: z.string().nullable().optional(),
-  is_active: z.boolean().default(true),
-  created_by: z.number().nullable().optional(),
-  created_at: z.string().nullable().optional(),
-});
-
 export const depositSchemeChargeSaveInputSchema = z
   .object({
-    id: z.number().optional(),
-    schemeId: z.number().int().positive("Deposit Scheme is required"),
-    chargesCd: z.number().int().positive("Charges Type is required"),
-    chargesFig: z
-      .number()
-      .min(0, "Charges Figure must be valid")
-      .max(999999.99, "Charges Figure must be valid"),
-    figureCd: z.number().int().positive("Figure Type is required"),
-    chargesGl: z.number().int().positive().nullable().optional(),
-    runDurationCd: z.number().int().positive().nullable().optional(),
-    effectFrm: z.string().min(1, "Effective From date is required"),
-    effectUpto: z.string().nullable().optional(),
-    isActive: z.boolean().optional().default(true),
+    schemeId: z.number().int().positive(),
+    chargesIds: z.array(z.number().int().positive()),
+    mode: z.enum(["create", "edit"]),
   })
-  .refine(
-    (data) => {
-      if (data.figureCd === 2 && data.chargesFig > 100) {
-        return false;
-      }
-      return true;
-    },
-    {
-      message: "Percentage cannot exceed 100",
-      path: ["chargesFig"],
-    },
-  )
-  .refine(
-    (data) => {
-      if (data.effectUpto && data.effectFrm) {
-        return data.effectUpto >= data.effectFrm;
-      }
-      return true;
-    },
-    {
-      message: "Effective Upto date must be on or after Effective From date",
-      path: ["effectUpto"],
-    },
-  );
+  .refine((data) => data.mode === "edit" || data.chargesIds.length > 0, {
+    message: "Select at least one charge",
+    path: ["chargesIds"],
+  });
