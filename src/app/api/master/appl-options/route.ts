@@ -20,7 +20,7 @@ export async function GET(request: Request) {
     }
 
     const optGrpId = Number(optGrpIdRaw);
-    if (!Number.isFinite(optGrpId) || optGrpId < 1) {
+    if (!Number.isInteger(optGrpId) || optGrpId < 1) {
       return NextResponse.json(
         {
           success: false,
@@ -30,7 +30,14 @@ export async function GET(request: Request) {
       );
     }
 
-    const includeInactive = searchParams.get("include_inactive") === "true";
+    const includeInactiveRaw = searchParams.get("include_inactive");
+    if (includeInactiveRaw != null && !["true", "false", "1", "0"].includes(includeInactiveRaw)) {
+      return NextResponse.json(
+        { success: false, message: "include_inactive must be a boolean" },
+        { status: 422 },
+      );
+    }
+    const includeInactive = includeInactiveRaw === "true" || includeInactiveRaw === "1";
 
     const options = await listApplOptions({
       optGrpId,

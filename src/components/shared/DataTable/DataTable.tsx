@@ -62,6 +62,8 @@ export function DataTable<T>({
   rowActions,
   className = "",
   minWidth = "640px",
+  minHeight,
+  maxHeight,
   caption,
   onRowClick,
   getRowClassName,
@@ -116,6 +118,8 @@ export function DataTable<T>({
     <TableHeading title={title} description={description} actions={actions} />
   );
   const hasHeading = Boolean(title || description || actions);
+  const hasCustomMinHeight = Boolean(minHeight || className.includes("min-h-"));
+  const defaultMinHeightClass = hasCustomMinHeight ? "" : "min-h-[440px]";
   const cardClass =
     `rounded-[var(--radius-card)] border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5 ${className}`.trim();
   const awaitingFirstRows = loading && data.length === 0;
@@ -139,7 +143,11 @@ export function DataTable<T>({
   if (awaitingFirstRows) {
     if (!showSkeleton) {
       return (
-        <section className={cardClass} aria-busy="true">
+        <section
+          className={`flex flex-col ${defaultMinHeightClass} ${cardClass}`}
+          style={minHeight ? { minHeight } : undefined}
+          aria-busy="true"
+        >
           {heading}
           <div
             className="relative mb-3 h-0.5 overflow-hidden bg-slate-100"
@@ -147,7 +155,7 @@ export function DataTable<T>({
           >
             <div className="animate-table-progress h-full w-1/3 rounded-full bg-brand" />
           </div>
-          <div className="min-h-48" />
+          <div className="flex-1 min-h-48" />
         </section>
       );
     }
@@ -157,7 +165,10 @@ export function DataTable<T>({
       );
     }
     return (
-      <section className={cardClass}>
+      <section
+        className={`flex flex-col ${defaultMinHeightClass} ${cardClass}`}
+        style={minHeight ? { minHeight } : undefined}
+      >
         {heading}
         <DataTableSkeleton bare columns={columnCount} />
       </section>
@@ -167,26 +178,36 @@ export function DataTable<T>({
   // Only show full ErrorState when there is NO data to show.
   if (error && data.length === 0) {
     return (
-      <section className={cardClass}>
+      <section
+        className={`flex flex-col justify-between ${defaultMinHeightClass} ${cardClass}`}
+        style={minHeight ? { minHeight } : undefined}
+      >
         {heading}
-        <ErrorState
-          title={errorTitle}
-          message={errorMessage}
-          onRetry={onRetry}
-        />
+        <div className="flex flex-1 items-center justify-center py-8">
+          <ErrorState
+            title={errorTitle}
+            message={errorMessage}
+            onRetry={onRetry}
+          />
+        </div>
       </section>
     );
   }
 
   if (data.length === 0) {
     return (
-      <section className={cardClass}>
+      <section
+        className={`flex flex-col justify-between ${defaultMinHeightClass} ${cardClass}`}
+        style={minHeight ? { minHeight } : undefined}
+      >
         {heading}
-        <EmptyState
-          title={emptyTitle}
-          message={emptyMessage}
-          action={emptyAction}
-        />
+        <div className="flex flex-1 items-center justify-center py-8">
+          <EmptyState
+            title={emptyTitle}
+            message={emptyMessage}
+            action={emptyAction}
+          />
+        </div>
         {pagination ? (
           <DataTablePagination {...pagination} className="mt-3" />
         ) : null}
@@ -195,7 +216,10 @@ export function DataTable<T>({
   }
 
   return (
-    <section className={`relative ${cardClass}`}>
+    <section
+      className={`relative flex flex-col justify-between ${defaultMinHeightClass} ${cardClass}`}
+      style={minHeight ? { minHeight } : undefined}
+    >
       {/* Background reload indicator: subtle progress bar so the table never disappears or flashes */}
       <div
         className={`relative -mx-4 -mt-2 mb-3 h-0.5 overflow-hidden bg-slate-100 sm:-mx-5 transition-opacity duration-200 ${
@@ -224,7 +248,10 @@ export function DataTable<T>({
         </div>
       ) : null}
 
-      <div className="table-scroll scrollbar-thin">
+      <div
+        className="table-scroll scrollbar-thin flex-1"
+        style={maxHeight ? { maxHeight, overflowY: "auto" } : undefined}
+      >
         <table className="w-full text-left text-sm" style={{ minWidth }}>
           {caption ? <caption className="sr-only">{caption}</caption> : null}
           <thead>

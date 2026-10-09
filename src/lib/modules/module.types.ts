@@ -29,7 +29,8 @@ export type ModuleId =
   | "master.loanRoiSlabs"
   | "master.loanEligibility"
   | "security.auditLog"
-  | "security.loginSettings";
+  | "security.loginSettings"
+  | "onboarding.groupManagement";
 
 export type ModulePageMeta = {
   /** Stable module id used for registry / analytics. */
@@ -271,3 +272,23 @@ export const securityModulePages = {
 } as const;
 
 export type SecurityModulePageKey = keyof typeof securityModulePages;
+
+/** Registry of Onboarding module pages that use the common shell. */
+export const onboardingModulePages = {
+  groupManagement: new ModulePage({
+    id: "onboarding.groupManagement",
+    route: "/onboarding/group-management",
+    messageNamespace: "onboarding.groupManagement",
+    titleKey: "title",
+    descriptionKey: "description",
+  }),
+  memberRegistration: new ModulePage({
+    id: "onboarding.memberRegistration",
+    route: "/onboarding/member-registration",
+    messageNamespace: "onboarding.memberRegistration",
+    titleKey: "title",
+    descriptionKey: "description",
+  }),
+} as const;
+
+export type OnboardingModulePageKey = keyof typeof onboardingModulePages;

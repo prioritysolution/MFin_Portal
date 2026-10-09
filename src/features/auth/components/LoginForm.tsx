@@ -9,6 +9,7 @@ import { CheckboxField, TextField } from "@/components/ui/Form";
 import { Link, useRouter } from "@/i18n/navigation";
 import { endpoints } from "@/lib/api/endpoints";
 import { clearMenuClientCache } from "@/features/navigation/services/menu-client";
+import { storeAuthUser } from "@/features/auth/utils/auth-user-storage";
 import {
   readRememberedLogin,
   saveRememberedLogin,
@@ -76,6 +77,7 @@ export function LoginForm() {
       const payload = (await response.json()) as {
         success?: boolean;
         message?: string;
+        data?: { user?: import("@/features/auth/types/auth").AuthUser };
       };
 
       if (!response.ok || payload.success === false) {
@@ -83,7 +85,13 @@ export function LoginForm() {
         return;
       }
 
+      if (!payload.data?.user) {
+        setError(tErrors("network"));
+        return;
+      }
+
       saveRememberedLogin(remember, parsed.data.username);
+      storeAuthUser(payload.data.user);
       clearMenuClientCache();
       router.replace("/");
       return;

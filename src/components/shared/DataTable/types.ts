@@ -66,6 +66,10 @@ export type DataTableProps<T> = {
   className?: string;
   /** Minimum table width for horizontal scroll (CSS length). */
   minWidth?: string;
+  /** Minimum table height (CSS length). Ensures card maintains full height when empty or few rows. */
+  minHeight?: string;
+  /** Maximum table height for vertical scroll (CSS length). */
+  maxHeight?: string;
   caption?: string;
   onRowClick?: (row: T, rowIndex: number) => void;
   /** Extra classes for one row, such as a live-update highlight. */

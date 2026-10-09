@@ -256,12 +256,14 @@ type TextAreaFieldProps = {
   label: string;
   value: string;
   onChange: (value: string) => void;
+  placeholder?: string;
   required?: boolean;
   error?: string;
   hint?: string;
   rows?: number;
   disabled?: boolean;
   maxLength?: number;
+  className?: string;
   validate?: (value: string, final: boolean) => string | undefined;
 };
 
@@ -269,12 +271,14 @@ export function TextAreaField({
   label,
   value,
   onChange,
+  placeholder,
   required,
   error,
   hint,
   rows = 3,
   disabled,
   maxLength,
+  className,
   validate,
 }: TextAreaFieldProps) {
   const [touched, setTouched] = useState(false);
@@ -287,10 +291,12 @@ export function TextAreaField({
       required={required}
       error={shownError}
       hint={hint}
+      className={className}
     >
       <Textarea
         rows={rows}
         value={value}
+        placeholder={placeholder}
         disabled={disabled}
         maxLength={maxLength}
         aria-required={required || undefined}

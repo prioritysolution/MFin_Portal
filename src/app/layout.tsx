@@ -1,9 +1,11 @@
 import type { ReactNode } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import { cookies } from "next/headers";
 import { getLocale } from "next-intl/server";
 import { ThemeProvider } from "@/features/theme/ThemeProvider";
 import { THEME_BOOT_SCRIPT, THEME_COOKIE, isThemeMode } from "@/features/theme/theme";
+import { MENU_BOOT_SCRIPT } from "@/features/navigation/utils/menu-boot-script";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -46,6 +48,11 @@ export default async function RootLayout({ children }: RootLayoutProps) {
     >
       <body className="min-h-full bg-background font-sans text-foreground">
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
+        <Script
+          id="mfin-menu-boot-script"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: MENU_BOOT_SCRIPT }}
+        />
         <ThemeProvider initialTheme={theme}>{children}</ThemeProvider>
       </body>
     </html>

@@ -56,6 +56,8 @@
     "timeMinute": "মিনিট",
     "timeDone": "সম্পন্ন",
     "calendarLabel": "ক্যালেন্ডার",
+    "calendarMonth": "মাস",
+    "calendarYear": "বছর",
     "calendarPrevMonth": "আগের মাস",
     "calendarNextMonth": "পরের মাস",
     "weekdayMo": "সো",
@@ -68,7 +70,13 @@
     "charCount": "{count}/{max}",
     "numberRange": "{min}–{max}",
     "numberMin": "সর্বনিম্ন {min}",
-    "numberMax": "সর্বোচ্চ {max}"
+    "numberMax": "সর্বোচ্চ {max}",
+    "formDiscardTitle": "অসংরক্ষিত পরিবর্তন বাতিল করবেন?",
+    "formDiscardMessage": "এই ফর্মে তথ্য দেওয়া আছে। না সেভ করে বন্ধ করবেন?",
+    "formDiscardConfirm": "বাতিল করে বন্ধ করুন",
+    "formKeepEditing": "সম্পাদনা চালিয়ে যান",
+    "formSaveTitle": "এই তথ্য সংরক্ষণ করবেন?",
+    "formSaveMessage": "দেওয়া তথ্য সংরক্ষণ করতে নিশ্চিত করুন।"
   },
   "confirmDialog": {
     "defaultTitle": "আপনি কি নিশ্চিত?",
@@ -2135,6 +2143,22 @@
         "uniquePasswordCount": "০ থেকে ২৪ এর মধ্যে কতটি সাম্প্রতিক পাসওয়ার্ড বন্ধ থাকবে তা দিন।",
         "expirationDays": "১ থেকে ৩৬৫ দিনের মধ্যে মেয়াদ দিন।"
       }
+    }
+  },
+  "onboarding": {
+    "groupManagement": {
+      "title": "গ্রুপ ব্যবস্থাপনা",
+      "description": "গ্রাহক অনবোর্ডিং / গ্রুপ ব্যবস্থাপনা",
+      "newGroup": "+ নতুন গ্রুপ",
+      "editGroup": "গ্রুপ সম্পাদনা",
+      "viewGroup": "গ্রুপের বিবরণ"
+    },
+    "memberRegistration": {
+      "title": "সদস্য নিবন্ধন",
+      "description": "গ্রাহক অনবোর্ডিং / সদস্য নিবন্ধন",
+      "newMember": "+ নতুন সদস্য",
+      "editMember": "সদস্য সম্পাদনা",
+      "viewMember": "সদস্য প্রোফাইল"
     }
   }
 }

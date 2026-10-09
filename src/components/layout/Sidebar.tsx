@@ -21,6 +21,7 @@ import {
   menusEqual,
   subscribeStoredMenu,
 } from "@/features/navigation/services/menu-client";
+import { clearStoredAuthUser } from "@/features/auth/utils/auth-user-storage";
 import { mergeStoredMenuIcons } from "@/features/navigation/services/menu-storage";
 import { menuIconMarkup } from "@/features/navigation/utils/menu-icon-svg";
 import { menuEnglishName } from "@/features/navigation/utils/menu-label";
@@ -318,6 +319,7 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
       });
     } finally {
       clearMenuClientCache();
+      clearStoredAuthUser();
       window.location.assign("/login");
     }
   }

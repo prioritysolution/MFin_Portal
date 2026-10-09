@@ -3,12 +3,17 @@
 import {
   useEffect,
   useId,
+  useRef,
+  useState,
   type ButtonHTMLAttributes,
+  type FormEvent,
+  type MouseEvent,
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 
 type ModalSize = "sm" | "md" | "lg" | "xl";
 
@@ -45,11 +50,78 @@ export function Modal({
 }: ModalProps) {
   const titleId = useId();
   const t = useTranslations("common");
+  const tUi = useTranslations("ui");
+  const bypassRef = useRef(false);
+  const pendingRef = useRef<(() => void) | null>(null);
+  const [dirty, setDirty] = useState(false);
+  const [prompt, setPrompt] = useState<"close" | "save" | null>(null);
+
+  useEffect(() => {
+    if (open) return;
+    setDirty(false);
+    setPrompt(null);
+    pendingRef.current = null;
+  }, [open]);
+
+  function requestClose() {
+    if (dirty) {
+      pendingRef.current = null;
+      setPrompt("close");
+      return;
+    }
+    onClose();
+  }
+
+  function confirmPrompt() {
+    const action = pendingRef.current;
+    const kind = prompt;
+    setPrompt(null);
+    pendingRef.current = null;
+    if (kind === "close") {
+      setDirty(false);
+      onClose();
+      return;
+    }
+    if (action) {
+      bypassRef.current = true;
+      action();
+      bypassRef.current = false;
+    }
+  }
+
+  function onFooterClickCapture(event: MouseEvent<HTMLElement>) {
+    if (bypassRef.current || !dirty) return;
+    const button = (event.target as HTMLElement).closest("button");
+    if (!button || button.disabled) return;
+    const save =
+      button.type === "submit" || button.classList.contains("btn-primary");
+    const dismiss = button.classList.contains("btn-secondary");
+    if (!save && !dismiss) return;
+    event.preventDefault();
+    event.stopPropagation();
+    if (dismiss) {
+      pendingRef.current = null;
+      setPrompt("close");
+      return;
+    }
+    pendingRef.current = () => button.click();
+    setPrompt("save");
+  }
+
+  function onSubmitCapture(event: FormEvent<HTMLDivElement>) {
+    if (bypassRef.current || !dirty) return;
+    const form = event.target;
+    if (!(form instanceof HTMLFormElement)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    pendingRef.current = () => form.requestSubmit();
+    setPrompt("save");
+  }
 
   useEffect(() => {
     if (!open) return;
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape" && !prompt) requestClose();
     };
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -58,7 +130,7 @@ export function Modal({
       document.body.style.overflow = previous;
       window.removeEventListener("keydown", onKey);
     };
-  }, [open, onClose]);
+  }, [open, onClose, dirty, prompt]);
 
   if (!open || typeof document === "undefined") return null;
 
@@ -71,13 +143,16 @@ export function Modal({
         type="button"
         aria-label={t("close")}
         className="absolute inset-0 cursor-pointer bg-slate-950/50"
-        onClick={onClose}
+        onClick={requestClose}
       />
 
-      <div
+        <div
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
+        onInput={() => setDirty(true)}
+        onChange={() => setDirty(true)}
+        onSubmitCapture={onSubmitCapture}
         className={`modal-panel relative z-10 flex w-full max-h-[calc(100dvh-2rem)] flex-col overflow-hidden rounded-[var(--radius-card)] border border-border bg-surface shadow-[0_12px_32px_-8px_rgba(15,23,42,0.28)] sm:max-h-[calc(100dvh-3rem)] ${sizeClass[size]} ${className}`.trim()}
       >
         <span
@@ -99,7 +174,7 @@ export function Modal({
           </div>
           <button
             type="button"
-            onClick={onClose}
+            onClick={requestClose}
             className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-border bg-surface text-slate-500 transition hover:border-border-strong hover:bg-surface-muted hover:text-slate-800"
             aria-label={t("close")}
           >
@@ -112,11 +187,28 @@ export function Modal({
         </div>
 
         {footer ? (
-          <footer className="flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-border bg-surface px-5 py-4 sm:px-6">
+          <footer
+            className="flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-border bg-surface px-5 py-4 sm:px-6"
+            onClickCapture={onFooterClickCapture}
+          >
             {footer}
           </footer>
         ) : null}
       </div>
+      <ConfirmDialog
+        open={prompt != null}
+        onClose={() => setPrompt(null)}
+        onConfirm={confirmPrompt}
+        variant={prompt === "close" ? "danger" : "primary"}
+        title={prompt === "close" ? tUi("formDiscardTitle") : tUi("formSaveTitle")}
+        description={
+          prompt === "close" ? tUi("formDiscardMessage") : tUi("formSaveMessage")
+        }
+        confirmLabel={
+          prompt === "close" ? tUi("formDiscardConfirm") : t("save")
+        }
+        cancelLabel={prompt === "close" ? tUi("formKeepEditing") : t("cancel")}
+      />
     </div>,
     document.body,
   );

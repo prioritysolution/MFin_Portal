@@ -40,6 +40,14 @@ async function withUnauthorizedClear<T>(run: () => Promise<T>): Promise<T> {
 export async function listApplOptions(
   query: ApplOptionQuery,
 ): Promise<ApplOption[]> {
+  if (!Number.isInteger(query.optGrpId) || query.optGrpId <= 0) {
+    throw new ApiError({
+      message: "opt_grp_id must be a positive integer",
+      status: 422,
+      code: "VALIDATION",
+    });
+  }
+
   return withUnauthorizedClear(async () => {
     const token = await requireAccessToken();
     const payload = await api.get<LaravelResponse<ApplOptionDto[]>>(
@@ -75,10 +83,44 @@ export async function listApplOptions(
       });
     }
 
-    const rows = Array.isArray(payload.data) ? payload.data : [];
-    return rows.flatMap((row) => {
+    if (!Array.isArray(payload.data)) {
+      throw new ApiError({
+        message: "Application options response must contain an array",
+        status: 502,
+        code: "SERVER",
+      });
+    }
+    if (payload.data.length === 0) {
+      throw new ApiError({
+        message: "No application options found for this group",
+        status: 404,
+        code: "NOT_FOUND",
+      });
+    }
+
+    const options = payload.data.map((row, index) => {
       const parsed = applOptionDtoSchema.safeParse(row);
-      return parsed.success ? [mapApplOptionDto(parsed.data)] : [];
+      if (!parsed.success) {
+        throw new ApiError({
+          message: `Application option ${index + 1} has an invalid response shape`,
+          status: 502,
+          code: "SERVER",
+          details: parsed.error.issues,
+        });
+      }
+      return mapApplOptionDto(parsed.data);
     });
+
+    const filteredOptions = options
+      .filter((option) => query.includeInactive || option.isActive)
+      .sort((left, right) => left.srlNo - right.srlNo || left.optCode - right.optCode);
+    if (filteredOptions.length === 0) {
+      throw new ApiError({
+        message: "No application options found for this group",
+        status: 404,
+        code: "NOT_FOUND",
+      });
+    }
+    return filteredOptions;
   });
 }

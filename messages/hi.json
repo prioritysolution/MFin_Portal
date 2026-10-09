@@ -56,6 +56,8 @@
     "timeMinute": "मिनट",
     "timeDone": "हो गया",
     "calendarLabel": "कैलेंडर",
+    "calendarMonth": "महीना",
+    "calendarYear": "वर्ष",
     "calendarPrevMonth": "पिछला महीना",
     "calendarNextMonth": "अगला महीना",
     "weekdayMo": "सो",
@@ -68,7 +70,13 @@
     "charCount": "{count}/{max}",
     "numberRange": "{min}–{max}",
     "numberMin": "न्यूनतम {min}",
-    "numberMax": "अधिकतम {max}"
+    "numberMax": "अधिकतम {max}",
+    "formDiscardTitle": "असहेजे बदलाव छोड़ें?",
+    "formDiscardMessage": "इस फ़ॉर्म में विवरण भरा है। बिना सहेजे बंद करें?",
+    "formDiscardConfirm": "छोड़कर बंद करें",
+    "formKeepEditing": "संपादन जारी रखें",
+    "formSaveTitle": "ये विवरण सहेजें?",
+    "formSaveMessage": "भरे गए विवरण सहेजने की पुष्टि करें।"
   },
   "confirmDialog": {
     "defaultTitle": "क्या आप सुनिश्चित हैं?",
@@ -2135,6 +2143,22 @@
         "uniquePasswordCount": "0 से 24 तक बताएँ कि हाल के कितने पासवर्ड बंद रहेंगे।",
         "expirationDays": "1 से 365 दिन तक समाप्ति लिखें।"
       }
+    }
+  },
+  "onboarding": {
+    "groupManagement": {
+      "title": "समूह प्रबंधन",
+      "description": "ग्राहक ऑनबोर्डिंग / समूह प्रबंधन",
+      "newGroup": "+ नया समूह",
+      "editGroup": "समूह संपादित करें",
+      "viewGroup": "समूह विवरण"
+    },
+    "memberRegistration": {
+      "title": "सदस्य पंजीकरण",
+      "description": "ग्राहक ऑनबोर्डिंग / सदस्य पंजीकरण",
+      "newMember": "+ नया सदस्य",
+      "editMember": "सदस्य संपादित करें",
+      "viewMember": "सदस्य प्रोफ़ाइल"
     }
   }
 }

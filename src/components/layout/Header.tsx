@@ -7,6 +7,7 @@ import { ChevronDown, Globe, LogOut, Menu, Settings, UserRound } from "lucide-re
 import type { AppLocale } from "@/i18n/routing";
 import type { AuthUser } from "@/features/auth/types/auth";
 import { clearMenuClientCache } from "@/features/navigation/services/menu-client";
+import { clearStoredAuthUser } from "@/features/auth/utils/auth-user-storage";
 import { QuickSearch } from "@/features/navigation/components/QuickSearch";
 import { SupportDeskLink } from "@/features/support/components/SupportDeskLink";
 import { ThemeToggle } from "@/features/theme/ThemeToggle";
@@ -79,6 +80,7 @@ export function Header({ onMenuClick, user }: HeaderProps) {
       });
     } finally {
       clearMenuClientCache();
+      clearStoredAuthUser();
       window.location.assign("/login");
     }
   }

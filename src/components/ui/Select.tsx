@@ -15,6 +15,8 @@ export type SelectOption = {
   value: string;
   label: string;
   disabled?: boolean;
+  /** Stable list identity when two options share the same value. */
+  id?: string;
 };
 
 type SelectProps = {
@@ -118,12 +120,14 @@ export function Select({
     onChange(next);
     setOpen(false);
     setQuery("");
+    rootRef.current?.dispatchEvent(new Event("input", { bubbles: true }));
   }
 
   function clearSelection() {
     onChange("");
     setOpen(false);
     setQuery("");
+    rootRef.current?.dispatchEvent(new Event("input", { bubbles: true }));
   }
 
   function onTriggerKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
@@ -261,7 +265,7 @@ export function Select({
                 const isSelected = option.value === value;
                 const isActive = index === activeIndex;
                 return (
-                  <li key={option.value}>
+                  <li key={option.id ?? `${option.value}-${index}`}>
                     <button
                       type="button"
                       role="option"

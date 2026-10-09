@@ -160,22 +160,41 @@ export function DatePicker({
     }
   }, [locale, selected, value]);
 
-  const monthLabel = useMemo(() => {
-    try {
-      return new Intl.DateTimeFormat(locale, {
-        month: "long",
-        year: "numeric",
-      }).format(viewMonth);
-    } catch {
-      return `${viewMonth.getMonth() + 1}/${viewMonth.getFullYear()}`;
-    }
-  }, [locale, viewMonth]);
-
-  const days = useMemo(() => buildMonthGrid(viewMonth), [viewMonth]);
   const today = useMemo(() => {
     const now = new Date();
     return new Date(now.getFullYear(), now.getMonth(), now.getDate());
   }, []);
+
+  const monthOptions = useMemo(() => {
+    return Array.from({ length: 12 }, (_, month) => {
+      const sample = new Date(2020, month, 1);
+      let label = String(month + 1);
+      try {
+        label = new Intl.DateTimeFormat(locale, { month: "short" }).format(sample);
+      } catch {
+        label = String(month + 1);
+      }
+      return { value: String(month), label };
+    });
+  }, [locale]);
+
+  const yearOptions = useMemo(() => {
+    const nowYear = today.getFullYear();
+    let start = minDate ? minDate.getFullYear() : nowYear - 120;
+    let end = maxDate ? maxDate.getFullYear() : nowYear + 20;
+    if (start > end) {
+      const swap = start;
+      start = end;
+      end = swap;
+    }
+    const years: number[] = [];
+    for (let year = end; year >= start; year -= 1) years.push(year);
+    const viewed = viewMonth.getFullYear();
+    if (!years.includes(viewed)) years.unshift(viewed);
+    return years;
+  }, [maxDate, minDate, today, viewMonth]);
+
+  const days = useMemo(() => buildMonthGrid(viewMonth), [viewMonth]);
 
   function isDisabledDay(day: Date): boolean {
     if (minDate && isBeforeDay(day, minDate)) return true;
@@ -187,11 +206,13 @@ export function DatePicker({
     if (isDisabledDay(day)) return;
     onChange(toYmd(day));
     setOpen(false);
+    rootRef.current?.dispatchEvent(new Event("input", { bubbles: true }));
   }
 
   function clear() {
     onChange("");
     setOpen(false);
+    rootRef.current?.dispatchEvent(new Event("input", { bubbles: true }));
   }
 
   function chooseToday() {
@@ -199,6 +220,7 @@ export function DatePicker({
     onChange(toYmd(today));
     setViewMonth(startOfMonth(today));
     setOpen(false);
+    rootRef.current?.dispatchEvent(new Event("input", { bubbles: true }));
   }
 
   function onTriggerKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
@@ -267,9 +289,40 @@ export function DatePicker({
           aria-label={t("calendarLabel")}
           className="absolute z-50 mt-1.5 w-[18.5rem] overflow-hidden rounded-xl border border-border bg-surface p-3 shadow-[var(--shadow-card)]"
         >
-          <div className="mb-2 flex items-center justify-between gap-2">
-            <p className="text-sm font-semibold text-slate-800">{monthLabel}</p>
-            <div className="flex items-center gap-0.5">
+          <div className="mb-2 flex items-center gap-1">
+            <select
+              aria-label={t("calendarMonth")}
+              value={viewMonth.getMonth()}
+              onChange={(event) => {
+                const month = Number(event.target.value);
+                setViewMonth(
+                  (current) => new Date(current.getFullYear(), month, 1),
+                );
+              }}
+              className="h-8 min-w-0 flex-1 rounded-lg border border-border bg-surface px-1.5 text-xs font-semibold text-slate-800 outline-none focus:border-brand"
+            >
+              {monthOptions.map((month) => (
+                <option key={month.value} value={month.value}>
+                  {month.label}
+                </option>
+              ))}
+            </select>
+            <select
+              aria-label={t("calendarYear")}
+              value={viewMonth.getFullYear()}
+              onChange={(event) => {
+                const year = Number(event.target.value);
+                setViewMonth((current) => new Date(year, current.getMonth(), 1));
+              }}
+              className="h-8 w-[4.75rem] rounded-lg border border-border bg-surface px-1.5 text-xs font-semibold text-slate-800 outline-none focus:border-brand"
+            >
+              {yearOptions.map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+            <div className="ms-auto flex items-center gap-0.5">
               <button
                 type="button"
                 aria-label={t("calendarPrevMonth")}

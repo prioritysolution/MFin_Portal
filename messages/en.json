@@ -56,6 +56,8 @@
     "timeMinute": "Minute",
     "timeDone": "Done",
     "calendarLabel": "Calendar",
+    "calendarMonth": "Month",
+    "calendarYear": "Year",
     "calendarPrevMonth": "Previous month",
     "calendarNextMonth": "Next month",
     "weekdayMo": "Mo",
@@ -68,7 +70,13 @@
     "charCount": "{count}/{max}",
     "numberRange": "{min}–{max}",
     "numberMin": "Minimum is {min}",
-    "numberMax": "Maximum is {max}"
+    "numberMax": "Maximum is {max}",
+    "formDiscardTitle": "Discard unsaved changes?",
+    "formDiscardMessage": "You have entered details in this form. Close it without saving?",
+    "formDiscardConfirm": "Discard and close",
+    "formKeepEditing": "Keep editing",
+    "formSaveTitle": "Save these details?",
+    "formSaveMessage": "Confirm to save the details you entered."
   },
   "confirmDialog": {
     "defaultTitle": "Are you sure?",
@@ -2140,6 +2148,22 @@
         "uniquePasswordCount": "Enter how many recent passwords to block, from 0 to 24.",
         "expirationDays": "Enter an expiry from 1 to 365 days."
       }
+    }
+  },
+  "onboarding": {
+    "groupManagement": {
+      "title": "Group Management",
+      "description": "Customer Onboarding / Group Management",
+      "newGroup": "+ New Group",
+      "editGroup": "Edit Group",
+      "viewGroup": "Group Details"
+    },
+    "memberRegistration": {
+      "title": "Member Registration",
+      "description": "Customer Onboarding / Member Registration",
+      "newMember": "+ New Member",
+      "editMember": "Edit Member",
+      "viewMember": "Member Profile"
     }
   }
 }

@@ -56,6 +56,8 @@
     "timeMinute": "ମିନିଟ୍",
     "timeDone": "ସରିଗଲା",
     "calendarLabel": "କ୍ୟାଲେଣ୍ଡର୍",
+    "calendarMonth": "ମାସ",
+    "calendarYear": "ବର୍ଷ",
     "calendarPrevMonth": "ପୂର୍ବ ମାସ",
     "calendarNextMonth": "ପର ମାସ",
     "weekdayMo": "ସୋ",
@@ -68,7 +70,13 @@
     "charCount": "{count}/{max}",
     "numberRange": "{min}–{max}",
     "numberMin": "ସର୍ବନିମ୍ନ {min}",
-    "numberMax": "ସର୍ବାଧିକ {max}"
+    "numberMax": "ସର୍ବାଧିକ {max}",
+    "formDiscardTitle": "ସଂରକ୍ଷିତ ନହୋଇଥିବା ତଥ୍ୟ ଛାଡ଼ିବେ?",
+    "formDiscardMessage": "ଏହି ଫର୍ମରେ ତଥ୍ୟ ଭରାଯାଇଛି। ସଂରକ୍ଷଣ ନକରି ବନ୍ଦ କରିବେ?",
+    "formDiscardConfirm": "ଛାଡ଼ି ବନ୍ଦ କରନ୍ତୁ",
+    "formKeepEditing": "ସମ୍ପାଦନା ଜାରି ରଖନ୍ତୁ",
+    "formSaveTitle": "ଏହି ତଥ୍ୟ ସଂରକ୍ଷଣ କରିବେ?",
+    "formSaveMessage": "ଭରାଯାଇଥିବା ତଥ୍ୟ ସଂରକ୍ଷଣ କରିବାକୁ ନିଶ୍ଚିତ କରନ୍ତୁ।"
   },
   "confirmDialog": {
     "defaultTitle": "ଆପଣ ନିଶ୍ଚିତ କି?",
@@ -2135,6 +2143,22 @@
         "uniquePasswordCount": "୦ ରୁ ୨୪ ମଧ୍ୟରେ କେତୋଟି ସାମ୍ପ୍ରତିକ ପାସୱାର୍ଡ ବନ୍ଦ ରହିବ ଲେଖନ୍ତୁ।",
         "expirationDays": "୧ ରୁ ୩୬୫ ଦିନ ମଧ୍ୟରେ ମିଆଦ ଲେଖନ୍ତୁ।"
       }
+    }
+  },
+  "onboarding": {
+    "groupManagement": {
+      "title": "ଗୋଷ୍ଠୀ ପରିଚାଳନା",
+      "description": "ଗ୍ରାହକ ଅନବୋର୍ଡିଂ / ଗୋଷ୍ଠୀ ପରିଚାଳନା",
+      "newGroup": "+ ନୂତନ ଗୋଷ୍ଠୀ",
+      "editGroup": "ଗୋଷ୍ଠୀ ସମ୍ପାଦନା",
+      "viewGroup": "ଗୋଷ୍ଠୀ ବିବରଣୀ"
+    },
+    "memberRegistration": {
+      "title": "ସଦସ୍ୟ ପଞ୍ଜୀକରଣ",
+      "description": "ଗ୍ରାହକ ଅନବୋର୍ଡିଂ / ସଦସ୍ୟ ପଞ୍ଜୀକରଣ",
+      "newMember": "+ ନୂତନ ସଦସ୍ୟ",
+      "editMember": "ସଦସ୍ୟ ସମ୍ପାଦନ କରନ୍ତୁ",
+      "viewMember": "ସଦସ୍ୟ ପ୍ରୋଫାଇଲ୍"
     }
   }
 }

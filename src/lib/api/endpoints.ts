@@ -40,6 +40,8 @@ export const endpoints = {
     applOptions: "/api/master/appl-options",
     supportTickets: "/api/support/tickets",
     supportRealtime: "/api/support/realtime",
+    groupManagement: "/api/onboarding/group-management",
+    memberRegistration: "/api/onboarding/member-registration",
   },
   menuTree: "/api/MenuTree",
   stateList: "/api/StateList",
@@ -187,6 +189,18 @@ export const endpoints = {
     list: "/api/CenterList",
     add: "/api/CenterAdd",
     edit: "/api/CenterEdit",
+  },
+  group: {
+    list: "/api/GroupList",
+    add: "/api/GroupAdd",
+    edit: "/api/GroupEdit",
+    status: "/api/GroupStatus",
+  },
+  member: {
+    list: "/api/MemberList",
+    add: "/api/MemberAdd",
+    edit: "/api/MemberEdit",
+    status: "/api/MemberStatus",
   },
   operationalDays: {
     list: "/api/OperationalDaysList",
