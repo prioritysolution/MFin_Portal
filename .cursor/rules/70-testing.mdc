@@ -26,13 +26,13 @@ E2E:
 - search/filter
 - language switching (next-intl locale change)
 
-Before completing a feature:
-- run TypeScript checks
-- run lint
-- run tests relevant to the change
-- run build when practical
-- verify loading/error/empty states
-- verify responsive behavior
-- verify accessibility
-- verify next-intl (keys present, no hardcoded user-visible strings in touched UI)
-- check for regressions
+Run checks only when the user asks. Do not open the browser unless they ask:
+- TypeScript
+- lint
+- tests relevant to the change
+- build
+- loading, error, and empty states
+- responsive behavior
+- accessibility
+- next-intl (keys present, no hardcoded user-visible strings in touched UI)
+- regressions

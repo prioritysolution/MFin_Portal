@@ -13,4 +13,4 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 Production Next.js app. Backend is Laravel. Auth and protected APIs go through the BFF only. Do not invent endpoints, mock APIs, or a second auth mechanism. Map APIs in the feature service layer. Reuse `src/components/shared` and existing tokens. No new UI library without approval.
 
-Locales: `en`, `bn`, `hi`, `or`. When a change is complete, run `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build` if they apply.
+Locales: `en`, `bn`, `hi`, `or`. Run typecheck, lint, tests, build, or a browser check only when the user asks. Do not open the browser on your own.

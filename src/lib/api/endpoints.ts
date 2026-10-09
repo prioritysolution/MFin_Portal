@@ -38,6 +38,8 @@ export const endpoints = {
     loanRoiSlabs: "/api/master/loan-roi-slabs",
     loanEligibility: "/api/master/loan-eligibility-setup",
     applOptions: "/api/master/appl-options",
+    supportTickets: "/api/support/tickets",
+    supportRealtime: "/api/support/realtime",
   },
   menuTree: "/api/MenuTree",
   stateList: "/api/StateList",
@@ -195,6 +197,19 @@ export const endpoints = {
     list: "/api/MakerCheckerList",
     add: "/api/MakerCheckerAdd",
     edit: "/api/MakerCheckerEdit",
+  },
+  /**
+   * Paths are appended to SUPPORT_API_URL (`http://host/api`).
+   * Raise, list, detail, messages, and realtime use the project key or the client token.
+   * The API secret is not sent.
+   */
+  supportTicket: {
+    list: "/integrations/redirect/tickets",
+    add: "/integrations/tickets",
+    redirectAdd: "/integrations/redirect/tickets",
+    one: "/integrations/redirect/tickets",
+    realtime: "/integrations/redirect/realtime",
+    realtimeAuth: "/integrations/redirect/realtime/auth",
   },
 } as const;
 

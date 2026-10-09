@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* App theme is the `dark` class on <html>, not the operating system setting. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #e9eef4;
   --foreground: #0b1220;
@@ -117,7 +120,7 @@ body {
 
 @keyframes page-enter {
   from {
-    opacity: 0;
+    opacity: 0.92;
   }
   to {
     opacity: 1;
@@ -125,11 +128,54 @@ body {
 }
 
 .page-transition {
-  animation: page-enter 280ms ease-out both;
+  animation: page-enter 160ms ease-out;
 }
 
+/* Loading UI replaces the page already. Fading it in from transparent
+   blanks the screen, then the real page fades again — that reads as a flicker. */
 .page-transition--loading {
-  animation-duration: 200ms;
+  animation: none;
+}
+
+@keyframes content-settle {
+  from {
+    opacity: 0.72;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.content-settle {
+  animation: content-settle 180ms ease-out;
+}
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.skeleton-block {
+  background: color-mix(in srgb, var(--border) 72%, var(--surface));
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-block--inverse {
+  background: color-mix(in srgb, white 32%, transparent);
+}
+
+/* Saved menu is painted in a shadow root before React hydrates. Hide the bars, then the live list. */
+html.mfin-menu-cached .sidebar-nav-pending {
+  display: none;
+}
+
+html.mfin-menu-live #mfin-menu-boot {
+  display: none;
 }
 
 @keyframes table-progress {
@@ -395,6 +441,8 @@ html.dark .toast-card--info {
 @media (prefers-reduced-motion: reduce) {
   .page-transition,
   .page-transition--loading,
+  .content-settle,
+  .skeleton-block,
   .modal-panel,
   .toast-card,
   .toast-card--leaving,
@@ -561,7 +609,7 @@ html.dark .toast-card--info {
   background: linear-gradient(
     100deg,
     transparent 28%,
-    rgba(255, 255, 255, 0.65) 50%,
+    color-mix(in srgb, var(--surface) 70%, white) 50%,
     transparent 72%
   );
   animation: error-sheen 2.8s ease-in-out 0.4s infinite;

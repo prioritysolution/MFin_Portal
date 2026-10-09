@@ -10,6 +10,8 @@ export type {
 
 export { PageHeader } from "./PageHeader";
 export { FilterPanel } from "./FilterPanel";
+export { SectionTabs } from "./SectionTabs";
+export type { SectionTab } from "./SectionTabs";
 export { LoadingState } from "./LoadingState";
 export { EmptyState } from "./EmptyState";
 export { ErrorState } from "./ErrorState";

@@ -24,11 +24,40 @@ type MenuEnvelope = {
   data?: MenuTreeNode[] | null;
 };
 
-/** Share one HTTP request when Strict Mode / remount fires the effect twice. */
 const inflightByKey = new Map<string, Promise<MenuClientResult>>();
+
+let menuSnapshot: { key: string; items: MenuTreeNode[] | null } = {
+  key: "",
+  items: null,
+};
+
+/** Stable localStorage read for useSyncExternalStore. Same key returns the same array. */
+export function getMenuClientSnapshot(
+  userId: number,
+  orgId: number,
+  lang?: string | null,
+): MenuTreeNode[] | null {
+  const key = `${userId}:${orgId}:${normalizeMenuLang(lang)}`;
+  if (menuSnapshot.key === key) return menuSnapshot.items;
+  menuSnapshot = { key, items: readStoredMenu(userId, orgId, lang) };
+  return menuSnapshot.items;
+}
+
+export function subscribeStoredMenu(onStoreChange: () => void): () => void {
+  if (typeof window === "undefined") return () => {};
+  window.addEventListener("mfin-menu-cache", onStoreChange);
+  return () => window.removeEventListener("mfin-menu-cache", onStoreChange);
+}
+
+function notifyStoredMenu(): void {
+  menuSnapshot = { key: "", items: null };
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new Event("mfin-menu-cache"));
+}
 
 export function clearMenuClientCache(): void {
   clearStoredMenu();
+  notifyStoredMenu();
   inflightByKey.clear();
 }
 
@@ -97,10 +126,14 @@ async function fetchMenuOnce(options?: {
     const items = Array.isArray(payload.data) ? payload.data : [];
 
     if (options?.userId != null && options.orgId != null) {
-      const previous = readStoredMenu(options.userId, options.orgId, lang);
-      if (!previous || !menusEqual(previous, items)) {
-        writeStoredMenu(options.userId, options.orgId, items, lang);
-      }
+      const saved = writeStoredMenu(
+        options.userId,
+        options.orgId,
+        items,
+        lang,
+      );
+      if (saved.changed) notifyStoredMenu();
+      return { ok: true, items: saved.items };
     }
 
     return { ok: true, items };

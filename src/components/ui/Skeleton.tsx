@@ -24,7 +24,7 @@ export function Skeleton({
   return (
     <div
       aria-hidden="true"
-      className={`animate-pulse bg-slate-200/80 ${roundedClass[rounded]} ${className}`.trim()}
+      className={`skeleton-block ${roundedClass[rounded]} ${className}`.trim()}
       {...props}
     />
   );

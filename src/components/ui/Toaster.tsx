@@ -70,7 +70,9 @@ export function Toaster() {
             key={item.id}
             role="status"
             data-depth={depth}
-            className={`toast-card relative flex items-center gap-3 overflow-hidden rounded-2xl border px-3.5 py-3 text-sm shadow-[var(--shadow-card)] ${toneClass[item.tone]} ${
+            className={`toast-card relative flex gap-3 overflow-hidden rounded-2xl border px-3.5 py-3 text-sm shadow-[var(--shadow-card)] ${
+              item.detail || item.action ? "items-start" : "items-center"
+            } ${toneClass[item.tone]} ${
               item.id === incomingId ? "toast-card--fresh" : ""
             } ${item.leaving ? "toast-card--leaving" : ""}`}
             style={{ ["--toast-life" as string]: `${TOAST_DURATION_MS}ms` }}
@@ -82,7 +84,24 @@ export function Toaster() {
                 <Icon className="h-4 w-4" aria-hidden="true" />
               </span>
             </span>
-            <p className="min-w-0 flex-1 leading-5">{item.message}</p>
+            <div className="min-w-0 flex-1">
+              <p className="leading-5">{item.message}</p>
+              {item.detail ? (
+                <p className="mt-0.5 line-clamp-2 text-xs leading-5 opacity-80">{item.detail}</p>
+              ) : null}
+              {item.action ? (
+                <button
+                  type="button"
+                  className="mt-1 text-xs font-semibold underline"
+                  onClick={() => {
+                    item.action?.onClick();
+                    dismissToast(item.id);
+                  }}
+                >
+                  {item.action.label}
+                </button>
+              ) : null}
+            </div>
             <button
               type="button"
               className="rounded-md p-0.5 opacity-60 hover:opacity-100"

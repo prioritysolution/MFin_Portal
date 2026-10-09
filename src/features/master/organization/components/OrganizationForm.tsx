@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useState, useSyncExternalStore, type ChangeEvent, type FormEvent } from "react";
 import { PageToast, useToastText } from "@/components/ui/PageToast";
 import { useTranslations } from "next-intl";
 import { Save } from "lucide-react";
@@ -24,6 +24,11 @@ import {
   isOrganizationClientError,
   saveOrganization,
 } from "@/features/master/organization/services/organization-client";
+import {
+  getOrganizationSnapshot,
+  subscribeOrganizationCache,
+  writeOrganizationCache,
+} from "@/features/master/organization/services/organization-cache";
 import { organizationUpdateInputSchema } from "@/features/master/organization/schemas/organization.schema";
 import {
   cinPattern,
@@ -132,10 +137,12 @@ export function OrganizationForm() {
   const tErrors = useTranslations("errors");
   const tUi = useTranslations("ui");
   const router = useRouter();
-  /** `pending` only in development until `?preview=` is read from the URL. */
-  const [preview, setPreview] = useState<UiPreview | "pending">(() =>
-    process.env.NODE_ENV === "development" ? "pending" : null,
+  const cached = useSyncExternalStore(
+    subscribeOrganizationCache,
+    getOrganizationSnapshot,
+    () => null,
   );
+  const [preview, setPreview] = useState<UiPreview>(null);
 
   const [loadState, setLoadState] = useState<LoadStatus>({ status: "loading" });
   const [form, setForm] = useState<FormState | null>(null);
@@ -159,7 +166,8 @@ export function OrganizationForm() {
     let cancelled = false;
 
     async function load() {
-      setLoadState({ status: "loading" });
+      const cachedNow = getOrganizationSnapshot();
+      if (!cachedNow) setLoadState({ status: "loading" });
       setFormError(null);
       setSuccessMessage(null);
 
@@ -193,6 +201,7 @@ export function OrganizationForm() {
         setLogoMode("keep");
         setLogoBase64(null);
         setLoadState({ status: "ready", organization });
+        writeOrganizationCache(organization, stateResult.items);
       } catch (error) {
         if (cancelled) return;
         if (isOrganizationClientError(error) && error.status === 401) {
@@ -304,8 +313,15 @@ export function OrganizationForm() {
     }
   }
 
-  if (preview === "pending") {
-    return <LoadingState title={t("loading")} />;
+  if (
+    cached &&
+    preview == null &&
+    loadState.status === "loading" &&
+    form == null
+  ) {
+    setLoadState({ status: "ready", organization: cached.organization });
+    setForm(organizationToForm(cached.organization));
+    setStates(cached.states);
   }
 
   if (preview === "error") {
@@ -326,7 +342,10 @@ export function OrganizationForm() {
     );
   }
 
-  if (preview === "loading" || loadState.status === "loading") {
+  if (
+    preview === "loading" ||
+    (loadState.status === "loading" && form == null)
+  ) {
     return <LoadingState title={t("loading")} />;
   }
 

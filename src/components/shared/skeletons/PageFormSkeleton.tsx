@@ -7,7 +7,8 @@ type PageFormSkeletonProps = {
 };
 
 /**
- * Page + card form loading placeholder (Organization, Timings, RBI, etc.).
+ * Card form loading placeholder. Matches Card: title, description, fields, save.
+ * The page title stays in the app header.
  */
 export function PageFormSkeleton({
   fields = 6,
@@ -21,18 +22,13 @@ export function PageFormSkeleton({
       aria-live="polite"
       className={`flex min-w-0 flex-col gap-4 sm:gap-5 ${className}`.trim()}
     >
-      <div className="space-y-2">
-        <Skeleton className="h-7 w-56 sm:w-72" />
-        <Skeleton className="h-3.5 w-full max-w-md" />
-      </div>
-
-      <section className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5">
-        <div className="space-y-2">
-          <Skeleton className="h-4 w-64" />
-          <Skeleton className="h-3 w-full max-w-lg" />
+      <section className="rounded-[var(--radius-card)] border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5">
+        <div className="mb-4 space-y-2">
+          <Skeleton className="h-5 w-48" />
+          <Skeleton className="h-3.5 w-full max-w-md" />
         </div>
 
-        <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           {Array.from({ length: fields }).map((_, index) => (
             <div key={index} className="space-y-1.5">
               <Skeleton className="h-3 w-28" />
@@ -44,8 +40,8 @@ export function PageFormSkeleton({
         {showChecks ? (
           <div className="mt-4 space-y-3 rounded-2xl bg-surface-muted px-4 py-3">
             {Array.from({ length: 3 }).map((_, index) => (
-              <div key={index} className="flex items-start gap-2">
-                <Skeleton className="mt-0.5 h-4 w-4" rounded="md" />
+              <div key={index} className="flex items-center gap-2">
+                <Skeleton className="h-4 w-4 shrink-0" rounded="md" />
                 <Skeleton className="h-3.5 w-full max-w-sm" />
               </div>
             ))}
@@ -53,7 +49,7 @@ export function PageFormSkeleton({
         ) : null}
 
         <div className="mt-4 flex justify-end">
-          <Skeleton className="h-10 w-40" rounded="xl" />
+          <Skeleton className="h-10 w-36" rounded="xl" />
         </div>
       </section>
     </div>

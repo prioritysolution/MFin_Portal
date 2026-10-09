@@ -254,12 +254,11 @@ function OperationalDayFormBody({
         options={dayOptions}
       />
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-1 items-start gap-3 sm:grid-cols-2">
         <TextField
           label={t("fields.openTime")}
           type="time"
           value={form.openTime}
-          hint={t("hints.time")}
           error={fieldErrors.openTime || undefined}
           onChange={(value) => updateField("openTime", normalizeTime(value))}
         />
@@ -267,13 +266,13 @@ function OperationalDayFormBody({
           label={t("fields.closeTime")}
           type="time"
           value={form.closeTime}
-          hint={t("hints.time")}
           error={fieldErrors.closeTime || undefined}
           onChange={(value) => updateField("closeTime", normalizeTime(value))}
         />
       </div>
+      <p className="text-xs leading-5 text-muted">{t("hints.time")}</p>
 
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-border">
         <CheckboxField
           label={t("fields.isOperational")}
           checked={form.isOperational}

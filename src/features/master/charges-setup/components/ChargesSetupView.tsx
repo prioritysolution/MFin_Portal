@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Banknote, Landmark } from "lucide-react";
 import { DataPage } from "@/components/shared/DataPage";
+import { SectionTabs } from "@/components/shared/SectionTabs";
 import { PageToast, useToastText } from "@/components/ui/PageToast";
 import { fetchAcctLedgerList } from "@/features/master/acct-ledger";
 import { fetchApplOptions } from "@/features/master/appl-options";
@@ -27,12 +28,18 @@ function normalizeTab(value: string | null | undefined): PanelId | null {
   return null;
 }
 
-export function ChargesSetupView() {
+export function ChargesSetupView({
+  initialTab,
+}: {
+  initialTab?: string;
+}) {
   const t = useTranslations("master.chargesSetup");
   const pageMeta = useMemo(() => masterModulePages.chargesSetup.toJSON(), []);
   const [optionsError, setOptionsError] = useToastText();
 
-  const [activeTab, setActiveTab] = useState<PanelId>("deposit");
+  const [activeTab, setActiveTab] = useState<PanelId>(
+    () => normalizeTab(initialTab) ?? "deposit",
+  );
 
   const [figureOptions, setFigureOptions] = useState<ApplOption[]>([]);
   const [depositDuringOptions, setDepositDuringOptions] = useState<
@@ -50,11 +57,6 @@ export function ChargesSetupView() {
   );
 
   useEffect(() => {
-    const fromUrl = normalizeTab(
-      new URLSearchParams(window.location.search).get("tab"),
-    );
-    if (fromUrl) setActiveTab(fromUrl);
-
     function onPopState() {
       const next = normalizeTab(
         new URLSearchParams(window.location.search).get("tab"),
@@ -115,32 +117,12 @@ export function ChargesSetupView() {
     <DataPage page={pageMeta}>
       <div className="flex min-w-0 flex-col gap-4 sm:gap-5">
         <PageToast message={optionsError} tone="error" />
-        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-2 xl:grid-cols-4">
-          {tabs.map((tab) => {
-            const active = activeTab === tab.id;
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => handleSelectTab(tab.id)}
-                aria-pressed={active}
-                className={`flex flex-col items-start gap-1.5 rounded-2xl border px-3.5 py-3 text-left transition ${
-                  active
-                    ? "border-brand bg-brand text-white shadow-sm"
-                    : "border-border bg-surface-muted text-slate-600 hover:border-brand/30 hover:bg-surface"
-                }`}
-              >
-                <Icon
-                  className={`h-4 w-4 ${active ? "text-white" : "text-slate-500"}`}
-                />
-                <span className="text-xs font-semibold leading-snug">
-                  {tab.title}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+        <SectionTabs
+          tabs={tabs}
+          activeId={activeTab}
+          onChange={handleSelectTab}
+          label={t("title")}
+        />
 
         {activeTab === "deposit" ? (
           <ChargesSetupSection

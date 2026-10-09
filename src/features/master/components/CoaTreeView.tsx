@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { BookOpen, GitBranch, GitFork, Layers, Tag } from "lucide-react";
+import { SectionTabs } from "@/components/shared/SectionTabs";
 import { AcctCategoryView } from "@/features/master/acct-category";
 import { AcctHeadView } from "@/features/master/acct-head";
 import { AcctLedgerView } from "@/features/master/acct-ledger";
@@ -59,9 +60,15 @@ export function CoaTreeView({
     [tBranch, tCategory, tHead, tLedger, tSubledger],
   );
 
-  const [activeTab, setActiveTab] = useState<PanelId>(
-    () => normalizeTab(initialTab) ?? "categories",
-  );
+  const initialPanel = normalizeTab(initialTab) ?? "categories";
+  const [activeTab, setActiveTab] = useState<PanelId>(initialPanel);
+  const [mountedTabs, setMountedTabs] = useState<PanelId[]>(() => [initialPanel]);
+
+  function rememberTab(id: PanelId) {
+    setMountedTabs((current) =>
+      current.includes(id) ? current : [...current, id],
+    );
+  }
 
   // Sync from URL only after mount — never during useState (avoids hydration mismatch).
   useEffect(() => {
@@ -70,12 +77,16 @@ export function CoaTreeView({
     );
     if (fromUrl && fromUrl !== activeTab) {
       setActiveTab(fromUrl);
+      rememberTab(fromUrl);
     }
 
     function onPopState() {
       const tabParam = new URLSearchParams(window.location.search).get("tab");
       const next = normalizeTab(tabParam);
-      if (next) setActiveTab(next);
+      if (next) {
+        setActiveTab(next);
+        rememberTab(next);
+      }
     }
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
@@ -85,6 +96,7 @@ export function CoaTreeView({
 
   function handleSelectTab(id: PanelId) {
     setActiveTab(id);
+    rememberTab(id);
     const url = new URL(window.location.href);
     url.searchParams.set("tab", id);
     window.history.replaceState(null, "", url.toString());
@@ -92,37 +104,26 @@ export function CoaTreeView({
 
   return (
     <div className="flex min-w-0 flex-col gap-4 sm:gap-5">
-      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 xl:grid-cols-5">
-        {tabs.map((tab) => {
-          const active = activeTab === tab.id;
-          const Icon = tab.icon;
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => handleSelectTab(tab.id)}
-              className={`flex flex-col items-start gap-1.5 rounded-2xl border px-3.5 py-3 text-left transition ${
-                active
-                  ? "border-brand bg-brand text-white shadow-sm"
-                  : "border-border bg-surface-muted text-slate-600 hover:border-brand/30 hover:bg-surface"
-              }`}
-            >
-              <Icon
-                className={`h-4 w-4 ${active ? "text-white" : "text-slate-500"}`}
-              />
-              <span className="text-xs font-semibold leading-snug">
-                {tab.title}
-              </span>
-            </button>
-          );
-        })}
-      </div>
+      <SectionTabs
+        tabs={tabs}
+        activeId={activeTab}
+        onChange={handleSelectTab}
+        label={tCategory("title")}
+      />
 
-      {activeTab === "categories" ? <AcctCategoryView embedded /> : null}
-      {activeTab === "heads" ? <AcctHeadView embedded /> : null}
-      {activeTab === "ledgers" ? <AcctLedgerView embedded /> : null}
-      {activeTab === "subledgers" ? <AcctSubledgerView embedded /> : null}
-      {activeTab === "branches" ? <AcctSubledgerBranchView embedded /> : null}
+      {mountedTabs.map((id) => (
+        <div
+          key={id}
+          hidden={id !== activeTab}
+          className={id === activeTab ? "content-settle" : undefined}
+        >
+          {id === "categories" ? <AcctCategoryView embedded /> : null}
+          {id === "heads" ? <AcctHeadView embedded /> : null}
+          {id === "ledgers" ? <AcctLedgerView embedded /> : null}
+          {id === "subledgers" ? <AcctSubledgerView embedded /> : null}
+          {id === "branches" ? <AcctSubledgerBranchView embedded /> : null}
+        </div>
+      ))}
     </div>
   );
 }

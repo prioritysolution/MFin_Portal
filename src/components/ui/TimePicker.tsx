@@ -3,6 +3,7 @@
 import {
   useEffect,
   useId,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -36,6 +37,15 @@ function toHhmm(hour: number, minute: number): string {
   return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
 }
 
+/** Scroll the list only. `scrollIntoView` also moves modal ancestors and clips the panel. */
+function scrollListToSelected(list: HTMLDivElement | null) {
+  const selected = list?.querySelector<HTMLElement>("[data-selected='true']");
+  if (!list || !selected) return;
+  const top =
+    selected.offsetTop - (list.clientHeight - selected.offsetHeight) / 2;
+  list.scrollTop = Math.max(0, top);
+}
+
 /**
  * Project-styled time picker. Value is always `HH:mm` (or empty).
  */
@@ -51,6 +61,7 @@ export function TimePicker({
   const t = useTranslations("ui");
   const panelId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const hourListRef = useRef<HTMLDivElement>(null);
   const minuteListRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -66,28 +77,40 @@ export function TimePicker({
     setMinute(next?.minute ?? 0);
   }, [open, value]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!open) return;
-    function reveal(list: HTMLDivElement | null) {
-      const selected = list?.querySelector<HTMLElement>("[data-selected='true']");
-      selected?.scrollIntoView({ block: "center" });
+    const panel = panelRef.current;
+    const scroller = panel?.closest<HTMLElement>(".overflow-y-auto");
+    if (!panel || !scroller) return;
+    const panelRect = panel.getBoundingClientRect();
+    const scrollRect = scroller.getBoundingClientRect();
+    if (panelRect.bottom > scrollRect.bottom - 8) {
+      scroller.scrollTop += panelRect.bottom - scrollRect.bottom + 12;
     }
-    const frame = requestAnimationFrame(() => {
-      reveal(hourListRef.current);
-      reveal(minuteListRef.current);
-    });
-    return () => cancelAnimationFrame(frame);
   }, [open]);
+
+  useLayoutEffect(() => {
+    if (!open) return;
+    scrollListToSelected(hourListRef.current);
+    scrollListToSelected(minuteListRef.current);
+  }, [open, hour, minute]);
 
   useEffect(() => {
     if (!open) return;
     function onPointerDown(event: MouseEvent) {
-      if (!rootRef.current?.contains(event.target as Node)) {
-        setOpen(false);
+      const target = event.target as Node;
+      if (
+        rootRef.current?.contains(target) ||
+        panelRef.current?.contains(target)
+      ) {
+        return;
       }
+      setOpen(false);
     }
     function onKey(event: globalThis.KeyboardEvent) {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key !== "Escape") return;
+      event.stopPropagation();
+      setOpen(false);
     }
     document.addEventListener("mousedown", onPointerDown);
     document.addEventListener("keydown", onKey);
@@ -135,7 +158,7 @@ export function TimePicker({
             setOpen((prev) => !prev);
           }}
           onKeyDown={onTriggerKeyDown}
-          className={`relative flex w-full items-center justify-between gap-2 rounded-[var(--radius-control)] border border-border bg-surface py-2.5 text-left text-sm font-medium text-slate-900 outline-none transition hover:border-border-strong focus:border-brand focus:bg-surface focus:shadow-[var(--focus-ring)] disabled:cursor-not-allowed disabled:opacity-50 ${
+          className={`relative flex w-full cursor-pointer items-center justify-between gap-2 rounded-[var(--radius-control)] border border-border bg-surface py-2.5 text-left text-sm font-medium text-slate-900 outline-none transition hover:border-border-strong focus:border-brand focus:bg-surface focus:shadow-[var(--focus-ring)] disabled:cursor-not-allowed disabled:opacity-50 ${
             display && !disabled ? "ps-3 pe-16" : "px-3"
           } ${open ? "border-brand/40 bg-surface ring-4 ring-brand/10" : ""}`}
         >
@@ -165,10 +188,11 @@ export function TimePicker({
 
       {open ? (
         <div
+          ref={panelRef}
           id={panelId}
           role="dialog"
           aria-label={t("timeLabel")}
-          className="absolute z-50 mt-1.5 w-[15rem] overflow-hidden rounded-xl border border-border bg-surface p-3 shadow-[var(--shadow-card)]"
+          className="mt-1.5 w-full overflow-hidden rounded-xl border border-border bg-surface p-3 shadow-[var(--shadow-card)]"
         >
           <div className="mb-2 grid grid-cols-2 gap-2">
             <span className="text-center text-[10px] font-semibold tracking-wide text-muted uppercase">
@@ -181,7 +205,7 @@ export function TimePicker({
           <div className="grid grid-cols-2 gap-2">
             <div
               ref={hourListRef}
-              className="max-h-48 overflow-y-auto rounded-lg bg-surface-muted p-1 scrollbar-thin"
+              className="relative max-h-24 overflow-y-auto rounded-lg bg-surface-muted p-1 scrollbar-thin"
             >
               {HOURS.map((item) => {
                 const selected = item === hour;
@@ -191,7 +215,7 @@ export function TimePicker({
                     type="button"
                     data-selected={selected ? "true" : undefined}
                     onClick={() => commit(item, minute)}
-                    className={`flex h-8 w-full items-center justify-center rounded-lg text-sm tabular-nums transition ${
+                    className={`flex h-8 w-full cursor-pointer items-center justify-center rounded-lg text-sm tabular-nums transition ${
                       selected
                         ? "bg-brand font-semibold text-white"
                         : "text-slate-800 hover:bg-surface"
@@ -204,7 +228,7 @@ export function TimePicker({
             </div>
             <div
               ref={minuteListRef}
-              className="max-h-48 overflow-y-auto rounded-lg bg-surface-muted p-1 scrollbar-thin"
+              className="relative max-h-24 overflow-y-auto rounded-lg bg-surface-muted p-1 scrollbar-thin"
             >
               {MINUTES.map((item) => {
                 const selected = item === minute;
@@ -214,7 +238,7 @@ export function TimePicker({
                     type="button"
                     data-selected={selected ? "true" : undefined}
                     onClick={() => commit(hour, item)}
-                    className={`flex h-8 w-full items-center justify-center rounded-lg text-sm tabular-nums transition ${
+                    className={`flex h-8 w-full cursor-pointer items-center justify-center rounded-lg text-sm tabular-nums transition ${
                       selected
                         ? "bg-brand font-semibold text-white"
                         : "text-slate-800 hover:bg-surface"
@@ -230,14 +254,14 @@ export function TimePicker({
             <button
               type="button"
               onClick={clear}
-              className="text-xs font-semibold text-slate-600 transition hover:text-slate-900"
+              className="cursor-pointer text-xs font-semibold text-slate-600 transition hover:text-slate-900"
             >
               {t("dateClear")}
             </button>
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="text-xs font-semibold text-brand transition hover:text-brand-ink"
+              className="cursor-pointer text-xs font-semibold text-brand transition hover:text-brand-ink"
             >
               {t("timeDone")}
             </button>

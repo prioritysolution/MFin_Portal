@@ -1,8 +1,20 @@
 export type ToastTone = "success" | "error" | "info" | "warning";
 
+export type ToastAction = {
+  label: string;
+  onClick: () => void;
+};
+
+export type ToastOptions = {
+  detail?: string;
+  action?: ToastAction;
+};
+
 export type ToastItem = {
   id: number;
   message: string;
+  detail?: string;
+  action?: ToastAction;
   tone: ToastTone;
   leaving: boolean;
 };
@@ -30,9 +42,7 @@ export const TOAST_LEAVE_MS = 480;
 export function dismissToast(id: number) {
   const current = items.find((item) => item.id === id);
   if (!current || current.leaving) return;
-  items = items.map((item) =>
-    item.id === id ? { ...item, leaving: true } : item,
-  );
+  items = items.map((item) => (item.id === id ? { ...item, leaving: true } : item));
   emit();
   window.setTimeout(() => {
     items = items.filter((item) => item.id !== id);
@@ -40,9 +50,19 @@ export function dismissToast(id: number) {
   }, TOAST_LEAVE_MS);
 }
 
-export function showToast(message: string, tone: ToastTone = "success") {
+export function showToast(message: string, tone: ToastTone = "success", options?: ToastOptions) {
   const id = nextId++;
-  items = [...items, { id, message, tone, leaving: false }];
+  items = [
+    ...items,
+    {
+      id,
+      message,
+      detail: options?.detail,
+      action: options?.action,
+      tone,
+      leaving: false,
+    },
+  ];
   emit();
   window.setTimeout(() => dismissToast(id), TOAST_DURATION_MS);
   return id;

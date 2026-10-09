@@ -17,6 +17,8 @@ type StoredMenuPayload = {
   lang: string;
   updatedAt: number;
   items: MenuTreeNode[];
+  /** Icon name → SVG markup so a refresh can paint icons before React loads. */
+  icons?: Record<string, string>;
 };
 
 function canUseStorage(): boolean {
@@ -54,6 +56,25 @@ function isMenuNode(value: unknown): value is MenuTreeNode {
   );
 }
 
+function parseIcons(value: unknown): Record<string, string> | undefined {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return undefined;
+  const icons: Record<string, string> = {};
+  for (const [key, svg] of Object.entries(value)) {
+    if (typeof svg !== "string" || svg.length > 8000 || !svg.startsWith("<svg")) continue;
+    icons[key] = svg;
+  }
+  return Object.keys(icons).length > 0 ? icons : undefined;
+}
+
+function iconNames(items: MenuTreeNode[]): string[] {
+  const names = new Set<string>([""]);
+  for (const item of items) {
+    names.add(item.icon ?? "");
+    for (const child of item.children) names.add(child.icon ?? "");
+  }
+  return [...names];
+}
+
 function parseStored(raw: string | null): StoredMenuPayload | null {
   if (!raw) return null;
   try {
@@ -75,6 +96,7 @@ function parseStored(raw: string | null): StoredMenuPayload | null {
       lang: normalizeMenuLang(parsed.lang),
       updatedAt: typeof parsed.updatedAt === "number" ? parsed.updatedAt : 0,
       items: sanitizeMenuTree(parsed.items),
+      icons: parseIcons(parsed.icons),
     };
   } catch {
     return null;
@@ -109,25 +131,84 @@ export function readStoredMenu(
   return stored.items;
 }
 
+/**
+ * Saves the menu when the list changed.
+ * Returns the stored list and whether the screen should update.
+ */
 export function writeStoredMenu(
   userId: number,
   orgId: number,
   items: MenuTreeNode[],
   lang?: string | null,
-): void {
-  if (!canUseStorage()) return;
+): { items: MenuTreeNode[]; changed: boolean } {
+  const next = sanitizeMenuTree(items);
+  if (!canUseStorage()) return { items: next, changed: true };
+
+  const previous = readStoredMenu(userId, orgId, lang);
+  if (previous && menusEqual(previous, next)) {
+    return { items: previous, changed: false };
+  }
+
+  const stored = parseStored(window.localStorage.getItem(STORAGE_KEY));
+  const sameOwner =
+    stored !== null &&
+    stored.userId === userId &&
+    stored.orgId === orgId &&
+    stored.lang === normalizeMenuLang(lang);
+
   const payload: StoredMenuPayload = {
     version: 3,
     userId,
     orgId,
     lang: normalizeMenuLang(lang),
     updatedAt: Date.now(),
-    items: sanitizeMenuTree(items),
+    items: next,
+    icons: sameOwner ? stored.icons : undefined,
   };
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   } catch {
     // Quota / private mode — ignore; memory cache still works.
+  }
+  return { items: next, changed: true };
+}
+
+/** Adds SVG markup for any menu icon that is not already stored. */
+export function mergeStoredMenuIcons(
+  userId: number,
+  orgId: number,
+  lang: string | null | undefined,
+  markup: (name: string) => string,
+): void {
+  if (!canUseStorage()) return;
+  const stored = parseStored(window.localStorage.getItem(STORAGE_KEY));
+  if (
+    !stored ||
+    stored.userId !== userId ||
+    stored.orgId !== orgId ||
+    stored.lang !== normalizeMenuLang(lang)
+  ) {
+    return;
+  }
+
+  const icons = { ...(stored.icons ?? {}) };
+  let changed = false;
+  for (const name of iconNames(stored.items)) {
+    if (icons[name]) continue;
+    const svg = markup(name);
+    if (!svg.startsWith("<svg")) continue;
+    icons[name] = svg;
+    changed = true;
+  }
+  if (!changed) return;
+
+  try {
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ ...stored, icons }),
+    );
+  } catch {
+    // Quota / private mode — the built-in preview icons still paint.
   }
 }
 

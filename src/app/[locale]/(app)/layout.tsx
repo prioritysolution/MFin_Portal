@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { getLocale } from "next-intl/server";
 import { AppShell } from "@/components/layout/AppShell";
+import { MENU_BOOT_SCRIPT } from "@/features/navigation/utils/menu-boot-script";
 import { getAuthSession } from "@/lib/auth/session";
 import { redirect } from "@/i18n/navigation";
 
@@ -16,5 +17,10 @@ export default async function AppLayout({ children }: AppLayoutProps) {
     return null;
   }
 
-  return <AppShell user={session.user}>{children}</AppShell>;
+  return (
+    <>
+      <AppShell user={session.user}>{children}</AppShell>
+      <script dangerouslySetInnerHTML={{ __html: MENU_BOOT_SCRIPT }} />
+    </>
+  );
 }

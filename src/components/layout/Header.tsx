@@ -8,6 +8,7 @@ import type { AppLocale } from "@/i18n/routing";
 import type { AuthUser } from "@/features/auth/types/auth";
 import { clearMenuClientCache } from "@/features/navigation/services/menu-client";
 import { QuickSearch } from "@/features/navigation/components/QuickSearch";
+import { SupportDeskLink } from "@/features/support/components/SupportDeskLink";
 import { ThemeToggle } from "@/features/theme/ThemeToggle";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { endpoints } from "@/lib/api/endpoints";
@@ -131,7 +132,8 @@ export function Header({ onMenuClick, user }: HeaderProps) {
             <div className="md:hidden">
               <QuickSearch user={user} variant="icon" showShortcut={false} />
             </div>
-            <div className="hidden lg:block">
+            <div className="hidden items-center gap-1.5 lg:flex">
+              <SupportDeskLink />
               <ThemeToggle />
             </div>
             <div className="relative hidden lg:block" ref={langRef}>
@@ -218,6 +220,7 @@ export function Header({ onMenuClick, user }: HeaderProps) {
                 >
                   <div className="lg:hidden">
                     <ThemeToggle variant="menu" />
+                    <SupportDeskLink variant="menu" />
                     <div className="my-1 border-t border-border" />
                     <p className="flex items-center gap-2 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-soft">
                       <Globe className="h-3.5 w-3.5" aria-hidden />

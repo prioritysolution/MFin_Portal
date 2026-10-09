@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import type { DataTableAlign, DataTableProps } from "./types";
 import { useTranslations } from "next-intl";
 import { EmptyState } from "@/components/shared/EmptyState";
@@ -64,6 +64,7 @@ export function DataTable<T>({
   minWidth = "640px",
   caption,
   onRowClick,
+  getRowClassName,
   title,
   description,
   actions,
@@ -117,25 +118,48 @@ export function DataTable<T>({
   const hasHeading = Boolean(title || description || actions);
   const cardClass =
     `rounded-[var(--radius-card)] border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5 ${className}`.trim();
+  const awaitingFirstRows = loading && data.length === 0;
+  const [showSkeleton, setShowSkeleton] = useState(false);
+  const columnCount =
+    columns.length + (rowActions ? 1 : 0) + (selection ? 1 : 0);
+
+  if (!awaitingFirstRows && showSkeleton) {
+    setShowSkeleton(false);
+  }
+
+  // Fast responses should not flash a skeleton. Shimmer only if the wait lasts.
+  useEffect(() => {
+    if (!awaitingFirstRows) return;
+    const id = window.setTimeout(() => setShowSkeleton(true), 180);
+    return () => window.clearTimeout(id);
+  }, [awaitingFirstRows]);
 
   // Only show full skeleton on initial load when there is NO data yet.
   // When data is already present, keep the table visible and show a sleek background progress bar.
-  if (loading && data.length === 0) {
+  if (awaitingFirstRows) {
+    if (!showSkeleton) {
+      return (
+        <section className={cardClass} aria-busy="true">
+          {heading}
+          <div
+            className="relative mb-3 h-0.5 overflow-hidden bg-slate-100"
+            aria-hidden="true"
+          >
+            <div className="animate-table-progress h-full w-1/3 rounded-full bg-brand" />
+          </div>
+          <div className="min-h-48" />
+        </section>
+      );
+    }
     if (!hasHeading) {
       return (
-        <DataTableSkeleton
-          columns={columns.length + (rowActions ? 1 : 0) + (selection ? 1 : 0)}
-          className={className}
-        />
+        <DataTableSkeleton columns={columnCount} className={className} />
       );
     }
     return (
       <section className={cardClass}>
         {heading}
-        <DataTableSkeleton
-          bare
-          columns={columns.length + (rowActions ? 1 : 0) + (selection ? 1 : 0)}
-        />
+        <DataTableSkeleton bare columns={columnCount} />
       </section>
     );
   }
@@ -255,7 +279,7 @@ export function DataTable<T>({
                   key={key}
                   className={`border-b border-border/70 last:border-0 ${
                     onRowClick ? "cursor-pointer hover:bg-surface-muted/60" : ""
-                  } ${selected ? "bg-brand-soft/30" : ""}`.trim()}
+                  } ${selected ? "bg-brand-soft/30" : ""} ${getRowClassName?.(row, rowIndex) ?? ""}`.trim()}
                   onClick={
                     onRowClick ? () => onRowClick(row, rowIndex) : undefined
                   }

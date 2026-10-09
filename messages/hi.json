@@ -126,6 +126,8 @@
     "logout": "लॉग आउट",
     "profile": "मेरा प्रोफ़ाइल",
     "settings": "सेटिंग्स",
+    "supportDesk": "सपोर्ट डेस्क",
+    "supportDeskHint": "आपके द्वारा उठाए गए टिकट यहाँ दिखेंगे।",
     "accountMenu": "खाता मेनू",
     "closeSidebar": "साइडबार बंद करें",
     "mainModules": "मुख्य मॉड्यूल",
@@ -146,6 +148,103 @@
       "empty": "पेज और मेनू आइटम खोजने के लिए टाइप करें।",
       "noResults": "कोई मेल नहीं मिला।",
       "hintFooter": "↑↓ घुमाएँ · Enter खोलें · Esc बंद"
+    }
+  },
+  "support": {
+    "raiseTicket": {
+      "title": "सपोर्ट टिकट उठाएँ",
+      "description": "बताएँ क्या गलत हुआ। प्राथमिकता खाली छोड़ने पर मध्यम चुनी जाती है।",
+      "save": "टिकट भेजें",
+      "saving": "भेजा जा रहा है…",
+      "success": "सपोर्ट टिकट भेज दिया गया।",
+      "listTitle": "सपोर्ट टिकट",
+      "listDescription": "इस संगठन के टिकट। खोज दबाने पर खोज और फ़िल्टर लागू होते हैं।",
+      "add": "टिकट उठाएँ",
+      "cancel": "रद्द करें",
+      "view": "टिकट देखें",
+      "viewTicket": "टिकट {number}",
+      "loadingTicket": "टिकट लोड हो रहा है…",
+      "loadErrorTitle": "टिकट लोड नहीं हो सके",
+      "emptyTitle": "अभी कोई टिकट नहीं",
+      "emptyMessage": "टिकट उठाएँ, फिर वह इस संगठन के लिए यहाँ दिखेगा।",
+      "noRemark": "—",
+      "noScreenshots": "कोई स्क्रीनशॉट नहीं",
+      "columns": {
+        "number": "नंबर",
+        "subject": "विषय",
+        "priority": "प्राथमिकता",
+        "status": "स्थिति",
+        "remark": "टिप्पणी",
+        "createdAt": "उठाया गया",
+        "updatedAt": "अपडेट",
+        "actions": "कार्रवाई"
+      },
+      "filters": {
+        "search": "खोज",
+        "searchPlaceholder": "टिकट नंबर या विषय",
+        "all": "सभी",
+        "fromDate": "से",
+        "toDate": "तक"
+      },
+      "messages": {
+        "title": "संदेश",
+        "loading": "संदेश लोड हो रहे हैं…",
+        "empty": "अभी कोई संदेश नहीं।",
+        "reply": "जवाब",
+        "hint": "{count}/4000 अक्षर",
+        "send": "जवाब भेजें",
+        "sending": "भेजा जा रहा है…",
+        "closed": "यह टिकट बंद है। आप इसे पढ़ सकते हैं।",
+        "client": "आप",
+        "staff": "सहायता"
+      },
+      "notice": {
+        "new": "नया",
+        "open": "टिकट खोलें",
+        "fallbackTitle": "सहायता अपडेट",
+        "updates": "नए अपडेट"
+      },
+      "status": {
+        "OPEN": "खुला",
+        "IN_PROGRESS": "प्रगति पर",
+        "CLOSED": "बंद"
+      },
+      "fields": {
+        "subject": "विषय",
+        "description": "विवरण",
+        "priority": "प्राथमिकता",
+        "screenshots": "स्क्रीनशॉट"
+      },
+      "placeholders": {
+        "subject": "छोटा शीर्षक",
+        "description": "क्या हुआ, और आपने क्या उम्मीद की थी"
+      },
+      "hints": {
+        "subject": "{count}/255 अक्षर",
+        "description": "{count}/4000 अक्षर",
+        "priority": "कम, मध्यम, उच्च, या अत्यावश्यक।",
+        "screenshots": "अधिकतम 4 चित्र। PNG, JPG, WEBP, या GIF। हर फ़ाइल 1.5 MB या उससे छोटी।"
+      },
+      "priority": {
+        "LOW": "कम",
+        "MEDIUM": "मध्यम",
+        "HIGH": "उच्च",
+        "URGENT": "अत्यावश्यक"
+      },
+      "addScreenshots": "स्क्रीनशॉट जोड़ें",
+      "removeScreenshot": "स्क्रीनशॉट हटाएँ {name}",
+      "errors": {
+        "subject": "255 अक्षरों या उससे कम का विषय लिखें।",
+        "description": "4000 अक्षरों या उससे कम का विवरण लिखें।",
+        "priority": "कम, मध्यम, उच्च, या अत्यावश्यक चुनें।",
+        "screenshots": "4 से अधिक चित्र नहीं जोड़ सकते।",
+        "screenshotType": "PNG, JPG, WEBP, या GIF चित्र उपयोग करें।",
+        "screenshotSize": "हर चित्र 1.5 MB या उससे छोटा होना चाहिए।",
+        "email": "टिकट उठाने से पहले प्रोफ़ाइल में ईमेल पता जोड़ें।",
+        "organization": "संगठन का फ़ोन नंबर अभी उपलब्ध नहीं है।",
+        "domain": "संगठन की वेबसाइट अभी उपलब्ध नहीं है।",
+        "reply": "एक जवाब लिखें या एक चित्र जोड़ें।"
+      }
     }
   },
   "auth": {

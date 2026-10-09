@@ -126,6 +126,8 @@
     "logout": "Logout",
     "profile": "My Profile",
     "settings": "Settings",
+    "supportDesk": "Support desk",
+    "supportDeskHint": "Tickets you raise will show up here.",
     "accountMenu": "Account menu",
     "closeSidebar": "Close sidebar",
     "mainModules": "Main Modules",
@@ -146,6 +148,103 @@
       "empty": "Type to search pages and menu items.",
       "noResults": "No matching pages found.",
       "hintFooter": "↑↓ to move · Enter to open · Esc to close"
+    }
+  },
+  "support": {
+    "raiseTicket": {
+      "title": "Raise support ticket",
+      "description": "Tell us what went wrong. A medium priority is used when you leave priority unset.",
+      "save": "Submit ticket",
+      "saving": "Submitting…",
+      "success": "Support ticket submitted.",
+      "listTitle": "Support tickets",
+      "listDescription": "Tickets raised for this organization. Search and filters apply when you press Search.",
+      "add": "Raise ticket",
+      "cancel": "Cancel",
+      "view": "View ticket",
+      "viewTicket": "Ticket {number}",
+      "loadingTicket": "Loading ticket…",
+      "loadErrorTitle": "Unable to load tickets",
+      "emptyTitle": "No tickets yet",
+      "emptyMessage": "Raise a ticket and it will show up here for this organization.",
+      "noRemark": "—",
+      "noScreenshots": "No screenshots",
+      "columns": {
+        "number": "Number",
+        "subject": "Subject",
+        "priority": "Priority",
+        "status": "Status",
+        "remark": "Remark",
+        "createdAt": "Raised on",
+        "updatedAt": "Updated",
+        "actions": "Actions"
+      },
+      "filters": {
+        "search": "Search",
+        "searchPlaceholder": "Ticket number or subject",
+        "all": "All",
+        "fromDate": "From",
+        "toDate": "To"
+      },
+      "messages": {
+        "title": "Messages",
+        "loading": "Loading messages…",
+        "empty": "No messages yet.",
+        "reply": "Reply",
+        "hint": "{count}/4000 characters",
+        "send": "Send reply",
+        "sending": "Sending…",
+        "closed": "This ticket is closed. You can still read it.",
+        "client": "You",
+        "staff": "Support"
+      },
+      "notice": {
+        "new": "New",
+        "open": "Open ticket",
+        "fallbackTitle": "Support update",
+        "updates": "New updates"
+      },
+      "status": {
+        "OPEN": "Open",
+        "IN_PROGRESS": "In progress",
+        "CLOSED": "Closed"
+      },
+      "fields": {
+        "subject": "Subject",
+        "description": "Description",
+        "priority": "Priority",
+        "screenshots": "Screenshots"
+      },
+      "placeholders": {
+        "subject": "Short title",
+        "description": "What happened, and what you expected"
+      },
+      "hints": {
+        "subject": "{count}/255 characters",
+        "description": "{count}/4000 characters",
+        "priority": "Low, medium, high, or urgent.",
+        "screenshots": "Up to 4 images. PNG, JPG, WEBP, or GIF. Each file 1.5 MB or smaller."
+      },
+      "priority": {
+        "LOW": "Low",
+        "MEDIUM": "Medium",
+        "HIGH": "High",
+        "URGENT": "Urgent"
+      },
+      "addScreenshots": "Add screenshots",
+      "removeScreenshot": "Remove screenshot {name}",
+      "errors": {
+        "subject": "Enter a subject of 255 characters or fewer.",
+        "description": "Enter a description of 4000 characters or fewer.",
+        "priority": "Choose low, medium, high, or urgent.",
+        "screenshots": "Add no more than 4 images.",
+        "screenshotType": "Use a PNG, JPG, WEBP, or GIF image.",
+        "screenshotSize": "Each image must be 1.5 MB or smaller.",
+        "email": "Add an email address on your profile before raising a ticket.",
+        "organization": "Organization phone is not available yet.",
+        "domain": "Organization website is not available yet.",
+        "reply": "Write a reply or add an image."
+      }
     }
   },
   "auth": {

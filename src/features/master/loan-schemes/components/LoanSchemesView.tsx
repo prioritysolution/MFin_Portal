@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Banknote, FileText, Plus } from "lucide-react";
 import { DataPage } from "@/components/shared/DataPage";
+import { SectionTabs } from "@/components/shared/SectionTabs";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { Button } from "@/components/ui/Button";
 import { PageToast, useToastText } from "@/components/ui/PageToast";
@@ -98,31 +99,12 @@ export function LoanSchemesView({
   return (
     <DataPage page={pageMeta}>
       <div className="flex min-w-0 flex-col gap-4 sm:gap-5">
-        <div className="grid grid-cols-2 gap-2.5">
-          {tabs.map((tab) => {
-            const active = activeTab === tab.id;
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => handleSelectTab(tab.id)}
-                className={`flex cursor-pointer flex-col items-start gap-1.5 rounded-2xl border px-3.5 py-3 text-left transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 motion-reduce:transition-none ${
-                  active
-                    ? "border-brand bg-brand text-white shadow-sm"
-                    : "border-border bg-surface-muted text-foreground hover:border-brand/30 hover:bg-surface"
-                }`}
-              >
-                <Icon
-                  className={`h-4 w-4 ${active ? "text-white" : "text-muted"}`}
-                />
-                <span className="text-xs font-semibold leading-snug">
-                  {tab.title}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+        <SectionTabs
+          tabs={tabs}
+          activeId={activeTab}
+          onChange={handleSelectTab}
+          label={t("title")}
+        />
 
         {activeTab === "setup" ? <SetupSection /> : null}
         {activeTab === "charges" ? <ChargesSection /> : null}

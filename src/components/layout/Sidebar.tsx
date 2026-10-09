@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import {
   ChevronDown,
@@ -17,8 +17,12 @@ import type { MenuTreeNode } from "@/features/navigation/types/menu";
 import {
   clearMenuClientCache,
   fetchMenuClient,
-  getStoredMenuForUser,
+  getMenuClientSnapshot,
+  menusEqual,
+  subscribeStoredMenu,
 } from "@/features/navigation/services/menu-client";
+import { mergeStoredMenuIcons } from "@/features/navigation/services/menu-storage";
+import { menuIconMarkup } from "@/features/navigation/utils/menu-icon-svg";
 import { menuEnglishName } from "@/features/navigation/utils/menu-label";
 import { toMenuLang } from "@/features/navigation/utils/menu-lang";
 import { sanitizeMenuRoute } from "@/features/navigation/utils/safe-menu-route";
@@ -157,9 +161,20 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
   const locale = useLocale();
   const menuLang = toMenuLang(locale);
   const pathname = usePathname();
-  // Always start as loading so SSR HTML matches the first client render.
-  // localStorage cache is applied only after mount (avoids hydration mismatch).
+  // SSR and the first client render stay on the skeleton so hydration matches.
+  // After hydration, the localStorage menu is shown before the browser paints.
   const [menuState, setMenuState] = useState<MenuLoadState>({ status: "loading" });
+  const storedItems = useSyncExternalStore(
+    subscribeStoredMenu,
+    () => getMenuClientSnapshot(user.userId, user.orgId, menuLang),
+    () => null,
+  );
+  const shownMenu = useMemo<MenuLoadState>(() => {
+    if (menuState.status === "loading" && storedItems) {
+      return menuStateFromItems(storedItems);
+    }
+    return menuState;
+  }, [menuState, storedItems]);
   const [openKeys, setOpenKeys] = useState<string[]>([]);
   const [menusHydrated, setMenusHydrated] = useState(false);
   const [dismissedKey, setDismissedKey] = useState<string | null>(null);
@@ -167,16 +182,15 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
   const navScrollRef = useRef<HTMLDivElement>(null);
 
+  useLayoutEffect(() => {
+    if (shownMenu.status !== "ready") return;
+    mergeStoredMenuIcons(user.userId, user.orgId, menuLang, menuIconMarkup);
+    document.documentElement.classList.add("mfin-menu-live");
+  }, [shownMenu.status, user.userId, user.orgId, menuLang]);
+
   // Browser → BFF GET /api/menu?status=1&role_id=…&lang=HI → Laravel MenuTree.
   useEffect(() => {
     let cancelled = false;
-
-    const cached = getStoredMenuForUser(user.userId, user.orgId, menuLang);
-    if (cached != null) {
-      setMenuState(menuStateFromItems(cached));
-    } else {
-      setMenuState({ status: "loading" });
-    }
 
     void (async () => {
       const result = await fetchMenuClient({
@@ -188,7 +202,18 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
       if (cancelled) return;
 
       if (result.ok) {
-        setMenuState(menuStateFromItems(result.items));
+        setMenuState((current) => {
+          const onScreen =
+            current.status === "ready"
+              ? current.items
+              : getMenuClientSnapshot(user.userId, user.orgId, menuLang);
+          if (onScreen && menusEqual(onScreen, result.items)) {
+            return current.status === "ready"
+              ? current
+              : { status: "ready", items: onScreen };
+          }
+          return menuStateFromItems(result.items);
+        });
         return;
       }
 
@@ -197,13 +222,18 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
         return;
       }
 
-      const fallback = getStoredMenuForUser(user.userId, user.orgId, menuLang);
-      if (fallback != null) {
-        setMenuState(menuStateFromItems(fallback));
-        return;
-      }
-
-      setMenuState({ status: "error", message: result.message });
+      setMenuState((current) => {
+        const onScreen =
+          current.status === "ready"
+            ? current.items
+            : getMenuClientSnapshot(user.userId, user.orgId, menuLang);
+        if (onScreen) {
+          return current.status === "ready"
+            ? current
+            : { status: "ready", items: onScreen };
+        }
+        return { status: "error", message: result.message };
+      });
     })();
 
     return () => {
@@ -212,10 +242,10 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
   }, [menuLang, user.orgId, user.roleId, user.userId]);
 
   const activeNodeKey = useMemo(() => {
-    if (menuState.status !== "ready") return null;
-    const active = menuState.items.find((item) => isNodeActive(item, pathname));
+    if (shownMenu.status !== "ready") return null;
+    const active = shownMenu.items.find((item) => isNodeActive(item, pathname));
     return active ? String(active.id) : null;
-  }, [menuState, pathname]);
+  }, [shownMenu, pathname]);
 
   useEffect(() => {
     setOpenKeys(readOpenMenus(user.userId));
@@ -237,7 +267,7 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
   }, [menusHydrated, openKeys, user.userId]);
 
   useEffect(() => {
-    if (menuState.status !== "ready") return;
+    if (shownMenu.status !== "ready") return;
     const scroller = navScrollRef.current;
     if (!scroller) return;
 
@@ -262,7 +292,7 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
       window.cancelAnimationFrame(frame);
       window.clearTimeout(timer);
     };
-  }, [activeNodeKey, menuState, pathname]);
+  }, [activeNodeKey, shownMenu, pathname]);
 
   function isExpanded(key: string): boolean {
     if (openKeys.includes(key)) return true;
@@ -356,31 +386,34 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
             {t("mainModules")}
           </p>
 
-          {menuState.status === "loading" ? (
-            <>
+          {/* Light DOM stays empty. The boot script paints the saved menu in a shadow root. */}
+          <div id="mfin-menu-boot" />
+
+          {shownMenu.status === "loading" ? (
+            <div className="sidebar-nav-pending">
               <span className="sr-only">{t("menuLoading")}</span>
               <SidebarNavSkeleton />
-            </>
-          ) : null}
-
-          {menuState.status === "empty" ? (
-            <p className="px-3 py-4 text-sm text-muted">{t("menuEmpty")}</p>
-          ) : null}
-
-          {menuState.status === "unauthorized" ? (
-            <p className="px-3 py-4 text-sm text-rose-600">{t("menuUnauthorized")}</p>
-          ) : null}
-
-          {menuState.status === "error" ? (
-            <div className="space-y-2 px-3 py-4">
-              <p className="text-sm text-rose-600">{t("menuError")}</p>
-              <p className="text-xs text-muted">{menuState.message}</p>
             </div>
           ) : null}
 
-          {menuState.status === "ready" ? (
+          {shownMenu.status === "empty" ? (
+            <p className="px-3 py-4 text-sm text-muted">{t("menuEmpty")}</p>
+          ) : null}
+
+          {shownMenu.status === "unauthorized" ? (
+            <p className="px-3 py-4 text-sm text-rose-600">{t("menuUnauthorized")}</p>
+          ) : null}
+
+          {shownMenu.status === "error" ? (
+            <div className="space-y-2 px-3 py-4">
+              <p className="text-sm text-rose-600">{t("menuError")}</p>
+              <p className="text-xs text-muted">{shownMenu.message}</p>
+            </div>
+          ) : null}
+
+          {shownMenu.status === "ready" ? (
             <nav className="space-y-1.5">
-              {menuState.items.filter((item) => !isDashboardMenuItem(item)).map((item) => {
+              {shownMenu.items.filter((item) => !isDashboardMenuItem(item)).map((item) => {
                 const key = String(item.id);
                 const active = isNodeActive(item, pathname);
                 const isOpen = isExpanded(key);

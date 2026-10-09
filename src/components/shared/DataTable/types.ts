@@ -68,4 +68,6 @@ export type DataTableProps<T> = {
   minWidth?: string;
   caption?: string;
   onRowClick?: (row: T, rowIndex: number) => void;
+  /** Extra classes for one row, such as a live-update highlight. */
+  getRowClassName?: (row: T, rowIndex: number) => string | undefined;
 };
