@@ -85,6 +85,9 @@ function listQueryKey(kind: ChargeKind, query: ChargeSetupListQuery): string {
       kind === "deposit" ? "charges_during_cd" : "deduct_during_cd";
     params.set(key, String(query.duringCd));
   }
+  if (kind === "loan" && query.isRefundable != null) {
+    params.set("is_refundable", query.isRefundable ? "1" : "0");
+  }
   if (query.isActive != null) params.set("is_active", String(query.isActive));
   return params.toString() || "default";
 }

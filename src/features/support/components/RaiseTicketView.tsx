@@ -7,6 +7,7 @@ import { useRouter } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { PageToast, useToastText } from "@/components/ui/PageToast";
+import { getStoredAuthUser } from "@/features/auth/utils/auth-user-storage";
 import { readOrganizationCache } from "@/features/master/organization/services/organization-cache";
 import { projectDomain } from "@/features/support/services/support-domain";
 import { RaiseTicketForm } from "@/features/support/components/RaiseTicketForm";
@@ -23,10 +24,14 @@ import {
   raiseSupportTicket,
 } from "@/features/support/services/support-ticket-client";
 import {
-  presentSupportNotice,
   useSupportNoticePermission,
   type SupportNotice,
 } from "@/features/support/services/support-notice";
+import {
+  clearSupportNoticesForTicket,
+  supportOpenEventName,
+  takeQueuedSupportTicket,
+} from "@/features/support/services/support-inbox";
 import { useSupportDeskRealtime } from "@/features/support/services/use-support-realtime";
 import type {
   RaiseTicketFormInput,
@@ -168,10 +173,13 @@ export function RaiseTicketView() {
   }
 
   async function handleSubmit(input: RaiseTicketFormInput) {
+    const user = getStoredAuthUser();
     const organization = readOrganizationCache()?.organization;
-    const customerPhone = organization?.phone?.trim().slice(0, 30) ?? "";
+    const customerPhone = (user?.userPhone || user?.userMob || "")
+      .trim()
+      .slice(0, 30);
     const customerName = organization?.orgDispNm?.trim().slice(0, 150) || "Customer";
-    const domain = projectDomain(organization?.website);
+    const domain = projectDomain(window.location.host);
     if (!customerPhone) {
       setFormError(t("errors.organization"));
       return;
@@ -215,6 +223,7 @@ export function RaiseTicketView() {
 
   function showTicket(number: string, row?: SupportTicket) {
     clearFresh(number);
+    clearSupportNoticesForTicket(number);
     setDetailOpen(true);
     setDetailError(null);
     setDetailLoading(true);
@@ -264,6 +273,10 @@ export function RaiseTicketView() {
       }
     },
     onNotice: (notice: SupportNotice) => {
+      if (notice.number && notice.number === openNumberRef.current) {
+        clearSupportNoticesForTicket(notice.number);
+        return;
+      }
       const title = notice.title || t("notice.fallbackTitle");
       if (notice.number && notice.number !== openNumberRef.current) {
         setPinned((current) =>
@@ -273,15 +286,23 @@ export function RaiseTicketView() {
           ].slice(0, 5),
         );
       }
-      presentSupportNotice({
-        title,
-        body: notice.body,
-        tag: notice.number || notice.ticketId || "support-ticket",
-        openLabel: t("notice.open"),
-        onOpen: notice.number ? () => openByNumber(notice.number) : undefined,
-      });
     },
   });
+
+  useEffect(() => {
+    const queued = takeQueuedSupportTicket();
+    if (queued) openByNumber(queued);
+
+    function onOpen(event: Event) {
+      takeQueuedSupportTicket();
+      const number = (event as CustomEvent<string>).detail;
+      if (typeof number === "string" && number) openByNumber(number);
+    }
+
+    const name = supportOpenEventName();
+    window.addEventListener(name, onOpen);
+    return () => window.removeEventListener(name, onOpen);
+  }, []);
 
   function openDetail(row: SupportTicket) {
     showTicket(row.number, row);

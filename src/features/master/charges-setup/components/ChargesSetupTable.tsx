@@ -136,6 +136,19 @@ export function ChargesSetupTable({
             ? `${row.chargesGlName}${row.chargesGlCode ? ` (${row.chargesGlCode})` : ""}`
             : "—",
       },
+      ...(kind === "loan"
+        ? [
+            {
+              id: "isRefundable",
+              header: t("fields.isRefundable"),
+              cell: (row: ChargeSetup) => (
+                <Badge tone={row.isRefundable ? "success" : "neutral"} caps={false}>
+                  {row.isRefundable ? t("refundable") : t("nonRefundable")}
+                </Badge>
+              ),
+            },
+          ]
+        : []),
       {
         id: "isActive",
         header: t("fields.isActive"),

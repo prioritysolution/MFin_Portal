@@ -46,6 +46,7 @@ export function mapChargeSetupDto(
     chargesGl: asNumber(dto.charges_gl),
     chargesGlCode: dto.charges_gl_code ?? null,
     chargesGlName: dto.charges_gl_name ?? null,
+    isRefundable: kind === "loan" && asActive(dto.is_refundable),
     isActive: asActive(dto.is_active),
     createdBy: asNumber(dto.created_by),
     createdAt: dto.created_at ?? null,
@@ -68,6 +69,7 @@ export function mapChargeSetupSaveToDto(
     body.charges_during_cd = input.duringCd;
   } else {
     body.deduct_during_cd = input.duringCd;
+    body.is_refundable = input.isRefundable === true;
   }
 
   if (isUpdate) {

@@ -38,11 +38,11 @@ export type RaiseTicketFormInput = {
 };
 
 export type RaiseTicketInput = RaiseTicketFormInput & {
-  /** Organization phone from the saved organization profile. This is the client mapping. */
+  /** Signed-in user's mobile number. This is the client mapping. */
   customerPhone: string;
   /** Organization display name. Required by the domain raise call. */
   customerName: string;
-  /** Project host, for example `basundhara.local`. Empty when the server supplies it. */
+  /** Host of the address the portal is open on, for example `localhost:3000`. */
   domain: string;
 };
 

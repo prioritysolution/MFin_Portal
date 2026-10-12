@@ -146,6 +146,16 @@ type SharedSocket = {
 let sharedSocket: SharedSocket | null = null;
 let sharedConnect: Promise<EchoLike | null> | null = null;
 let releaseTimer: number | null = null;
+const customerListeners = new Set<(payload: unknown) => void>();
+let customerBound = false;
+
+function bindCustomerChannel(echo: EchoLike, channel: string) {
+  if (customerBound) return;
+  customerBound = true;
+  echo.private(channel).listen(".signal", (payload: unknown) => {
+    for (const listener of customerListeners) listener(payload);
+  });
+}
 
 /**
  * Customer ticket socket. A signal names which GET to run again.
@@ -217,12 +227,15 @@ export function useSupportDeskRealtime(options: {
       }, REFRESH_WAIT_MS);
     };
 
+    const listener = (payload: unknown) => handleRef.current(payload);
+    customerListeners.add(listener);
+
     async function connect() {
       if (releaseTimer !== null) {
         window.clearTimeout(releaseTimer);
         releaseTimer = null;
       }
-      if (sharedSocket?.sessionKey === sessionKey) {
+      if (sharedSocket) {
         if (disposed) return;
         echoRef.current = sharedSocket.echo;
         setReady(true);
@@ -234,9 +247,7 @@ export function useSupportDeskRealtime(options: {
           if (!config) return null;
           prepareSupportNoticeSound(supportNoticeSoundUrl(config));
           const echo = await createEcho(config);
-          echo.private(config.customerChannel).listen(".signal", (payload) => {
-            handleRef.current(payload);
-          });
+          bindCustomerChannel(echo, config.customerChannel);
           sharedSocket = { sessionKey, echo };
           return echo;
         })().finally(() => {
@@ -253,14 +264,18 @@ export function useSupportDeskRealtime(options: {
 
     return () => {
       disposed = true;
+      customerListeners.delete(listener);
       if (timer !== null) window.clearTimeout(timer);
       setReady(false);
       echoRef.current = null;
+      if (customerListeners.size > 0) return;
       if (releaseTimer !== null) window.clearTimeout(releaseTimer);
       releaseTimer = window.setTimeout(() => {
         releaseTimer = null;
+        if (customerListeners.size > 0) return;
         sharedSocket?.echo.disconnect();
         sharedSocket = null;
+        customerBound = false;
       }, 400);
     };
   }, [sessionKey]);

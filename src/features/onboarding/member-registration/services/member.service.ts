@@ -134,11 +134,15 @@ async function run<T>(callback: (accessToken: string) => Promise<T>): Promise<T>
   }
 }
 
-export async function listMembers(query: MemberListQuery = {}): Promise<MemberListResult> {
+export async function listMembers(
+  query: MemberListQuery = {},
+  signal?: AbortSignal,
+): Promise<MemberListResult> {
   return run(async (accessToken) => {
     const payload = await api.get<LaravelResponse<RawMember[]>>(endpoints.member.list, {
       accessToken,
       expectEnvelope: false,
+      signal,
       searchParams: {
         page: query.page ?? 1,
         per_page: Math.min(200, Math.max(1, query.perPage ?? 50)),

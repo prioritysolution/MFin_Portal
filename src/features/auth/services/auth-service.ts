@@ -9,9 +9,10 @@ import {
   getAccessToken,
   setAuthSession,
 } from "@/lib/auth/session";
-import { mapLoginDataToSession } from "@/features/auth/mappers/auth-mapper";
+import { mapAuthUserDto, mapLoginDataToSession } from "@/features/auth/mappers/auth-mapper";
 import type {
   AuthUser,
+  AuthUserDto,
   LoginDataDto,
   LoginRequest,
 } from "@/features/auth/types/auth";
@@ -38,6 +39,26 @@ export async function loginWithLaravel(
   const session = mapLoginDataToSession(data);
   await setAuthSession(session, { persist: input.remember !== false });
   return session.user;
+}
+
+export async function fetchCurrentUserFromLaravel(): Promise<PublicAuthUser> {
+  const token = await getAccessToken();
+  if (!token) {
+    throw new ApiError({ message: "Unauthorized", status: 401, code: "UNAUTHORIZED" });
+  }
+  const data = await api.get<{ user?: AuthUser }>(endpoints.auth.me, {
+    accessToken: token,
+    expectEnvelope: true,
+  });
+  const raw = data?.user;
+  if (!raw) {
+    throw new ApiError({
+      message: "Current user response is missing",
+      status: 500,
+      code: "UNEXPECTED",
+    });
+  }
+  return mapAuthUserDto(raw as AuthUserDto);
 }
 
 export async function logoutFromLaravel(): Promise<void> {

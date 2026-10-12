@@ -1,4 +1,5 @@
 import { endpoints } from "@/lib/api/endpoints";
+import { dedupeRequest } from "@/lib/client/request-dedupe";
 import type {
   Member,
   MemberListQuery,
@@ -28,9 +29,11 @@ export function isMemberClientError(value: unknown): value is MemberClientError 
   return typeof value === "object" && value !== null && "status" in value && "message" in value;
 }
 
+let directoryAbort: AbortController | null = null;
+
 export async function fetchMembers(
   query: MemberListQuery,
-  signal?: AbortSignal,
+  options?: { generation?: number; replace?: boolean },
 ): Promise<MemberListResult> {
   const params = new URLSearchParams();
   for (const [key, value] of Object.entries({
@@ -47,14 +50,22 @@ export async function fetchMembers(
   })) {
     if (value != null && value !== "") params.set(key, String(value));
   }
-  return parse<MemberListResult>(
-    await fetch(`${endpoints.bff.memberRegistration}?${params}`, {
-      credentials: "same-origin",
-      headers: { Accept: "application/json" },
-      cache: "no-store",
-      signal,
-    }),
-  );
+  const key = `${params.toString()}#${options?.generation ?? 0}`;
+  return dedupeRequest(key, async () => {
+    const controller = new AbortController();
+    if (options?.replace) {
+      directoryAbort?.abort();
+      directoryAbort = controller;
+    }
+    return parse<MemberListResult>(
+      await fetch(`${endpoints.bff.memberRegistration}?${params}`, {
+        credentials: "same-origin",
+        headers: { Accept: "application/json" },
+        cache: "no-store",
+        signal: controller.signal,
+      }),
+    );
+  }, 0);
 }
 
 export async function fetchMemberById(memberId: number): Promise<Member | null> {

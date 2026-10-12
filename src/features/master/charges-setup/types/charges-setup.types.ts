@@ -14,6 +14,7 @@ export type ChargeSetup = {
   chargesGl: number | null;
   chargesGlCode: string | null;
   chargesGlName: string | null;
+  isRefundable: boolean;
   isActive: boolean;
   createdBy: number | null;
   createdAt: string | null;
@@ -34,6 +35,7 @@ export type ChargeSetupDto = {
   charges_gl?: number | null;
   charges_gl_code?: string | null;
   charges_gl_name?: string | null;
+  is_refundable?: boolean | number | null;
   is_active?: boolean | number | null;
   created_by?: number | null;
   created_at?: string | null;
@@ -48,6 +50,7 @@ export type ChargeSetupSaveInput = {
   taxPercent?: number | null;
   duringCd: number;
   chargesGl?: number | null;
+  isRefundable?: boolean;
   isActive?: boolean;
 };
 
@@ -58,6 +61,7 @@ export type ChargeSetupListQuery = {
   search?: string;
   figureCd?: number;
   duringCd?: number;
+  isRefundable?: boolean;
   isActive?: number;
 };
 

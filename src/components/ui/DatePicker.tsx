@@ -6,8 +6,10 @@ import {
   useMemo,
   useRef,
   useState,
+  type CSSProperties,
   type KeyboardEvent,
 } from "react";
+import { createPortal } from "react-dom";
 import { useLocale, useTranslations } from "next-intl";
 import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, X } from "lucide-react";
 
@@ -114,7 +116,10 @@ export function DatePicker({
   const locale = useLocale();
   const panelId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
+  const [panelStyle, setPanelStyle] = useState<CSSProperties>({});
 
   const selected = useMemo(() => parseYmd(value), [value]);
   const minDate = useMemo(() => (min ? parseYmd(min) : null), [min]);
@@ -132,9 +137,9 @@ export function DatePicker({
   useEffect(() => {
     if (!open) return;
     function onPointerDown(event: MouseEvent) {
-      if (!rootRef.current?.contains(event.target as Node)) {
-        setOpen(false);
-      }
+      const target = event.target as Node;
+      if (rootRef.current?.contains(target) || panelRef.current?.contains(target)) return;
+      setOpen(false);
     }
     function onKey(event: globalThis.KeyboardEvent) {
       if (event.key === "Escape") setOpen(false);
@@ -146,6 +151,41 @@ export function DatePicker({
       document.removeEventListener("keydown", onKey);
     };
   }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    function place() {
+      const trigger = triggerRef.current?.getBoundingClientRect();
+      if (!trigger) return;
+      const gap = 6;
+      const width = 296;
+      const height = panelRef.current?.offsetHeight ?? 340;
+      const spaceBelow = window.innerHeight - trigger.bottom - gap - 8;
+      const spaceAbove = trigger.top - gap - 8;
+      const openBelow = spaceBelow >= height || spaceBelow >= spaceAbove;
+      const left = Math.max(8, Math.min(trigger.left, window.innerWidth - width - 8));
+      const top = openBelow
+        ? trigger.bottom + gap
+        : Math.max(8, trigger.top - gap - Math.min(height, spaceAbove));
+      setPanelStyle({
+        position: "fixed",
+        left,
+        top,
+        width,
+        zIndex: 240,
+        maxHeight: Math.max(160, openBelow ? spaceBelow : spaceAbove),
+      });
+    }
+    place();
+    const frame = requestAnimationFrame(place);
+    window.addEventListener("resize", place);
+    window.addEventListener("scroll", place, true);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", place);
+      window.removeEventListener("scroll", place, true);
+    };
+  }, [open, viewMonth]);
 
   const displayLabel = useMemo(() => {
     if (!selected) return null;
@@ -239,6 +279,7 @@ export function DatePicker({
     <div ref={rootRef} className={`relative ${className}`.trim()}>
       <div className="relative">
       <button
+        ref={triggerRef}
         type="button"
         id={id}
         disabled={disabled}
@@ -282,12 +323,15 @@ export function DatePicker({
       ) : null}
       </div>
 
-      {open ? (
+      {open && typeof document !== "undefined"
+        ? createPortal(
         <div
+          ref={panelRef}
           id={panelId}
           role="dialog"
           aria-label={t("calendarLabel")}
-          className="absolute z-50 mt-1.5 w-[18.5rem] overflow-hidden rounded-xl border border-border bg-surface p-3 shadow-[var(--shadow-card)]"
+          style={panelStyle}
+          className="overflow-y-auto rounded-xl border border-border bg-surface p-3 shadow-[var(--shadow-card)]"
         >
           <div className="mb-2 flex items-center gap-1">
             <select
@@ -399,8 +443,10 @@ export function DatePicker({
               {t("dateToday")}
             </button>
           </div>
-        </div>
-      ) : null}
+        </div>,
+        document.body,
+      )
+        : null}
     </div>
   );
 }

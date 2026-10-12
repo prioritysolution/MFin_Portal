@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Eye,
   EyeOff,
@@ -14,15 +15,10 @@ import {
   Users,
   FileCheck2,
   Clock,
-  ShieldAlert,
-  Power,
-  Ban,
-  CheckCircle,
-  UserX,
+  MapPin,
 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { Tooltip } from "@/components/ui/Tooltip";
 import type { Member, MemberStatus } from "../types/member.types";
 
 export type MemberRegistrationDrawerProps = {
@@ -30,6 +26,7 @@ export type MemberRegistrationDrawerProps = {
   onClose: () => void;
   onEdit: (member: Member) => void;
   onRequestStatusChange: (member: Member, nextStatus: MemberStatus) => void;
+  onOpenLocation: (member: Member) => void;
 };
 
 function formatDate(dateStr: string | null | undefined): string {
@@ -57,8 +54,43 @@ function maskAccountNumber(acc: string | null | undefined): string {
   if (!acc) return "—";
   if (acc.length <= 4) return acc;
   const last4 = acc.slice(-4);
-  const maskedLength = acc.length - 4;
-  return "•".repeat(Math.min(8, maskedLength)) + " " + last4;
+  return `${"•".repeat(Math.min(8, acc.length - 4))} ${last4}`;
+}
+
+function SectionTitle({
+  icon: Icon,
+  children,
+}: {
+  icon: typeof User;
+  children: string;
+}) {
+  return (
+    <div className="flex items-center gap-2 border-b border-border/70 pb-2 text-xs font-bold uppercase tracking-wider text-slate-500">
+      <Icon className="h-3.5 w-3.5 text-brand" />
+      {children}
+    </div>
+  );
+}
+
+function Field({
+  label,
+  value,
+  mono = false,
+  wide = false,
+}: {
+  label: string;
+  value: string;
+  mono?: boolean;
+  wide?: boolean;
+}) {
+  return (
+    <div className={wide ? "col-span-2" : undefined}>
+      <dt className="text-muted">{label}</dt>
+      <dd className={`mt-0.5 font-medium text-slate-800 ${mono ? "font-mono" : ""}`}>
+        {value}
+      </dd>
+    </div>
+  );
 }
 
 export function MemberRegistrationDrawer({
@@ -66,12 +98,14 @@ export function MemberRegistrationDrawer({
   onClose,
   onEdit,
   onRequestStatusChange,
+  onOpenLocation,
 }: MemberRegistrationDrawerProps) {
+  const tLocation = useTranslations("onboarding.memberLocation");
   const [revealAccount, setRevealAccount] = useState(false);
 
   useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") onClose();
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
@@ -80,25 +114,27 @@ export function MemberRegistrationDrawer({
   if (!member) return null;
 
   const canEdit = member.statusCd !== 4 && member.statusCd !== 5;
-
-  let statusTone: "success" | "warning" | "danger" | "neutral" = "neutral";
-  if (member.statusCd === 1) statusTone = "success";
-  else if (member.statusCd === 2) statusTone = "warning";
-  else if (member.statusCd === 3) statusTone = "danger";
-  else if (member.statusCd === 4) statusTone = "neutral";
-  else if (member.statusCd === 5) statusTone = "neutral";
+  const kycComplete = member.kycCount > 0 && member.kycVerifiedCount === member.kycCount;
+  const kycPartial = member.kycVerifiedCount > 0 && !kycComplete;
+  const statusTone =
+    member.statusCd === 1
+      ? "success"
+      : member.statusCd === 2
+        ? "neutral"
+        : member.statusCd === 3
+          ? "amber"
+          : "danger";
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-900/40 backdrop-blur-xs animate-in fade-in">
+    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-900/40 backdrop-blur-xs">
       <div
-        className="fixed inset-y-0 right-0 flex max-w-full pl-10"
-        onMouseDown={(e) => {
-          if (e.target === e.currentTarget) onClose();
+        className="fixed inset-y-0 right-0 flex h-full max-w-full ps-10"
+        onMouseDown={(event) => {
+          if (event.target === event.currentTarget) onClose();
         }}
       >
-        <aside className="w-screen max-w-md bg-surface shadow-2xl transition-all sm:max-w-lg lg:max-w-[480px]">
+        <aside className="flex h-full w-screen max-w-md flex-col bg-surface shadow-2xl sm:max-w-lg lg:max-w-[480px]">
           <div className="flex h-full flex-col divide-y divide-border bg-surface">
-            {/* Drawer Header */}
             <div className="bg-surface-muted/30 px-5 py-4 sm:px-6">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
@@ -107,437 +143,264 @@ export function MemberRegistrationDrawer({
                       {member.statusDesc || "Active"}
                     </Badge>
                     <span className="font-mono text-xs text-muted">
-                      {member.refCode || `Code: ${member.memberCode}`}
+                      {member.refCode || `Code ${member.memberCode}`}
                     </span>
                   </div>
-                  <h2 className="mt-1.5 truncate text-lg font-bold text-slate-800">
+                  <h2 className="mt-2 truncate text-lg font-bold text-slate-900 sm:text-xl">
                     {member.memberName}
                   </h2>
                   <p className="mt-0.5 text-xs text-muted">
                     {member.age ? `${member.age} yrs` : ""}
-                    {member.age && member.genderDesc ? " • " : ""}
+                    {member.age && member.genderDesc ? " · " : ""}
                     {member.genderDesc ?? ""}
-                    {member.maritalStatusDesc ? ` • ${member.maritalStatusDesc}` : ""}
+                    {member.maritalStatusDesc ? ` · ${member.maritalStatusDesc}` : ""}
                   </p>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Tooltip content={canEdit ? "Edit Profile" : "Closed or Deceased members cannot be edited"}>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    icon={MapPin}
+                    onClick={() => onOpenLocation(member)}
+                  >
+                    {tLocation("open")}
+                  </Button>
+                  {canEdit ? (
                     <Button
                       size="sm"
-                      variant="ghost"
-                      className="h-8 w-8 p-0 text-muted-soft hover:text-slate-800 disabled:opacity-40"
-                      disabled={!canEdit}
+                      variant="secondary"
+                      icon={Pencil}
                       onClick={() => onEdit(member)}
-                      aria-label="Edit member"
                     >
-                      <Pencil className="h-4 w-4" />
+                      Edit
                     </Button>
-                  </Tooltip>
+                  ) : null}
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="h-8 w-8 p-0 text-muted-soft hover:text-slate-800"
+                    icon={X}
+                    aria-label="Close"
+                    tooltip="Close"
                     onClick={onClose}
-                    aria-label="Close drawer"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
+                  />
                 </div>
               </div>
             </div>
 
-            {/* Drawer Content */}
-            <div className="flex-1 space-y-6 overflow-y-auto px-5 py-5 sm:px-6">
-              {/* KYC Status banner */}
-              <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50/70 p-3">
+            <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-5 py-5 sm:px-6">
+              <div className="flex items-center justify-between rounded-xl border border-border bg-surface-muted/40 p-3">
                 <div className="flex items-center gap-2.5">
                   <FileCheck2
                     className={`h-5 w-5 ${
-                      member.kycCount > 0 && member.kycVerifiedCount === member.kycCount
+                      kycComplete
                         ? "text-emerald-600"
-                        : member.kycVerifiedCount > 0
+                        : kycPartial
                           ? "text-blue-600"
                           : "text-slate-400"
                     }`}
                   />
                   <div>
-                    <div className="text-xs font-semibold text-slate-800">
-                      KYC Documents
-                    </div>
+                    <div className="text-xs font-semibold text-slate-800">KYC Documents</div>
                     <div className="text-[11px] text-muted">
                       {member.kycVerifiedCount} of {member.kycCount} documents verified
                     </div>
                   </div>
                 </div>
-                <Badge
-                  tone={
-                    member.kycCount > 0 && member.kycVerifiedCount === member.kycCount
-                      ? "success"
-                      : member.kycVerifiedCount > 0
-                        ? "info"
-                        : "neutral"
-                  }
-                >
-                  {member.kycCount > 0 && member.kycVerifiedCount === member.kycCount
-                    ? "Verified"
-                    : member.kycVerifiedCount > 0
-                      ? "Partial"
-                      : "Pending"}
+                <Badge tone={kycComplete ? "success" : kycPartial ? "info" : "neutral"} caps={false}>
+                  {kycComplete ? "Verified" : kycPartial ? "Partial" : "Pending"}
                 </Badge>
               </div>
 
-              {/* 1. Personal & Family Details */}
               <section className="space-y-3">
-                <div className="flex items-center gap-2 text-xs font-bold tracking-wider text-slate-700 uppercase">
-                  <User className="h-3.5 w-3.5 text-brand" />
-                  Personal & Family Details
-                </div>
-                <div className="grid grid-cols-2 gap-3 text-xs">
-                  <div>
-                    <span className="block text-muted">Date of Birth</span>
-                    <span className="font-medium text-slate-800">
-                      {formatDate(member.dateOfBirth)} ({member.age} yrs)
-                    </span>
-                  </div>
-                  <div>
-                    <span className="block text-muted">Gender</span>
-                    <span className="font-medium text-slate-800">
-                      {member.genderDesc || "—"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="block text-muted">Father&apos;s Name</span>
-                    <span className="font-medium text-slate-800">
-                      {member.fatherName || "—"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="block text-muted">Mother&apos;s Name</span>
-                    <span className="font-medium text-slate-800">
-                      {member.motherName || "—"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="block text-muted">Spouse Name</span>
-                    <span className="font-medium text-slate-800">
-                      {member.spouseName || "—"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="block text-muted">Marital Status</span>
-                    <span className="font-medium text-slate-800">
-                      {member.maritalStatusDesc || "—"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="block text-muted">Religion</span>
-                    <span className="font-medium text-slate-800">
-                      {member.religionDesc || "—"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="block text-muted">Caste</span>
-                    <span className="font-medium text-slate-800">
-                      {member.casteDesc || "—"}
-                    </span>
-                  </div>
-                </div>
+                <SectionTitle icon={User}>Personal & Family Details</SectionTitle>
+                <dl className="grid grid-cols-2 gap-3 text-xs">
+                  <Field
+                    label="Date of Birth"
+                    value={`${formatDate(member.dateOfBirth)}${member.age ? ` (${member.age} yrs)` : ""}`}
+                  />
+                  <Field label="Gender" value={member.genderDesc || "—"} />
+                  <Field label="Father's Name" value={member.fatherName || "—"} />
+                  <Field label="Mother's Name" value={member.motherName || "—"} />
+                  <Field label="Spouse Name" value={member.spouseName || "—"} />
+                  <Field label="Marital Status" value={member.maritalStatusDesc || "—"} />
+                  <Field label="Religion" value={member.religionDesc || "—"} />
+                  <Field label="Caste" value={member.casteDesc || "—"} />
+                </dl>
               </section>
 
-              {/* 2. Contact & Identification */}
               <section className="space-y-3">
-                <div className="flex items-center gap-2 text-xs font-bold tracking-wider text-slate-700 uppercase">
-                  <Phone className="h-3.5 w-3.5 text-brand" />
-                  Contact & Identification
-                </div>
-                <div className="grid grid-cols-2 gap-3 text-xs">
-                  <div>
-                    <span className="block text-muted">Primary Mobile</span>
-                    <span className="font-mono font-medium text-slate-800">
-                      {member.mobileNo || "—"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="block text-muted">Alternate Mobile</span>
-                    <span className="font-mono font-medium text-slate-800">
-                      {member.alternateMobileNo || "—"}
-                    </span>
-                  </div>
-                  <div className="col-span-2">
-                    <span className="block text-muted">Email ID</span>
-                    <span className="font-medium text-slate-800">
-                      {member.emailId || "—"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="block text-muted">PAN Number</span>
-                    <span className="font-mono font-medium text-slate-800">
-                      {member.panNo || "—"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="block text-muted">Joining Date</span>
-                    <span className="font-medium text-slate-800">
-                      {formatDate(member.joiningDate)}
-                    </span>
-                  </div>
-                </div>
+                <SectionTitle icon={Phone}>Contact & Identification</SectionTitle>
+                <dl className="grid grid-cols-2 gap-3 text-xs">
+                  <Field label="Primary Mobile" value={member.mobileNo || "—"} mono />
+                  <Field label="Alternate Mobile" value={member.alternateMobileNo || "—"} mono />
+                  <Field label="Email ID" value={member.emailId || "—"} wide />
+                  <Field label="PAN Number" value={member.panNo || "—"} mono />
+                  <Field label="Joining Date" value={formatDate(member.joiningDate)} />
+                </dl>
               </section>
 
-              {/* 3. Branch & Group Assignment */}
               <section className="space-y-3">
-                <div className="flex items-center gap-2 text-xs font-bold tracking-wider text-slate-700 uppercase">
-                  <Building2 className="h-3.5 w-3.5 text-brand" />
-                  Branch & Group Assignment
-                </div>
-                <div className="grid grid-cols-2 gap-3 text-xs">
-                  <div>
-                    <span className="block text-muted">Branch</span>
-                    <span className="font-medium text-slate-800">
-                      {member.branchName}
-                    </span>
-                    {member.branchCode ? (
-                      <span className="text-[11px] text-muted font-mono">
-                        ({member.branchCode})
-                      </span>
-                    ) : null}
-                  </div>
-                  <div>
-                    <span className="block text-muted">Center</span>
-                    <span className="font-medium text-slate-800">
-                      {member.centerName || "Not Assigned"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="block text-muted">Active Group</span>
-                    <span className="font-medium text-slate-800">
-                      {member.groupName || "Not in any group"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="block text-muted">Role in Group</span>
-                    <span className="font-medium text-slate-800">
-                      {member.memberRole || (member.groupName ? "Member" : "—")}
-                    </span>
-                  </div>
-                  <div className="col-span-2">
-                    <span className="block text-muted">Field Officer</span>
-                    <span className="font-medium text-slate-800">
-                      {member.foName || "—"}
-                    </span>
-                    {member.foCode ? (
-                      <span className="text-[11px] text-muted font-mono">
-                        ({member.foCode})
-                      </span>
-                    ) : null}
-                  </div>
-                </div>
+                <SectionTitle icon={Building2}>Branch & Group Assignment</SectionTitle>
+                <dl className="grid grid-cols-2 gap-3 text-xs">
+                  <Field
+                    label="Branch"
+                    value={
+                      member.branchCode
+                        ? `${member.branchName} (${member.branchCode})`
+                        : member.branchName
+                    }
+                  />
+                  <Field label="Center" value={member.centerName || "Not assigned"} />
+                  <Field label="Active Group" value={member.groupName || "Not in any group"} />
+                  <Field
+                    label="Role in Group"
+                    value={member.memberRole || (member.groupName ? "Member" : "—")}
+                  />
+                  <Field
+                    label="Field Officer"
+                    value={
+                      member.foName
+                        ? member.foCode
+                          ? `${member.foName} (${member.foCode})`
+                          : member.foName
+                        : "—"
+                    }
+                    wide
+                  />
+                </dl>
               </section>
 
-              {/* 4. Financial & Socio-Economic */}
               <section className="space-y-3">
-                <div className="flex items-center gap-2 text-xs font-bold tracking-wider text-slate-700 uppercase">
-                  <Briefcase className="h-3.5 w-3.5 text-brand" />
-                  Financial Details
-                </div>
-                <div className="grid grid-cols-2 gap-3 text-xs">
-                  <div className="col-span-2">
-                    <span className="block text-muted">Occupation</span>
-                    <span className="font-medium text-slate-800">
-                      {member.occupationDetails || "—"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="block text-muted">Monthly Income</span>
-                    <span className="font-mono font-medium text-emerald-700">
-                      {formatCurrency(member.monthlyIncome)}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="block text-muted">Monthly Expense</span>
-                    <span className="font-mono font-medium text-slate-800">
-                      {formatCurrency(member.monthlyExpense)}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="block text-muted">Admission Fees</span>
-                    <span className="font-mono font-medium text-slate-800">
-                      {formatCurrency(member.admFees)}
-                    </span>
-                  </div>
-                </div>
+                <SectionTitle icon={Briefcase}>Financial Details</SectionTitle>
+                <dl className="grid grid-cols-2 gap-3 text-xs">
+                  <Field label="Occupation" value={member.occupationDetails || "—"} wide />
+                  <Field label="Monthly Income" value={formatCurrency(member.monthlyIncome)} mono />
+                  <Field label="Monthly Expense" value={formatCurrency(member.monthlyExpense)} mono />
+                  <Field label="Admission Fees" value={formatCurrency(member.admFees)} mono />
+                </dl>
               </section>
 
-              {/* 5. Bank Account */}
               <section className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-xs font-bold tracking-wider text-slate-700 uppercase">
+                <div className="flex items-center justify-between gap-2 border-b border-border/70 pb-2">
+                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500">
                     <CreditCard className="h-3.5 w-3.5 text-brand" />
                     Bank Account
                   </div>
-                  {member.bankAccountNo && (
-                    <button
+                  {member.bankAccountNo ? (
+                    <Button
                       type="button"
-                      className="inline-flex items-center gap-1 text-[11px] font-medium text-brand hover:underline"
-                      onClick={() => setRevealAccount(!revealAccount)}
+                      size="sm"
+                      variant="ghost"
+                      icon={revealAccount ? EyeOff : Eye}
+                      onClick={() => setRevealAccount((current) => !current)}
                     >
-                      {revealAccount ? (
-                        <>
-                          <EyeOff className="h-3 w-3" /> Hide
-                        </>
-                      ) : (
-                        <>
-                          <Eye className="h-3 w-3" /> Reveal
-                        </>
-                      )}
-                    </button>
-                  )}
+                      {revealAccount ? "Hide" : "Reveal"}
+                    </Button>
+                  ) : null}
                 </div>
-                <div className="grid grid-cols-2 gap-3 text-xs">
-                  <div>
-                    <span className="block text-muted">Bank Name</span>
-                    <span className="font-medium text-slate-800">
-                      {member.bankName || "—"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="block text-muted">Branch</span>
-                    <span className="font-medium text-slate-800">
-                      {member.bankBranch || "—"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="block text-muted">Account Number</span>
-                    <span className="font-mono font-medium text-slate-800">
-                      {member.bankAccountNo
+                <dl className="grid grid-cols-2 gap-3 text-xs">
+                  <Field label="Bank Name" value={member.bankName || "—"} />
+                  <Field label="Branch" value={member.bankBranch || "—"} />
+                  <Field
+                    label="Account Number"
+                    value={
+                      member.bankAccountNo
                         ? revealAccount
                           ? member.bankAccountNo
                           : maskAccountNumber(member.bankAccountNo)
-                        : "—"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="block text-muted">IFSC Code</span>
-                    <span className="font-mono font-medium text-slate-800">
-                      {member.ifscCode || "—"}
-                    </span>
-                  </div>
-                </div>
+                        : "—"
+                    }
+                    mono
+                  />
+                  <Field label="IFSC Code" value={member.ifscCode || "—"} mono />
+                </dl>
               </section>
 
-              {/* 6. Nominee Details */}
               <section className="space-y-3">
-                <div className="flex items-center gap-2 text-xs font-bold tracking-wider text-slate-700 uppercase">
-                  <Users className="h-3.5 w-3.5 text-brand" />
-                  Nominee Details
-                </div>
-                <div className="grid grid-cols-2 gap-3 text-xs">
-                  <div>
-                    <span className="block text-muted">Nominee Name</span>
-                    <span className="font-medium text-slate-800">
-                      {member.nomineeName || "—"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="block text-muted">Relationship</span>
-                    <span className="font-medium text-slate-800">
-                      {member.nomineeRelation || "—"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="block text-muted">Date of Birth</span>
-                    <span className="font-medium text-slate-800">
-                      {formatDate(member.nomineeDob)}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="block text-muted">Mobile Number</span>
-                    <span className="font-mono font-medium text-slate-800">
-                      {member.nomineeMobile || "—"}
-                    </span>
-                  </div>
-                </div>
+                <SectionTitle icon={Users}>Nominee Details</SectionTitle>
+                <dl className="grid grid-cols-2 gap-3 text-xs">
+                  <Field label="Nominee Name" value={member.nomineeName || "—"} />
+                  <Field label="Relationship" value={member.nomineeRelation || "—"} />
+                  <Field label="Date of Birth" value={formatDate(member.nomineeDob)} />
+                  <Field label="Mobile Number" value={member.nomineeMobile || "—"} mono />
+                </dl>
               </section>
 
-              {/* 7. System & Audit Info */}
-              <section className="space-y-2 border-t border-slate-200/80 pt-4 text-[11px] text-muted">
+              <div className="border-t border-border pt-3 text-[11px] text-muted">
                 <div className="flex items-center gap-1.5">
-                  <Clock className="h-3 w-3 text-muted-soft" />
+                  <Clock className="h-3 w-3" />
                   <span>
                     Created: {formatDate(member.createdAt)}
                     {member.createdBy ? ` by User #${member.createdBy}` : ""}
                   </span>
                 </div>
-                {member.updatedAt && (
-                  <div className="flex items-center gap-1.5">
-                    <Clock className="h-3 w-3 text-muted-soft" />
+                {member.updatedAt ? (
+                  <div className="mt-1 flex items-center gap-1.5">
+                    <Clock className="h-3 w-3" />
                     <span>
-                      Updated: {formatDate(member.updatedAt)}
+                      Last updated: {formatDate(member.updatedAt)}
                       {member.updatedBy ? ` by User #${member.updatedBy}` : ""}
                     </span>
                   </div>
-                )}
-                {member.remarks && (
-                  <div className="mt-2 rounded bg-slate-50 p-2 text-slate-600 italic">
-                    &ldquo;{member.remarks}&rdquo;
-                  </div>
-                )}
-              </section>
+                ) : null}
+                {member.remarks ? (
+                  <p className="mt-2 text-slate-600">{member.remarks}</p>
+                ) : null}
+              </div>
             </div>
 
-            {/* Drawer Footer Actions */}
             <div className="flex flex-wrap items-center justify-between gap-2 bg-surface-muted/30 px-5 py-3 sm:px-6">
-              <div className="flex items-center gap-1">
-                {member.statusCd !== 1 && (
+              <div className="flex flex-wrap gap-2">
+                {member.statusCd !== 1 ? (
                   <Button
                     size="sm"
-                    variant="outline"
-                    className="text-xs text-emerald-700 hover:bg-emerald-50"
+                    variant="success"
                     onClick={() => onRequestStatusChange(member, 1)}
                   >
-                    <CheckCircle className="mr-1 h-3.5 w-3.5" />
                     Activate
                   </Button>
-                )}
-                {member.statusCd === 1 && (
+                ) : (
                   <Button
                     size="sm"
-                    variant="outline"
-                    className="text-xs text-amber-700 hover:bg-amber-50"
+                    variant="warning"
                     onClick={() => onRequestStatusChange(member, 2)}
                   >
-                    <Power className="mr-1 h-3.5 w-3.5" />
                     Deactivate
                   </Button>
                 )}
-                {member.statusCd !== 3 && member.statusCd !== 4 && member.statusCd !== 5 && (
+                {member.statusCd !== 3 && member.statusCd !== 4 && member.statusCd !== 5 ? (
                   <Button
                     size="sm"
-                    variant="outline"
-                    className="text-xs text-orange-700 hover:bg-orange-50"
+                    variant="secondary"
                     onClick={() => onRequestStatusChange(member, 3)}
                   >
-                    <ShieldAlert className="mr-1 h-3.5 w-3.5" />
                     Suspend
                   </Button>
-                )}
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Button size="sm" variant="outline" onClick={onClose}>
-                  Close
-                </Button>
-                {canEdit && (
+                ) : null}
+                {member.statusCd !== 4 ? (
                   <Button
                     size="sm"
-                    variant="primary"
-                    onClick={() => onEdit(member)}
+                    variant="danger"
+                    onClick={() => onRequestStatusChange(member, 4)}
                   >
-                    <Pencil className="mr-1 h-3.5 w-3.5" />
-                    Edit Profile
+                    Close
                   </Button>
-                )}
+                ) : null}
+                {member.statusCd !== 5 ? (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => onRequestStatusChange(member, 5)}
+                  >
+                    Deceased
+                  </Button>
+                ) : null}
               </div>
+              {canEdit ? (
+                <Button size="sm" variant="primary" icon={Pencil} onClick={() => onEdit(member)}>
+                  Edit Profile
+                </Button>
+              ) : null}
             </div>
           </div>
         </aside>

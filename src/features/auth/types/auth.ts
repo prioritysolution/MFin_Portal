@@ -50,6 +50,8 @@ export type LoginDataDto = {
   tokenType?: string;
   expires_in?: number;
   expiresIn?: number;
+  password_expired?: boolean;
+  passwordExpired?: boolean;
   org_schema?: string;
   orgSchema?: string;
   user: AuthUserDto;
@@ -70,6 +72,7 @@ export type AuthUser = {
   shortName: string;
   userCode: string;
   userMob: string;
+  userPhone: string;
   userEmail: string;
   isActive: boolean;
   loginStatus: string;
@@ -83,6 +86,7 @@ export type AuthUser = {
   roleName: string | null;
   isAdmin: boolean;
   roles: AuthRole[];
+  passwordExpired?: boolean;
 };
 
 export type AuthSession = {

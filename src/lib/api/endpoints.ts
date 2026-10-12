@@ -9,6 +9,7 @@ export const endpoints = {
   auth: {
     login: "/api/auth/login",
     logout: "/api/auth/logout",
+    me: "/api/auth/me",
   },
   /** Same-origin BFF routes (browser → Next → Laravel). */
   bff: {
@@ -42,6 +43,9 @@ export const endpoints = {
     supportRealtime: "/api/support/realtime",
     groupManagement: "/api/onboarding/group-management",
     memberRegistration: "/api/onboarding/member-registration",
+    memberKyc: "/api/onboarding/member-kyc",
+    memberLocation: "/api/onboarding/member-location",
+    groupMemberMapping: "/api/onboarding/group-member-mapping",
   },
   menuTree: "/api/MenuTree",
   stateList: "/api/StateList",
@@ -201,6 +205,28 @@ export const endpoints = {
     add: "/api/MemberAdd",
     edit: "/api/MemberEdit",
     status: "/api/MemberStatus",
+  },
+  memberLocation: {
+    list: "/api/MemberLocationList",
+    add: "/api/MemberLocationAdd",
+    edit: "/api/MemberLocationEdit",
+    geoVerify: "/api/MemberLocationGeoVerify",
+    status: "/api/MemberLocationStatus",
+  },
+  memberKyc: {
+    list: "/api/MemberKycList",
+    add: "/api/MemberKycAdd",
+    edit: "/api/MemberKycEdit",
+    verify: "/api/MemberKycVerify",
+    status: "/api/MemberKycStatus",
+  },
+  memberGroup: {
+    list: "/api/MemberGroupList",
+    check: "/api/MemberGroupCheck",
+    assign: "/api/MemberGroupAssign",
+    reassign: "/api/MemberGroupReassign",
+    edit: "/api/MemberGroupEdit",
+    exit: "/api/MemberGroupExit",
   },
   operationalDays: {
     list: "/api/OperationalDaysList",

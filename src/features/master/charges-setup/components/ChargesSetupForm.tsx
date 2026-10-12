@@ -42,6 +42,7 @@ type FormState = {
   taxPercent: string;
   duringCd: string;
   chargesGl: string;
+  isRefundable: boolean;
   isActive: boolean;
 };
 
@@ -55,6 +56,7 @@ function toFormState(charge: ChargeSetup | null): FormState {
       taxPercent: "",
       duringCd: "",
       chargesGl: "",
+      isRefundable: false,
       isActive: true,
     };
   }
@@ -66,6 +68,7 @@ function toFormState(charge: ChargeSetup | null): FormState {
     taxPercent: String(charge.taxPercent),
     duringCd: charge.duringCd != null ? String(charge.duringCd) : "",
     chargesGl: charge.chargesGl != null ? String(charge.chargesGl) : "",
+    isRefundable: charge.isRefundable,
     isActive: charge.isActive,
   };
 }
@@ -230,6 +233,7 @@ function ChargesSetupFormBody({
       taxPercent: form.taxPercent !== "" ? Number(form.taxPercent) : 0,
       duringCd: form.duringCd !== "" ? Number(form.duringCd) : 0,
       chargesGl: form.chargesGl !== "" ? Number(form.chargesGl) : null,
+      ...(kind === "loan" ? { isRefundable: form.isRefundable } : {}),
       isActive: form.isActive,
     };
 
@@ -292,6 +296,8 @@ function ChargesSetupFormBody({
           max={999999.99}
           step="0.01"
           required
+          showRange={false}
+          placeholder={t("placeholders.chargeRate")}
           error={fieldErrors.chargeRate || undefined}
           onChange={(value) => updateField("chargeRate", value)}
         />
@@ -313,6 +319,8 @@ function ChargesSetupFormBody({
           min={0}
           max={999999.99}
           step="0.01"
+          showRange={false}
+          placeholder={t("placeholders.maxAmount")}
           error={fieldErrors.maxAmount || undefined}
           onChange={(value) => updateField("maxAmount", value)}
         />
@@ -323,6 +331,8 @@ function ChargesSetupFormBody({
           min={0}
           max={100}
           step="0.01"
+          showRange={false}
+          placeholder={t("placeholders.taxPercent")}
           error={fieldErrors.taxPercent || undefined}
           onChange={(value) => updateField("taxPercent", value)}
         />
@@ -350,6 +360,17 @@ function ChargesSetupFormBody({
           />
         </div>
       </div>
+
+      {kind === "loan" ? (
+        <div className="space-y-1">
+          <CheckboxField
+            label={t("fields.isRefundable")}
+            checked={form.isRefundable}
+            onChange={(checked) => updateField("isRefundable", checked)}
+          />
+          <p className="text-xs text-muted">{t("refundableHint")}</p>
+        </div>
+      ) : null}
 
       <CheckboxField
         label={t("fields.isActive")}

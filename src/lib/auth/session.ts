@@ -38,6 +38,7 @@ function normalizeSessionUser(user: SealedSessionPayload["user"]): AuthUser {
     shortName: user.shortName,
     userCode: user.userCode,
     userMob: user.userMob,
+    userPhone: typeof user.userPhone === "string" && user.userPhone ? user.userPhone : user.userMob,
     userEmail: user.userEmail,
     isActive: user.isActive,
     loginStatus: user.loginStatus,
@@ -54,6 +55,7 @@ function normalizeSessionUser(user: SealedSessionPayload["user"]): AuthUser {
         : (roles[0]?.roleName ?? null),
     isAdmin: user.isAdmin === true || roles.some((role) => role.isAdmin),
     roles,
+    passwordExpired: user.passwordExpired === true,
   };
 }
 

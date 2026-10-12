@@ -12,6 +12,7 @@ export type ChargesSetupFilterValues = {
   search: string;
   figureCd: string;
   duringCd: string;
+  isRefundable: "" | "1" | "0";
   isActive: "" | "1" | "0";
 };
 
@@ -95,6 +96,27 @@ export function ChargesSetupFilters({
           options={duringFilterOptions}
         />
       </div>
+
+      {kind === "loan" ? (
+        <div className="min-w-[10rem] sm:max-w-[12rem]">
+          <SelectField
+            label={t("filters.refundable")}
+            value={values.isRefundable}
+            searchable={false}
+            onChange={(isRefundable) =>
+              onChange({
+                ...values,
+                isRefundable: isRefundable as ChargesSetupFilterValues["isRefundable"],
+              })
+            }
+            options={[
+              { value: "", label: t("filters.refundableAll") },
+              { value: "1", label: t("refundable") },
+              { value: "0", label: t("nonRefundable") },
+            ]}
+          />
+        </div>
+      ) : null}
 
       <div className="min-w-[8rem] sm:max-w-[10rem]">
         <SelectField

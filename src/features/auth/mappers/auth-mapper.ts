@@ -41,7 +41,9 @@ function readUserFields(raw: AuthUserDto & Record<string, unknown>) {
         (raw.userCode as string | null | undefined),
     ),
     userMob: asText(
-      (raw.user_mob as string | null | undefined) ??
+      (raw.user_phone as string | null | undefined) ??
+        (raw.userPhone as string | null | undefined) ??
+        (raw.user_mob as string | null | undefined) ??
         (raw.userMob as string | null | undefined),
     ),
     userEmail: asText(
@@ -148,6 +150,7 @@ export function mapAuthUserDto(dto: AuthUserDto): AuthUser {
     shortName: fields.shortName || fields.userName,
     userCode: fields.userCode,
     userMob: fields.userMob,
+    userPhone: fields.userMob,
     userEmail: fields.userEmail,
     isActive: fields.isActive,
     loginStatus: fields.loginStatus,
@@ -183,6 +186,9 @@ export function mapLoginDataToSession(dto: LoginDataDto): {
       (dto as { orgSchema?: string }).orgSchema ??
       dto.user.org_schema ??
       "",
-    user: mapAuthUserDto(dto.user),
+    user: {
+      ...mapAuthUserDto(dto.user),
+      passwordExpired: dto.password_expired === true || dto.passwordExpired === true,
+    },
   };
 }

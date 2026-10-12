@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { AuthUser } from "@/features/auth/types/auth";
+import { refreshStoredAuthUser } from "@/features/auth/services/auth-client";
+import { storeAuthUser } from "@/features/auth/utils/auth-user-storage";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -14,6 +16,11 @@ type AppShellProps = {
 
 export function AppShell({ children, user }: AppShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    storeAuthUser(user);
+    void refreshStoredAuthUser();
+  }, [user]);
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-background">

@@ -41,3 +41,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# private uploaded files (paths only are stored in the API)
+/storage/kyc
+/storage/loc

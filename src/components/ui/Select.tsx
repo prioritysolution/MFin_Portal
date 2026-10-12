@@ -6,8 +6,10 @@ import {
   useMemo,
   useRef,
   useState,
+  type CSSProperties,
   type KeyboardEvent,
 } from "react";
+import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 import { Check, ChevronDown, Search, X } from "lucide-react";
 
@@ -63,10 +65,13 @@ export function Select({
   const resolvedEmptyMessage = emptyMessage ?? t("selectEmpty");
   const listId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
+  const [menuStyle, setMenuStyle] = useState<CSSProperties>({});
 
   const enableSearch = searchable;
   const canClear = clearable && !disabled && value !== "";
@@ -83,10 +88,10 @@ export function Select({
   useEffect(() => {
     if (!open) return;
     function onPointerDown(event: MouseEvent) {
-      if (!rootRef.current?.contains(event.target as Node)) {
-        setOpen(false);
-        setQuery("");
-      }
+      const target = event.target as Node;
+      if (rootRef.current?.contains(target) || menuRef.current?.contains(target)) return;
+      setOpen(false);
+      setQuery("");
     }
     function onKey(event: globalThis.KeyboardEvent) {
       if (event.key === "Escape") {
@@ -107,6 +112,40 @@ export function Select({
     const frame = requestAnimationFrame(() => searchRef.current?.focus());
     return () => cancelAnimationFrame(frame);
   }, [open, enableSearch]);
+
+  useEffect(() => {
+    if (!open) return;
+    function place() {
+      const trigger = triggerRef.current?.getBoundingClientRect();
+      if (!trigger) return;
+      const gap = 6;
+      const menuHeight = menuRef.current?.offsetHeight ?? 160;
+      const spaceBelow = window.innerHeight - trigger.bottom - gap - 8;
+      const spaceAbove = trigger.top - gap - 8;
+      const openBelow = spaceBelow >= menuHeight && spaceBelow >= spaceAbove;
+      const maxHeight = Math.max(96, openBelow ? spaceBelow : spaceAbove);
+      const top = openBelow
+        ? trigger.bottom + gap
+        : Math.max(8, trigger.top - gap - Math.min(menuHeight || maxHeight, maxHeight));
+      setMenuStyle({
+        position: "fixed",
+        left: trigger.left,
+        width: trigger.width,
+        top,
+        maxHeight,
+        zIndex: 240,
+      });
+    }
+    place();
+    const frame = requestAnimationFrame(place);
+    window.addEventListener("resize", place);
+    window.addEventListener("scroll", place, true);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", place);
+      window.removeEventListener("scroll", place, true);
+    };
+  }, [open, filtered.length, query]);
 
   function openMenu() {
     if (disabled) return;
@@ -170,6 +209,7 @@ export function Select({
     <div ref={rootRef} className={`relative ${className}`.trim()}>
       <div className="relative">
       <button
+        ref={triggerRef}
         type="button"
         id={id}
         disabled={disabled}
@@ -214,16 +254,19 @@ export function Select({
       ) : null}
       </div>
 
-      {open ? (
+      {open && typeof document !== "undefined"
+        ? createPortal(
         <div
+          ref={menuRef}
           id={listId}
           role="listbox"
           tabIndex={-1}
           onKeyDown={onListKeyDown}
-          className="absolute z-50 mt-1.5 w-full overflow-hidden rounded-[var(--radius-control)] border border-border bg-surface shadow-[var(--shadow-card)]"
+          style={menuStyle}
+          className="overflow-y-auto rounded-[var(--radius-control)] border border-border bg-surface shadow-[var(--shadow-card)]"
         >
           {enableSearch ? (
-            <div className="border-b border-border p-2">
+            <div className="sticky top-0 z-10 border-b border-border bg-surface p-2">
               <label className="relative block">
                 <Search className="pointer-events-none absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-muted-soft" />
                 <input
@@ -257,7 +300,7 @@ export function Select({
             </div>
           ) : null}
 
-          <ul className="max-h-60 overflow-y-auto py-1">
+          <ul className="py-1">
             {filtered.length === 0 ? (
               <li className="px-3 py-2.5 text-xs text-muted">{resolvedEmptyMessage}</li>
             ) : (
@@ -293,8 +336,10 @@ export function Select({
               })
             )}
           </ul>
-        </div>
-      ) : null}
+        </div>,
+        document.body,
+      )
+        : null}
     </div>
   );
 }

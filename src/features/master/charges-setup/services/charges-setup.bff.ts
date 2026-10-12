@@ -49,6 +49,11 @@ export async function handleChargesGet(kind: ChargeKind, request: Request) {
         : (searchParams.get("deduct_during_cd") ??
           searchParams.get("deductDuringCd"));
 
+    const refundableRaw = searchParams.get("is_refundable");
+    const isRefundable =
+      kind !== "loan" || refundableRaw == null || refundableRaw === ""
+        ? undefined
+        : refundableRaw === "1" || refundableRaw === "true";
     const result = await listCharges(kind, {
       page: readOptionalNumber(searchParams.get("page")),
       perPage: readOptionalNumber(searchParams.get("per_page")),
@@ -56,6 +61,7 @@ export async function handleChargesGet(kind: ChargeKind, request: Request) {
       search,
       figureCd: readOptionalNumber(searchParams.get("figure_cd")),
       duringCd: readOptionalNumber(duringRaw),
+      isRefundable,
       isActive: readOptionalNumber(isActiveRaw),
     });
 

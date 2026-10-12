@@ -30,7 +30,9 @@ export type ModuleId =
   | "master.loanEligibility"
   | "security.auditLog"
   | "security.loginSettings"
-  | "onboarding.groupManagement";
+  | "onboarding.groupManagement"
+  | "onboarding.groupMemberMapping"
+  | "onboarding.customerKyc";
 
 export type ModulePageMeta = {
   /** Stable module id used for registry / analytics. */
@@ -286,6 +288,20 @@ export const onboardingModulePages = {
     id: "onboarding.memberRegistration",
     route: "/onboarding/member-registration",
     messageNamespace: "onboarding.memberRegistration",
+    titleKey: "title",
+    descriptionKey: "description",
+  }),
+  groupMemberMapping: new ModulePage({
+    id: "onboarding.groupMemberMapping",
+    route: "/onboarding/group-member-mapping",
+    messageNamespace: "onboarding.groupMemberMapping",
+    titleKey: "title",
+    descriptionKey: "description",
+  }),
+  customerKyc: new ModulePage({
+    id: "onboarding.customerKyc",
+    route: "/customer-kyc",
+    messageNamespace: "onboarding.customerKyc",
     titleKey: "title",
     descriptionKey: "description",
   }),

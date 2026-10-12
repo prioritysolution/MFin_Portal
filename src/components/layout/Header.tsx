@@ -10,6 +10,11 @@ import { clearMenuClientCache } from "@/features/navigation/services/menu-client
 import { clearStoredAuthUser } from "@/features/auth/utils/auth-user-storage";
 import { QuickSearch } from "@/features/navigation/components/QuickSearch";
 import { SupportDeskLink } from "@/features/support/components/SupportDeskLink";
+import {
+  SupportDeskNotifier,
+  SupportNoticeBell,
+} from "@/features/support/components/SupportNoticeBell";
+import { clearSupportInbox } from "@/features/support/services/support-inbox";
 import { ThemeToggle } from "@/features/theme/ThemeToggle";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { endpoints } from "@/lib/api/endpoints";
@@ -81,6 +86,7 @@ export function Header({ onMenuClick, user }: HeaderProps) {
     } finally {
       clearMenuClientCache();
       clearStoredAuthUser();
+      clearSupportInbox();
       window.location.assign("/login");
     }
   }
@@ -134,9 +140,13 @@ export function Header({ onMenuClick, user }: HeaderProps) {
             <div className="md:hidden">
               <QuickSearch user={user} variant="icon" showShortcut={false} />
             </div>
-            <div className="hidden items-center gap-1.5 lg:flex">
+            <SupportDeskNotifier />
+            <div className="flex items-center gap-1.5">
               <SupportDeskLink />
-              <ThemeToggle />
+              <SupportNoticeBell />
+              <div className="hidden lg:block">
+                <ThemeToggle />
+              </div>
             </div>
             <div className="relative hidden lg:block" ref={langRef}>
               <button

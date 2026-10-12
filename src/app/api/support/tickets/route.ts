@@ -3,6 +3,7 @@ import {
   listSupportTickets,
   raiseSupportTicket,
 } from "@/features/support/services/support-ticket.service";
+import { currentRunDomain } from "@/features/support/services/support-domain";
 import { toBffErrorResponse } from "@/lib/api/bff-response";
 import { requireSessionUser } from "@/lib/auth/bff-scope";
 
@@ -33,7 +34,7 @@ export async function POST(request: Request) {
   try {
     await requireSessionUser();
     const body: unknown = await request.json();
-    const ticket = await raiseSupportTicket(body);
+    const ticket = await raiseSupportTicket(body, currentRunDomain(request));
     return NextResponse.json({
       success: true,
       message: "Ticket created",

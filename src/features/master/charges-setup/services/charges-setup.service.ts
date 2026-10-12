@@ -122,6 +122,12 @@ export async function listCharges(
           keyword: query.search,
           figure_cd: query.figureCd,
           [duringKey]: query.duringCd,
+          is_refundable:
+            kind === "loan" && query.isRefundable != null
+              ? query.isRefundable
+                ? 1
+                : 0
+              : undefined,
           is_active: query.isActive,
         },
       },

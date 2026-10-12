@@ -31,6 +31,10 @@ export function dedupeRequest<T>(
         entry!.cache = { at: Date.now(), value };
         return value;
       })
+      .catch((error: unknown) => {
+        entry!.inflight = null;
+        throw error;
+      })
       .finally(() => {
         entry!.inflight = null;
       });

@@ -37,6 +37,8 @@ import { MemberRegistrationTable } from "./MemberRegistrationTable";
 import { MemberRegistrationDrawer } from "./MemberRegistrationDrawer";
 import { MemberRegistrationForm, type MemberFormState } from "./MemberRegistrationForm";
 import { MemberStatusConfirmDialog } from "./MemberStatusConfirmDialog";
+import { MemberKycModal } from "@/features/onboarding/member-kyc";
+import { MemberLocationModal } from "@/features/onboarding/member-location";
 
 const DEFAULT_FILTERS: MemberFilterValues = {
   keyword: "",
@@ -217,6 +219,8 @@ export function MemberRegistrationView() {
 
   // Dialog & drawer states
   const [viewingMember, setViewingMember] = useState<Member | null>(null);
+  const [kycMember, setKycMember] = useState<Member | null>(null);
+  const [locationMember, setLocationMember] = useState<Member | null>(null);
   const [editingMember, setEditingMember] = useState<Member | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -296,7 +300,6 @@ export function MemberRegistrationView() {
 
   // One list request per settled filter. Search waits for the debounce.
   useEffect(() => {
-    const controller = new AbortController();
     let active = true;
 
     async function loadData() {
@@ -317,7 +320,7 @@ export function MemberRegistrationView() {
             genderCd: filters.genderCd ? Number(filters.genderCd) : undefined,
             statusCd: filters.statusCd ? (Number(filters.statusCd) as MemberStatus) : undefined,
           },
-          controller.signal,
+          { generation: reloadKey, replace: true },
         );
         if (!active) return;
 
@@ -335,7 +338,8 @@ export function MemberRegistrationView() {
           status_cd: filters.statusCd || undefined,
         });
       } catch (err) {
-        if (!active || controller.signal.aborted) return;
+        if (!active) return;
+        if (err instanceof DOMException && err.name === "AbortError") return;
         if (isMemberClientError(err) && err.status === 401) {
           router.replace("/login");
           return;
@@ -352,7 +356,6 @@ export function MemberRegistrationView() {
     loadData();
     return () => {
       active = false;
-      controller.abort();
     };
   }, [
     page,
@@ -530,6 +533,8 @@ export function MemberRegistrationView() {
         }}
         onView={handleView}
         onEdit={handleOpenEdit}
+        onOpenKyc={setKycMember}
+        onOpenLocation={setLocationMember}
         onRequestStatusChange={handleRequestStatus}
         onResetFilters={handleFilterReset}
         onCreateNew={handleOpenCreate}
@@ -544,6 +549,13 @@ export function MemberRegistrationView() {
         }
       />
 
+      <MemberKycModal member={kycMember} open={kycMember != null} onClose={() => setKycMember(null)} />
+      <MemberLocationModal
+        member={locationMember}
+        open={locationMember != null}
+        onClose={() => setLocationMember(null)}
+      />
+
       {/* View Drawer (Read-only Slide-over) */}
       {viewingMember ? (
         <MemberRegistrationDrawer
@@ -554,6 +566,7 @@ export function MemberRegistrationView() {
             handleOpenEdit(m);
           }}
           onRequestStatusChange={handleRequestStatus}
+          onOpenLocation={setLocationMember}
         />
       ) : null}
 

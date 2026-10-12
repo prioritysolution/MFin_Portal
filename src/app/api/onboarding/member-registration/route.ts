@@ -35,7 +35,7 @@ export async function GET(request: Request) {
       genderCd: optionalNumber(params.get("gender_cd")),
       statusCd: optionalNumber(params.get("status_cd")) as MemberStatus | undefined,
     };
-    const result = await listMembers(query);
+    const result = await listMembers(query, request.signal);
     return NextResponse.json({
       success: true,
       message: "Members retrieved successfully",

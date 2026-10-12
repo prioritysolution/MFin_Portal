@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useEffect, type ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import {
   Eye,
   MoreVertical,
@@ -12,6 +13,7 @@ import {
   UserX,
   XCircle,
   FileCheck2,
+  MapPin,
 } from "lucide-react";
 import { DataTable, type DataTableColumn } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/Badge";
@@ -32,6 +34,8 @@ export type MemberRegistrationTableProps = {
   onPageSizeChange: (pageSize: number) => void;
   onView: (member: Member) => void;
   onEdit: (member: Member) => void;
+  onOpenKyc: (member: Member) => void;
+  onOpenLocation: (member: Member) => void;
   onRequestStatusChange: (member: Member, nextStatus: MemberStatus) => void;
   headerActions?: ReactNode;
   onResetFilters?: () => void;
@@ -52,11 +56,15 @@ export function MemberRegistrationTable({
   onPageSizeChange,
   onView,
   onEdit,
+  onOpenKyc,
+  onOpenLocation,
   onRequestStatusChange,
   headerActions,
   onResetFilters,
   onCreateNew,
 }: MemberRegistrationTableProps) {
+  const tKyc = useTranslations("onboarding.memberKyc");
+  const tLocation = useTranslations("onboarding.memberLocation");
   const [activeMenuId, setActiveMenuId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -278,6 +286,24 @@ export function MemberRegistrationTable({
                   onClick={() => onEdit(row)}
                 />
               ) : null}
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                icon={FileCheck2}
+                tooltip={tKyc("open")}
+                aria-label={tKyc("open")}
+                onClick={() => onOpenKyc(row)}
+              />
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                icon={MapPin}
+                tooltip={tLocation("open")}
+                aria-label={tLocation("open")}
+                onClick={() => onOpenLocation(row)}
+              />
               <Button
                 type="button"
                 size="sm"

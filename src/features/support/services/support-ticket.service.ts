@@ -140,12 +140,15 @@ export async function listSupportTickets(input: unknown): Promise<SupportTicketL
   }
 }
 
-function resolveSupportDomain(submitted: string): string {
-  return projectDomain(process.env.SUPPORT_API_DOMAIN) || projectDomain(submitted);
+function resolveSupportDomain(runDomain: string, submitted: string): string {
+  return projectDomain(runDomain) || projectDomain(submitted);
 }
 
 /** Domain raise. API key and project domain. The API secret is not sent. */
-export async function raiseSupportTicket(input: unknown): Promise<SupportTicket> {
+export async function raiseSupportTicket(
+  input: unknown,
+  runDomain = "",
+): Promise<SupportTicket> {
   const validated = raiseTicketInputSchema.safeParse(input);
   if (!validated.success) {
     throw new ApiError({
@@ -158,7 +161,7 @@ export async function raiseSupportTicket(input: unknown): Promise<SupportTicket>
 
   const user = await requirePortalUser();
   const config = getSupportApiConfig();
-  const domain = resolveSupportDomain(validated.data.domain);
+  const domain = resolveSupportDomain(runDomain, validated.data.domain);
 
   if (!domain) {
     throw new ApiError({

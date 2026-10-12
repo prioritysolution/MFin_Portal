@@ -95,6 +95,8 @@ type TextFieldProps = Omit<
   restrict?: FieldRestrict;
   /** Checked while typing and again when the field is left. */
   validate?: (value: string, final: boolean) => string | undefined;
+  /** Number fields show min–max under the input unless this is false. */
+  showRange?: boolean;
 };
 
 export function TextField({
@@ -110,6 +112,7 @@ export function TextField({
   trailing,
   restrict,
   validate,
+  showRange = true,
   ...rest
 }: TextFieldProps) {
   const t = useTranslations("ui");
@@ -166,7 +169,7 @@ export function TextField({
   }
 
   const rangeLabel =
-    type === "number" && min != null && max != null
+    showRange && type === "number" && min != null && max != null
       ? t("numberRange", { min: String(min), max: String(max) })
       : null;
 

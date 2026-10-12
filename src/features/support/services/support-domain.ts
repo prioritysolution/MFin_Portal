@@ -17,11 +17,20 @@ function hostnameOf(value: string): string {
 }
 
 function normalizeHost(host: string): string {
-  const hostname = host.trim().toLowerCase().replace(/\.$/, "");
-  if (!hostname || hostname.length > 255 || hostname === "localhost") {
-    return hostname === "localhost" ? hostname : "";
-  }
-  if (!/^[a-z0-9.-]+$/.test(hostname)) return "";
+  const value = host.trim().toLowerCase().replace(/\.$/, "");
+  const match = /^([a-z0-9.-]+)(?::(\d{1,5}))?$/.exec(value);
+  if (!match) return "";
+  const hostname = match[1] ?? "";
+  const port = match[2];
+  if (!hostname || hostname.length > 255) return "";
   if (hostname.startsWith(".") || hostname.endsWith(".") || hostname.includes("..")) return "";
-  return hostname;
+  if (port && (Number(port) < 1 || Number(port) > 65535)) return "";
+  return port ? `${hostname}:${port}` : hostname;
+}
+
+/** Host (and port) of the address the portal is open on. */
+export function currentRunDomain(request: Request): string {
+  const forwarded = request.headers.get("x-forwarded-host")?.split(",")[0]?.trim();
+  const host = forwarded || request.headers.get("host") || "";
+  return projectDomain(host);
 }

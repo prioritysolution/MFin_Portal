@@ -31,6 +31,7 @@ const DEFAULT_FILTERS: ChargesSetupFilterValues = {
   search: "",
   figureCd: "",
   duringCd: "",
+  isRefundable: "",
   isActive: "",
 };
 
@@ -44,6 +45,7 @@ function filtersEqual(
     a.search === b.search &&
     a.figureCd === b.figureCd &&
     a.duringCd === b.duringCd &&
+    a.isRefundable === b.isRefundable &&
     a.isActive === b.isActive
   );
 }
@@ -115,6 +117,10 @@ export function ChargesSetupSection({
           duringCd: appliedFilters.duringCd
             ? Number(appliedFilters.duringCd)
             : undefined,
+          isRefundable:
+            kind === "loan" && appliedFilters.isRefundable !== ""
+              ? appliedFilters.isRefundable === "1"
+              : undefined,
           isActive:
             appliedFilters.isActive === ""
               ? undefined

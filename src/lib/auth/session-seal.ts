@@ -16,6 +16,7 @@ export type SealedSessionPayload = {
     shortName: string;
     userCode: string;
     userMob: string;
+    userPhone?: string;
     userEmail: string;
     isActive: boolean;
     loginStatus: string;
@@ -28,6 +29,7 @@ export type SealedSessionPayload = {
     roleId: number | null;
     roleName: string | null;
     isAdmin: boolean;
+    passwordExpired?: boolean;
     roles: Array<{
       roleId: number;
       roleName: string;

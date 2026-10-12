@@ -1,554 +1,593 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
+import { ArrowLeft, Check, Eye, EyeOff, Plus, X } from "lucide-react";
+import { ModulePageShell } from "@/components/shared/ModulePageShell";
+import { DataTable } from "@/components/shared/DataTable/DataTable";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Select } from "@/components/ui/Select";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { showToast } from "@/components/ui/toast";
+import { usePathname, useRouter } from "@/i18n/navigation";
+import { onboardingModulePages } from "@/lib/modules/module.types";
+import { getStoredAuthUser } from "@/features/auth/utils/auth-user-storage";
+import { fetchBranchList } from "@/features/master/branch/services/branch-client";
+import { fetchApplOptions } from "@/features/master/appl-options/services/appl-options-client";
+import { fetchMembers } from "@/features/onboarding/member-registration/services/member-client";
+import type { Member } from "@/features/onboarding/member-registration/types/member.types";
 import {
-  Building2,
-  ClipboardList,
-  FolderOpen,
-  Pencil,
-  Scale,
-  Search,
-  ShieldCheck,
-  UserPlus,
-  Users,
-  IdCard,
-} from "lucide-react";
-import { DataTable } from "@/components/shared/DataTable";
-import type { DataTableColumn } from "@/components/shared/DataTable";
+  changeMemberKycStatus,
+  fetchMemberKyc,
+  isMemberKycClientError,
+  verifyMemberKyc,
+} from "@/features/onboarding/member-kyc/services/member-kyc-client";
+import type { MemberKycDocument } from "@/features/onboarding/member-kyc/types/member-kyc.types";
 import {
-  CibilModal,
-  DocLockerModal,
-  OnboardModal,
-  ProfileModal,
-  type KycBorrower,
-} from "@/features/customer-kyc/components/CustomerKycModals";
+  CaptureDocumentsModal,
+  EditDocumentModal,
+  MemberPickerModal,
+} from "@/features/customer-kyc/components/CustomerKycPanels";
 
-type BorrowerRow = KycBorrower;
+type TabId = "pending" | "verified" | "rejected" | "all";
 
-const borrowers: BorrowerRow[] = [
-  {
-    id: "CUST-2026-0120",
-    name: "Gita Saha",
-    group: "Swanirbhar Mahila JLG #005",
-    role: "Member",
-    mobile: "+91 98540 13720",
-    aadhaar: "XXXX-XXXX-9760",
-    pan: "BQFPK1120W",
-    bankStatus: "Penny Drop Verified",
-    kycStatus: "ActiveBorrower",
-  },
-  {
-    id: "CUST-2026-0119",
-    name: "Anjali Chakraborty",
-    group: "Swanirbhar Mahila JLG #004",
-    role: "Member",
-    mobile: "+91 98523 13689",
-    aadhaar: "XXXX-XXXX-9687",
-    pan: "BPFPK1119T",
-    bankStatus: "Penny Drop Verified",
-    kycStatus: "ActiveBorrower",
-  },
-  {
-    id: "CUST-2026-0118",
-    name: "Aparna Sen",
-    group: "Swanirbhar Mahila JLG #003",
-    role: "Member",
-    mobile: "+91 98506 13658",
-    aadhaar: "XXXX-XXXX-9614",
-    pan: "BOFPK1118Q",
-    bankStatus: "Penny Drop Verified",
-    kycStatus: "ActiveBorrower",
-  },
-  {
-    id: "CUST-2026-0117",
-    name: "Mousumi Ghosh",
-    group: "Swanirbhar Mahila JLG #002",
-    role: "Member",
-    mobile: "+91 98489 13627",
-    aadhaar: "XXXX-XXXX-9541",
-    pan: "BNFPK1117N",
-    bankStatus: "Penny Drop Verified",
-    kycStatus: "ActiveBorrower",
-  },
-  {
-    id: "CUST-2026-0116",
-    name: "Supriya Mondal",
-    group: "Swanirbhar Mahila JLG #001",
-    role: "Leader",
-    mobile: "+91 98472 13596",
-    aadhaar: "XXXX-XXXX-9468",
-    pan: "BMFPK1116K",
-    bankStatus: "Penny Drop Verified",
-    kycStatus: "ActiveBorrower",
-  },
-  {
-    id: "CUST-2026-0115",
-    name: "Ruma More",
-    group: "Swanirbhar Mahila JLG #115",
-    role: "Member",
-    mobile: "+91 98455 13565",
-    aadhaar: "XXXX-XXXX-9395",
-    pan: "BLFPK1115H",
-    bankStatus: "Penny Drop Verified",
-    kycStatus: "ActiveBorrower",
-  },
-  {
-    id: "CUST-2026-0114",
-    name: "Meena Patil",
-    group: "Swanirbhar Mahila JLG #114",
-    role: "Member",
-    mobile: "+91 98438 13534",
-    aadhaar: "XXXX-XXXX-9322",
-    pan: "BKFPK1114E",
-    bankStatus: "Penny Drop Verified",
-    kycStatus: "ActiveBorrower",
-  },
-  {
-    id: "CUST-2026-0113",
-    name: "Pooja Gaikwad",
-    group: "Swanirbhar Mahila JLG #113",
-    role: "Member",
-    mobile: "+91 98421 13503",
-    aadhaar: "XXXX-XXXX-9249",
-    pan: "BJFPK1113B",
-    bankStatus: "Penny Drop Verified",
-    kycStatus: "ActiveBorrower",
-  },
-  {
-    id: "CUST-2026-0112",
-    name: "Aarti Saha",
-    group: "Swanirbhar Mahila JLG #112",
-    role: "Member",
-    mobile: "+91 98404 13472",
-    aadhaar: "XXXX-XXXX-9176",
-    pan: "BIFPK1112Y",
-    bankStatus: "Penny Drop Verified",
-    kycStatus: "ActiveBorrower",
-  },
-  {
-    id: "CUST-2026-0111",
-    name: "Kavita Chakraborty",
-    group: "Swanirbhar Mahila JLG #111",
-    role: "Member",
-    mobile: "+91 98387 13441",
-    aadhaar: "XXXX-XXXX-9103",
-    pan: "BHFPK1111V",
-    bankStatus: "Penny Drop Verified",
-    kycStatus: "ActiveBorrower",
-  },
-  {
-    id: "CUST-2026-0110",
-    name: "Sunita Ramesh Kamble",
-    group: "Laxmi Mahila Bachat JLG #010",
-    role: "Leader",
-    mobile: "+91 98370 13410",
-    aadhaar: "XXXX-XXXX-9030",
-    pan: "BGFPK1110S",
-    bankStatus: "Penny Drop Verified",
-    kycStatus: "ActiveBorrower",
-  },
-  {
-    id: "CUST-2026-0109",
-    name: "Rani Vijay Gaikwad",
-    group: "Laxmi Mahila Bachat JLG #010",
-    role: "Member",
-    mobile: "+91 98353 13379",
-    aadhaar: "XXXX-XXXX-8957",
-    pan: "BFFPK1109P",
-    bankStatus: "Penny Drop Verified",
-    kycStatus: "ActiveBorrower",
-  },
-  {
-    id: "CUST-2026-0108",
-    name: "Kakali Mondal",
-    group: "Maa Tara JLG #008",
-    role: "Member",
-    mobile: "+91 98336 13348",
-    aadhaar: "XXXX-XXXX-8884",
-    pan: "BEFPK1108M",
-    bankStatus: "Penny Drop Verified",
-    kycStatus: "ActiveBorrower",
-  },
-  {
-    id: "CUST-2026-0107",
-    name: "Shampa Das",
-    group: "Maa Tara JLG #008",
-    role: "Member",
-    mobile: "+91 98319 13317",
-    aadhaar: "XXXX-XXXX-8811",
-    pan: "BDFPK1107J",
-    bankStatus: "Penny Drop Verified",
-    kycStatus: "ActiveBorrower",
-  },
-  {
-    id: "CUST-2026-0106",
-    name: "Ruma Banerjee",
-    group: "Maa Tara JLG #007",
-    role: "Leader",
-    mobile: "+91 98302 13286",
-    aadhaar: "XXXX-XXXX-8738",
-    pan: "BCFPK1106G",
-    bankStatus: "Penny Drop Verified",
-    kycStatus: "ActiveBorrower",
-  },
-  {
-    id: "CUST-2026-0105",
-    name: "Payel Chakraborty",
-    group: "Maa Sarada Swanirbhar Dal #006",
-    role: "Member",
-    mobile: "+91 98285 13255",
-    aadhaar: "XXXX-XXXX-8665",
-    pan: "BBFPK1105D",
-    bankStatus: "Penny Drop Verified",
-    kycStatus: "ActiveBorrower",
-  },
-  {
-    id: "CUST-2026-0104",
-    name: "Sushmita Roy",
-    group: "Maa Sarada Swanirbhar Dal #006",
-    role: "Member",
-    mobile: "+91 98268 13224",
-    aadhaar: "XXXX-XXXX-8592",
-    pan: "BAFPK1104A",
-    bankStatus: "Penny Drop Verified",
-    kycStatus: "ActiveBorrower",
-  },
-  {
-    id: "CUST-2026-0103",
-    name: "Aparna Sardar",
-    group: "Maa Tara JLG #003",
-    role: "Member",
-    mobile: "+91 98251 13193",
-    aadhaar: "XXXX-XXXX-8519",
-    pan: "AZFPK1103X",
-    bankStatus: "Penny Drop Verified",
-    kycStatus: "ActiveBorrower",
-  },
-  {
-    id: "CUST-2026-0102",
-    name: "Kakali Mallick",
-    group: "Maa Tara JLG #002",
-    role: "Member",
-    mobile: "+91 98234 13162",
-    aadhaar: "XXXX-XXXX-8446",
-    pan: "AYFPK1102U",
-    bankStatus: "Penny Drop Verified",
-    kycStatus: "Under Review",
-  },
-  {
-    id: "CUST-2026-0101",
-    name: "Nandita Ghosh",
-    group: "Maa Tara JLG #001",
-    role: "Leader",
-    mobile: "+91 98217 13131",
-    aadhaar: "XXXX-XXXX-8373",
-    pan: "AXFPK1101R",
-    bankStatus: "Penny Drop Verified",
-    kycStatus: "ActiveBorrower",
-  },
-];
+function tabStatus(tab: TabId): 0 | 1 | 2 | undefined {
+  if (tab === "verified") return 1;
+  if (tab === "rejected") return 2;
+  if (tab === "all") return undefined;
+  return 0;
+}
 
-const metrics = [
-  {
-    label: "Total Members",
-    value: "20",
-    tone: "text-slate-900",
-    iconWrap: "bg-violet-50 text-violet-600",
-    icon: Users,
-  },
-  {
-    label: "Active JLGs",
-    value: "117 Groups",
-    tone: "text-blue-600",
-    iconWrap: "bg-blue-50 text-blue-600",
-    icon: Users,
-  },
-  {
-    label: "Penny Drop Verified",
-    value: "100%",
-    tone: "text-emerald-600",
-    iconWrap: "bg-emerald-50 text-emerald-600",
-    icon: Building2,
-  },
-  {
-    label: "RBI FOIR Compliant",
-    value: "100% (≤ 50%)",
-    tone: "text-amber-600",
-    iconWrap: "bg-amber-50 text-amber-600",
-    icon: Scale,
-  },
-] as const;
-
-type ModalKind = "profile" | "cibil" | "docs" | "onboard" | null;
+function daysUntil(value: string | null): number | null {
+  if (!value) return null;
+  const date = new Date(`${value.slice(0, 10)}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return null;
+  return Math.round((date.getTime() - new Date().setHours(0, 0, 0, 0)) / 86400000);
+}
 
 export function CustomerKycView() {
-  const [query, setQuery] = useState("");
-  const [modal, setModal] = useState<ModalKind>(null);
-  const [active, setActive] = useState<BorrowerRow | null>(null);
+  const t = useTranslations("onboarding.customerKyc");
+  const locale = useLocale();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [user] = useState(() => getStoredAuthUser());
+  const branchBound = Boolean(user && !user.isHead && user.branchId);
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return borrowers;
-    return borrowers.filter(
-      (row) =>
-        row.id.toLowerCase().includes(q) ||
-        row.name.toLowerCase().includes(q) ||
-        row.group.toLowerCase().includes(q) ||
-        row.mobile.toLowerCase().includes(q) ||
-        row.pan.toLowerCase().includes(q) ||
-        row.aadhaar.toLowerCase().includes(q),
-    );
-  }, [query]);
+  const memberId = Number(searchParams.get("member_id") || "");
+  const tab = (searchParams.get("tab") as TabId) || "pending";
+  const keyword = searchParams.get("keyword") ?? "";
+  const branchId = branchBound ? String(user?.branchId ?? "") : (searchParams.get("branch_id") ?? "");
+  const docType = searchParams.get("doc_type_cd") ?? "";
+  const showInactive = searchParams.get("inactive") === "1";
+  const page = Number(searchParams.get("page") || "1");
+  const pageSize = Number(searchParams.get("per_page") || "50");
 
-  function openBorrowerModal(
-    kind: Exclude<ModalKind, "onboard" | null>,
-    row: BorrowerRow,
-  ) {
-    setActive(row);
-    setModal(kind);
+  const [draftKeyword, setDraftKeyword] = useState(keyword);
+  const [rows, setRows] = useState<MemberKycDocument[]>([]);
+  const [total, setTotal] = useState(0);
+  const [lastPage, setLastPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [counts, setCounts] = useState({ pending: 0, verified: 0, rejected: 0 });
+  const [branches, setBranches] = useState<{ value: string; label: string }[]>([]);
+  const [types, setTypes] = useState<{ value: string; label: string; id: string }[]>([]);
+  const [selected, setSelected] = useState<string[]>([]);
+  const [revealed, setRevealed] = useState<number | null>(null);
+  const [member, setMember] = useState<Member | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [captureOpen, setCaptureOpen] = useState(false);
+  const [editing, setEditing] = useState<MemberKycDocument | null>(null);
+  const [review, setReview] = useState<MemberKycDocument | null>(null);
+  const [decision, setDecision] = useState<{ ids: number[]; status: 0 | 1 | 2 } | null>(null);
+  const [remarks, setRemarks] = useState("");
+  const [decisionError, setDecisionError] = useState("");
+  const [reloadKey, setReloadKey] = useState(0);
+
+  function writeQuery(patch: Record<string, string | null>, resetPage = false) {
+    const params = new URLSearchParams(searchParams.toString());
+    for (const [key, value] of Object.entries(patch)) {
+      if (value == null || value === "") params.delete(key);
+      else params.set(key, value);
+    }
+    if (resetPage) params.delete("page");
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname);
   }
 
-  function closeModal() {
-    setModal(null);
-    setActive(null);
+  useEffect(() => setDraftKeyword(keyword), [keyword]);
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      if (draftKeyword.trim() !== keyword) writeQuery({ keyword: draftKeyword.trim() || null }, true);
+    }, 400);
+    return () => window.clearTimeout(handle);
+  }, [draftKeyword]);
+
+  useEffect(() => {
+    if (branchBound) return;
+    fetchBranchList({ isActive: 1, perPage: 200 })
+      .then((result) => setBranches(result.items.map((branch) => ({ value: String(branch.branchId), label: branch.branchName }))))
+      .catch(() => setBranches([]));
+  }, [branchBound]);
+
+  useEffect(() => {
+    fetchApplOptions(33)
+      .then((options) =>
+        setTypes(
+          options
+            .filter((option) => option.optGroup === "Document Type" && option.isActive)
+            .map((option) => ({ value: String(option.optCode), label: option.optDescription, id: String(option.optionId) })),
+        ),
+      )
+      .catch(() => setTypes([]));
+  }, []);
+
+  useEffect(() => {
+    if (!Number.isFinite(memberId) || memberId <= 0) {
+      setMember(null);
+      return;
+    }
+    fetchMembers({ memberId, page: 1, perPage: 1 })
+      .then((result) => setMember(result.items[0] ?? null))
+      .catch(() => setMember(null));
+  }, [memberId, reloadKey]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoading(true);
+    setError(false);
+    const shared = {
+      branchId: branchId ? Number(branchId) : undefined,
+      docTypeCd: docType ? Number(docType) : undefined,
+      keyword: keyword || undefined,
+      isActive: showInactive ? undefined : true,
+    };
+    const list = Number.isFinite(memberId) && memberId > 0
+      ? fetchMemberKyc({ ...shared, memberId, page: 1, perPage: 200 }, controller.signal)
+      : fetchMemberKyc({
+          ...shared,
+          verifyStatus: tabStatus(tab),
+          page,
+          perPage: pageSize,
+        }, controller.signal);
+    list
+      .then((result) => {
+        if (controller.signal.aborted) return;
+        setRows(result.items);
+        setTotal(result.meta.total);
+        setLastPage(result.meta.lastPage);
+      })
+      .catch(() => {
+        if (controller.signal.aborted) return;
+        setRows([]);
+        setError(true);
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+    return () => controller.abort();
+  }, [memberId, tab, keyword, branchId, docType, showInactive, page, pageSize, reloadKey]);
+
+  useEffect(() => {
+    if (Number.isFinite(memberId) && memberId > 0) return;
+    const shared = {
+      branchId: branchId ? Number(branchId) : undefined,
+      docTypeCd: docType ? Number(docType) : undefined,
+      keyword: keyword || undefined,
+      isActive: showInactive ? undefined : true,
+      page: 1,
+      perPage: 1,
+    };
+    Promise.all([
+      fetchMemberKyc({ ...shared, verifyStatus: 0 }),
+      fetchMemberKyc({ ...shared, verifyStatus: 1 }),
+      fetchMemberKyc({ ...shared, verifyStatus: 2 }),
+    ])
+      .then(([pending, verified, rejected]) =>
+        setCounts({ pending: pending.meta.total, verified: verified.meta.total, rejected: rejected.meta.total }),
+      )
+      .catch(() => setCounts({ pending: 0, verified: 0, rejected: 0 }));
+  }, [memberId, keyword, branchId, docType, showInactive, reloadKey]);
+
+  const dateFormat = useMemo(
+    () => new Intl.DateTimeFormat(locale, { day: "2-digit", month: "short", year: "numeric" }),
+    [locale],
+  );
+  function formatDate(value: string | null) {
+    if (!value) return "—";
+    const parsed = new Date(value.includes("T") || value.includes(" ") ? value.replace(" ", "T") : `${value.slice(0, 10)}T00:00:00`);
+    return Number.isNaN(parsed.getTime()) ? value : dateFormat.format(parsed);
   }
 
-  const borrowerColumns: DataTableColumn<BorrowerRow>[] = [
-    {
-      id: "id",
-      header: "Member ID",
-      cell: (row) => (
-        <button
-          type="button"
-          onClick={() => openBorrowerModal("profile", row)}
-          className="font-semibold text-blue-600 hover:underline"
-        >
-          {row.id}
-        </button>
-      ),
-    },
-    {
-      id: "name",
-      header: "Member / Borrower Name",
-      cell: (row) => (
-        <span className="font-medium text-slate-900">{row.name}</span>
-      ),
-    },
-    {
-      id: "group",
-      header: "Group & Role",
-      cell: (row) => (
-        <>
-          <p className="font-medium text-slate-800">{row.group}</p>
-          <p className="text-xs text-muted">({row.role})</p>
-        </>
-      ),
-    },
-    {
-      id: "mobile",
-      header: "Contact",
-      cell: (row) => row.mobile,
-    },
-    {
-      id: "identity",
-      header: "Identity (Masked)",
-      cell: (row) => (
-        <>
-          <p className="font-medium text-slate-800">{row.aadhaar}</p>
-          <p className="text-xs text-muted">(PAN: {row.pan})</p>
-        </>
-      ),
-    },
-    {
-      id: "bankStatus",
-      header: "Bank Status",
-      cell: (row) => (
-        <span
-          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
-            row.bankStatus === "Penny Drop Verified"
-              ? "bg-emerald-50 text-emerald-700"
-              : "bg-amber-50 text-amber-800"
-          }`}
-        >
-          <ShieldCheck className="h-3.5 w-3.5" />
-          {row.bankStatus}
-        </span>
-      ),
-    },
-    {
-      id: "kycStatus",
-      header: "KYC Status",
-      cell: (row) => (
-        <span
-          className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ${
-            row.kycStatus === "ActiveBorrower"
-              ? "bg-brand-soft text-brand-ink"
-              : "bg-amber-50 text-amber-800"
-          }`}
-        >
-          {row.kycStatus}
-        </span>
-      ),
-    },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: (row) => (
-        <div className="flex flex-wrap items-center gap-1.5">
-          <ActionButton
-            label="View Profile"
-            tone="blue"
-            icon={IdCard}
-            onClick={() => openBorrowerModal("profile", row)}
-          />
-          <ActionButton
-            label="CIBIL Check"
-            tone="violet"
-            icon={Scale}
-            onClick={() => openBorrowerModal("cibil", row)}
-          />
-          <ActionButton
-            label="Doc Locker"
-            tone="amber"
-            icon={FolderOpen}
-            onClick={() => openBorrowerModal("docs", row)}
-          />
-          <ActionButton
-            label="Edit"
-            tone="slate"
-            icon={Pencil}
-            onClick={() => openBorrowerModal("profile", row)}
-          />
-        </div>
-      ),
-    },
-  ];
+  function saved(message: string) {
+    if (message) showToast(message, "success");
+    setSelected([]);
+    setReloadKey((value) => value + 1);
+  }
 
-  return (
-    <div className="flex min-w-0 flex-col gap-4 sm:gap-5">
-      <div className="btn-actions justify-end">
-        <button
-          type="button"
-          onClick={() => setModal("onboard")}
-          className="btn inline-flex items-center gap-2 border border-transparent bg-violet-600 px-4 py-2.5 text-white hover:bg-violet-700"
-        >
-          <ClipboardList className="h-4 w-4" />
-          5-Section Deep Onboarding
-        </button>
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={() => setModal("onboard")}
-        >
-          <UserPlus className="h-4 w-4" />
-          Onboard New Member
-        </button>
-      </div>
+  async function applyDecision() {
+    if (!decision) return;
+    if (decision.status !== 1 && !remarks.trim()) {
+      setDecisionError(t("reasonRequired"));
+      return;
+    }
+    try {
+      const result = await verifyMemberKyc({
+        memberKycId: decision.ids.length === 1 ? decision.ids[0] : undefined,
+        memberKycIds: decision.ids.length > 1 ? decision.ids : undefined,
+        verifyStatus: decision.status,
+        remarks: remarks.trim() || undefined,
+      });
+      setDecision(null);
+      setReview(null);
+      saved(result.message);
+    } catch (caught) {
+      const message = isMemberKycClientError(caught) ? caught.message : t("requestFailed");
+      setDecisionError(message);
+      showToast(message, "error");
+    }
+  }
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {metrics.map((metric) => (
-          <div
-            key={metric.label}
-            className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)]"
-          >
-            <div className="flex items-start gap-3">
-              <span
-                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${metric.iconWrap}`}
-              >
-                <metric.icon className="h-4 w-4" />
-              </span>
-              <div className="min-w-0">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-soft">
-                  {metric.label}
-                </p>
-                <p
-                  className={`mt-1.5 text-xl font-semibold tracking-tight ${metric.tone}`}
-                >
-                  {metric.value}
-                </p>
-              </div>
+  const activeRows = rows.filter((row) => row.isActive);
+  const inactiveRows = rows.filter((row) => !row.isActive);
+  const hasPhotoId = activeRows.some((row) => row.docTypeCd === 1 || row.docTypeCd === 2);
+  const locked = member?.statusCd === 4 || member?.statusCd === 5;
+  const ownId = user ? String(user.userId) : "";
+
+  function canVerify(row: MemberKycDocument) {
+    return row.isActive && row.verifyStatus === 0 && !row.isExpired && String(row.createdBy ?? "") !== ownId;
+  }
+
+  if (Number.isFinite(memberId) && memberId > 0) {
+    return (
+      <ModulePageShell
+        page={onboardingModulePages.customerKyc}
+        actions={
+          <Button type="button" icon={Plus} disabled={locked} tooltip={locked ? t("memberLocked") : undefined} onClick={() => setCaptureOpen(true)}>
+            {t("capture")}
+          </Button>
+        }
+      >
+        <button type="button" className="mb-3 inline-flex items-center gap-1 text-sm font-medium text-slate-700" onClick={() => writeQuery({ member_id: null })}>
+          <ArrowLeft className="h-4 w-4" /> {t("back")}
+        </button>
+        {loading && !member ? (
+          <div className="space-y-3">
+            <Skeleton className="h-16 w-full" />
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, index) => <Skeleton key={index} className="h-40 w-full" />)}
             </div>
           </div>
+        ) : (
+          <>
+            <header className="mb-4 rounded-xl border border-border bg-white p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <h2 className="text-lg font-semibold text-slate-900">{member?.memberName ?? t("member")}</h2>
+                  <p className="text-sm text-muted">{member?.refCode} · {member?.branchName}</p>
+                </div>
+                <Badge tone={member?.statusCd === 1 ? "success" : "neutral"}>{member?.statusDesc ?? ""}</Badge>
+              </div>
+              <p className="mt-2 text-sm text-slate-700">
+                {t("summary", {
+                  verified: activeRows.filter((row) => row.verifyStatus === 1).length,
+                  pending: activeRows.filter((row) => row.verifyStatus === 0).length,
+                  rejected: activeRows.filter((row) => row.verifyStatus === 2).length,
+                })}
+              </p>
+              {!hasPhotoId && !locked ? <p className="mt-2 text-sm text-amber-800">{t("photoIdHint")}</p> : null}
+            </header>
+            {loading ? (
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {Array.from({ length: 3 }).map((_, index) => <Skeleton key={index} className="h-40 w-full" />)}
+              </div>
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {activeRows.map((row) => (
+                  <DocumentCard
+                    key={row.memberKycId}
+                    row={row}
+                    revealed={revealed === row.memberKycId}
+                    onReveal={() => setRevealed(revealed === row.memberKycId ? null : row.memberKycId)}
+                    formatDate={formatDate}
+                    canVerify={canVerify(row)}
+                    onReview={() => setReview(row)}
+                    onEdit={() => setEditing(row)}
+                    onDecision={(status) => { setDecision({ ids: [row.memberKycId], status }); setRemarks(""); setDecisionError(""); }}
+                    onToggle={() => void changeMemberKycStatus({ memberKycId: row.memberKycId, isActive: !row.isActive }).then((result) => saved(result.message)).catch((caught) => showToast(isMemberKycClientError(caught) ? caught.message : t("requestFailed"), "error"))}
+                  />
+                ))}
+              </div>
+            )}
+            {inactiveRows.length > 0 ? (
+              <details className="mt-4">
+                <summary className="cursor-pointer text-sm font-medium text-slate-700">{t("inactiveCount", { count: inactiveRows.length })}</summary>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                  {inactiveRows.map((row) => (
+                    <DocumentCard
+                      key={row.memberKycId}
+                      row={row}
+                      revealed={revealed === row.memberKycId}
+                      onReveal={() => setRevealed(revealed === row.memberKycId ? null : row.memberKycId)}
+                      formatDate={formatDate}
+                      canVerify={false}
+                      onReview={() => setReview(row)}
+                      onEdit={() => setEditing(row)}
+                      onDecision={(status) => { setDecision({ ids: [row.memberKycId], status }); setRemarks(""); setDecisionError(""); }}
+                      onToggle={() => void changeMemberKycStatus({ memberKycId: row.memberKycId, isActive: !row.isActive }).then((result) => saved(result.message)).catch((caught) => showToast(isMemberKycClientError(caught) ? caught.message : t("requestFailed"), "error"))}
+                    />
+                  ))}
+                </div>
+              </details>
+            ) : null}
+          </>
+        )}
+        <CaptureDocumentsModal open={captureOpen} member={member} existing={rows} types={types} onClose={() => setCaptureOpen(false)} onSaved={saved} />
+        <EditDocumentModal document={editing} member={member} types={types} onClose={() => setEditing(null)} onSaved={saved} />
+        {review ? (
+          <ReviewDialog row={review} formatDate={formatDate} onClose={() => setReview(null)} onDecision={(status) => { setDecision({ ids: [review.memberKycId], status }); setRemarks(""); setDecisionError(""); }} />
+        ) : null}
+        <ConfirmDialog
+          open={decision != null}
+          onClose={() => setDecision(null)}
+          variant={decision?.status === 2 ? "danger" : decision?.status === 1 ? "success" : "warning"}
+          title={decision?.status === 1 ? t("verify") : decision?.status === 2 ? t("reject") : t("reopen")}
+          description={decision?.status === 0 ? t("reopenHint") : decision?.status === 1 ? t("verifyHint") : t("reasonHint")}
+          confirmLabel={t("save")}
+          onConfirm={applyDecision}
+        >
+          {decision && decision.status !== 1 ? (
+            <label className="mt-3 block text-sm">
+              <span className="mb-1 block font-medium text-slate-700">{t("reason")}</span>
+              <textarea value={remarks} maxLength={200} onChange={(event) => setRemarks(event.target.value)} placeholder={t("reasonPlaceholder")} className="input min-h-20 w-full" />
+              {decisionError ? <span className="mt-1 block text-danger">{decisionError}</span> : null}
+            </label>
+          ) : null}
+        </ConfirmDialog>
+      </ModulePageShell>
+    );
+  }
+
+  return (
+    <ModulePageShell
+      page={onboardingModulePages.customerKyc}
+      actions={<Button type="button" icon={Plus} onClick={() => setPickerOpen(true)}>{t("capture")}</Button>}
+    >
+      <div className="mb-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+        {(["pending", "verified", "rejected", "all"] as TabId[]).map((item) => (
+          <button
+            key={item}
+            type="button"
+            onClick={() => { setSelected([]); writeQuery({ tab: item === "pending" ? null : item }, true); }}
+            className={`rounded-2xl border px-3 py-3 text-start text-sm ${tab === item ? "border-brand bg-brand text-white" : "border-border bg-white"}`}
+          >
+            <span className="block font-medium">{t(`tabs.${item}`)}</span>
+            <span className="text-lg font-semibold">{item === "all" ? "—" : counts[item]}</span>
+          </button>
         ))}
       </div>
-
-      <section className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5">
-        <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-          <div>
-            <h2 className="text-base font-semibold text-slate-900">
-              Registered Group Members & Borrowers
-            </h2>
-            <p className="mt-1 text-sm text-muted">
-              UIDAI tokenized KYC profiles, group roles, verified bank accounts,
-              and bureau status
-            </p>
-          </div>
-          <div className="relative w-full max-w-xs">
-            <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-soft" />
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Filter records..."
-              className="w-full rounded-xl border border-border bg-surface-muted py-2.5 pr-3 pl-9 text-sm outline-none focus:border-brand/40 focus:bg-white focus:ring-4 focus:ring-brand/10"
-            />
-          </div>
+      <div className="mb-3 grid gap-2 md:grid-cols-[minmax(0,1fr)_12rem_12rem_auto] md:items-end">
+        <input value={draftKeyword} onChange={(event) => setDraftKeyword(event.target.value)} placeholder={t("searchPlaceholder")} aria-label={t("search")} className="input w-full" />
+        {branchBound ? null : (
+          <Select aria-label={t("branch")} placeholder={t("allBranches")} clearable value={branchId} onChange={(value) => writeQuery({ branch_id: value || null }, true)} options={branches} />
+        )}
+        <Select aria-label={t("documentType")} placeholder={t("allTypes")} clearable value={docType} onChange={(value) => writeQuery({ doc_type_cd: value || null }, true)} options={types} />
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={showInactive} onChange={(event) => writeQuery({ inactive: event.target.checked ? "1" : null }, true)} />
+          {t("showInactive")}
+        </label>
+      </div>
+      <DataTable
+        data={rows}
+        loading={loading}
+        error={error}
+        onRetry={() => setReloadKey((value) => value + 1)}
+        emptyTitle={tab === "pending" ? t("emptyPending") : t("emptyFiltered")}
+        emptyMessage={t("emptyHint")}
+        emptyAction={<Button type="button" variant="secondary" onClick={() => writeQuery({ keyword: null, branch_id: null, doc_type_cd: null, inactive: null, tab: null }, true)}>{t("clearFilters")}</Button>}
+        getRowKey={(row) => String(row.memberKycId)}
+        getRowClassName={(row) => (row.isActive ? undefined : "opacity-60")}
+        minWidth="960px"
+        pagination={{ page, pageSize, total, totalPages: lastPage, onPageChange: (next) => writeQuery({ page: String(next) }), onPageSizeChange: (size) => writeQuery({ per_page: String(size), page: null }, true) }}
+        selection={tab === "pending" ? { getRowKey: (row) => String(row.memberKycId), selectedKeys: selected, onSelectionChange: setSelected } : undefined}
+        columns={[
+          {
+            id: "member",
+            header: t("member"),
+            cell: (row) => (
+              <button type="button" className="text-start" onClick={() => writeQuery({ member_id: String(row.memberId) })}>
+                <span className="block font-medium text-slate-900">{row.memberName}</span>
+                <span className="block font-mono text-xs text-muted">{row.refCode}</span>
+                <span className="block text-xs text-muted">{row.branchName}</span>
+              </button>
+            ),
+          },
+          {
+            id: "document",
+            header: t("document"),
+            cell: (row) => (
+              <div>
+                <div className="font-medium">{row.docTypeDesc}</div>
+                <div className="text-xs text-muted">{row.photoPath ? t("frontReady") : t("frontMissing")} · {row.backPhotoPath ? t("backReady") : t("backMissing")}</div>
+              </div>
+            ),
+          },
+          {
+            id: "number",
+            header: t("number"),
+            cell: (row) => (
+              <span className="inline-flex items-center gap-1 font-mono">
+                {revealed === row.memberKycId ? row.kycNo : row.kycNoMasked || row.kycNo}
+                <Button type="button" size="sm" variant="ghost" icon={revealed === row.memberKycId ? EyeOff : Eye} aria-label={revealed === row.memberKycId ? t("hideNumber") : t("showNumber")} onClick={() => setRevealed(revealed === row.memberKycId ? null : row.memberKycId)} />
+              </span>
+            ),
+          },
+          {
+            id: "validity",
+            header: t("validity"),
+            cell: (row) => {
+              const soon = daysUntil(row.expiryDate);
+              return (
+                <div>
+                  <div>{t("expires")} {formatDate(row.expiryDate)}</div>
+                  {row.isExpired ? <Badge tone="danger">{t("expired")}</Badge> : null}
+                  {!row.isExpired && soon != null && soon >= 0 && soon <= 60 ? <Badge tone="amber">{t("expiresSoon")}</Badge> : null}
+                </div>
+              );
+            },
+          },
+          { id: "added", header: t("added"), cell: (row) => <span>{formatDate(row.createdAt)}<span className="block text-xs text-muted">{row.createdByName}</span></span> },
+          {
+            id: "status",
+            header: t("status"),
+            cell: (row) => (
+              <Badge tone={!row.isActive ? "neutral" : row.verifyStatus === 1 ? "success" : row.verifyStatus === 2 ? "danger" : "amber"}>
+                {!row.isActive ? t("inactive") : row.verifyStatus === 1 ? t("verified") : row.verifyStatus === 2 ? t("rejected") : t("pending")}
+              </Badge>
+            ),
+          },
+        ]}
+        rowActions={{
+          header: t("actions"),
+          render: (row) => (
+            <div className="flex justify-end gap-1">
+              <Button type="button" size="sm" variant="secondary" onClick={() => setReview(row)}>{t("review")}</Button>
+              {canVerify(row) ? <Button type="button" size="sm" variant="success" icon={Check} aria-label={t("verify")} onClick={() => { setDecision({ ids: [row.memberKycId], status: 1 }); setRemarks(""); setDecisionError(""); }} /> : null}
+              {row.isActive && row.verifyStatus === 0 ? <Button type="button" size="sm" variant="danger" icon={X} aria-label={t("reject")} onClick={() => { setDecision({ ids: [row.memberKycId], status: 2 }); setRemarks(""); setDecisionError(""); }} /> : null}
+            </div>
+          ),
+        }}
+      />
+      {selected.length > 0 ? (
+        <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-border bg-white p-3">
+          <span className="text-sm">{t("selected", { count: selected.length })}</span>
+          <Button type="button" size="sm" variant="success" onClick={() => { setDecision({ ids: selected.map(Number), status: 1 }); setRemarks(""); setDecisionError(""); }}>{t("verifySelected")}</Button>
+          <Button type="button" size="sm" variant="danger" onClick={() => { setDecision({ ids: selected.map(Number), status: 2 }); setRemarks(""); setDecisionError(""); }}>{t("rejectSelected")}</Button>
         </div>
-
-        <DataTable
-          data={filtered}
-          columns={borrowerColumns}
-          getRowKey={(row) => row.id}
-          minWidth="1180px"
+      ) : null}
+      <MemberPickerModal open={pickerOpen} onClose={() => setPickerOpen(false)} onPick={(picked) => { setPickerOpen(false); writeQuery({ member_id: String(picked.memberId) }); }} />
+      <ConfirmDialog
+        open={decision != null && review == null}
+        onClose={() => setDecision(null)}
+        variant={decision?.status === 2 ? "danger" : "success"}
+        title={decision?.status === 2 ? t("reject") : t("verify")}
+        description={decision && decision.ids.length > 1 ? t("batchHint", { count: decision.ids.length }) : t("verifyHint")}
+        confirmLabel={t("save")}
+        onConfirm={applyDecision}
+      >
+        {decision?.status === 2 ? (
+          <label className="mt-3 block text-sm">
+            <span className="mb-1 block font-medium text-slate-700">{t("reason")}</span>
+            <textarea value={remarks} maxLength={200} onChange={(event) => setRemarks(event.target.value)} placeholder={t("reasonPlaceholder")} className="input min-h-20 w-full" />
+            {decisionError ? <span className="mt-1 block text-danger">{decisionError}</span> : null}
+          </label>
+        ) : null}
+      </ConfirmDialog>
+      {review ? (
+        <ReviewDialog
+          row={review}
+          formatDate={formatDate}
+          onClose={() => setReview(null)}
+          onDecision={(status) => { setDecision({ ids: [review.memberKycId], status }); setRemarks(""); setDecisionError(""); }}
         />
-
-        <div className="mt-4 flex items-center justify-between border-t border-border pt-3 text-xs text-muted">
-          <p>
-            Showing {filtered.length} of {borrowers.length} total
-          </p>
-          <p>UIDAI tokenized · NPCI Penny-Drop · RBI FOIR guarded</p>
-        </div>
-      </section>
-
-      {modal === "profile" && active ? (
-        <ProfileModal borrower={active} onClose={closeModal} />
       ) : null}
-      {modal === "cibil" && active ? (
-        <CibilModal borrower={active} onClose={closeModal} />
-      ) : null}
-      {modal === "docs" && active ? (
-        <DocLockerModal borrower={active} onClose={closeModal} />
-      ) : null}
-      {modal === "onboard" ? <OnboardModal onClose={closeModal} /> : null}
-    </div>
+    </ModulePageShell>
   );
 }
 
-function ActionButton({
-  label,
-  tone,
-  icon: Icon,
-  onClick,
+function DocumentCard({
+  row,
+  revealed,
+  onReveal,
+  formatDate,
+  canVerify,
+  onReview,
+  onEdit,
+  onDecision,
+  onToggle,
 }: {
-  label: string;
-  tone: "blue" | "violet" | "amber" | "slate";
-  icon: typeof IdCard;
-  onClick: () => void;
+  row: MemberKycDocument;
+  revealed: boolean;
+  onReveal: () => void;
+  formatDate: (value: string | null) => string;
+  canVerify: boolean;
+  onReview: () => void;
+  onEdit: () => void;
+  onDecision: (status: 0 | 1 | 2) => void;
+  onToggle: () => void;
 }) {
-  const tones = {
-    blue: "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100",
-    violet: "border-violet-200 bg-violet-50 text-violet-700 hover:bg-violet-100",
-    amber: "border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100",
-    slate: "border-border bg-surface-muted text-slate-600 hover:bg-surface",
-  };
-
+  const t = useTranslations("onboarding.customerKyc");
+  const tone = !row.isActive ? "neutral" : row.verifyStatus === 1 ? "success" : row.verifyStatus === 2 ? "danger" : "amber";
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1.5 text-[11px] font-semibold transition ${tones[tone]}`}
-    >
-      <Icon className="h-3 w-3" />
-      {label}
-    </button>
+    <article className={`rounded-xl border border-border bg-white p-3 text-sm ${row.isActive ? "" : "opacity-70"}`}>
+      <div className="flex items-start justify-between gap-2">
+        <h3 className="font-medium text-slate-900">{row.docTypeDesc}</h3>
+        <Badge tone={tone}>{!row.isActive ? t("inactive") : row.verifyStatus === 1 ? t("verified") : row.verifyStatus === 2 ? t("rejected") : t("pending")}</Badge>
+      </div>
+      <p className="mt-2 font-mono">{revealed ? row.kycNo : row.kycNoMasked || row.kycNo}</p>
+      <p className="mt-1 text-xs text-muted">{row.photoPath ? t("frontReady") : t("frontMissing")} · {row.backPhotoPath ? t("backReady") : t("backMissing")}</p>
+      <p className="mt-1 text-xs text-muted">{formatDate(row.createdAt)} · {row.createdByName}</p>
+      {row.verifyRemarks ? <p className="mt-2 rounded-lg bg-rose-50 px-2 py-1 text-rose-800">{row.verifyRemarks}</p> : null}
+      <div className="mt-3 flex flex-wrap gap-1">
+        <Button type="button" size="sm" variant="ghost" icon={revealed ? EyeOff : Eye} onClick={onReveal}>{revealed ? t("hideNumber") : t("showNumber")}</Button>
+        <Button type="button" size="sm" variant="secondary" onClick={onReview}>{t("review")}</Button>
+        {row.isActive && row.verifyStatus !== 1 ? <Button type="button" size="sm" variant="secondary" onClick={onEdit}>{row.verifyStatus === 2 ? t("resubmit") : t("edit")}</Button> : null}
+        {canVerify ? <Button type="button" size="sm" variant="success" onClick={() => onDecision(1)}>{t("verify")}</Button> : null}
+        {row.isActive && row.verifyStatus !== 2 ? <Button type="button" size="sm" variant="danger" onClick={() => onDecision(2)}>{t("reject")}</Button> : null}
+        {row.isActive && row.verifyStatus !== 0 ? <Button type="button" size="sm" variant="warning" onClick={() => onDecision(0)}>{t("reopen")}</Button> : null}
+        <Button type="button" size="sm" variant="secondary" onClick={onToggle}>{row.isActive ? t("deactivate") : t("activate")}</Button>
+      </div>
+    </article>
+  );
+}
+
+function ReviewDialog({
+  row,
+  formatDate,
+  onClose,
+  onDecision,
+}: {
+  row: MemberKycDocument;
+  formatDate: (value: string | null) => string;
+  onClose: () => void;
+  onDecision: (status: 0 | 1 | 2) => void;
+}) {
+  const t = useTranslations("onboarding.customerKyc");
+  const [side, setSide] = useState<"front" | "back">("front");
+  const path = side === "front" ? row.photoPath : row.backPhotoPath;
+  const image = path && /^https?:\/\//i.test(path) ? path : "";
+  return (
+    <div className="fixed inset-0 z-[210] grid place-items-center bg-slate-950/50 p-4" role="presentation">
+      <div role="dialog" aria-modal="true" className="grid max-h-[90dvh] w-full max-w-4xl gap-4 overflow-auto rounded-xl bg-white p-4 md:grid-cols-2">
+        <div>
+          <div className="mb-2 flex gap-2">
+            <Button type="button" size="sm" variant={side === "front" ? "primary" : "secondary"} onClick={() => setSide("front")}>{t("front")}</Button>
+            <Button type="button" size="sm" variant={side === "back" ? "primary" : "secondary"} onClick={() => setSide("back")}>{t("back")}</Button>
+          </div>
+          {image ? (
+            <img src={image} alt={t("imageAlt", { type: row.docTypeDesc ?? "", name: row.memberName, side: t(side) })} className="max-h-80 w-full rounded-lg object-contain" />
+          ) : (
+            <p className="rounded-lg bg-amber-50 p-4 text-sm text-amber-800">{path ? path : t("noImage")}</p>
+          )}
+        </div>
+        <div className="text-sm">
+          <h2 className="text-lg font-semibold text-slate-900">{row.memberName}</h2>
+          <p className="font-mono text-muted">{row.refCode}</p>
+          <p className="mt-3 font-medium">{row.docTypeDesc}</p>
+          <p className="font-mono">{row.kycNo}</p>
+          <p className={row.isExpired ? "text-rose-700" : ""}>{t("expires")} {formatDate(row.expiryDate)}</p>
+          <p className="mt-2 text-muted">{t("addedBy", { name: row.createdByName ?? "", date: formatDate(row.createdAt) })}</p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {!row.isExpired && row.isActive && row.verifyStatus === 0 ? <Button type="button" variant="success" onClick={() => onDecision(1)}>{t("verify")}</Button> : null}
+            {row.isActive && row.verifyStatus !== 2 ? <Button type="button" variant="danger" onClick={() => onDecision(2)}>{t("reject")}</Button> : null}
+            {row.isActive && row.verifyStatus !== 0 ? <Button type="button" variant="warning" onClick={() => onDecision(0)}>{t("reopen")}</Button> : null}
+            <Button type="button" variant="secondary" onClick={onClose}>{t("close")}</Button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
