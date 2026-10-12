@@ -11,10 +11,10 @@ export const TICKET_IMAGE_MIMES = [
 
 export type TicketImageMime = (typeof TICKET_IMAGE_MIMES)[number];
 
-/** 1.5 MB per screenshot. */
-export const TICKET_SCREENSHOT_MAX_BYTES = Math.floor(1.5 * 1024 * 1024);
+/** 20 MB per screenshot. */
+export const TICKET_SCREENSHOT_MAX_BYTES = 20 * 1024 * 1024;
 
-export const TICKET_SCREENSHOT_MAX_COUNT = 4;
+export const TICKET_SCREENSHOT_MAX_COUNT = 10;
 
 export const TICKET_STATUSES = ["OPEN", "IN_PROGRESS", "CLOSED"] as const;
 

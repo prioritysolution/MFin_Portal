@@ -235,7 +235,7 @@
         "subject": "{count}/255 characters",
         "description": "{count}/4000 characters",
         "priority": "Low, medium, high, or urgent.",
-        "screenshots": "Up to 4 images. PNG, JPG, WEBP, or GIF. Each file 1.5 MB or smaller."
+        "screenshots": "Up to 10 images. PNG, JPG, WEBP, or GIF. Each file 20 MB or smaller."
       },
       "priority": {
         "LOW": "Low",
@@ -249,9 +249,9 @@
         "subject": "Enter a subject of 255 characters or fewer.",
         "description": "Enter a description of 4000 characters or fewer.",
         "priority": "Choose low, medium, high, or urgent.",
-        "screenshots": "Add no more than 4 images.",
+        "screenshots": "Add no more than 10 images.",
         "screenshotType": "Use a PNG, JPG, WEBP, or GIF image.",
-        "screenshotSize": "Each image must be 1.5 MB or smaller.",
+        "screenshotSize": "Each image must be 20 MB or smaller.",
         "email": "Add an email address on your profile before raising a ticket.",
         "organization": "Add a mobile number on your profile before raising a ticket.",
         "domain": "Organization website is not available yet.",
