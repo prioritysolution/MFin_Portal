@@ -83,6 +83,7 @@
 html,
 body {
   height: 100%;
+  min-height: 100%;
   max-width: 100%;
   overflow-x: hidden;
 }
@@ -101,8 +102,21 @@ body {
   background: color-mix(in srgb, var(--brand) 25%, white);
 }
 
+.app-shell {
+  position: fixed !important;
+  inset: 0 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  width: 100% !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  overflow: hidden !important;
+}
+
 .app-content {
   width: 100%;
+  min-width: 0;
+  min-height: 0;
   padding: var(--content-gap);
   padding-bottom: calc(var(--content-gap) + env(safe-area-inset-bottom, 0px));
 }
