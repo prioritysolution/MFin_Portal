@@ -3,7 +3,6 @@ import "server-only";
 import { api } from "@/lib/api/client";
 import { endpoints } from "@/lib/api/endpoints";
 import { ApiError } from "@/lib/api/errors";
-import { clearSupportClientToken } from "@/features/support/services/support-client-token";
 import {
   clearAuthSession,
   getAccessToken,
@@ -77,6 +76,5 @@ export async function logoutFromLaravel(): Promise<void> {
     }
   } finally {
     await clearAuthSession();
-    await clearSupportClientToken();
   }
 }

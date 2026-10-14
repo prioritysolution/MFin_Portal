@@ -116,25 +116,8 @@ export function Select({
   useEffect(() => {
     if (!open) return;
     function place() {
-      const trigger = triggerRef.current?.getBoundingClientRect();
-      if (!trigger) return;
-      const gap = 6;
-      const menuHeight = menuRef.current?.offsetHeight ?? 160;
-      const spaceBelow = window.innerHeight - trigger.bottom - gap - 8;
-      const spaceAbove = trigger.top - gap - 8;
-      const openBelow = spaceBelow >= menuHeight && spaceBelow >= spaceAbove;
-      const maxHeight = Math.max(96, openBelow ? spaceBelow : spaceAbove);
-      const top = openBelow
-        ? trigger.bottom + gap
-        : Math.max(8, trigger.top - gap - Math.min(menuHeight || maxHeight, maxHeight));
-      setMenuStyle({
-        position: "fixed",
-        left: trigger.left,
-        width: trigger.width,
-        top,
-        maxHeight,
-        zIndex: 240,
-      });
+      const next = placeMenu();
+      if (next) setMenuStyle(next);
     }
     place();
     const frame = requestAnimationFrame(place);
@@ -147,8 +130,32 @@ export function Select({
     };
   }, [open, filtered.length, query]);
 
+  function placeMenu(): CSSProperties | null {
+    const trigger = triggerRef.current?.getBoundingClientRect();
+    if (!trigger) return null;
+    const gap = 6;
+    const spaceBelow = window.innerHeight - trigger.bottom - gap - 8;
+    const spaceAbove = trigger.top - gap - 8;
+    const openBelow = spaceBelow >= 140 || spaceBelow >= spaceAbove;
+    const maxHeight = Math.min(280, Math.max(96, openBelow ? spaceBelow : spaceAbove));
+    const menuHeight = Math.min(menuRef.current?.offsetHeight ?? maxHeight, maxHeight);
+    const top = openBelow
+      ? trigger.bottom + gap
+      : Math.max(8, trigger.top - gap - menuHeight);
+    return {
+      position: "fixed",
+      left: trigger.left,
+      width: trigger.width,
+      top,
+      maxHeight,
+      zIndex: 240,
+    };
+  }
+
   function openMenu() {
     if (disabled) return;
+    const next = placeMenu();
+    if (next) setMenuStyle(next);
     const selectedIdx = options.findIndex((option) => option.value === value);
     setActiveIndex(selectedIdx >= 0 ? selectedIdx : 0);
     setQuery("");
@@ -254,7 +261,7 @@ export function Select({
       ) : null}
       </div>
 
-      {open && typeof document !== "undefined"
+      {open && menuStyle.position === "fixed" && typeof document !== "undefined"
         ? createPortal(
         <div
           ref={menuRef}

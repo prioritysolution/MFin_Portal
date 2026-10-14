@@ -1,5 +1,7 @@
 import "server-only";
 
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import path from "node:path";
 import { cookies } from "next/headers";
 import { getAuthSessionSecret, isProductionEnv } from "@/lib/config/env";
 
@@ -87,6 +89,29 @@ function cookieOptions(maxAge: number) {
   };
 }
 
+function storePath(userId: number): string {
+  return path.join(process.cwd(), "storage", "support-clients", `${userId}.seal`);
+}
+
+async function writeStoredToken(userId: number, sealed: string): Promise<void> {
+  const file = storePath(userId);
+  await mkdir(path.dirname(file), { recursive: true });
+  await writeFile(file, sealed, { encoding: "utf8", mode: 0o600 });
+}
+
+async function readStoredToken(userId: number): Promise<string | null> {
+  try {
+    const sealed = (await readFile(storePath(userId), "utf8")).trim();
+    return sealed || null;
+  } catch {
+    return null;
+  }
+}
+
+async function removeStoredToken(userId: number): Promise<void> {
+  await rm(storePath(userId), { force: true });
+}
+
 export async function saveSupportClientToken(input: {
   userId: number;
   phone: string;
@@ -100,6 +125,16 @@ export async function saveSupportClientToken(input: {
     expiresAt: Date.now() + MAX_AGE_SECONDS * 1000,
   });
   store.set(COOKIE, sealed, cookieOptions(MAX_AGE_SECONDS));
+  await writeStoredToken(input.userId, sealed);
+}
+
+async function acceptToken(
+  userId: number,
+  sealed: string,
+): Promise<{ token: string; phone: string } | null> {
+  const stored = await unseal(sealed);
+  if (!stored || stored.userId !== userId || Date.now() >= stored.expiresAt) return null;
+  return { token: stored.token, phone: stored.phone };
 }
 
 export async function readSupportClientToken(
@@ -107,16 +142,33 @@ export async function readSupportClientToken(
 ): Promise<{ token: string; phone: string } | null> {
   const store = await cookies();
   const raw = store.get(COOKIE)?.value;
-  if (!raw) return null;
-  const stored = await unseal(raw);
-  if (!stored || stored.userId !== userId || Date.now() >= stored.expiresAt) {
+  if (raw) {
+    const fromCookie = await acceptToken(userId, raw);
+    if (fromCookie) {
+      if (!(await readStoredToken(userId))) await writeStoredToken(userId, raw);
+      return fromCookie;
+    }
     store.set(COOKIE, "", cookieOptions(0));
+  }
+
+  const sealed = await readStoredToken(userId);
+  if (!sealed) return null;
+  const restored = await acceptToken(userId, sealed);
+  if (!restored) {
+    await removeStoredToken(userId);
     return null;
   }
-  return { token: stored.token, phone: stored.phone };
+  store.set(COOKIE, sealed, cookieOptions(MAX_AGE_SECONDS));
+  return restored;
 }
 
-export async function clearSupportClientToken(): Promise<void> {
+/** Drops the browser cookie. The saved token for this user stays, so the next login can list tickets. */
+export async function clearSupportClientCookie(): Promise<void> {
   const store = await cookies();
   store.set(COOKIE, "", cookieOptions(0));
+}
+
+export async function clearSupportClientToken(userId?: number): Promise<void> {
+  await clearSupportClientCookie();
+  if (userId != null) await removeStoredToken(userId);
 }

@@ -3,6 +3,7 @@
  * Calls the Next.js BFF only. The support API secret and client token stay on the server.
  */
 
+import { getStoredAuthUser } from "@/features/auth/utils/auth-user-storage";
 import { endpoints } from "@/lib/api/endpoints";
 import type {
   RaiseTicketInput,
@@ -76,6 +77,9 @@ export async function fetchSupportTickets(
   query: SupportTicketListQuery = {},
 ): Promise<SupportTicketListResult> {
   const params = new URLSearchParams();
+  const user = getStoredAuthUser();
+  const phone = (user?.userPhone || user?.userMob || "").trim();
+  if (phone) params.set("phone", phone);
   if (query.search) params.set("search", query.search);
   if (query.priority) params.set("priority", query.priority);
   if (query.status) params.set("status", query.status);

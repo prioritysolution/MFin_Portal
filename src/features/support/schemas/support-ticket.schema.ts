@@ -72,6 +72,7 @@ function emptyToUndefined(value: unknown): unknown {
 }
 
 export const ticketListQuerySchema = z.object({
+  phone: z.preprocess(emptyToUndefined, z.string().trim().max(30).optional()),
   search: z.preprocess(emptyToUndefined, z.string().trim().max(255).optional()),
   priority: z.preprocess(emptyToUndefined, z.enum(TICKET_PRIORITIES).optional()),
   status: z.preprocess(emptyToUndefined, z.enum(TICKET_STATUSES).optional()),

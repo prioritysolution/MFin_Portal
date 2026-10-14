@@ -66,7 +66,14 @@ function isClientSignInFailure(error: unknown): boolean {
   if (!(error instanceof ApiError) || (error.status !== 401 && error.status !== 403)) {
     return false;
   }
-  return /token|sign in is required/i.test(error.message);
+  return /sign in is required/i.test(error.message);
+}
+
+function customerPhone(
+  user: { userPhone?: string; userMob?: string },
+  storedPhone?: string,
+): string {
+  return (user.userPhone || user.userMob || storedPhone || "").trim().slice(0, 30);
 }
 
 async function requirePortalUser() {
@@ -112,7 +119,8 @@ export async function listSupportTickets(input: unknown): Promise<SupportTicketL
   const query = validated.data;
   const user = await requirePortalUser();
   const client = await readSupportClientToken(user.userId);
-  if (!client) return emptyTicketList(query.page, query.pageSize);
+  const phone = customerPhone(user, query.phone || client?.phone);
+  if (!client || !phone) return emptyTicketList(query.page, query.pageSize);
 
   const config = getSupportApiConfig();
   try {
@@ -120,7 +128,7 @@ export async function listSupportTickets(input: unknown): Promise<SupportTicketL
       ...supportOptions(supportClientListHeaders(config, client.token)),
       expectEnvelope: true,
       searchParams: {
-        phone: client.phone,
+        phone,
         search: query.search,
         priority: query.priority,
         status: query.status,
@@ -133,7 +141,7 @@ export async function listSupportTickets(input: unknown): Promise<SupportTicketL
     return mapSupportTicketListResult(data, { page: query.page, pageSize: query.pageSize });
   } catch (error) {
     if (isClientSignInFailure(error)) {
-      await clearSupportClientToken();
+      await clearSupportClientToken(user.userId);
       return emptyTicketList(query.page, query.pageSize);
     }
     asPortalSafeError(error);
@@ -223,7 +231,7 @@ export async function getSupportTicket(number: string): Promise<SupportTicketDet
       {
         ...supportOptions(supportClientListHeaders(config, client.token)),
         expectEnvelope: true,
-        searchParams: { phone: client.phone },
+        searchParams: { phone: customerPhone(user, client.phone) },
       },
     );
     const ticket = mapSupportTicketDetail(data);
@@ -251,11 +259,11 @@ async function requireTicketClient(number: string) {
       code: "FORBIDDEN",
     });
   }
-  return { ticketNumber, client };
+  return { user, ticketNumber, client };
 }
 
 export async function listSupportTicketMessages(number: string): Promise<SupportTicketMessage[]> {
-  const { ticketNumber, client } = await requireTicketClient(number);
+  const { user, ticketNumber, client } = await requireTicketClient(number);
   const config = getSupportApiConfig();
   try {
     const data = await api.get<unknown>(
@@ -263,7 +271,7 @@ export async function listSupportTicketMessages(number: string): Promise<Support
       {
         ...supportOptions(supportClientListHeaders(config, client.token)),
         expectEnvelope: true,
-        searchParams: { phone: client.phone },
+        searchParams: { phone: customerPhone(user, client.phone) },
       },
     );
     return mapSupportTicketMessages(data);
@@ -286,7 +294,7 @@ export async function replySupportTicket(
     });
   }
 
-  const { ticketNumber, client } = await requireTicketClient(number);
+  const { user, ticketNumber, client } = await requireTicketClient(number);
   const config = getSupportApiConfig();
   try {
     const data = await api.post<unknown>(
@@ -295,7 +303,7 @@ export async function replySupportTicket(
       {
         ...supportOptions(supportClientListHeaders(config, client.token)),
         expectEnvelope: true,
-        searchParams: { phone: client.phone },
+        searchParams: { phone: customerPhone(user, client.phone) },
       },
     );
     const message = mapSupportTicketMessage(data);

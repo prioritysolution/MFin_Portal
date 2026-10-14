@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Modal } from "@/components/ui/Modal";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Button } from "@/components/ui/Button";
+import { DateField, SelectField, TextAreaField, TextField } from "@/components/ui/Form";
 import { Select, type SelectOption } from "@/components/ui/Select";
 import { DatePicker } from "@/components/ui/DatePicker";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
@@ -82,6 +83,7 @@ export function AssignMembersModal({
   const [candidates, setCandidates] = useState<Member[]>([]);
   const [selected, setSelected] = useState<Record<number, MemberRole>>({});
   const [loading, setLoading] = useState(false);
+  const [ready, setReady] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [rowErrorId, setRowErrorId] = useState<number | null>(null);
@@ -97,6 +99,8 @@ export function AssignMembersModal({
     setError("");
     setRowErrorId(null);
     setKeyword("");
+    setCandidates([]);
+    setReady(false);
   }, [open, group]);
 
   useEffect(() => {
@@ -115,12 +119,17 @@ export function AssignMembersModal({
         },
         controller.signal,
       )
-        .then((result) => setCandidates(result.items))
+        .then((result) => {
+          if (!controller.signal.aborted) setCandidates(result.items);
+        })
         .catch(() => {
           if (!controller.signal.aborted) setCandidates([]);
         })
         .finally(() => {
-          if (!controller.signal.aborted) setLoading(false);
+          if (!controller.signal.aborted) {
+            setLoading(false);
+            setReady(true);
+          }
         });
     }, 300);
     return () => {
@@ -190,36 +199,37 @@ export function AssignMembersModal({
       }
     >
       <div className="space-y-4">
-        <label className="block text-sm">
-          <span className="mb-1 block font-medium text-slate-700">{t("joinDate")}</span>
-          <DatePicker value={joinDate} onChange={setJoinDate} max={todayYmd()} aria-label={t("joinDate")} />
-        </label>
-        <label className="block text-sm">
-          <span className="mb-1 block font-medium text-slate-700">{t("searchMembers")}</span>
-          <input
-            value={keyword}
-            onChange={(event) => setKeyword(event.target.value)}
-            placeholder={t("searchMembersPlaceholder")}
-            aria-label={t("searchMembers")}
-            className="input w-full"
-          />
-        </label>
+        <DateField
+          label={t("joinDate")}
+          value={joinDate}
+          onChange={setJoinDate}
+          max={todayYmd()}
+        />
+        <TextField
+          label={t("searchMembers")}
+          value={keyword}
+          onChange={setKeyword}
+          placeholder={t("searchMembersPlaceholder")}
+        />
         {error ? <p className="text-sm text-danger">{error}</p> : null}
-        <ul className="space-y-2">
-          {loading
-            ? Array.from({ length: 4 }).map((_, index) => (
-                <li key={index}>
-                  <Skeleton className="h-16 w-full" />
+        <ul className="space-y-2" aria-busy={loading}>
+          {loading && !ready
+            ? Array.from({ length: 3 }).map((_, index) => (
+                <li key={index} className="rounded-xl border border-border bg-surface p-3">
+                  <Skeleton className="h-14 w-full" />
                 </li>
               ))
             : null}
-          {!loading && candidates.length === 0 ? (
-            <li className="text-sm text-muted">{t("noCandidates")}</li>
+          {ready && candidates.length === 0 ? (
+            <li className="rounded-xl border border-dashed border-border bg-surface-muted px-4 py-8 text-center text-sm text-muted">
+              {t("noCandidates")}
+            </li>
           ) : null}
           {candidates.map((member) => {
             const gender = genderBlock(member.genderCd, group?.groupGenderDesc);
             const inGroup = member.groupId != null;
-            const blocked = inGroup || gender != null || (selected[member.memberId] == null && count >= remaining);
+            const picked = selected[member.memberId] != null;
+            const blocked = inGroup || gender != null || (!picked && count >= remaining);
             const reason = inGroup
               ? t("inGroupUseMove", { group: member.groupName ?? "" })
               : gender === "women"
@@ -227,44 +237,59 @@ export function AssignMembersModal({
                 : gender === "men"
                   ? t("menOnly")
                   : null;
+            const initial = member.memberName.trim().charAt(0).toUpperCase();
             return (
               <li
                 key={member.memberId}
-                className={`grid gap-3 rounded-lg border p-3 sm:grid-cols-[minmax(0,1fr)_11rem] sm:items-center ${rowErrorId === member.memberId ? "border-danger" : "border-border"}`}
+                className={`rounded-xl border bg-surface p-3 shadow-[var(--shadow-card)] ${
+                  rowErrorId === member.memberId
+                    ? "border-danger"
+                    : picked
+                      ? "border-brand/40 bg-brand-soft"
+                      : "border-border"
+                } ${loading ? "opacity-70" : ""}`}
               >
-                <label className="flex min-w-0 flex-1 items-start gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    className="mt-1"
-                    checked={selected[member.memberId] != null}
-                    disabled={blocked && selected[member.memberId] == null}
-                    onChange={() => toggle(member, Boolean(blocked && selected[member.memberId] == null))}
-                  />
-                  <span>
-                    <span className="font-medium text-slate-900">{member.memberName}</span>
-                    <span className="mt-0.5 block text-muted">
-                      {member.refCode} · {member.genderDesc} · {member.age}
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <label className="flex min-w-0 flex-1 items-start gap-3 text-sm">
+                    <input
+                      type="checkbox"
+                      className="mt-3"
+                      checked={picked}
+                      disabled={blocked && !picked}
+                      onChange={() => toggle(member, Boolean(blocked && !picked))}
+                    />
+                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand-soft text-sm font-semibold text-brand-ink">
+                      {initial}
                     </span>
-                    {reason ? <span className="mt-1 block text-amber-700">{reason}</span> : null}
-                  </span>
-                </label>
-                <Select
-                  aria-label={t("role")}
-                  size="sm"
-                  searchable={false}
-                  clearable={false}
-                  className="w-full sm:w-44"
-                  disabled={selected[member.memberId] == null}
-                  value={selected[member.memberId] ?? "Member"}
-                  onChange={(value) =>
-                    setSelected((current) => ({ ...current, [member.memberId]: value as MemberRole }))
-                  }
-                  options={MEMBER_ROLES.filter((role) => {
-                    if (role === "Member") return true;
-                    if (selected[member.memberId] === role) return true;
-                    return !taken.has(role) && !pickedRoles.has(role);
-                  }).map((role) => ({ value: role, label: t(`roles.${role}`) }))}
-                />
+                    <span className="min-w-0">
+                      <span className="block truncate font-medium text-slate-900">{member.memberName}</span>
+                      <span className="mt-0.5 block truncate text-muted">
+                        {[member.refCode, member.mobileNo].filter(Boolean).join(" · ")}
+                      </span>
+                      <span className="mt-0.5 block text-muted">
+                        {[member.genderDesc, member.age].filter((part) => part != null && part !== "").join(" · ")}
+                      </span>
+                      {reason ? <span className="mt-1 block text-amber-700">{reason}</span> : null}
+                    </span>
+                  </label>
+                  <Select
+                    aria-label={t("role")}
+                    size="sm"
+                    searchable={false}
+                    clearable={false}
+                    className="w-full sm:w-44"
+                    disabled={!picked}
+                    value={selected[member.memberId] ?? "Member"}
+                    onChange={(value) =>
+                      setSelected((current) => ({ ...current, [member.memberId]: value as MemberRole }))
+                    }
+                    options={MEMBER_ROLES.filter((role) => {
+                      if (role === "Member") return true;
+                      if (selected[member.memberId] === role) return true;
+                      return !taken.has(role) && !pickedRoles.has(role);
+                    }).map((role) => ({ value: role, label: t(`roles.${role}`) }))}
+                  />
+                </div>
               </li>
             );
           })}
@@ -400,51 +425,40 @@ export function MoveMemberModal({
             {t(`roles.${roleName}`)} · {row?.joinDate}
           </p>
         </div>
-        <label className="block">
-          <span className="mb-1 block font-medium text-slate-700">{t("newGroup")}</span>
-          <Select
-            aria-label={t("newGroup")}
-            placeholder={t("newGroup")}
-            value={groupId}
-            onChange={setGroupId}
-            options={options}
-          />
-          {fieldError?.field === "group" ? <span className="mt-1 block text-danger">{fieldError.message}</span> : null}
-        </label>
-        <label className="block">
-          <span className="mb-1 block font-medium text-slate-700">{t("roleInGroup")}</span>
-          <Select
-            aria-label={t("roleInGroup")}
-            value={role}
-            onChange={(value) => setRole(value as MemberRole)}
-            options={MEMBER_ROLES.filter((item) => item === "Member" || !heldRoles(targetRoster).has(item)).map((item) => ({
-              value: item,
-              label: t(`roles.${item}`),
-            }))}
-          />
-          {fieldError?.field === "role" ? <span className="mt-1 block text-danger">{fieldError.message}</span> : null}
-        </label>
-        <label className="block">
-          <span className="mb-1 block font-medium text-slate-700">{t("transferDate")}</span>
-          <DatePicker
-            value={transferDate}
-            onChange={setTransferDate}
-            min={row?.joinDate ?? undefined}
-            max={todayYmd()}
-            aria-label={t("transferDate")}
-          />
-          {fieldError?.field === "date" ? <span className="mt-1 block text-danger">{fieldError.message}</span> : null}
-        </label>
-        <label className="block">
-          <span className="mb-1 block font-medium text-slate-700">{t("reason")}</span>
-          <textarea
-            value={reason}
-            maxLength={200}
-            onChange={(event) => setReason(event.target.value)}
-            placeholder={t("reasonPlaceholder")}
-            className="input min-h-20 w-full"
-          />
-        </label>
+        <SelectField
+          label={t("newGroup")}
+          placeholder={t("selectGroup")}
+          value={groupId}
+          onChange={setGroupId}
+          options={options}
+          error={fieldError?.field === "group" ? fieldError.message : undefined}
+        />
+        <SelectField
+          label={t("roleInGroup")}
+          value={role}
+          onChange={(value) => setRole(value as MemberRole)}
+          options={MEMBER_ROLES.filter((item) => item === "Member" || !heldRoles(targetRoster).has(item)).map((item) => ({
+            value: item,
+            label: t(`roles.${item}`),
+          }))}
+          error={fieldError?.field === "role" ? fieldError.message : undefined}
+        />
+        <DateField
+          label={t("transferDate")}
+          value={transferDate}
+          onChange={setTransferDate}
+          min={row?.joinDate ?? undefined}
+          max={todayYmd()}
+          error={fieldError?.field === "date" ? fieldError.message : undefined}
+        />
+        <TextAreaField
+          label={t("reason")}
+          value={reason}
+          maxLength={200}
+          onChange={setReason}
+          placeholder={t("reasonPlaceholder")}
+          rows={3}
+        />
         {roleName !== "Member" ? (
           <p className="text-amber-800">{t("willLoseRole", { group: group?.groupName ?? "", role: t(`roles.${roleName}`) })}</p>
         ) : null}

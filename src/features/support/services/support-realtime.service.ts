@@ -65,15 +65,18 @@ export async function getSupportRealtime(number?: string | null): Promise<Suppor
     });
   }
 
+  const user = await getSessionUser();
   const client = await requireClient();
-  if (!client) return null;
+  if (!user || !client) return null;
+  const phone = (user.userPhone || user.userMob || client.phone).trim();
+  if (!phone) return null;
 
   const config = getSupportApiConfig();
   const data = await api.get<unknown>(endpoints.supportTicket.realtime, {
     ...supportCall(supportClientListHeaders(config, client.token)),
     expectEnvelope: true,
     searchParams: {
-      phone: client.phone,
+      phone,
       number: ticketNumber || undefined,
     },
   });
@@ -115,7 +118,7 @@ export async function authorizeSupportRealtime(input: unknown): Promise<{ auth: 
   const settings = await api.get<unknown>(endpoints.supportTicket.realtime, {
     ...supportCall(headers),
     expectEnvelope: true,
-    searchParams: { phone: client.phone },
+    searchParams: { phone: client.phone || undefined },
   });
   const authUrl =
     supportAuthEndpoint(settings, config.url) ??

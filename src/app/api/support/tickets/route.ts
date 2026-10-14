@@ -12,6 +12,7 @@ export async function GET(request: Request) {
     await requireSessionUser();
     const url = new URL(request.url);
     const result = await listSupportTickets({
+      phone: url.searchParams.get("phone") ?? "",
       search: url.searchParams.get("search") ?? "",
       priority: url.searchParams.get("priority") ?? "",
       status: url.searchParams.get("status") ?? "",

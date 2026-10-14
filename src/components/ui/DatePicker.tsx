@@ -152,29 +152,34 @@ export function DatePicker({
     };
   }, [open]);
 
+  function placePanel(): CSSProperties | null {
+    const trigger = triggerRef.current?.getBoundingClientRect();
+    if (!trigger) return null;
+    const gap = 6;
+    const width = 296;
+    const height = panelRef.current?.offsetHeight ?? 340;
+    const spaceBelow = window.innerHeight - trigger.bottom - gap - 8;
+    const spaceAbove = trigger.top - gap - 8;
+    const openBelow = spaceBelow >= height || spaceBelow >= spaceAbove;
+    const left = Math.max(8, Math.min(trigger.left, window.innerWidth - width - 8));
+    const top = openBelow
+      ? trigger.bottom + gap
+      : Math.max(8, trigger.top - gap - Math.min(height, spaceAbove));
+    return {
+      position: "fixed",
+      left,
+      top,
+      width,
+      zIndex: 240,
+      maxHeight: Math.max(160, openBelow ? spaceBelow : spaceAbove),
+    };
+  }
+
   useEffect(() => {
     if (!open) return;
     function place() {
-      const trigger = triggerRef.current?.getBoundingClientRect();
-      if (!trigger) return;
-      const gap = 6;
-      const width = 296;
-      const height = panelRef.current?.offsetHeight ?? 340;
-      const spaceBelow = window.innerHeight - trigger.bottom - gap - 8;
-      const spaceAbove = trigger.top - gap - 8;
-      const openBelow = spaceBelow >= height || spaceBelow >= spaceAbove;
-      const left = Math.max(8, Math.min(trigger.left, window.innerWidth - width - 8));
-      const top = openBelow
-        ? trigger.bottom + gap
-        : Math.max(8, trigger.top - gap - Math.min(height, spaceAbove));
-      setPanelStyle({
-        position: "fixed",
-        left,
-        top,
-        width,
-        zIndex: 240,
-        maxHeight: Math.max(160, openBelow ? spaceBelow : spaceAbove),
-      });
+      const next = placePanel();
+      if (next) setPanelStyle(next);
     }
     place();
     const frame = requestAnimationFrame(place);
@@ -290,7 +295,13 @@ export function DatePicker({
         aria-invalid={aria["aria-invalid"]}
         onClick={() => {
           if (disabled) return;
-          setOpen((prev) => !prev);
+          if (open) {
+            setOpen(false);
+            return;
+          }
+          const next = placePanel();
+          if (next) setPanelStyle(next);
+          setOpen(true);
         }}
         onKeyDown={onTriggerKeyDown}
         className={`relative flex w-full items-center justify-between gap-2 rounded-[var(--radius-control)] border border-border bg-surface py-2.5 text-left text-sm font-medium text-slate-900 outline-none transition hover:border-border-strong focus:border-brand focus:bg-surface focus:shadow-[var(--focus-ring)] disabled:cursor-not-allowed disabled:opacity-50 ${
@@ -323,7 +334,7 @@ export function DatePicker({
       ) : null}
       </div>
 
-      {open && typeof document !== "undefined"
+      {open && panelStyle.position === "fixed" && typeof document !== "undefined"
         ? createPortal(
         <div
           ref={panelRef}
