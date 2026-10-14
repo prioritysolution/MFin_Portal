@@ -419,7 +419,7 @@ export async function listGroupMembers(
   return withUnauthorizedClear(async () => {
     const token = await requireAccessToken();
     const payload = await api.get<LaravelResponse<unknown[]>>(
-      endpoints.member.groupList,
+      endpoints.memberGroup.list,
       {
         accessToken: token,
         expectEnvelope: false,

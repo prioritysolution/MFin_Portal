@@ -2164,7 +2164,6 @@
       }
     }
   },
-<<<<<<< Updated upstream
   "onboarding": {
     "groupManagement": {
       "title": "Group Management",
@@ -2478,7 +2477,8 @@
       "searchPlaceholder": "Search a place",
       "searching": "Searching…",
       "noSearchResults": "No matching place in India"
-=======
+    }
+  },
   "deposits": {
     "savings": {
       "title": "Savings accounts",
@@ -2749,7 +2749,96 @@
         "statusChanged": "Status changed to {status}",
         "closed": "Deposit account {applNo} closed"
       }
->>>>>>> Stashed changes
+    },
+    "savingsTransaction": {
+      "title": "Savings transactions",
+      "description": "Post a deposit or withdrawal, and approve pending entries.",
+      "filters": {
+        "search": "Search",
+        "searchPlaceholder": "Transaction no, account, holder",
+        "type": "Type",
+        "mode": "Mode",
+        "status": "Status",
+        "from": "From",
+        "to": "To",
+        "all": "All"
+      },
+      "modes": {
+        "CA": "Cash",
+        "CQ": "Cheque",
+        "TR": "Transfer",
+        "OL": "Online"
+      },
+      "statuses": {
+        "1": "Posted",
+        "2": "Pending approval",
+        "3": "Rejected"
+      },
+      "types": {
+        "1": "Deposit",
+        "2": "Withdrawal"
+      },
+      "table": {
+        "transNo": "Transaction",
+        "account": "Account",
+        "type": "Type",
+        "mode": "Mode",
+        "amount": "Amount",
+        "balance": "Balance after",
+        "status": "Status",
+        "date": "Date",
+        "actions": "Actions",
+        "empty": "No transactions found",
+        "approve": "Approve",
+        "reject": "Reject"
+      },
+      "form": {
+        "title": "New transaction",
+        "accountSearch": "Find account",
+        "accountPlaceholder": "Account no, holder, application no",
+        "search": "Search",
+        "account": "Account",
+        "accountEmpty": "Search and select an account",
+        "holder": "Holder",
+        "applNo": "Application no",
+        "accountNo": "Account no",
+        "scheme": "Scheme",
+        "depositType": "Deposit type",
+        "accountStatus": "Status",
+        "balance": "Current balance",
+        "balanceAfter": "Balance after",
+        "opening": "Opening deposit",
+        "branch": "Branch",
+        "startDate": "Start date",
+        "type": "Transaction type",
+        "amount": "Amount",
+        "mode": "Mode",
+        "transDate": "Transaction date",
+        "effectDate": "Effective date",
+        "officer": "Field officer",
+        "officerPlaceholder": "Optional",
+        "narration": "Ledger narration",
+        "remarks": "Remarks",
+        "submit": "Post transaction",
+        "saving": "Posting…",
+        "sentForApproval": "Sent for approval",
+        "withdrawalBlocked": "Withdrawal is not allowed for this account status",
+        "depositBlocked": "This account is freezed",
+        "futureDate": "Date cannot be in the future",
+        "effectRange": "Effective date must be on or before the transaction date",
+        "amountInvalid": "Enter an amount greater than zero",
+        "exceedsBalance": "Withdrawal cannot be more than the current balance ({balance})",
+        "accountRequired": "Select an account"
+      },
+      "approval": {
+        "approveTitle": "Approve transaction",
+        "rejectTitle": "Reject transaction",
+        "remarks": "Remarks",
+        "remarksRequired": "A reason is required to reject",
+        "confirmApprove": "Approve",
+        "confirmReject": "Reject",
+        "cancel": "Cancel"
+      }
     }
   }
 }

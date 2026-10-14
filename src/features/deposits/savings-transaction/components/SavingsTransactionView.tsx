@@ -74,6 +74,10 @@ function moneyAmount(raw: string): number | null {
   return value > 0 ? value : null;
 }
 
+function cents(value: number): number {
+  return Math.round(value * 100);
+}
+
 export function SavingsTransactionView() {
   const t = useTranslations("deposits.savingsTransaction");
   const format = useFormatter();
@@ -103,8 +107,8 @@ export function SavingsTransactionView() {
   const [transTypeCd, setTransTypeCd] = useState(String(TRANS_DEPOSIT));
   const [amount, setAmount] = useState("");
   const [mode, setMode] = useState<TransMode>("CA");
-  const [transDate, setTransDate] = useState("");
-  const [effectDate, setEffectDate] = useState("");
+  const [transDate, setTransDate] = useState(today);
+  const [effectDate, setEffectDate] = useState(today);
   const [foId, setFoId] = useState("");
   const [officers, setOfficers] = useState<{ value: string; label: string }[]>([]);
   const [narration, setNarration] = useState("");
@@ -142,11 +146,9 @@ export function SavingsTransactionView() {
         fromDate: applied.fromDate || undefined,
         toDate: applied.toDate || undefined,
       });
-      setRows(result.items);
-      setTotal(result.meta?.total ?? result.items.length);
+      setRows(result.items ?? []);
+      setTotal(result.meta?.total ?? result.items?.length ?? 0);
     } catch (error) {
-      setRows([]);
-      setTotal(0);
       setLoadError(
         isSavingsTransactionClientError(error) ? error.message : t("table.empty"),
       );
@@ -246,9 +248,10 @@ export function SavingsTransactionView() {
         perPage: 20,
         page: 1,
       });
-      setAccounts(result.items);
-      setAccountId(result.items[0] ? String(result.items[0].accountId) : "");
-      if (result.items.length === 0) setFormError(t("form.accountEmpty"));
+      const items = result.items ?? [];
+      setAccounts(items);
+      setAccountId(items.length === 1 ? String(items[0].accountId) : "");
+      if (items.length === 0) setFormError(t("form.accountEmpty"));
     } catch (error) {
       setAccounts([]);
       setAccountId("");
@@ -279,9 +282,14 @@ export function SavingsTransactionView() {
     if (
       transTypeCd === String(TRANS_WITHDRAWAL) &&
       selected.currentBalance != null &&
-      (moneyAmount(amount) ?? 0) > selected.currentBalance
+      cents(moneyAmount(amount) ?? 0) > cents(selected.currentBalance)
     ) {
-      return t("form.amountInvalid");
+      return t("form.exceedsBalance", {
+        balance: format.number(selected.currentBalance, {
+          style: "currency",
+          currency: "INR",
+        }),
+      });
     }
     return null;
   }
@@ -315,8 +323,8 @@ export function SavingsTransactionView() {
       setAmount("");
       setNarration("");
       setRemarks("");
-      setTransDate("");
-      setEffectDate("");
+      setTransDate(today);
+      setEffectDate(today);
       setPage(1);
       await load();
     } catch (caught) {
@@ -364,6 +372,18 @@ export function SavingsTransactionView() {
     value == null
       ? "—"
       : format.number(value, { style: "currency", currency: "INR" });
+
+  const enteredAmount = moneyAmount(amount);
+  const balanceAfter =
+    selected?.currentBalance == null
+      ? null
+      : enteredAmount == null
+        ? selected.currentBalance
+        : Math.round(
+            (transTypeCd === String(TRANS_WITHDRAWAL)
+              ? selected.currentBalance - enteredAmount
+              : selected.currentBalance + enteredAmount) * 100,
+          ) / 100;
 
   const columns = useMemo<DataTableColumn<SavingsTransaction>[]>(
     () => [
@@ -539,6 +559,11 @@ export function SavingsTransactionView() {
                 value={keyword}
                 onChange={setKeyword}
                 placeholder={t("form.accountPlaceholder")}
+                onKeyDown={(event) => {
+                  if (event.key !== "Enter") return;
+                  event.preventDefault();
+                  void searchAccounts();
+                }}
               />
             </div>
             <Button
@@ -559,21 +584,33 @@ export function SavingsTransactionView() {
             placeholder={t("form.accountEmpty")}
             options={accounts.map((account) => ({
               value: String(account.accountId),
-              label: `${account.holderName || account.applNo}${
-                account.accountNo != null ? ` · ${account.accountNo}` : ""
-              }`,
+              label: [
+                account.applNo,
+                account.holderName,
+                account.accountNo != null ? String(account.accountNo) : "",
+              ]
+                .filter(Boolean)
+                .join(" · "),
             }))}
             onChange={setAccountId}
           />
           {selected ? (
             <div className="grid grid-cols-2 gap-3 rounded-xl border border-border bg-background p-3 text-sm sm:col-span-2 sm:grid-cols-4">
               <p>
+                <span className="block text-muted">{t("form.applNo")}</span>
+                {selected.applNo || "—"}
+              </p>
+              <p>
+                <span className="block text-muted">{t("form.accountNo")}</span>
+                {selected.accountNo ?? "—"}
+              </p>
+              <p>
                 <span className="block text-muted">{t("form.holder")}</span>
-                {selected.holderName || "—"}
+                {selected.holderName || selected.primaryName || "—"}
               </p>
               <p>
                 <span className="block text-muted">{t("form.scheme")}</span>
-                {selected.schemeName || selected.schemeCode || "—"}
+                {[selected.schemeCode, selected.schemeName].filter(Boolean).join(" · ") || "—"}
               </p>
               <p>
                 <span className="block text-muted">{t("form.depositType")}</span>
@@ -586,6 +623,18 @@ export function SavingsTransactionView() {
               <p>
                 <span className="block text-muted">{t("form.balance")}</span>
                 {money(selected.currentBalance)}
+              </p>
+              <p>
+                <span className="block text-muted">{t("form.opening")}</span>
+                {money(selected.openingDeposit)}
+              </p>
+              <p>
+                <span className="block text-muted">{t("form.branch")}</span>
+                {selected.branchName || "—"}
+              </p>
+              <p>
+                <span className="block text-muted">{t("form.startDate")}</span>
+                {selected.startDate || "—"}
               </p>
             </div>
           ) : null}
@@ -602,11 +651,37 @@ export function SavingsTransactionView() {
             onChange={setTransTypeCd}
           />
           <TextField
+            key={transTypeCd}
             label={t("form.amount")}
             value={amount}
             required
             restrict="decimal"
+            error={
+              transTypeCd === String(TRANS_WITHDRAWAL) &&
+              selected?.currentBalance != null &&
+              moneyAmount(amount) != null &&
+              cents(moneyAmount(amount) ?? 0) > cents(selected.currentBalance)
+                ? t("form.exceedsBalance", {
+                    balance: money(selected.currentBalance),
+                  })
+                : undefined
+            }
+            validate={(value) => {
+              if (transTypeCd !== String(TRANS_WITHDRAWAL)) return undefined;
+              if (selected?.currentBalance == null) return undefined;
+              const entered = moneyAmount(value);
+              if (entered == null) return undefined;
+              if (cents(entered) <= cents(selected.currentBalance)) return undefined;
+              return t("form.exceedsBalance", {
+                balance: money(selected.currentBalance),
+              });
+            }}
             onChange={setAmount}
+          />
+          <TextField
+            label={t("form.balanceAfter")}
+            value={selected ? money(balanceAfter) : ""}
+            readOnly
           />
           <SelectField
             label={t("form.mode")}

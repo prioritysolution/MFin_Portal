@@ -2164,7 +2164,6 @@
       }
     }
   },
-<<<<<<< Updated upstream
   "onboarding": {
     "groupManagement": {
       "title": "ଗୋଷ୍ଠୀ ପରିଚାଳନା",
@@ -2478,7 +2477,8 @@
       "searchPlaceholder": "ଏକ ସ୍ଥାନ ଖୋଜନ୍ତୁ",
       "searching": "ଖୋଜାଯାଉଛି…",
       "noSearchResults": "ଭାରତରେ ମିଳିଲା ନାହିଁ"
-=======
+    }
+  },
   "deposits": {
     "savings": {
       "title": "ସଞ୍ଚୟ ଖାତା",
@@ -2749,7 +2749,84 @@
         "statusChanged": "ସ୍ଥିତି ବର୍ତ୍ତମାନ {status}",
         "closed": "ଜମା ଖାତା {applNo} ବନ୍ଦ ହେଲା"
       }
->>>>>>> Stashed changes
+    },
+    "savingsTransaction": {
+      "title": "ସଞ୍ଚୟ କାରବାର",
+      "description": "ଜମା କିମ୍ବା ଉଠାଣ ପୋଷ୍ଟ କରନ୍ତୁ, ଏବଂ ଅପେକ୍ଷାରତ ଏଣ୍ଟ୍ରି ଅନୁମୋଦନ କରନ୍ତୁ।",
+      "filters": {
+        "search": "ଖୋଜନ୍ତୁ",
+        "searchPlaceholder": "କାରବାର ନଂ, ଖାତା, ଧାରକ",
+        "type": "ପ୍ରକାର",
+        "mode": "ମାଧ୍ୟମ",
+        "status": "ସ୍ଥିତି",
+        "from": "ଠାରୁ",
+        "to": "ପର୍ଯ୍ୟନ୍ତ",
+        "all": "ସବୁ"
+      },
+      "modes": { "CA": "ନଗଦ", "CQ": "ଚେକ୍", "TR": "ସ୍ଥାନାନ୍ତର", "OL": "ଅନଲାଇନ୍" },
+      "statuses": { "1": "ପୋଷ୍ଟ ହୋଇଛି", "2": "ଅନୁମୋଦନ ଅପେକ୍ଷାରେ", "3": "ପ୍ରତ୍ୟାଖ୍ୟାତ" },
+      "types": { "1": "ଜମା", "2": "ଉଠାଣ" },
+      "table": {
+        "transNo": "କାରବାର",
+        "account": "ଖାତା",
+        "type": "ପ୍ରକାର",
+        "mode": "ମାଧ୍ୟମ",
+        "amount": "ରାଶି",
+        "balance": "ପରବର୍ତ୍ତୀ ବାଲାନ୍ସ",
+        "status": "ସ୍ଥିତି",
+        "date": "ତାରିଖ",
+        "actions": "କାମ",
+        "empty": "କୌଣସି କାରବାର ମିଳିଲା ନାହିଁ",
+        "approve": "ଅନୁମୋଦନ",
+        "reject": "ପ୍ରତ୍ୟାଖ୍ୟାନ"
+      },
+      "form": {
+        "title": "ନୂଆ କାରବାର",
+        "accountSearch": "ଖାତା ଖୋଜନ୍ତୁ",
+        "accountPlaceholder": "ଖାତା ନଂ, ଧାରକ, ଆବେଦନ ନଂ",
+        "search": "ଖୋଜନ୍ତୁ",
+        "account": "ଖାତା",
+        "accountEmpty": "ଖାତା ଖୋଜି ବାଛନ୍ତୁ",
+        "holder": "ଧାରକ",
+        "applNo": "ଆବେଦନ ନଂ",
+        "accountNo": "ଖାତା ନଂ",
+        "scheme": "ସ୍କିମ",
+        "depositType": "ଜମା ପ୍ରକାର",
+        "accountStatus": "ସ୍ଥିତି",
+        "balance": "ବର୍ତ୍ତମାନ ବାଲାନ୍ସ",
+        "balanceAfter": "ପରବର୍ତ୍ତୀ ବାଲାନ୍ସ",
+        "opening": "ପ୍ରାରମ୍ଭିକ ଜମା",
+        "branch": "ଶାଖା",
+        "startDate": "ଆରମ୍ଭ ତାରିଖ",
+        "type": "କାରବାର ପ୍ରକାର",
+        "amount": "ରାଶି",
+        "mode": "ମାଧ୍ୟମ",
+        "transDate": "କାରବାର ତାରିଖ",
+        "effectDate": "କାର୍ଯ୍ୟକାରୀ ତାରିଖ",
+        "officer": "ଫିଲ୍ଡ ଅଧିକାରୀ",
+        "officerPlaceholder": "ଐଚ୍ଛିକ",
+        "narration": "ଲେଜର ବିବରଣୀ",
+        "remarks": "ମନ୍ତବ୍ୟ",
+        "submit": "କାରବାର ପୋଷ୍ଟ କରନ୍ତୁ",
+        "saving": "ପୋଷ୍ଟ ହେଉଛି…",
+        "sentForApproval": "ଅନୁମୋଦନ ପାଇଁ ପଠାଯାଇଛି",
+        "withdrawalBlocked": "ଏହି ଖାତା ସ୍ଥିତିରେ ଉଠାଣ ହୋଇପାରିବ ନାହିଁ",
+        "depositBlocked": "ଏହି ଖାତା ଫ୍ରିଜ୍ ଅଛି",
+        "futureDate": "ଭବିଷ୍ୟତ ତାରିଖ ହୋଇପାରିବ ନାହିଁ",
+        "effectRange": "କାର୍ଯ୍ୟକାରୀ ତାରିଖ କାରବାର ତାରିଖ ବା ତା ପୂର୍ବରୁ ହେବା ଉଚିତ",
+        "amountInvalid": "ଶୂନ୍ୟଠାରୁ ଅଧିକ ରାଶି ଦିଅନ୍ତୁ",
+        "exceedsBalance": "ଉଠାଣ ବର୍ତ୍ତମାନ ବାଲାନ୍ସଠାରୁ ଅଧିକ ହୋଇପାରିବ ନାହିଁ ({balance})",
+        "accountRequired": "ଏକ ଖାତା ବାଛନ୍ତୁ"
+      },
+      "approval": {
+        "approveTitle": "କାରବାର ଅନୁମୋଦନ",
+        "rejectTitle": "କାରବାର ପ୍ରତ୍ୟାଖ୍ୟାନ",
+        "remarks": "ମନ୍ତବ୍ୟ",
+        "remarksRequired": "ପ୍ରତ୍ୟାଖ୍ୟାନର କାରଣ ଆବଶ୍ୟକ",
+        "confirmApprove": "ଅନୁମୋଦନ",
+        "confirmReject": "ପ୍ରତ୍ୟାଖ୍ୟାନ",
+        "cancel": "ବାତିଲ"
+      }
     }
   }
 }

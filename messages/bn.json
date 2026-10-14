@@ -2164,7 +2164,6 @@
       }
     }
   },
-<<<<<<< Updated upstream
   "onboarding": {
     "groupManagement": {
       "title": "গ্রুপ ব্যবস্থাপনা",
@@ -2478,7 +2477,8 @@
       "searchPlaceholder": "একটি জায়গা খুঁজুন",
       "searching": "খোঁজা হচ্ছে…",
       "noSearchResults": "ভারতে মিল পাওয়া যায়নি"
-=======
+    }
+  },
   "deposits": {
     "savings": {
       "title": "সঞ্চয় হিসাব",
@@ -2749,7 +2749,84 @@
         "statusChanged": "অবস্থা এখন {status}",
         "closed": "জমার হিসাব {applNo} বন্ধ হয়েছে"
       }
->>>>>>> Stashed changes
+    },
+    "savingsTransaction": {
+      "title": "সঞ্চয় লেনদেন",
+      "description": "জমা বা উত্তোলন পোস্ট করুন, এবং অপেক্ষমাণ এন্ট্রি অনুমোদন করুন।",
+      "filters": {
+        "search": "খুঁজুন",
+        "searchPlaceholder": "লেনদেন নং, অ্যাকাউন্ট, ধারক",
+        "type": "ধরন",
+        "mode": "মাধ্যম",
+        "status": "অবস্থা",
+        "from": "থেকে",
+        "to": "পর্যন্ত",
+        "all": "সব"
+      },
+      "modes": { "CA": "নগদ", "CQ": "চেক", "TR": "স্থানান্তর", "OL": "অনলাইন" },
+      "statuses": { "1": "পোস্ট হয়েছে", "2": "অনুমোদনের অপেক্ষায়", "3": "প্রত্যাখ্যাত" },
+      "types": { "1": "জমা", "2": "উত্তোলন" },
+      "table": {
+        "transNo": "লেনদেন",
+        "account": "অ্যাকাউন্ট",
+        "type": "ধরন",
+        "mode": "মাধ্যম",
+        "amount": "পরিমাণ",
+        "balance": "পরবর্তী ব্যালেন্স",
+        "status": "অবস্থা",
+        "date": "তারিখ",
+        "actions": "কাজ",
+        "empty": "কোনো লেনদেন নেই",
+        "approve": "অনুমোদন",
+        "reject": "প্রত্যাখ্যান"
+      },
+      "form": {
+        "title": "নতুন লেনদেন",
+        "accountSearch": "অ্যাকাউন্ট খুঁজুন",
+        "accountPlaceholder": "অ্যাকাউন্ট নং, ধারক, আবেদন নং",
+        "search": "খুঁজুন",
+        "account": "অ্যাকাউন্ট",
+        "accountEmpty": "অ্যাকাউন্ট খুঁজে বেছে নিন",
+        "holder": "ধারক",
+        "applNo": "আবেদন নং",
+        "accountNo": "অ্যাকাউন্ট নং",
+        "scheme": "স্কিম",
+        "depositType": "জমার ধরন",
+        "accountStatus": "অবস্থা",
+        "balance": "বর্তমান ব্যালেন্স",
+        "balanceAfter": "পরবর্তী ব্যালেন্স",
+        "opening": "প্রারম্ভিক জমা",
+        "branch": "শাখা",
+        "startDate": "শুরুর তারিখ",
+        "type": "লেনদেনের ধরন",
+        "amount": "পরিমাণ",
+        "mode": "মাধ্যম",
+        "transDate": "লেনদেনের তারিখ",
+        "effectDate": "কার্যকর তারিখ",
+        "officer": "ফিল্ড অফিসার",
+        "officerPlaceholder": "ঐচ্ছিক",
+        "narration": "লেজার বিবরণ",
+        "remarks": "মন্তব্য",
+        "submit": "লেনদেন পোস্ট করুন",
+        "saving": "পোস্ট হচ্ছে…",
+        "sentForApproval": "অনুমোদনের জন্য পাঠানো হয়েছে",
+        "withdrawalBlocked": "এই অ্যাকাউন্ট অবস্থায় উত্তোলন করা যাবে না",
+        "depositBlocked": "এই অ্যাকাউন্ট ফ্রিজ করা আছে",
+        "futureDate": "ভবিষ্যতের তারিখ দেওয়া যাবে না",
+        "effectRange": "কার্যকর তারিখ লেনদেনের তারিখের আগে বা সমান হতে হবে",
+        "amountInvalid": "শূন্যের বেশি পরিমাণ দিন",
+        "exceedsBalance": "উত্তোলন বর্তমান ব্যালেন্সের বেশি হতে পারবে না ({balance})",
+        "accountRequired": "একটি অ্যাকাউন্ট বেছে নিন"
+      },
+      "approval": {
+        "approveTitle": "লেনদেন অনুমোদন",
+        "rejectTitle": "লেনদেন প্রত্যাখ্যান",
+        "remarks": "মন্তব্য",
+        "remarksRequired": "প্রত্যাখ্যানের কারণ দিন",
+        "confirmApprove": "অনুমোদন",
+        "confirmReject": "প্রত্যাখ্যান",
+        "cancel": "বাতিল"
+      }
     }
   }
 }

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const optionalNumber = z.preprocess((value) => {
+function asNumber(value: unknown): unknown {
   if (value == null || value === "") return null;
   if (typeof value === "number") return Number.isFinite(value) ? value : value;
   if (typeof value === "string" && value.trim() !== "") {
@@ -8,17 +8,19 @@ const optionalNumber = z.preprocess((value) => {
     return Number.isFinite(parsed) ? parsed : value;
   }
   return value;
-}, z.number().nullable());
+}
 
-const optionalInt = optionalNumber.pipe(z.number().int().nullable());
+const optionalNumber = z.preprocess(asNumber, z.number().nullable());
+const optionalInt = z.preprocess(asNumber, z.number().int().nullable());
+const requiredInt = z.preprocess(asNumber, z.number().int());
 const optionalText = z.string().nullish();
 const ymd = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 
 export const savingsTransactionDtoSchema = z
   .object({
-    trans_id: z.number().int(),
+    trans_id: requiredInt,
     trans_no: optionalText,
-    account_id: z.number().int(),
+    account_id: requiredInt,
     appl_no: optionalText,
     holder_name: optionalText,
     account_no: optionalInt.nullish(),
@@ -77,8 +79,8 @@ export const savingsTransactionApproveSchema = z
   });
 
 export const paginationMetaDtoSchema = z.object({
-  total: z.number(),
-  page: z.number().optional(),
-  per_page: z.number().optional(),
-  last_page: z.number().optional(),
+  total: z.preprocess(asNumber, z.number()),
+  page: z.preprocess(asNumber, z.number()).optional(),
+  per_page: z.preprocess(asNumber, z.number()).optional(),
+  last_page: z.preprocess(asNumber, z.number()).optional(),
 });

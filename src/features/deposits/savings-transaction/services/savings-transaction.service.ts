@@ -114,7 +114,19 @@ export async function listSavingsTransactions(
       });
     }
 
-    const rows = Array.isArray(payload.data) ? payload.data : [];
+    const rows = Array.isArray(payload.data)
+      ? payload.data
+      : payload.data &&
+          typeof payload.data === "object" &&
+          "data" in payload.data &&
+          Array.isArray(payload.data.data)
+        ? payload.data.data
+        : payload.data &&
+            typeof payload.data === "object" &&
+            "items" in payload.data &&
+            Array.isArray(payload.data.items)
+          ? payload.data.items
+          : [];
     const items = rows.flatMap((row) => {
       const parsed = savingsTransactionDtoSchema.safeParse(row);
       return parsed.success ? [mapSavingsTransactionDto(parsed.data)] : [];

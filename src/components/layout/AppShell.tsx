@@ -18,11 +18,11 @@ export function AppShell({ children, user }: AppShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-<<<<<<< Updated upstream
     storeAuthUser(user);
     void refreshStoredAuthUser();
   }, [user]);
-=======
+
+  useEffect(() => {
     const root = document.documentElement;
     const previous = root.style.overflow;
     root.style.overflow = "hidden";
@@ -30,7 +30,6 @@ export function AppShell({ children, user }: AppShellProps) {
       root.style.overflow = previous;
     };
   }, []);
->>>>>>> Stashed changes
 
   return (
     <div

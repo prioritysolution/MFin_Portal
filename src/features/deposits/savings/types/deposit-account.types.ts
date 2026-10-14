@@ -152,6 +152,8 @@ export type DepositAccountListQuery = {
   fromDate?: string;
   toDate?: string;
   search?: string;
+  /** When true, the list is not limited to savings accounts. */
+  allTypes?: boolean;
 };
 
 export type DepositAccountListResult = {

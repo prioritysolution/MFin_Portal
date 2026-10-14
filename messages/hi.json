@@ -2164,7 +2164,6 @@
       }
     }
   },
-<<<<<<< Updated upstream
   "onboarding": {
     "groupManagement": {
       "title": "समूह प्रबंधन",
@@ -2478,7 +2477,8 @@
       "searchPlaceholder": "कोई जगह खोजें",
       "searching": "खोज हो रही है…",
       "noSearchResults": "भारत में कोई मिलान नहीं"
-=======
+    }
+  },
   "deposits": {
     "savings": {
       "title": "बचत खाते",
@@ -2749,7 +2749,84 @@
         "statusChanged": "स्थिति अब {status}",
         "closed": "जमा खाता {applNo} बंद हो गया"
       }
->>>>>>> Stashed changes
+    },
+    "savingsTransaction": {
+      "title": "बचत लेनदेन",
+      "description": "जमा या निकासी पोस्ट करें, और लंबित प्रविष्टियाँ स्वीकृत करें।",
+      "filters": {
+        "search": "खोजें",
+        "searchPlaceholder": "लेनदेन नं, खाता, धारक",
+        "type": "प्रकार",
+        "mode": "माध्यम",
+        "status": "स्थिति",
+        "from": "से",
+        "to": "तक",
+        "all": "सभी"
+      },
+      "modes": { "CA": "नकद", "CQ": "चेक", "TR": "ट्रांसफर", "OL": "ऑनलाइन" },
+      "statuses": { "1": "पोस्टेड", "2": "स्वीकृति लंबित", "3": "अस्वीकृत" },
+      "types": { "1": "जमा", "2": "निकासी" },
+      "table": {
+        "transNo": "लेनदेन",
+        "account": "खाता",
+        "type": "प्रकार",
+        "mode": "माध्यम",
+        "amount": "राशि",
+        "balance": "बाद की शेष राशि",
+        "status": "स्थिति",
+        "date": "तिथि",
+        "actions": "कार्य",
+        "empty": "कोई लेनदेन नहीं मिला",
+        "approve": "स्वीकृत करें",
+        "reject": "अस्वीकार करें"
+      },
+      "form": {
+        "title": "नया लेनदेन",
+        "accountSearch": "खाता खोजें",
+        "accountPlaceholder": "खाता नं, धारक, आवेदन नं",
+        "search": "खोजें",
+        "account": "खाता",
+        "accountEmpty": "खाता खोजकर चुनें",
+        "holder": "धारक",
+        "applNo": "आवेदन नं",
+        "accountNo": "खाता नं",
+        "scheme": "योजना",
+        "depositType": "जमा प्रकार",
+        "accountStatus": "स्थिति",
+        "balance": "वर्तमान शेष",
+        "balanceAfter": "बाद की शेष राशि",
+        "opening": "प्रारंभिक जमा",
+        "branch": "शाखा",
+        "startDate": "आरंभ तिथि",
+        "type": "लेनदेन प्रकार",
+        "amount": "राशि",
+        "mode": "माध्यम",
+        "transDate": "लेनदेन तिथि",
+        "effectDate": "प्रभावी तिथि",
+        "officer": "फील्ड अधिकारी",
+        "officerPlaceholder": "वैकल्पिक",
+        "narration": "लेजर विवरण",
+        "remarks": "टिप्पणी",
+        "submit": "लेनदेन पोस्ट करें",
+        "saving": "पोस्ट हो रहा है…",
+        "sentForApproval": "स्वीकृति के लिए भेजा गया",
+        "withdrawalBlocked": "इस खाता स्थिति में निकासी नहीं हो सकती",
+        "depositBlocked": "यह खाता फ्रीज है",
+        "futureDate": "भविष्य की तिथि नहीं हो सकती",
+        "effectRange": "प्रभावी तिथि लेनदेन तिथि पर या उससे पहले होनी चाहिए",
+        "amountInvalid": "शून्य से अधिक राशि दर्ज करें",
+        "exceedsBalance": "निकासी वर्तमान शेष से अधिक नहीं हो सकती ({balance})",
+        "accountRequired": "एक खाता चुनें"
+      },
+      "approval": {
+        "approveTitle": "लेनदेन स्वीकृत करें",
+        "rejectTitle": "लेनदेन अस्वीकार करें",
+        "remarks": "टिप्पणी",
+        "remarksRequired": "अस्वीकृति का कारण आवश्यक है",
+        "confirmApprove": "स्वीकृत करें",
+        "confirmReject": "अस्वीकार करें",
+        "cancel": "रद्द करें"
+      }
     }
   }
 }

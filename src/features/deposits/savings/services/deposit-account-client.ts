@@ -101,6 +101,7 @@ function listQueryKey(query: DepositAccountListQuery): string {
   if (query.fromDate) params.set("from_date", query.fromDate);
   if (query.toDate) params.set("to_date", query.toDate);
   if (query.search) params.set("search", query.search);
+  if (query.allTypes) params.set("all_types", "1");
   return params.toString() || "default";
 }
 

@@ -50,6 +50,7 @@ export const endpoints = {
     memberKyc: "/api/onboarding/member-kyc",
     memberLocation: "/api/onboarding/member-location",
     groupMemberMapping: "/api/onboarding/group-member-mapping",
+    savingsTransactions: "/api/deposits/savings-transactions",
   },
   menuTree: "/api/MenuTree",
   stateList: "/api/StateList",
@@ -253,6 +254,11 @@ export const endpoints = {
     reassign: "/api/MemberGroupReassign",
     edit: "/api/MemberGroupEdit",
     exit: "/api/MemberGroupExit",
+  },
+  savingsTransaction: {
+    list: "/api/SavingsTransactionList",
+    add: "/api/SavingsTransactionAdd",
+    approve: "/api/SavingsTransactionApprove",
   },
   operationalDays: {
     list: "/api/OperationalDaysList",

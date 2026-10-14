@@ -37,6 +37,8 @@ export async function GET(request: Request) {
       readOptionalText(searchParams.get("search")) ??
       readOptionalText(searchParams.get("keyword"));
 
+    const requestedType = readOptionalNumber(searchParams.get("deposit_type_cd"));
+    const allTypes = searchParams.get("all_types") === "1";
     const result = await listDepositAccounts({
       page: readOptionalNumber(searchParams.get("page")),
       perPage: readOptionalNumber(searchParams.get("per_page")),
@@ -48,8 +50,7 @@ export async function GET(request: Request) {
       foId: readOptionalNumber(searchParams.get("fo_id")),
       schemeId: readOptionalNumber(searchParams.get("scheme_id")),
       depositTypeCd:
-        readOptionalNumber(searchParams.get("deposit_type_cd")) ??
-        SAVINGS_DEPOSIT_TYPE,
+        requestedType ?? (allTypes ? undefined : SAVINGS_DEPOSIT_TYPE),
       custTypeCd: readOptionalNumber(searchParams.get("cust_type_cd")),
       memberId: readOptionalNumber(searchParams.get("member_id")),
       groupId: readOptionalNumber(searchParams.get("group_id")),
