@@ -1,0 +1,1580 @@
+"use client";
+
+import { useEffect, useMemo, useRef, useState, type FormEvent, type MouseEvent, type ReactNode } from "react";
+import { Pencil, Save } from "lucide-react";
+import { useFormatter, useTranslations } from "next-intl";
+import { Modal } from "@/components/ui/Modal";
+import { Alert } from "@/components/ui/Alert";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import {
+  CheckboxField,
+  DateField,
+  SelectField,
+  TextField,
+} from "@/components/ui/Form";
+import { fetchApplOptions, type ApplOption } from "@/features/master/appl-options";
+import { DepositAccountCustomerPicker } from "./DepositAccountCustomerPicker";
+import { DepositAccountNomineeStep } from "./DepositAccountNomineeStep";
+import { DepositAccountSignatoryStep } from "./DepositAccountSignatoryStep";
+import { DepositAccountSummaryStep } from "./DepositAccountSummaryStep";
+import { fetchDepositSchemeSetups } from "@/features/master/deposit-schemes";
+import { fetchStaffList } from "@/features/master/staff/services/staff-client";
+import type { DepositSchemeSetup } from "@/features/master/deposit-schemes";
+import {
+  CUST_TYPE_GROUP,
+  CUST_TYPE_INDIVIDUAL,
+  OPT_CUST_TYPE,
+  OPT_DEPOSIT_TYPE,
+  OPT_OP_MODE,
+  OPT_STATUS,
+  OP_MODE_SIGNATORY,
+  OPT_SPECIAL,
+  SAVINGS_DEPOSIT_TYPE,
+  SPECIAL_NORMAL,
+  SPECIAL_SENIOR,
+  STATUS_ACTIVE,
+  STATUS_KYC_PENDING,
+} from "../deposit-account.constants";
+import {
+  accountFieldsLocked,
+  ageOn,
+  holderPreview,
+  parseYmd,
+  isOpModeAllowed,
+  isSpecialAllowed,
+  jointVisibility,
+  mapApiMessageToField,
+  todayYmd,
+  toCreateInput,
+  toEditInput,
+} from "../deposit-account.rules";
+import {
+  OPT_RELATION,
+  RELATION_SELF,
+  nomineeAge,
+  nomineeErrorTarget,
+  draftFromNominee,
+  nomineeIssues,
+  toNomineeSave,
+  type NomineeDraft,
+} from "../nominee-draft";
+import {
+  fetchDepositNominees,
+  fetchDepositSignatories,
+} from "../services/deposit-account-client";
+import {
+  draftFromSignatory,
+  signatoryErrorTarget,
+  signatoryIssues,
+  signatoryPickerMode,
+  toSignatorySave,
+  type SignatoryDraft,
+} from "../signatory-draft";
+import type {
+  DepositAccount,
+  DepositAccountCreateInput,
+  DepositAccountEditInput,
+  DepositCustomer,
+  DepositNomineeSave,
+  DepositSignatorySave,
+} from "../types/deposit-account.types";
+
+type DepositAccountFormProps = {
+  open: boolean;
+  mode: "create" | "edit";
+  account: DepositAccount | null;
+  saving: boolean;
+  errorMessage?: string | null;
+  /** Dialog keeps the stepper. Page shows every block as a section. */
+  layout?: "dialog" | "page";
+  onClose: () => void;
+  onSubmit: (
+    input: DepositAccountCreateInput | DepositAccountEditInput,
+    nominees: DepositNomineeSave,
+    signatories: DepositSignatorySave,
+  ) => void;
+};
+
+function FormSection({
+  layout,
+  id,
+  title,
+  children,
+}: {
+  layout: "dialog" | "page";
+  id: string;
+  title: string;
+  children: ReactNode;
+}) {
+  if (layout === "dialog") return children;
+  return (
+    <Card title={title}>
+      <div id={id} className="flex flex-col gap-4">
+        {children}
+      </div>
+    </Card>
+  );
+}
+
+function SavingsDetails({
+  form,
+  locked,
+  errors,
+  onChange,
+}: {
+  form: FormState;
+  locked: boolean;
+  errors: Record<string, string>;
+  onChange: (partial: Partial<FormState>) => void;
+}) {
+  const t = useTranslations("deposits.savings");
+  const startDate = form.sbStartTouched ? form.sbStartDate : form.applDate;
+
+  return (
+    <div className="flex flex-col gap-4">
+      {locked ? <p className="text-xs text-muted">{t("form.sb.locked")}</p> : null}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <DateField
+          label={t("form.sb.startDate")}
+          required
+          value={startDate}
+          min={form.applDate || undefined}
+          max={todayYmd()}
+          disabled={locked}
+          error={errors.sbStartDate}
+          onChange={(sbStartDate) => onChange({ sbStartDate, sbStartTouched: true })}
+        />
+        <TextField
+          label={t("form.sb.opening")}
+          restrict="decimal"
+          value={form.sbOpening}
+          disabled={locked}
+          error={errors.sbOpening}
+          placeholder="0"
+          onChange={(sbOpening) => onChange({ sbOpening })}
+        />
+        <TextField
+          label={t("form.sb.roi")}
+          restrict="decimal"
+          value={form.sbRoi}
+          error={errors.sbRoi}
+          placeholder={t("form.sb.roiPlaceholder")}
+          onChange={(sbRoi) => onChange({ sbRoi, sbRoiTouched: true })}
+        />
+        <TextField
+          label={t("form.sb.accountNo")}
+          restrict="digits"
+          value={form.sbAccountNo}
+          disabled={locked}
+          error={errors.sbAccountNo}
+          placeholder={t("form.sb.accountNoPlaceholder")}
+          onChange={(sbAccountNo) => onChange({ sbAccountNo })}
+        />
+        <TextField
+          label={t("form.sb.refAcNo")}
+          value={form.sbRefAcNo}
+          maxLength={15}
+          error={errors.sbRefAcNo}
+          onChange={(sbRefAcNo) => onChange({ sbRefAcNo: sbRefAcNo.toUpperCase() })}
+        />
+        <TextField
+          label={t("form.sb.cbsAcNo")}
+          value={form.sbCbsAcNo}
+          maxLength={25}
+          error={errors.sbCbsAcNo}
+          onChange={(sbCbsAcNo) => onChange({ sbCbsAcNo: sbCbsAcNo.toUpperCase() })}
+        />
+      </div>
+    </div>
+  );
+}
+
+type Step = 1 | 2 | 3 | 4 | 5 | 6;
+
+type FormState = {
+  step: Step;
+  custTypeCd: number;
+  customer: DepositCustomer | null;
+  schemeId: string;
+  depositTypeCd: string;
+  opModeCd: string;
+  joint1: DepositCustomer | null;
+  joint2: DepositCustomer | null;
+  holderName: string;
+  holderNameManual: boolean;
+  specialCatgCd: string;
+  nomRegd: boolean;
+  applDate: string;
+  applNo: string;
+  foId: string;
+  statusCd: string;
+  statusTouched: boolean;
+  sbStartDate: string;
+  sbStartTouched: boolean;
+  sbAccountNo: string;
+  sbRefAcNo: string;
+  sbCbsAcNo: string;
+  sbRoi: string;
+  sbRoiTouched: boolean;
+  sbOpening: string;
+};
+
+function customerFromAccount(
+  account: DepositAccount,
+  which: "primary" | "joint1" | "joint2",
+): DepositCustomer | null {
+  if (which === "joint1" && account.custIdJoint1 == null) return null;
+  if (which === "joint2" && account.custIdJoint2 == null) return null;
+  const id =
+    which === "primary"
+      ? account.custIdPrimary
+      : which === "joint1"
+        ? account.custIdJoint1
+        : account.custIdJoint2;
+  if (id == null) return null;
+  const name =
+    which === "primary"
+      ? account.primaryName
+      : which === "joint1"
+        ? account.joint1Name
+        : account.joint2Name;
+  const refCode =
+    which === "primary"
+      ? account.primaryRefCode
+      : which === "joint1"
+        ? account.joint1RefCode
+        : account.joint2RefCode;
+  return {
+    id,
+    name,
+    refCode,
+    mobile: which === "primary" ? account.primaryMobile : null,
+    branchId: account.branchId,
+    branchCode: account.branchCode,
+    branchName: account.branchName,
+    foId: account.foId,
+    foCode: account.foCode,
+    foName: account.foName,
+    anchorDate: null,
+    dateOfBirth: null,
+    kycPendingCount: 0,
+  };
+}
+
+function emptyState(): FormState {
+  return {
+    step: 1,
+    custTypeCd: CUST_TYPE_INDIVIDUAL,
+    customer: null,
+    schemeId: "",
+    depositTypeCd: "",
+    opModeCd: "1",
+    joint1: null,
+    joint2: null,
+    holderName: "",
+    holderNameManual: false,
+    specialCatgCd: String(SPECIAL_NORMAL),
+    nomRegd: false,
+    applDate: todayYmd(),
+    applNo: "",
+    foId: "",
+    statusCd: String(STATUS_ACTIVE),
+    statusTouched: false,
+    sbStartDate: "",
+    sbStartTouched: false,
+    sbAccountNo: "",
+    sbRefAcNo: "",
+    sbCbsAcNo: "",
+    sbRoi: "",
+    sbRoiTouched: false,
+    sbOpening: "",
+  };
+}
+
+function stateFromAccount(account: DepositAccount): FormState {
+  return {
+    ...emptyState(),
+    custTypeCd: account.custTypeCd,
+    customer: customerFromAccount(account, "primary"),
+    schemeId: String(account.schemeId),
+    depositTypeCd: String(account.depositTypeCd),
+    opModeCd: String(account.opModeCd),
+    joint1: customerFromAccount(account, "joint1"),
+    joint2: customerFromAccount(account, "joint2"),
+    holderName: account.holderName,
+    specialCatgCd:
+      account.specialCatgCd != null
+        ? String(account.specialCatgCd)
+        : String(SPECIAL_NORMAL),
+    nomRegd: account.nomRegd,
+    applDate: account.applDate || todayYmd(),
+    applNo: account.applNo,
+    foId: account.foId != null ? String(account.foId) : "",
+    statusCd: String(account.statusCd),
+    statusTouched: true,
+    sbStartDate: account.startDate || account.applDate,
+    sbStartTouched: true,
+    sbAccountNo: account.accountNo != null ? String(account.accountNo) : "",
+    sbRefAcNo: account.refAcNo ?? "",
+    sbCbsAcNo: account.cbsAcNo ?? "",
+    sbRoi:
+      account.sbRoi != null
+        ? String(account.sbRoi)
+        : account.schemeRoiPercent != null
+          ? String(account.schemeRoiPercent)
+          : "",
+    sbRoiTouched: account.sbRoi != null,
+    sbOpening:
+      account.openingDeposit != null ? String(account.openingDeposit) : "",
+  };
+}
+
+function stepForField(field: string): Step {
+  if (field === "custIdPrimary") return 1;
+  if (
+    field === "schemeId" ||
+    field === "depositTypeCd" ||
+    field === "sbStartDate" ||
+    field === "sbAccountNo" ||
+    field === "sbRefAcNo" ||
+    field === "sbCbsAcNo" ||
+    field === "sbRoi" ||
+    field === "sbOpening"
+  ) {
+    return 2;
+  }
+  if (field === "nominees") return 4;
+  if (field === "signatories") return 5;
+  if (
+    field === "opModeCd" ||
+    field === "custIdJoint1" ||
+    field === "custIdJoint2" ||
+    field === "specialCatgCd" ||
+    field === "holderName" ||
+    field === "applDate" ||
+    field === "applNo" ||
+    field === "branchId" ||
+    field === "foId"
+  ) {
+    return 3;
+  }
+  return 3;
+}
+
+export function DepositAccountForm({
+  open,
+  mode,
+  account,
+  saving,
+  errorMessage,
+  layout = "dialog",
+  onClose,
+  onSubmit,
+}: DepositAccountFormProps) {
+  const t = useTranslations("deposits.savings");
+  const formKey = mode === "edit" ? `edit-${account?.accountId ?? 0}` : "create";
+  const body = (
+    <DepositAccountFormBody
+      key={formKey}
+      layout={layout}
+      mode={mode}
+      account={account}
+      saving={saving}
+      errorMessage={errorMessage}
+      onClose={onClose}
+      onSubmit={onSubmit}
+    />
+  );
+
+  if (layout === "page") return body;
+
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={mode === "create" ? t("form.createTitle") : t("form.editTitle")}
+      subtitle={t("form.stepHint")}
+      size="lg"
+    >
+      {body}
+    </Modal>
+  );
+}
+
+function DepositAccountFormBody({
+  layout = "dialog",
+  mode,
+  account,
+  saving,
+  errorMessage,
+  onClose,
+  onSubmit,
+}: Omit<DepositAccountFormProps, "open">) {
+  const t = useTranslations("deposits.savings");
+  const tUi = useTranslations("ui");
+  const format = useFormatter();
+  const [form, setForm] = useState<FormState>(() =>
+    account ? stateFromAccount(account) : emptyState(),
+  );
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [nominees, setNominees] = useState<NomineeDraft[]>([]);
+  const nomineesRef = useRef(nominees);
+  nomineesRef.current = nominees;
+  const [signatories, setSignatories] = useState<SignatoryDraft[]>([]);
+  const signatoriesRef = useRef(signatories);
+  signatoriesRef.current = signatories;
+  const [signatoryDeactivateIds, setSignatoryDeactivateIds] = useState<number[]>([]);
+  const formRef = useRef<HTMLFormElement>(null);
+  const [deactivateIds, setDeactivateIds] = useState<number[]>([]);
+  const [relations, setRelations] = useState<ApplOption[]>([]);
+  const [schemes, setSchemes] = useState<DepositSchemeSetup[]>([]);
+  const [depositTypes, setDepositTypes] = useState<ApplOption[]>([]);
+  const [custTypes, setCustTypes] = useState<ApplOption[]>([]);
+  const [statuses, setStatuses] = useState<ApplOption[]>([]);
+  const [opModes, setOpModes] = useState<ApplOption[]>([]);
+  const [categories, setCategories] = useState<ApplOption[]>([]);
+  const [officers, setOfficers] = useState<
+    { value: string; label: string }[]
+  >([]);
+
+  const locked = mode === "edit" && accountFieldsLocked(account);
+  const joints = jointVisibility(form.custTypeCd, Number(form.opModeCd) || 0);
+  const schemeOptions = schemes.map((scheme) => ({
+    value: String(scheme.id),
+    label: [
+      scheme.schemeCode,
+      scheme.schemeName,
+      scheme.depositTypeDesc,
+      scheme.roiPercent != null ? `${scheme.roiPercent}%` : "",
+    ]
+      .filter(Boolean)
+      .join(" · "),
+  }));
+  if (
+    account &&
+    form.schemeId &&
+    !schemeOptions.some((option) => option.value === form.schemeId)
+  ) {
+    schemeOptions.unshift({
+      value: form.schemeId,
+      label: [account.schemeCode, account.schemeName].filter(Boolean).join(" · "),
+    });
+  }
+  const selectedScheme = schemes.find(
+    (scheme) => String(scheme.id) === form.schemeId,
+  );
+  const depositTypeCd = form.depositTypeCd
+    ? Number(form.depositTypeCd)
+    : selectedScheme?.depositTypeCd ?? null;
+  const depositTypeOptions = [...depositTypes]
+    .sort((left, right) => left.srlNo - right.srlNo)
+    .map((option) => ({
+      value: String(option.optCode),
+      label: option.optDescription,
+    }));
+  const age =
+    form.customer?.dateOfBirth != null
+      ? ageOn(form.customer.dateOfBirth, form.applDate || todayYmd())
+      : null;
+  const preview = holderPreview(
+    form.customer?.name ?? "",
+    joints.joint1 ? (form.joint1?.name ?? "") : "",
+    joints.joint2 ? (form.joint2?.name ?? "") : "",
+  );
+  const shownHolder = form.holderNameManual ? form.holderName : preview;
+  const anchorDate = form.customer?.anchorDate
+    ? parseYmd(form.customer.anchorDate)
+    : null;
+  const anchorLabel = anchorDate
+    ? format.dateTime(anchorDate, {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      })
+    : t("dash");
+
+  useEffect(() => {
+    if (!errorMessage) return;
+    const field = mapApiMessageToField(errorMessage);
+    if (!field || field === "toast" || field === "close") return;
+    if (field === "nominees") {
+      const targeted = nomineeErrorTarget(
+        errorMessage,
+        nomineesRef.current.filter((draft) => draft.nomineeId == null),
+      );
+      setFieldErrors((current) => ({ ...current, ...(targeted ?? { nominees: errorMessage }) }));
+      setForm((current) => ({ ...current, step: 4 }));
+      return;
+    }
+    if (field === "signatories") {
+      const targeted = signatoryErrorTarget(
+        errorMessage,
+        signatoriesRef.current.filter((draft) => draft.signatoryId == null),
+      );
+      setFieldErrors((current) => ({
+        ...current,
+        ...(targeted ?? { signatories: errorMessage }),
+      }));
+      setForm((current) => ({ ...current, step: 5 }));
+      return;
+    }
+    setFieldErrors((current) => ({ ...current, [field]: errorMessage }));
+    setForm((current) => ({ ...current, step: stepForField(field) }));
+  }, [errorMessage]);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      const [types, customerTypes, statusOptions, modes, specials, relationOptions] =
+        await Promise.all([
+        fetchApplOptions(OPT_DEPOSIT_TYPE).catch(() => []),
+        fetchApplOptions(OPT_CUST_TYPE).catch(() => []),
+        fetchApplOptions(OPT_STATUS).catch(() => []),
+        fetchApplOptions(OPT_OP_MODE).catch(() => []),
+        fetchApplOptions(OPT_SPECIAL).catch(() => []),
+        fetchApplOptions(OPT_RELATION).catch(() => []),
+      ]);
+      if (cancelled) return;
+      setDepositTypes(types);
+      setCustTypes(customerTypes);
+      setStatuses(statusOptions);
+      setOpModes(modes);
+      setCategories(specials);
+      setRelations(relationOptions.filter((option) => option.optCode !== RELATION_SELF));
+    }
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    const type = Number(form.depositTypeCd);
+    if (!Number.isInteger(type) || type < 1) {
+      setSchemes([]);
+      return;
+    }
+    let cancelled = false;
+    fetchDepositSchemeSetups({
+      perPage: 200,
+      isActive: 1,
+      depositTypeCd: type,
+    })
+      .then((result) => {
+        if (!cancelled) setSchemes(result?.items ?? []);
+      })
+      .catch(() => {
+        if (!cancelled) setSchemes([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [form.depositTypeCd]);
+
+  useEffect(() => {
+    const branchId = form.customer?.branchId;
+    if (branchId == null) {
+      setOfficers([]);
+      return;
+    }
+    let cancelled = false;
+    fetchStaffList({ branchId, status: 1, perPage: 200 })
+      .then((result) => {
+        if (cancelled) return;
+        const options = result.items.map((staff) => ({
+          value: String(staff.staffId),
+          label: staff.employeeCode
+            ? `${staff.fullName} · ${staff.employeeCode}`
+            : staff.fullName,
+        }));
+        if (
+          form.foId &&
+          !options.some((option) => option.value === form.foId) &&
+          account?.foName
+        ) {
+          options.unshift({
+            value: form.foId,
+            label: account.foName,
+          });
+        }
+        setOfficers(options);
+      })
+      .catch(() => {
+        if (!cancelled) setOfficers([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [account?.foName, form.customer?.branchId, form.foId]);
+
+  const stepScrollReady = useRef(false);
+  useEffect(() => {
+    if (layout === "page") {
+      if (!stepScrollReady.current) {
+        stepScrollReady.current = true;
+        return;
+      }
+      document
+        .getElementById(`deposit-account-section-${form.step}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    const scroller = formRef.current?.closest(".overflow-y-auto");
+    if (scroller instanceof HTMLElement) scroller.scrollTop = 0;
+  }, [form.step, layout]);
+
+  useEffect(() => {
+    if (mode !== "edit" || account?.accountId == null || form.custTypeCd !== CUST_TYPE_INDIVIDUAL) {
+      return;
+    }
+    let cancelled = false;
+    fetchDepositNominees(account.accountId)
+      .then((items) => {
+        if (cancelled) return;
+        setNominees(items.filter((item) => item.isActive).map(draftFromNominee));
+        setDeactivateIds([]);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setFieldErrors((current) => ({
+            ...current,
+            nominees: t("form.nominees.loadError"),
+          }));
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [account?.accountId, form.custTypeCd, mode, t]);
+
+  useEffect(() => {
+    if (mode !== "edit" || account?.accountId == null) return;
+    let cancelled = false;
+    fetchDepositSignatories(account.accountId)
+      .then((items) => {
+        if (cancelled) return;
+        setSignatories(items.filter((item) => item.isActive).map(draftFromSignatory));
+        setSignatoryDeactivateIds([]);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setFieldErrors((current) => ({
+            ...current,
+            signatories: t("form.signatories.loadError"),
+          }));
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [account?.accountId, mode, t]);
+
+  const steps = useMemo(
+    () =>
+      [
+        { id: 1 as const, label: t("form.stepCustomer") },
+        { id: 2 as const, label: t("form.stepScheme") },
+        { id: 3 as const, label: t("form.stepHolders") },
+        { id: 4 as const, label: t("form.stepNominees") },
+        { id: 5 as const, label: t("form.stepSignatories") },
+        { id: 6 as const, label: t("form.stepSummary") },
+      ],
+    [t],
+  );
+
+  function patch(partial: Partial<FormState>) {
+    setForm((current) => ({ ...current, ...partial }));
+  }
+
+  function selectCustomer(customer: DepositCustomer | null) {
+    patch({
+      customer,
+      joint1:
+        form.joint1 && customer && form.joint1.id === customer.id
+          ? null
+          : form.joint1,
+      joint2:
+        form.joint2 && customer && form.joint2.id === customer.id
+          ? null
+          : form.joint2,
+      foId:
+        customer?.foId != null ? String(customer.foId) : form.foId,
+      statusCd:
+        !form.statusTouched && (customer?.kycPendingCount ?? 0) > 0
+          ? String(STATUS_KYC_PENDING)
+          : form.statusCd,
+    });
+    setFieldErrors((current) => ({ ...current, custIdPrimary: "" }));
+  }
+
+  function selectCustType(custTypeCd: number) {
+    const next: Partial<FormState> = {
+      custTypeCd,
+      customer: null,
+      joint1: null,
+      joint2: null,
+      nomRegd: false,
+    };
+    if (custTypeCd === CUST_TYPE_GROUP) {
+      setNominees([]);
+      if (!isOpModeAllowed(CUST_TYPE_GROUP, Number(form.opModeCd))) {
+        next.opModeCd = "5";
+      }
+      if (
+        !isSpecialAllowed(CUST_TYPE_GROUP, Number(form.specialCatgCd), null)
+      ) {
+        next.specialCatgCd = String(SPECIAL_NORMAL);
+      }
+    }
+    patch(next);
+  }
+
+  function selectMode(opModeCd: string) {
+    const visibility = jointVisibility(form.custTypeCd, Number(opModeCd));
+    patch({
+      opModeCd,
+      joint1: visibility.joint1 ? form.joint1 : null,
+      joint2: visibility.joint2 ? form.joint2 : null,
+    });
+    setFieldErrors((current) => ({ ...current, opModeCd: "" }));
+  }
+
+  function validateStep(step: Step): boolean {
+    const next: Record<string, string> = {};
+    if (step === 1 && !form.customer) next.custIdPrimary = t("form.errors.customer");
+    if (step === 2 && !form.depositTypeCd) {
+      next.depositTypeCd = t("form.errors.depositTypeRequired");
+    }
+    if (step === 2 && !form.schemeId) next.schemeId = t("form.errors.scheme");
+    if (
+      step === 2 &&
+      selectedScheme &&
+      depositTypeCd != null &&
+      selectedScheme.depositTypeCd !== depositTypeCd
+    ) {
+      next.schemeId = t("form.errors.depositType");
+    }
+    if (
+      step === 2 &&
+      form.schemeId &&
+      depositTypeCd != null &&
+      depositTypeCd !== SAVINGS_DEPOSIT_TYPE
+    ) {
+      next.depositTypeCd = t("form.errors.depositType");
+    }
+    if (step === 2 && depositTypeCd === SAVINGS_DEPOSIT_TYPE) {
+      const start = form.sbStartTouched ? form.sbStartDate : form.applDate;
+      if (!start || start < form.applDate || start > todayYmd()) {
+        next.sbStartDate = t("form.errors.sbStart");
+      }
+      if (form.sbAccountNo.trim()) {
+        const accountNo = Number(form.sbAccountNo);
+        if (!Number.isInteger(accountNo) || accountNo < 1 || accountNo > 32767) {
+          next.sbAccountNo = t("form.errors.sbAccount");
+        }
+      }
+      if (form.sbRefAcNo.trim().length > 15) next.sbRefAcNo = t("form.errors.sbRef");
+      if (form.sbCbsAcNo.trim().length > 25) next.sbCbsAcNo = t("form.errors.sbCbs");
+      if (form.sbRoi.trim()) {
+        const roi = Number(form.sbRoi);
+        if (!Number.isFinite(roi) || roi < 0 || roi > 100) next.sbRoi = t("form.errors.sbRoi");
+      }
+      if (form.sbOpening.trim()) {
+        const opening = Number(form.sbOpening);
+        if (!Number.isFinite(opening) || opening < 0) next.sbOpening = t("form.errors.sbOpening");
+      }
+    }
+    if (step === 3 && form.applDate) {
+      if (form.applDate > todayYmd()) next.applDate = t("form.errors.applDate");
+      if (form.customer?.anchorDate && form.applDate < form.customer.anchorDate) {
+        next.applDate = t("form.errors.applDate");
+      }
+    }
+    if (step === 3) {
+      if (!form.opModeCd) next.opModeCd = t("form.errors.opMode");
+      if (joints.joint1 && !form.joint1) next.custIdJoint1 = t("form.errors.joint1");
+      if (joints.joint2Required && !form.joint2) {
+        next.custIdJoint2 = t("form.errors.joint2");
+      }
+      if (form.holderNameManual && form.holderName.trim().length > 300) {
+        next.holderName = t("form.errors.holderName");
+      }
+      if (!form.applDate) next.applDate = t("form.errors.applDate");
+      if (form.applNo.trim().length > 25) next.applNo = t("form.errors.applNo");
+    }
+    if (step === 5) {
+      const holderIds = [form.customer?.id, form.joint1?.id, form.joint2?.id].filter(
+        (id): id is number => id != null,
+      );
+      for (const issue of signatoryIssues(
+        signatories,
+        holderIds,
+        signatoryPickerMode(form.custTypeCd, Number(form.opModeCd) || 0) === "holders",
+      )) {
+        const fieldKey = issue.field === "limit" ? "signatories" : `${issue.key}.${issue.field}`;
+        next[fieldKey] = signatoryError(issue.field);
+      }
+    }
+    if (step === 4 && form.custTypeCd === CUST_TYPE_INDIVIDUAL) {
+      const holderIds = [form.customer?.id, form.joint1?.id, form.joint2?.id].filter(
+        (id): id is number => id != null,
+      );
+      for (const issue of nomineeIssues(
+        nominees,
+        holderIds,
+        0,
+        0,
+      )) {
+        const fieldKey = issue.field === "total" || issue.field === "limit" ? "nominees" : `${issue.key}.${issue.field}`;
+        next[fieldKey] = nomineeError(issue.field);
+      }
+    }
+    setFieldErrors((current) => {
+      const owned =
+        step === 4
+          ? new Set(nominees.map((draft) => draft.key))
+          : step === 5
+            ? new Set(signatories.map((draft) => draft.key))
+            : null;
+      const bucket = step === 4 ? "nominees" : step === 5 ? "signatories" : "";
+      const base = owned
+        ? Object.fromEntries(
+            Object.entries(current).filter(([key]) => {
+              if (key === bucket) return false;
+              return !owned.has(key.split(".")[0] ?? "");
+            }),
+          )
+        : current;
+      return { ...base, ...next };
+    });
+    return Object.keys(next).length === 0;
+  }
+
+  function nomineeError(field: string): string {
+    if (field === "member") return t("form.errors.nomineeMember");
+    if (field === "nomName") return t("form.errors.nomineeName");
+    if (field === "relationCd") return t("form.errors.nomineeRelation");
+    if (field === "birthDate" || field === "age") return t("form.errors.nomineeBirth");
+    if (field === "guardianName") return t("form.errors.nomineeGuardian");
+    if (field === "contactNo") return t("form.errors.nomineeContact");
+    if (field === "address") return t("form.errors.nomineeAddress");
+    if (field === "sharePercent" || field === "total") return t("form.errors.nomineeShare");
+    return t("form.errors.nomineeLimit");
+  }
+
+  function signatoryError(field: string): string {
+    if (field === "signFileNm" || field === "photoFileNm") {
+      return t("form.errors.signatoryFile");
+    }
+    if (field === "limit") return t("form.errors.signatoryLimit");
+    return t("form.errors.signatoryMember");
+  }
+
+  function goNext(event: MouseEvent<HTMLButtonElement>) {
+    event.preventDefault();
+    if (!validateStep(form.step)) return;
+    patch({ step: Math.min(6, form.step + 1) as Step });
+  }
+
+  function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+  }
+
+  function saveAccount() {
+    if (layout === "dialog" && form.step !== 6) return;
+    for (const step of [1, 2, 3, 4, 5] as const) {
+      if (!validateStep(step)) {
+        patch({ step });
+        return;
+      }
+    }
+    if (!form.customer || !form.schemeId) return;
+    const savingsDetails =
+      depositTypeCd === SAVINGS_DEPOSIT_TYPE
+        ? {
+            startDate: form.sbStartTouched ? form.sbStartDate : undefined,
+            accountNo: form.sbAccountNo.trim() ? Number(form.sbAccountNo) : null,
+            refAcNo: form.sbRefAcNo.trim().toUpperCase() || null,
+            cbsAcNo: form.sbCbsAcNo.trim().toUpperCase() || null,
+            roi: form.sbRoiTouched && form.sbRoi.trim() ? Number(form.sbRoi) : undefined,
+            openingDeposit: form.sbOpening.trim() ? Number(form.sbOpening) : null,
+          }
+        : undefined;
+    const snapshot = {
+      applDate: form.applDate,
+      schemeId: Number(form.schemeId),
+      custTypeCd: form.custTypeCd,
+      custIdPrimary: form.customer.id,
+      opModeCd: Number(form.opModeCd),
+      applNo: form.applNo,
+      specialCatgCd: form.specialCatgCd ? Number(form.specialCatgCd) : null,
+      custIdJoint1: form.joint1?.id ?? null,
+      custIdJoint2: form.joint2?.id ?? null,
+      holderName: form.holderNameManual ? form.holderName.trim() : null,
+      holderNameManual: form.holderNameManual,
+      nomRegd:
+        form.custTypeCd === CUST_TYPE_INDIVIDUAL &&
+        (form.nomRegd || nominees.length > 0),
+      foId: form.foId ? Number(form.foId) : null,
+      branchId: form.customer.branchId,
+      statusCd: Number(form.statusCd) === STATUS_KYC_PENDING ? 7 : 1,
+      sb: savingsDetails,
+    };
+    const nomineePayload =
+      form.custTypeCd === CUST_TYPE_INDIVIDUAL
+        ? toNomineeSave(nominees, deactivateIds)
+        : { add: [], edit: [], deactivate: [] };
+    const signatoryPayload = toSignatorySave(signatories, signatoryDeactivateIds);
+    if (mode === "edit" && account) {
+      onSubmit(toEditInput(account, snapshot), nomineePayload, signatoryPayload);
+    } else {
+      onSubmit(toCreateInput(snapshot), nomineePayload, signatoryPayload);
+    }
+  }
+
+  const year = (form.applDate || todayYmd()).slice(0, 4);
+  const applDateLabel = parseYmd(form.applDate)
+    ? format.dateTime(parseYmd(form.applDate) as Date, {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      })
+    : t("dash");
+  const officerLabel =
+    officers.find((officer) => officer.value === form.foId)?.label ||
+    form.customer?.foName ||
+    t("dash");
+  const summarySections = [
+    {
+      title: t("form.stepCustomer"),
+      rows: [
+        {
+          label: t("form.customerType"),
+          value:
+            form.custTypeCd === CUST_TYPE_GROUP
+              ? t("form.group")
+              : t("form.individual"),
+        },
+        {
+          label: t("form.customer"),
+          value: form.customer
+            ? [form.customer.name, form.customer.refCode].filter(Boolean).join(" · ")
+            : t("dash"),
+        },
+        {
+          label: t("form.branch"),
+          value: form.customer?.branchName || t("dash"),
+        },
+      ],
+    },
+    {
+      title: t("form.stepScheme"),
+      rows: [
+        {
+          label: t("form.scheme"),
+          value:
+            schemeOptions.find((option) => option.value === form.schemeId)?.label ||
+            t("dash"),
+        },
+        {
+          label: t("form.depositType"),
+          value:
+            depositTypeOptions.find((option) => option.value === form.depositTypeCd)
+              ?.label || t("dash"),
+        },
+      ],
+    },
+    {
+      title: t("form.stepHolders"),
+      rows: [
+        {
+          label: t("form.operationMode"),
+          value:
+            opModes.find((option) => String(option.optCode) === form.opModeCd)
+              ?.optDescription || t("dash"),
+        },
+        { label: t("form.holderName"), value: shownHolder || t("dash") },
+        {
+          label: t("form.specialCategory"),
+          value:
+            categories.find((option) => String(option.optCode) === form.specialCatgCd)
+              ?.optDescription || t("dash"),
+        },
+        ...(form.joint1
+          ? [{ label: t("form.joint1"), value: form.joint1.name }]
+          : []),
+        ...(form.joint2
+          ? [{ label: t("form.joint2"), value: form.joint2.name }]
+          : []),
+      ],
+    },
+    {
+      title: t("form.stepApplication"),
+      rows: [
+        { label: t("form.applDate"), value: applDateLabel },
+        { label: t("form.applNo"), value: form.applNo.trim() || t("form.applNoPlaceholder", { year }) },
+        { label: t("form.branch"), value: form.customer?.branchName || t("dash") },
+        { label: t("form.fieldOfficer"), value: officerLabel },
+        ...(mode === "create"
+          ? [
+              {
+                label: t("form.initialStatus"),
+                value:
+                  form.statusCd === String(STATUS_KYC_PENDING)
+                    ? t("form.kycPending")
+                    : t("form.active"),
+              },
+            ]
+          : []),
+      ],
+    },
+    {
+      title: t("form.stepNominees"),
+      rows:
+        form.custTypeCd === CUST_TYPE_GROUP
+          ? [{ label: t("form.stepNominees"), value: t("form.summary.notApplicable") }]
+          : nominees.length === 0
+            ? [{ label: t("form.stepNominees"), value: t("form.summary.none") }]
+            : nominees.map((draft, index) => {
+                const ageValue = nomineeAge(draft);
+                return {
+                  label: t("form.nominees.block", { number: index + 1 }),
+                  value: [
+                    draft.nomName || draft.member?.name || t("dash"),
+                    relations.find((option) => String(option.optCode) === draft.relationCd)
+                      ?.optDescription,
+                    ageValue != null
+                      ? t("form.nominees.ageValue", { age: ageValue })
+                      : "",
+                    draft.sharePercent
+                      ? t("form.nominees.shareValue", { percent: draft.sharePercent })
+                      : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" · "),
+                };
+              }),
+    },
+    {
+      title: t("form.stepSignatories"),
+      rows:
+        signatories.length === 0
+          ? [{ label: t("form.stepSignatories"), value: t("form.summary.none") }]
+          : signatories.map((draft, index) => ({
+              label: t("form.signatories.block", { number: index + 1 }),
+              value: [draft.member?.name, draft.role].filter(Boolean).join(" · ") || t("dash"),
+            })),
+    },
+  ];
+
+  const show = (step: Step) => layout === "page" || form.step === step;
+
+  return (
+    <form
+      ref={formRef}
+      className={layout === "page" ? "flex flex-col gap-5" : "flex flex-col gap-4"}
+      onSubmit={handleSubmit}
+    >
+      {layout === "dialog" ? (
+      <ol className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+        {steps.map((step) => {
+          const active = form.step === step.id;
+          const done = form.step > step.id;
+          return (
+            <li key={step.id}>
+              <button
+                type="button"
+                disabled={!done && !active}
+                onClick={() => {
+                  if (done) patch({ step: step.id });
+                }}
+                className={`w-full rounded-xl border px-3 py-2 text-start text-xs font-semibold ${
+                  active
+                    ? "border-brand bg-brand-soft text-brand-ink"
+                    : "border-border bg-surface text-slate-600"
+                } disabled:cursor-default`}
+                aria-current={active ? "step" : undefined}
+              >
+                {t("form.stepLabel", { current: step.id, total: steps.length })}
+                <span className="mt-0.5 block font-medium">{step.label}</span>
+              </button>
+            </li>
+          );
+        })}
+      </ol>
+      ) : null}
+
+      {errorMessage ? <Alert tone="error">{errorMessage}</Alert> : null}
+
+      {show(1) ? (
+        <FormSection
+          layout={layout}
+          id="deposit-account-section-1"
+          title={t("form.stepCustomer")}
+        >
+        <div className="flex flex-col gap-4">
+          <fieldset disabled={locked}>
+            <legend className="mb-2 text-xs font-semibold text-slate-600">
+              {t("form.customerType")}
+            </legend>
+            <div className="flex flex-wrap gap-x-6 gap-y-2">
+              {(custTypes.length > 0
+                ? [...custTypes].sort((left, right) => right.optCode - left.optCode)
+                : [
+                    { optCode: CUST_TYPE_INDIVIDUAL, optDescription: t("form.individual") },
+                    { optCode: CUST_TYPE_GROUP, optDescription: t("form.group") },
+                  ]
+              ).map((option) => (
+                <label
+                  key={option.optCode}
+                  className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-800"
+                >
+                  <input
+                    type="radio"
+                    name="customer-type"
+                    checked={form.custTypeCd === option.optCode}
+                    onChange={() => selectCustType(option.optCode)}
+                  />
+                  {option.optDescription}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          {locked ? <p className="text-xs text-muted">{t("form.lockedHint")}</p> : null}
+          <DepositAccountCustomerPicker
+            kind={form.custTypeCd === CUST_TYPE_GROUP ? "group" : "member"}
+            label={t("form.customer")}
+            customer={form.customer}
+            disabled={locked}
+            error={fieldErrors.custIdPrimary}
+            onChange={selectCustomer}
+          />
+          {form.customer ? (
+            <dl className="grid gap-2 rounded-xl border border-border bg-surface-muted p-3 text-sm sm:grid-cols-3">
+              <div>
+                <dt className="text-xs font-semibold text-slate-600">
+                  {t("form.customerCardBranch")}
+                </dt>
+                <dd className="text-slate-800">
+                  {form.customer.branchName || t("dash")}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs font-semibold text-slate-600">
+                  {t("form.customerCardFo")}
+                </dt>
+                <dd className="text-slate-800">{form.customer.foName || t("dash")}</dd>
+              </div>
+              <div>
+                <dt className="text-xs font-semibold text-slate-600">
+                  {form.custTypeCd === CUST_TYPE_GROUP
+                    ? t("form.formationDate")
+                    : t("form.joiningDate")}
+                </dt>
+                <dd className="text-slate-800">{anchorLabel}</dd>
+              </div>
+            </dl>
+          ) : null}
+        </div>
+        </FormSection>
+      ) : null}
+
+      {show(2) ? (
+        <>
+        <FormSection
+          layout={layout}
+          id="deposit-account-section-2"
+          title={t("form.stepScheme")}
+        >
+        <div className="flex flex-col gap-4">
+          {locked ? <p className="text-xs text-muted">{t("form.lockedHint")}</p> : null}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <SelectField
+            label={t("form.depositType")}
+            required
+            disabled={locked}
+            value={form.depositTypeCd}
+            error={fieldErrors.depositTypeCd}
+            placeholder={t("form.depositType")}
+            searchPlaceholder={tUi("selectSearch")}
+            emptyMessage={tUi("selectEmpty")}
+            hint={t("form.depositTypeHint")}
+            onChange={(nextType) => {
+              patch({
+                depositTypeCd: nextType,
+                schemeId: "",
+                sbRoi: form.sbRoiTouched ? form.sbRoi : "",
+              });
+              setFieldErrors((current) => ({
+                ...current,
+                depositTypeCd: "",
+                schemeId: "",
+              }));
+            }}
+            options={depositTypeOptions}
+          />
+          <SelectField
+            label={t("form.scheme")}
+            required
+            disabled={locked || !form.depositTypeCd}
+            value={form.schemeId}
+            error={fieldErrors.schemeId}
+            placeholder={t("form.schemePlaceholder")}
+            searchPlaceholder={tUi("selectSearch")}
+            emptyMessage={tUi("selectEmpty")}
+            onChange={(schemeId) => {
+              const scheme = schemes.find((item) => String(item.id) === schemeId);
+              patch({
+                schemeId,
+                depositTypeCd: scheme
+                  ? String(scheme.depositTypeCd)
+                  : form.depositTypeCd,
+                sbRoi:
+                  form.sbRoiTouched || scheme?.roiPercent == null
+                    ? form.sbRoi
+                    : String(scheme.roiPercent),
+              });
+              setFieldErrors((current) => ({ ...current, schemeId: "" }));
+            }}
+            options={schemeOptions}
+          />
+          </div>
+        </div>
+        </FormSection>
+        {depositTypeCd === SAVINGS_DEPOSIT_TYPE ? (
+          <FormSection
+            layout={layout}
+            id="deposit-account-savings"
+            title={t("form.stepSavings")}
+          >
+            <SavingsDetails
+              form={form}
+              locked={(account?.currentBalance ?? 0) !== 0 && mode === "edit"}
+              errors={fieldErrors}
+              onChange={patch}
+            />
+          </FormSection>
+        ) : null}
+        </>
+      ) : null}
+
+      {show(3) ? (
+        <div
+          id={layout === "page" ? "deposit-account-section-3" : undefined}
+          className="flex flex-col gap-5"
+        >
+        <FormSection
+          layout={layout}
+          id="deposit-account-holders"
+          title={t("form.stepHolders")}
+        >
+        <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <SelectField
+            label={t("form.operationMode")}
+            required
+            value={form.opModeCd}
+            error={fieldErrors.opModeCd}
+            placeholder={t("form.operationMode")}
+            searchPlaceholder={tUi("selectSearch")}
+            emptyMessage={tUi("selectEmpty")}
+            onChange={selectMode}
+            options={opModes.map((option) => ({
+              value: String(option.optCode),
+              label: option.optDescription,
+              disabled: !isOpModeAllowed(form.custTypeCd, option.optCode),
+            }))}
+          />
+          <SelectField
+            label={t("form.specialCategory")}
+            value={form.specialCatgCd}
+            error={fieldErrors.specialCatgCd}
+            placeholder={t("form.specialCategory")}
+            searchPlaceholder={tUi("selectSearch")}
+            emptyMessage={tUi("selectEmpty")}
+            onChange={(specialCatgCd) => patch({ specialCatgCd })}
+            options={categories.map((option) => {
+              const seniorBlocked =
+                option.optCode === SPECIAL_SENIOR && age != null && age < 60;
+              return {
+                value: String(option.optCode),
+                label: seniorBlocked
+                  ? `${option.optDescription} · ${t("form.seniorHint")}`
+                  : option.optDescription,
+                disabled: !isSpecialAllowed(
+                  form.custTypeCd,
+                  option.optCode,
+                  age,
+                ),
+              };
+            })}
+          />
+          </div>
+          {joints.joint1 ? (
+            <DepositAccountCustomerPicker
+              kind="member"
+              label={t("form.joint1")}
+              required
+              customer={form.joint1}
+              excludeIds={[form.customer?.id, form.joint2?.id].filter(
+                (id): id is number => id != null,
+              )}
+              error={fieldErrors.custIdJoint1}
+              onChange={(joint1) => {
+                patch({
+                  joint1,
+                  joint2:
+                    joint1 && form.joint2?.id === joint1.id ? null : form.joint2,
+                });
+                setFieldErrors((current) => ({ ...current, custIdJoint1: "" }));
+              }}
+            />
+          ) : null}
+          {joints.joint2 ? (
+            <DepositAccountCustomerPicker
+              kind="member"
+              label={t("form.joint2")}
+              required={joints.joint2Required}
+              customer={form.joint2}
+              excludeIds={[form.customer?.id, form.joint1?.id].filter(
+                (id): id is number => id != null,
+              )}
+              error={fieldErrors.custIdJoint2}
+              onChange={(joint2) => {
+                patch({ joint2 });
+                setFieldErrors((current) => ({ ...current, custIdJoint2: "" }));
+              }}
+            />
+          ) : null}
+          <TextField
+            label={t("form.holderName")}
+            value={shownHolder}
+            maxLength={300}
+            readOnly={!form.holderNameManual}
+            error={fieldErrors.holderName}
+            hint={t("form.holderNameHint")}
+            onChange={(holderName) => patch({ holderName, holderNameManual: true })}
+            trailing={
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                icon={Pencil}
+                tooltip={t("form.editHolderName")}
+                onClick={() =>
+                  patch({
+                    holderNameManual: true,
+                    holderName: form.holderNameManual ? form.holderName : preview,
+                  })
+                }
+              />
+            }
+          />
+          {form.custTypeCd === CUST_TYPE_INDIVIDUAL ? (
+            <CheckboxField
+              label={t("form.nominee")}
+              checked={form.nomRegd}
+              onChange={(nomRegd) => patch({ nomRegd })}
+            />
+          ) : null}
+          {form.custTypeCd === CUST_TYPE_INDIVIDUAL ? (
+            <p className="text-xs text-muted">{t("form.nomineeHint")}</p>
+          ) : null}
+        </div>
+        </FormSection>
+        <FormSection
+          layout={layout}
+          id="deposit-account-application"
+          title={t("form.stepApplication")}
+        >
+          {layout === "dialog" ? (
+            <h3 className="text-sm font-semibold text-slate-800">{t("form.stepApplication")}</h3>
+          ) : null}
+          <div className="grid gap-4 sm:grid-cols-2">
+          <DateField
+            label={t("form.applDate")}
+            required
+            value={form.applDate}
+            min={form.customer?.anchorDate || undefined}
+            max={todayYmd()}
+            error={fieldErrors.applDate}
+            onChange={(applDate) => patch({ applDate })}
+          />
+          <TextField
+            label={t("form.applNo")}
+            value={form.applNo}
+            maxLength={25}
+            error={fieldErrors.applNo}
+            placeholder={t("form.applNoPlaceholder", { year })}
+            onChange={(applNo) => patch({ applNo: applNo.toUpperCase() })}
+          />
+          <TextField
+            label={t("form.branch")}
+            value={
+              form.customer?.branchName
+                ? [form.customer.branchCode, form.customer.branchName]
+                    .filter(Boolean)
+                    .join(" · ")
+                : ""
+            }
+            readOnly
+            error={fieldErrors.branchId}
+          />
+          <SelectField
+            label={t("form.fieldOfficer")}
+            value={form.foId}
+            error={fieldErrors.foId}
+            placeholder={t("form.fieldOfficerPlaceholder")}
+            searchPlaceholder={tUi("selectSearch")}
+            emptyMessage={tUi("selectEmpty")}
+            disabled={form.customer?.branchId == null}
+            onChange={(foId) => patch({ foId })}
+            options={[{ value: "", label: t("form.fieldOfficerPlaceholder") }, ...officers]}
+          />
+          {mode === "create" ? (
+            <fieldset className="sm:col-span-2">
+              <legend className="mb-2 text-xs font-semibold text-slate-600">
+                {t("form.initialStatus")}
+              </legend>
+              <div className="flex flex-wrap gap-x-6 gap-y-2">
+                {(statuses.some((option) => option.optCode === STATUS_ACTIVE || option.optCode === STATUS_KYC_PENDING)
+                  ? statuses
+                      .filter(
+                        (option) =>
+                          option.optCode === STATUS_ACTIVE ||
+                          option.optCode === STATUS_KYC_PENDING,
+                      )
+                      .sort((left, right) => left.optCode - right.optCode)
+                  : [
+                      { optCode: STATUS_ACTIVE, optDescription: t("form.active") },
+                      { optCode: STATUS_KYC_PENDING, optDescription: t("form.kycPending") },
+                    ]
+                ).map((option) => (
+                  <label
+                    key={option.optCode}
+                    className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-800"
+                  >
+                    <input
+                      type="radio"
+                      name="initial-status"
+                      checked={form.statusCd === String(option.optCode)}
+                      onChange={() =>
+                        patch({
+                          statusCd: String(option.optCode),
+                          statusTouched: true,
+                        })
+                      }
+                    />
+                    {option.optDescription}
+                  </label>
+                ))}
+              </div>
+              {(form.customer?.kycPendingCount ?? 0) > 0 ? (
+                <p className="mt-2 text-xs text-muted">{t("form.kycSuggest")}</p>
+              ) : null}
+            </fieldset>
+          ) : null}
+          </div>
+        </FormSection>
+        </div>
+      ) : null}
+
+      {show(4) ? (
+        <FormSection
+          layout={layout}
+          id="deposit-account-section-4"
+          title={t("form.stepNominees")}
+        >
+        <DepositAccountNomineeStep
+          drafts={nominees}
+          holderIds={[form.customer?.id, form.joint1?.id, form.joint2?.id].filter(
+            (id): id is number => id != null,
+          )}
+          reservedShare={0}
+          reservedCount={0}
+          onDeactivate={(nomineeId) => {
+            setDeactivateIds((ids) =>
+              ids.includes(nomineeId) ? ids : [...ids, nomineeId],
+            );
+            setNominees((rows) => rows.filter((row) => row.nomineeId !== nomineeId));
+          }}
+          groupAccount={form.custTypeCd === CUST_TYPE_GROUP}
+          relations={relations}
+          branchId={form.customer?.branchId ?? null}
+          errors={fieldErrors}
+          onChange={setNominees}
+        />
+        </FormSection>
+      ) : null}
+
+      {show(5) ? (
+        <FormSection
+          layout={layout}
+          id="deposit-account-section-5"
+          title={t("form.stepSignatories")}
+        >
+          <DepositAccountSignatoryStep
+            drafts={signatories}
+            mode={signatoryPickerMode(form.custTypeCd, Number(form.opModeCd) || 0)}
+            holders={[form.customer, form.joint1, form.joint2].filter(
+              (holder): holder is DepositCustomer => holder != null,
+            )}
+            groupId={
+              form.custTypeCd === CUST_TYPE_GROUP ? (form.customer?.id ?? null) : null
+            }
+            branchId={form.customer?.branchId ?? null}
+            authorisedEmpty={
+              Number(form.opModeCd) === OP_MODE_SIGNATORY && signatories.length === 0
+            }
+            errors={fieldErrors}
+            onChange={setSignatories}
+            onDeactivate={(signatoryId) => {
+              setSignatoryDeactivateIds((ids) =>
+                ids.includes(signatoryId) ? ids : [...ids, signatoryId],
+              );
+              setSignatories((rows) =>
+                rows.filter((row) => row.signatoryId !== signatoryId),
+              );
+            }}
+          />
+        </FormSection>
+      ) : null}
+
+      {show(6) ? (
+        <FormSection
+          layout={layout}
+          id="deposit-account-section-6"
+          title={t("form.stepSummary")}
+        >
+        <DepositAccountSummaryStep sections={summarySections} />
+        </FormSection>
+      ) : null}
+
+      <div className="flex flex-wrap justify-end gap-2 border-t border-border pt-4">
+        <Button type="button" variant="secondary" onClick={onClose} disabled={saving}>
+          {t("form.cancel")}
+        </Button>
+        {layout === "dialog" && form.step > 1 ? (
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={saving}
+            onClick={() => patch({ step: (form.step - 1) as Step })}
+          >
+            {t("form.back")}
+          </Button>
+        ) : null}
+        {layout === "dialog" && form.step < 6 ? (
+          <Button type="button" onClick={goNext}>
+            {t("form.next")}
+          </Button>
+        ) : (
+          <Button type="button" icon={Save} loading={saving} onClick={saveAccount}>
+            {saving ? t("form.saving") : t("form.submit")}
+          </Button>
+        )}
+      </div>
+    </form>
+  );
+}

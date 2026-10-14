@@ -1,0 +1,202 @@
+# DepositSignatory API
+
+### Columns
+
+`Id`, `Account_Id`, `Cust_Id`, `Sign_FileNm`, `Photo_FileNm`, `Is_Active`, `Created_By`, `Created_At`
+
+`Id` is exposed as `signatory_id`, `Cust_Id` (`mst_member.Member_Id`) as `cust_id`, `Sign_FileNm` / `Photo_FileNm` as `sign_file_nm` / `photo_file_nm`.
+
+### Business rules
+
+**Account**
+- The account must exist and be **open** (no `closing_date`). A signatory cannot move to another account.
+
+**Who can sign**
+
+| Account | Allowed signatory |
+|---------|-------------------|
+| Group (`cust_type_cd = 1`) | An **active member of that group** (`mst_member_group`, e.g. President / Secretary / Treasurer) |
+| Individual (`cust_type_cd = 2`) | An **account holder** (primary / joint 1 / joint 2) |
+| Individual with `op_mode_cd = 5` (Authorised Signatory) | Any active member |
+
+- The member must be active (`Status_Cd = 1`) when added or re-activated.
+- A member can be an **active** signatory of the same account only once.
+
+**Files**
+- `sign_file_nm` / `photo_file_nm` (optional, max 75) are the stored file names of the specimen signature / photo. The list also returns the member's own `member_signature_path` / `member_photo_path` so the UI can fall back to them.
+
+**Edit / status**
+- Edit changes only the file names. To change the person, deactivate the signatory and add another one.
+- Activation re-checks member status, group membership / holder rule and duplicates.
+- `mst_deposit_account` list shows `signatory_count` (active signatories).
+
+---
+
+## 1. DepositSignatoryList
+
+```
+GET /api/DepositSignatoryList
+```
+
+| Query | Type | Required | Description |
+|-------|------|----------|-------------|
+| `page` / `per_page` | int | No | Pagination (default 50, max 200) |
+| `signatory_id` | int | No | Exact id |
+| `account_id` | int | No | Signatories of one account |
+| `cust_id` | int | No | Rows where this member is a signatory |
+| `branch_id` | int | No | Account branch |
+| `is_active` / `status` | bool | No | `1` / `0` |
+| `keyword` / `search` | string | No | Member name, ref code, mobile, account appl no / holder name |
+
+Sorted by account (newest first), active rows first, then in the order added.
+
+```bash
+curl -X GET "http://116.193.129.229:8080/api/DepositSignatoryList?account_id=10&is_active=1" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Accept: application/json"
+```
+
+### Success `200`
+
+```json
+{
+  "success": true,
+  "message": "Signatories retrieved successfully",
+  "data": [
+    {
+      "signatory_id": 2,
+      "account_id": 13,
+      "appl_no": "DA-2026-00003",
+      "holder_name": "FDSA Savings",
+      "account_no": 1,
+      "cust_type_cd": 2,
+      "op_mode_cd": 5,
+      "op_mode_desc": "Authorised Signatory",
+      "branch_id": 2,
+      "account_is_closed": false,
+      "cust_id": 9042,
+      "cust_ref_code": "CUST-2026-0005",
+      "cust_name": "FDSA",
+      "cust_mobile": "9856423513",
+      "signatory_role": "Primary Holder",
+      "sign_file_nm": "sign_9042.png",
+      "photo_file_nm": null,
+      "member_signature_path": null,
+      "member_photo_path": null,
+      "is_active": true,
+      "created_by": 1,
+      "created_by_name": "admin",
+      "created_at": "2026-10-12 12:24:30"
+    }
+  ],
+  "meta": { "total": 1, "page": 1, "per_page": 50, "last_page": 1, "has_more": false }
+}
+```
+
+`signatory_role`: `Primary Holder` / `Joint Holder 1` / `Joint Holder 2` / `Authorised Signatory` for individual accounts; the member's group role (`President`, `Secretary`, `Treasurer`, `Member`) for group accounts.
+
+---
+
+## 2. DepositSignatoryAdd
+
+```
+POST /api/DepositSignatoryAdd
+```
+
+Adds one or more signatories to an account. All are saved together or none are; errors are prefixed with `Signatory N:` when more than one is sent.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `account_id` | int | Yes | Deposit account |
+| `signatories` | array | Yes | 1 – 10 items |
+| `signatories.*.cust_id` | int | Yes | Member id (see *Who can sign*); no repeats in the request |
+| `signatories.*.sign_file_nm` | string | No | Max 75 |
+| `signatories.*.photo_file_nm` | string | No | Max 75 |
+
+```json
+{
+  "account_id": 10,
+  "signatories": [
+    { "cust_id": 9041, "sign_file_nm": "sign_9041.png", "photo_file_nm": "photo_9041.jpg" },
+    { "cust_id": 9042 }
+  ]
+}
+```
+
+### Success `201`
+
+```json
+{
+  "success": true,
+  "message": "2 signatories added successfully",
+  "data": [ { "signatory_id": 1, "...": "list item" }, { "signatory_id": 2, "...": "list item" } ]
+}
+```
+
+---
+
+## 3. DepositSignatoryEdit
+
+```
+POST /api/DepositSignatoryEdit
+```
+
+`signatory_id` (required) plus `sign_file_nm` and/or `photo_file_nm`. Fields left out keep their current value; send `null` to clear.
+
+```json
+{ "signatory_id": 2, "sign_file_nm": "sign_9042_v2.png" }
+```
+
+### Success `200`
+
+Returns the updated signatory row.
+
+---
+
+## 4. DepositSignatoryStatus
+
+```
+POST /api/DepositSignatoryStatus
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `signatory_id` | int | Yes | Signatory id |
+| `is_active` | bool | Yes | `true` / `1` activate, `false` / `0` deactivate |
+
+```json
+{ "signatory_id": 2, "is_active": false }
+```
+
+### Success `200`
+
+Returns the signatory row. Same status again → `200` *Signatory is already active / inactive*. Activation can fail with `422` when the member is inactive, has left the group / is no longer a holder, or is already active on the account.
+
+---
+
+## Errors
+
+| HTTP | When |
+|------|------|
+| `401` | Unauthorized |
+| `404` | Signatory / deposit account / signatory member not found |
+| `422` | Validation; closed account; inactive member; not a member of the account's group; not an account holder (non Authorised Signatory accounts); duplicate active signatory |
+
+---
+
+## 5. Frontend UI/UX Guide
+
+The signatory screen lives inside the deposit account view (see [DepositAccount.md](DepositAccount.md) §6.3), tab **Signatories**.
+
+| Item | Value |
+|------|-------|
+| Entry | Deposits → Deposit Accounts → View account → **Signatories** tab (deep link `/deposits/accounts/{account_id}?tab=signatories`) |
+| APIs | `GET /api/DepositSignatoryList`, `POST /api/DepositSignatoryAdd`, `POST /api/DepositSignatoryEdit`, `POST /api/DepositSignatoryStatus` |
+| Lookups | Group account: `GET /api/MemberGroupList?group_id={cust_id_primary}&is_active=1`. Individual: the account holders; for Authorised Signatory mode `GET /api/MemberList?status_cd=1&keyword=…` |
+
+- Card per signatory: photo (`photo_file_nm`, else `member_photo_path`), name, ref code, mobile, `signatory_role` chip, specimen signature thumbnail (`sign_file_nm`, else `member_signature_path`). Actions ✏ Edit (files) and ⏻ Deactivate.
+- **Add signatory** drawer: member select (filtered as in *Lookups*, excluding active signatories), signature / photo upload fields that store the uploaded file name. "+ Another signatory" adds a block. On `Signatory N: …` highlight block N (nothing was saved).
+- Group accounts: suggest President, Secretary and Treasurer first.
+- When `op_mode_cd = 5` and there is no active signatory, show an amber banner on the account: *Authorised Signatory account has no signatory yet.*
+- Inactive rows under **Show inactive**, muted, with **Activate**. Hide all actions when the account is closed.
+
