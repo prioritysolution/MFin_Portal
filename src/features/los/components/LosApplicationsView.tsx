@@ -1,381 +1,535 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import {
-  Diamond,
-  FileText,
-  Grid2X2,
-  Search,
-  UserPlus,
-  Users,
-  Wallet,
-} from "lucide-react";
-import { DataTable } from "@/components/shared/DataTable";
-import type { DataTableColumn } from "@/components/shared/DataTable";
-import { Badge } from "@/components/ui/Badge";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Eye, Pencil, Plus } from "lucide-react";
+import { useFormatter, useTranslations } from "next-intl";
+import { DataTable, type DataTableColumn } from "@/components/shared/DataTable";
+import { FilterPanel } from "@/components/shared/FilterPanel";
+import { ModulePageShell } from "@/components/shared/ModulePageShell";
+import { Alert } from "@/components/ui/Alert";
+import { Badge, type BadgeTone } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { SelectField, TextField } from "@/components/ui/Form";
+import { Modal } from "@/components/ui/Modal";
+import { PageToast, useToastText } from "@/components/ui/PageToast";
+import { loanModulePage } from "@/features/loan/loan-screen.data";
 import {
-  BulkNeftModal,
-  CollateralPdcModal,
-  GuaranteeMatrixModal,
-  IndividualLoanModal,
-  JlgGroupLoanModal,
-  SanctionKfsModal,
-  type LosLoanApp,
-} from "@/features/los/components/LosModals";
+  LOAN_APPLICATION_STATUSES,
+  listLoanApplications,
+  loanApplicationSeed,
+  type LoanApplication,
+  type LoanApplicationStatus,
+} from "@/features/los/applications/loan-applications.data";
 
-const applications: LosLoanApp[] = [
-  {
-    appNumber: "APP-2026-00120",
-    borrower: "Gita Saha",
-    scheme: "Mahila Krishi & Dairy Loan",
-    applied: 50000,
-    score: 750,
-    risk: "Low Risk",
-    feeGst: 1475,
-    netDisbursal: 48525,
-    status: "Disbursed",
-  },
-  {
-    appNumber: "APP-2026-00119",
-    borrower: "Anjali Chakraborty",
-    scheme: "Gramin Micro Enterprise Loan",
-    applied: 45000,
-    score: 732,
-    risk: "Low Risk",
-    feeGst: 1327.5,
-    netDisbursal: 43672.5,
-    status: "Disbursed",
-  },
-  {
-    appNumber: "APP-2026-00118",
-    borrower: "Aparna Sen",
-    scheme: "Mahila Krishi & Dairy Loan",
-    applied: 40000,
-    score: 718,
-    risk: "Low Risk",
-    feeGst: 1180,
-    netDisbursal: 38820,
-    status: "Disbursed",
-  },
-  {
-    appNumber: "APP-2026-00117",
-    borrower: "Mousumi Ghosh",
-    scheme: "Gramin Micro Enterprise Loan",
-    applied: 35000,
-    score: 705,
-    risk: "Low Risk",
-    feeGst: 1032.5,
-    netDisbursal: 33967.5,
-    status: "Disbursed",
-  },
-  {
-    appNumber: "APP-2026-00116",
-    borrower: "Supriya Mondal",
-    scheme: "Mahila Krishi & Dairy Loan",
-    applied: 40000,
-    score: 745,
-    risk: "Low Risk",
-    feeGst: 1180,
-    netDisbursal: 38820,
-    status: "Disbursed",
-  },
-  {
-    appNumber: "APP-2026-00115",
-    borrower: "Ruma More",
-    scheme: "Gramin Micro Enterprise Loan",
-    applied: 30000,
-    score: 690,
-    risk: "Fair",
-    feeGst: 885,
-    netDisbursal: 29115,
-    status: "Disbursed",
-  },
-  {
-    appNumber: "APP-2026-00114",
-    borrower: "Meena Patil",
-    scheme: "Mahila Krishi & Dairy Loan",
-    applied: 42000,
-    score: 728,
-    risk: "Low Risk",
-    feeGst: 1239,
-    netDisbursal: 40761,
-    status: "Disbursed",
-  },
-  {
-    appNumber: "APP-2026-00113",
-    borrower: "Pooja Gaikwad",
-    scheme: "Gramin Micro Enterprise Loan",
-    applied: 28000,
-    score: 684,
-    risk: "Fair",
-    feeGst: 826,
-    netDisbursal: 27174,
-    status: "Sanctioned",
-  },
-  {
-    appNumber: "APP-2026-00112",
-    borrower: "Aarti Saha",
-    scheme: "Mahila Krishi & Dairy Loan",
-    applied: 38000,
-    score: 710,
-    risk: "Low Risk",
-    feeGst: 1121,
-    netDisbursal: 36879,
-    status: "Disbursed",
-  },
-  {
-    appNumber: "APP-2026-00111",
-    borrower: "Kavita Chakraborty",
-    scheme: "Gramin Micro Enterprise Loan",
-    applied: 32000,
-    score: 698,
-    risk: "Fair",
-    feeGst: 944,
-    netDisbursal: 31056,
-    status: "Under Appraisal",
-  },
-];
+type Filters = {
+  search: string;
+  status: string;
+  scheme: string;
+};
 
-function formatInr(value: number) {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    minimumFractionDigits: 2,
-  }).format(value);
+type FormState = {
+  borrower: string;
+  scheme: string;
+  purpose: string;
+  requestedAmount: string;
+  tenureMonths: string;
+  repayment: string;
+  bankAccount: string;
+  guarantor: string;
+  collateral: string;
+  chargesNote: string;
+};
+
+const emptyFilters: Filters = { search: "", status: "", scheme: "" };
+
+const emptyForm: FormState = {
+  borrower: "",
+  scheme: "",
+  purpose: "",
+  requestedAmount: "",
+  tenureMonths: "",
+  repayment: "",
+  bankAccount: "",
+  guarantor: "",
+  collateral: "",
+  chargesNote: "",
+};
+
+function statusTone(status: LoanApplicationStatus): BadgeTone {
+  if (status === "disbursed") return "success";
+  if (status === "sanctioned") return "info";
+  if (status === "approval" || status === "field_verification") return "warning";
+  if (status === "assessment") return "violet";
+  return "neutral";
 }
 
-type ModalKind =
-  | "collateral"
-  | "sanction"
-  | "bulkNeft"
-  | "guarantee"
-  | "jlg"
-  | "individual"
-  | null;
+function formFrom(row: LoanApplication): FormState {
+  return {
+    borrower: row.borrower,
+    scheme: row.scheme,
+    purpose: row.purpose,
+    requestedAmount: String(row.requestedAmount),
+    tenureMonths: String(row.tenureMonths),
+    repayment: row.repayment,
+    bankAccount: row.bankAccount,
+    guarantor: row.guarantor,
+    collateral: row.collateral,
+    chargesNote: row.chargesNote,
+  };
+}
 
 export function LosApplicationsView() {
-  const [query, setQuery] = useState("");
-  const [activeModal, setActiveModal] = useState<ModalKind>(null);
-  const [selectedApp, setSelectedApp] = useState<LosLoanApp | null>(null);
+  const t = useTranslations("los.applications");
+  const format = useFormatter();
+  const [source, setSource] = useState<LoanApplication[]>(loanApplicationSeed);
+  const [rows, setRows] = useState<LoanApplication[]>([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [filters, setFilters] = useState<Filters>(emptyFilters);
+  const [applied, setApplied] = useState<Filters>(emptyFilters);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [viewing, setViewing] = useState<LoanApplication | null>(null);
+  const [editing, setEditing] = useState<LoanApplication | null | "new">(null);
+  const [form, setForm] = useState<FormState>(emptyForm);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [dirty, setDirty] = useState(false);
+  const [confirmDiscard, setConfirmDiscard] = useState(false);
+  const [successMessage, setSuccessMessage] = useToastText();
+  const pageMeta = useMemo(
+    () => loanModulePage("/los/applications", "los.applications"),
+    [],
+  );
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return applications;
-    return applications.filter(
-      (row) =>
-        row.appNumber.toLowerCase().includes(q) ||
-        row.borrower.toLowerCase().includes(q) ||
-        row.scheme.toLowerCase().includes(q) ||
-        row.status.toLowerCase().includes(q),
-    );
-  }, [query]);
+  const schemes = useMemo(
+    () => [...new Set(source.map((row) => row.scheme))],
+    [source],
+  );
 
-  function openAppModal(kind: "collateral" | "sanction", app: LosLoanApp) {
-    setSelectedApp(app);
-    setActiveModal(kind);
+  const load = useCallback(async () => {
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const result = await listLoanApplications(
+        {
+          page,
+          perPage: pageSize,
+          search: applied.search,
+          status: applied.status,
+          scheme: applied.scheme,
+        },
+        source,
+      );
+      setRows(result.items);
+      setTotal(result.total);
+    } catch {
+      setLoadError(t("loadError"));
+    } finally {
+      setLoading(false);
+    }
+  }, [applied, page, pageSize, source, t]);
+
+  useEffect(() => {
+    const same =
+      filters.search === applied.search &&
+      filters.status === applied.status &&
+      filters.scheme === applied.scheme;
+    if (same) return;
+    const timer = window.setTimeout(() => {
+      setPage(1);
+      setApplied(filters);
+      setSuccessMessage(null);
+    }, 350);
+    return () => window.clearTimeout(timer);
+  }, [applied, filters, setSuccessMessage]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const money = (value: number | null) =>
+    value == null
+      ? t("dash")
+      : format.number(value, { style: "currency", currency: "INR" });
+
+  function patchForm(patch: Partial<FormState>) {
+    setForm((current) => ({ ...current, ...patch }));
+    setDirty(true);
+    setFormError(null);
   }
 
-  const applicationColumns: DataTableColumn<LosLoanApp>[] = [
-    {
-      id: "appNumber",
-      header: "App Number",
-      cell: (row) => (
-        <span className="font-semibold text-slate-900">{row.appNumber}</span>
-      ),
-    },
-    {
-      id: "borrower",
-      header: "Borrower",
-      cell: (row) => (
-        <span className="font-medium text-slate-800">{row.borrower}</span>
-      ),
-    },
-    {
-      id: "scheme",
-      header: "Product Scheme",
-      cell: (row) => row.scheme,
-    },
-    {
-      id: "applied",
-      header: "Applied Amount",
-      align: "end",
-      cell: (row) => (
-        <span className="font-semibold text-slate-900">
-          {formatInr(row.applied)}
-        </span>
-      ),
-    },
-    {
-      id: "score",
-      header: "Bureau Score",
-      align: "center",
-      cell: (row) => (
-        <div className="mx-auto flex h-14 w-14 flex-col items-center justify-center rounded-full bg-emerald-50 text-center">
-          <span className="text-sm font-bold text-emerald-700">{row.score}</span>
-          <span className="text-[9px] font-semibold text-emerald-600">
-            {row.risk}
-          </span>
-        </div>
-      ),
-    },
-    {
-      id: "feeGst",
-      header: "Fee + GST",
-      align: "end",
-      cell: (row) => formatInr(row.feeGst),
-    },
-    {
-      id: "netDisbursal",
-      header: "Net Disbursal",
-      align: "end",
-      cell: (row) => (
-        <span className="font-semibold text-slate-900">
-          {formatInr(row.netDisbursal)}
-        </span>
-      ),
-    },
-    {
-      id: "status",
-      header: "Status",
-      cell: (row) => (
-        <Badge
-          tone={
-            row.status === "Disbursed"
-              ? "success"
-              : row.status === "Sanctioned"
-                ? "info"
-                : "warning"
-          }
-          caps={false}
-        >
-          {row.status}
-        </Badge>
-      ),
-    },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: (row) => (
-        <div className="flex flex-wrap items-center gap-1.5">
-          <Button
-            size="sm"
-            variant="amber"
-            icon={Diamond}
-            onClick={() => openAppModal("collateral", row)}
-          >
-            Collateral & PDCs
-          </Button>
-          <Button
-            size="sm"
-            variant="secondary"
-            icon={FileText}
-            className="border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
-            onClick={() => openAppModal("sanction", row)}
-          >
-            Sanction Letter & KFS
-          </Button>
-        </div>
-      ),
-    },
-  ];
-
-  function closeModal() {
-    setActiveModal(null);
-    setSelectedApp(null);
+  function openCreate() {
+    setEditing("new");
+    setForm(emptyForm);
+    setDirty(false);
+    setFormError(null);
+    setConfirmDiscard(false);
   }
+
+  function openEdit(row: LoanApplication) {
+    setEditing(row);
+    setForm(formFrom(row));
+    setDirty(false);
+    setFormError(null);
+    setConfirmDiscard(false);
+  }
+
+  function requestCloseForm() {
+    if (dirty) {
+      setConfirmDiscard(true);
+      return;
+    }
+    setEditing(null);
+  }
+
+  function saveForm() {
+    const amount = Number(form.requestedAmount);
+    if (!form.borrower.trim() || !form.scheme || !Number.isFinite(amount) || amount <= 0) {
+      setFormError(t("form.required"));
+      return;
+    }
+    const tenure = Number(form.tenureMonths);
+    if (editing && editing !== "new") {
+      setSource((current) =>
+        current.map((row) =>
+          row.id === editing.id
+            ? {
+                ...row,
+                borrower: form.borrower.trim(),
+                scheme: form.scheme,
+                purpose: form.purpose.trim(),
+                requestedAmount: amount,
+                tenureMonths: Number.isFinite(tenure) && tenure > 0 ? tenure : row.tenureMonths,
+                repayment: form.repayment.trim(),
+                bankAccount: form.bankAccount.trim(),
+                guarantor: form.guarantor.trim(),
+                collateral: form.collateral.trim(),
+                chargesNote: form.chargesNote.trim(),
+              }
+            : row,
+        ),
+      );
+      setSuccessMessage(t("saved"));
+    } else {
+      const next: LoanApplication = {
+        id: `local-${Date.now()}`,
+        appNumber: t("draftNumber"),
+        borrower: form.borrower.trim(),
+        scheme: form.scheme,
+        purpose: form.purpose.trim(),
+        tenureMonths: Number.isFinite(tenure) && tenure > 0 ? tenure : 12,
+        repayment: form.repayment.trim(),
+        bankAccount: form.bankAccount.trim(),
+        guarantor: form.guarantor.trim(),
+        collateral: form.collateral.trim(),
+        chargesNote: form.chargesNote.trim(),
+        requestedAmount: amount,
+        sanctionedAmount: null,
+        disbursedAmount: null,
+        principalOutstanding: null,
+        dueAmount: null,
+        collectedAmount: null,
+        totalAmount: null,
+        score: null,
+        risk: null,
+        status: "draft",
+      };
+      setSource((current) => [next, ...current]);
+      setPage(1);
+      setSuccessMessage(t("created"));
+    }
+    setDirty(false);
+    setEditing(null);
+  }
+
+  const columns = useMemo<DataTableColumn<LoanApplication>[]>(
+    () => [
+      {
+        id: "appNumber",
+        header: t("columns.appNumber"),
+        cell: (row) => <span className="font-semibold text-slate-900">{row.appNumber}</span>,
+      },
+      {
+        id: "borrower",
+        header: t("columns.borrower"),
+        cell: (row) => row.borrower,
+      },
+      {
+        id: "scheme",
+        header: t("columns.scheme"),
+        cell: (row) => row.scheme,
+      },
+      {
+        id: "requested",
+        header: t("columns.requested"),
+        align: "end",
+        cell: (row) => money(row.requestedAmount),
+      },
+      {
+        id: "status",
+        header: t("columns.status"),
+        cell: (row) => (
+          <Badge tone={statusTone(row.status)} caps>
+            {t(`statuses.${row.status}`)}
+          </Badge>
+        ),
+      },
+    ],
+    [format, t],
+  );
+
+  const statusOptions = LOAN_APPLICATION_STATUSES.map((status) => ({
+    value: status,
+    label: t(`statuses.${status}`),
+  }));
+  const schemeOptions = schemes.map((scheme) => ({ value: scheme, label: scheme }));
 
   return (
-    <div className="flex min-w-0 flex-col gap-4 sm:gap-5">
-      <div className="flex flex-wrap items-center justify-end gap-2">
-        <Button
-          variant="success"
-          icon={Wallet}
-          onClick={() => setActiveModal("bulkNeft")}
-        >
-          Bulk NEFT Disbursal
-        </Button>
-        <Button
-          variant="violet"
-          icon={Grid2X2}
-          onClick={() => setActiveModal("guarantee")}
-        >
-          Guarantee Matrix
-        </Button>
-        <Button icon={Users} onClick={() => setActiveModal("jlg")}>
-          Apply JLG Group Loan
-        </Button>
-        <Button
-          variant="secondary"
-          icon={UserPlus}
-          className="border-blue-200 text-blue-700 hover:bg-blue-50"
-          onClick={() => setActiveModal("individual")}
-        >
-          Individual App
-        </Button>
-      </div>
+    <ModulePageShell page={pageMeta}>
+      <PageToast message={successMessage} />
 
-      <section className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5">
-        <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-          <div>
-            <h2 className="text-base font-semibold text-slate-900">
-              Active Loan Origination Pipeline
-            </h2>
-            <p className="mt-1 text-sm text-muted">
-              Underwriting status, upfront fee deductions, and one-click
-              sanction committee actions
+      <FilterPanel
+        onReset={() => {
+          setFilters(emptyFilters);
+          setApplied(emptyFilters);
+          setPage(1);
+          setSuccessMessage(null);
+        }}
+      >
+        <div className="min-w-[12rem] sm:max-w-[16rem]">
+          <TextField
+            label={t("filters.search")}
+            value={filters.search}
+            placeholder={t("filters.searchPlaceholder")}
+            onChange={(value) => setFilters((current) => ({ ...current, search: value }))}
+          />
+        </div>
+        <div className="min-w-[10rem] sm:max-w-[14rem]">
+          <SelectField
+            label={t("filters.status")}
+            value={filters.status}
+            searchable={false}
+            placeholder={t("filters.all")}
+            options={[{ value: "", label: t("filters.all") }, ...statusOptions]}
+            onChange={(value) => setFilters((current) => ({ ...current, status: value }))}
+          />
+        </div>
+        <div className="min-w-[10rem] sm:max-w-[14rem]">
+          <SelectField
+            label={t("filters.scheme")}
+            value={filters.scheme}
+            searchable={false}
+            placeholder={t("filters.all")}
+            options={[{ value: "", label: t("filters.all") }, ...schemeOptions]}
+            onChange={(value) => setFilters((current) => ({ ...current, scheme: value }))}
+          />
+        </div>
+      </FilterPanel>
+
+      <DataTable
+        title={t("title")}
+        description={t("description")}
+        actions={
+          <Button type="button" icon={Plus} onClick={openCreate}>
+            {t("create")}
+          </Button>
+        }
+        data={rows}
+        columns={columns}
+        getRowKey={(row) => row.id}
+        loading={loading}
+        error={loadError != null}
+        errorMessage={loadError ?? undefined}
+        onRetry={() => void load()}
+        emptyTitle={t("emptyTitle")}
+        emptyMessage={t("emptyMessage")}
+        minWidth="760px"
+        pagination={{
+          page,
+          pageSize,
+          total,
+          pageSizeOptions: [20, 50, 100],
+          onPageChange: setPage,
+          onPageSizeChange: (size) => {
+            setPageSize(size);
+            setPage(1);
+          },
+        }}
+        rowActions={{
+          header: t("columns.actions"),
+          render: (row) => (
+            <div className="inline-flex items-center gap-1.5">
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                icon={Eye}
+                tooltip={t("view")}
+                onClick={() => setViewing(row)}
+              />
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                icon={Pencil}
+                tooltip={t("edit")}
+                onClick={() => openEdit(row)}
+              />
+            </div>
+          ),
+        }}
+      />
+
+      <Modal
+        open={viewing != null}
+        size="lg"
+        title={viewing?.appNumber ?? t("view")}
+        subtitle={viewing?.borrower}
+        onClose={() => setViewing(null)}
+      >
+        {viewing ? (
+          <div className="flex flex-col gap-4">
+            <Badge tone={statusTone(viewing.status)} caps>
+              {t(`statuses.${viewing.status}`)}
+            </Badge>
+            <section>
+              <h3 className="mb-2 text-sm font-semibold text-slate-900">{t("summary.title")}</h3>
+              <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
+                {(
+                  [
+                    ["requested", viewing.requestedAmount],
+                    ["sanctioned", viewing.sanctionedAmount],
+                    ["disbursed", viewing.disbursedAmount],
+                    ["outstanding", viewing.principalOutstanding],
+                    ["due", viewing.dueAmount],
+                    ["collected", viewing.collectedAmount],
+                    ["total", viewing.totalAmount],
+                  ] as const
+                ).map(([key, value]) => (
+                  <div key={key} className="rounded-xl border border-border bg-background p-3">
+                    <dt className="text-muted">{t(`summary.${key}`)}</dt>
+                    <dd className="mt-1 font-semibold text-slate-900">{money(value)}</dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+            <p className="text-sm text-muted">
+              {viewing.score == null
+                ? t("summary.noScore")
+                : t("summary.score", {
+                    score: viewing.score,
+                    risk: t(`risk.${viewing.risk ?? "fair"}`),
+                  })}
             </p>
           </div>
-          <div className="relative w-full max-w-xs">
-            <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-soft" />
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Filter records..."
-              className="w-full rounded-xl border border-border bg-surface-muted py-2.5 pr-3 pl-9 text-sm outline-none focus:border-brand/40 focus:bg-white focus:ring-4 focus:ring-brand/10"
-            />
+        ) : null}
+      </Modal>
+
+      <Modal
+        open={editing != null}
+        size="lg"
+        title={editing === "new" ? t("form.createTitle") : t("form.editTitle")}
+        onClose={requestCloseForm}
+        footer={
+          <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+            <Button type="button" variant="secondary" onClick={requestCloseForm}>
+              {t("form.cancel")}
+            </Button>
+            <Button type="button" onClick={saveForm}>
+              {t("form.save")}
+            </Button>
           </div>
+        }
+      >
+        {confirmDiscard ? (
+          <Alert tone="warning" className="mb-4">
+            {t("form.unsaved")}
+            <span className="mt-3 flex flex-wrap gap-2">
+              <Button type="button" size="sm" variant="danger" onClick={() => setEditing(null)}>
+                {t("form.discard")}
+              </Button>
+              <Button type="button" size="sm" variant="secondary" onClick={() => setConfirmDiscard(false)}>
+                {t("form.keepEditing")}
+              </Button>
+            </span>
+          </Alert>
+        ) : null}
+        {formError ? (
+          <Alert tone="error" className="mb-4">
+            {formError}
+          </Alert>
+        ) : null}
+        <div className="flex flex-col gap-5">
+          <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 [&>*]:min-w-0">
+            <h3 className="text-sm font-semibold text-slate-900 sm:col-span-2">{t("form.applicant")}</h3>
+            <TextField
+              label={t("form.borrower")}
+              value={form.borrower}
+              required
+              error={formError && !form.borrower.trim() ? formError : undefined}
+              onChange={(value) => patchForm({ borrower: value })}
+            />
+            <TextField
+              label={t("form.purpose")}
+              value={form.purpose}
+              onChange={(value) => patchForm({ purpose: value })}
+            />
+          </section>
+          <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 [&>*]:min-w-0">
+            <h3 className="text-sm font-semibold text-slate-900 sm:col-span-2">{t("form.schemeSection")}</h3>
+            <SelectField
+              label={t("form.scheme")}
+              value={form.scheme}
+              required
+              placeholder={t("form.schemePlaceholder")}
+              options={schemeOptions}
+              onChange={(value) => patchForm({ scheme: value })}
+            />
+            <TextField
+              label={t("form.amount")}
+              value={form.requestedAmount}
+              required
+              restrict="decimal"
+              onChange={(value) => patchForm({ requestedAmount: value })}
+            />
+            <TextField
+              label={t("form.tenure")}
+              value={form.tenureMonths}
+              restrict="digits"
+              onChange={(value) => patchForm({ tenureMonths: value })}
+            />
+            <TextField
+              label={t("form.repayment")}
+              value={form.repayment}
+              onChange={(value) => patchForm({ repayment: value })}
+            />
+          </section>
+          <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 [&>*]:min-w-0">
+            <h3 className="text-sm font-semibold text-slate-900 sm:col-span-2">{t("form.parties")}</h3>
+            <TextField
+              label={t("form.bank")}
+              value={form.bankAccount}
+              onChange={(value) => patchForm({ bankAccount: value })}
+            />
+            <TextField
+              label={t("form.guarantor")}
+              value={form.guarantor}
+              onChange={(value) => patchForm({ guarantor: value })}
+            />
+            <TextField
+              label={t("form.collateral")}
+              value={form.collateral}
+              onChange={(value) => patchForm({ collateral: value })}
+            />
+            <TextField
+              label={t("form.charges")}
+              value={form.chargesNote}
+              onChange={(value) => patchForm({ chargesNote: value })}
+            />
+          </section>
         </div>
-
-        <DataTable
-          data={filtered}
-          columns={applicationColumns}
-          getRowKey={(row) => row.appNumber}
-          minWidth="1180px"
-        />
-
-        <div className="mt-4 flex items-center justify-between border-t border-border pt-3 text-xs text-muted">
-          <p>
-            Showing {filtered.length} of {applications.length} applications
-          </p>
-          <p>Fee + GST auto-calc · Bureau score · Net disbursal</p>
-        </div>
-      </section>
-
-      <CollateralPdcModal
-        open={activeModal === "collateral"}
-        onClose={closeModal}
-        app={selectedApp}
-      />
-      <SanctionKfsModal
-        open={activeModal === "sanction"}
-        onClose={closeModal}
-        app={selectedApp}
-      />
-      <BulkNeftModal
-        open={activeModal === "bulkNeft"}
-        onClose={closeModal}
-        apps={applications}
-      />
-      <GuaranteeMatrixModal
-        open={activeModal === "guarantee"}
-        onClose={closeModal}
-      />
-      <JlgGroupLoanModal open={activeModal === "jlg"} onClose={closeModal} />
-      <IndividualLoanModal
-        open={activeModal === "individual"}
-        onClose={closeModal}
-      />
-    </div>
+      </Modal>
+    </ModulePageShell>
   );
 }

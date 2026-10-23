@@ -14,7 +14,7 @@ export default async function LoginPage() {
   const t = await getTranslations("auth");
 
   return (
-    <AuthShell title={t("signInTitle")} subtitle={t("signInSubtitle")}>
+    <AuthShell title={t("welcomeBack")} subtitle={t("signInSubtitle")}>
       <LoginForm />
     </AuthShell>
   );

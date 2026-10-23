@@ -83,6 +83,7 @@
 html,
 body {
   height: 100%;
+  min-height: 100%;
   max-width: 100%;
   overflow-x: hidden;
 }
@@ -101,8 +102,21 @@ body {
   background: color-mix(in srgb, var(--brand) 25%, white);
 }
 
+.app-shell {
+  position: fixed !important;
+  inset: 0 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  width: 100% !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  overflow: hidden !important;
+}
+
 .app-content {
   width: 100%;
+  min-width: 0;
+  min-height: 0;
   padding: var(--content-gap);
   padding-bottom: calc(var(--content-gap) + env(safe-area-inset-bottom, 0px));
 }
@@ -1026,42 +1040,30 @@ select:disabled,
   gap: 0.5rem;
 }
 
-/* Auth / finance portal */
+/* Auth / finance portal — light split login */
 .auth-shell {
-  background: #eef2f6;
+  background: #d7eefc;
 }
 
-.auth-aside {
-  background:
-    radial-gradient(ellipse 80% 50% at 10% 0%, rgba(22, 163, 74, 0.22), transparent 55%),
-    radial-gradient(ellipse 70% 45% at 95% 85%, rgba(37, 99, 235, 0.2), transparent 50%),
-    linear-gradient(165deg, #07111f 0%, #0c1a2e 48%, #10233a 100%);
+.auth-card {
+  animation: auth-card-in 0.45s ease-out;
 }
 
-.auth-aside-grid {
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
-  background-size: 28px 28px;
-  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.55), transparent 88%);
+@keyframes auth-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.auth-aside-glow {
-  background:
-    radial-gradient(circle at 30% 35%, rgba(52, 211, 153, 0.12), transparent 42%),
-    radial-gradient(circle at 78% 20%, rgba(59, 130, 246, 0.1), transparent 40%);
-}
-
-.auth-main {
-  background:
-    linear-gradient(180deg, #f4f7fa 0%, #eef2f6 100%);
-}
-
-.auth-main-pattern {
-  background-image:
-    radial-gradient(rgba(15, 23, 42, 0.045) 1px, transparent 1px);
-  background-size: 18px 18px;
-  mask-image: radial-gradient(ellipse at center, black 35%, transparent 78%);
+@media (prefers-reduced-motion: reduce) {
+  .auth-card {
+    animation: none;
+  }
 }
 
 .auth-label {
@@ -1286,16 +1288,12 @@ html.dark .auth-shell {
   background: #0b1220;
 }
 
-html.dark .auth-main {
-  background: linear-gradient(180deg, #0f1928 0%, #0b1220 100%);
+html.dark .auth-card {
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  border-color: color-mix(in srgb, white 12%, transparent);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
 }
 
-html.dark .auth-main-pattern {
-  background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-}
-
-html.dark .auth-aside .text-slate-400,
-html.dark .auth-aside .text-slate-300,
 html.dark .bg-brand-dark .text-slate-400,
 html.dark .bg-brand-dark .text-slate-500,
 html.dark .bg-brand-dark .text-slate-300 {

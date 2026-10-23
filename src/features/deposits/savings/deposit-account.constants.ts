@@ -1,0 +1,24 @@
+export const SAVINGS_DEPOSIT_TYPE = 1;
+export const TERM_DEPOSIT_TYPE = 2;
+export const OPT_DEPOSIT_TYPE = 3;
+export const CUST_TYPE_GROUP = 1;
+export const CUST_TYPE_INDIVIDUAL = 2;
+export const OP_MODE_SINGLE = 1;
+export const OP_MODE_JOINTLY = 2;
+export const OP_MODE_EITHER = 3;
+export const OP_MODE_ANY = 4;
+export const OP_MODE_SIGNATORY = 5;
+export const STATUS_ACTIVE = 1;
+export const STATUS_FREEZED = 4;
+export const STATUS_KYC_PENDING = 7;
+export const SPECIAL_NORMAL = 1;
+export const SPECIAL_SENIOR = 2;
+export const SPECIAL_OTHERS = 6;
+
+export const OPT_OP_MODE = 9;
+export const OPT_SPECIAL = 11;
+export const OPT_STATUS = 14;
+export const OPT_CUST_TYPE = 34;
+
+export const GROUP_OP_MODES = [OP_MODE_SINGLE, OP_MODE_SIGNATORY] as const;
+export const GROUP_SPECIAL = [SPECIAL_NORMAL, SPECIAL_OTHERS] as const;

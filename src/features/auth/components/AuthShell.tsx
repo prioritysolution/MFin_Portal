@@ -1,9 +1,13 @@
 "use client";
 
-import type { ReactNode } from "react";
+import type { ComponentType, ReactNode, SVGProps } from "react";
+import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
-import { Building2, Lock, ShieldCheck, Vault } from "lucide-react";
+import { StickyNotePlus } from "lucide-react";
+import { BiSolidCoinStack } from "react-icons/bi";
+import { BsBarChartLineFill } from "react-icons/bs";
+import { FaUserFriends } from "react-icons/fa";
 import { Select } from "@/components/ui/Select";
 import { isAppLocale } from "@/i18n/routing";
 
@@ -14,6 +18,70 @@ type AuthShellProps = {
   wide?: boolean;
 };
 
+type FeatureIcon = ComponentType<
+  SVGProps<SVGSVGElement> & { className?: string; size?: number | string }
+>;
+
+function BrandMark({
+  compact = false,
+  align = "center",
+}: {
+  compact?: boolean;
+  align?: "start" | "center";
+}) {
+  const t = useTranslations("auth");
+
+  return (
+    <Link
+      href="/login"
+      className={`inline-flex items-center ${
+        align === "start" ? "justify-start" : "justify-center"
+      }`}
+    >
+      <Image
+        src="/PrioSuiteLogo.png"
+        alt={t("brandName")}
+        width={compact ? 280 : 460}
+        height={compact ? 78 : 128}
+        priority
+        unoptimized
+        className={`h-auto object-contain ${
+          compact ? "w-[min(100%,280px)]" : "w-[min(100%,460px)]"
+        }`}
+      />
+    </Link>
+  );
+}
+
+function FeatureItem({
+  icon: Icon,
+  label,
+  tone,
+  showDivider,
+}: {
+  icon: FeatureIcon;
+  label: string;
+  tone: string;
+  showDivider?: boolean;
+}) {
+  return (
+    <div
+      className={`flex min-w-0 flex-1 flex-col items-center gap-2.5 px-3 text-center ${
+        showDivider ? "border-e border-[#C5D5E8]/70" : ""
+      }`}
+    >
+      <span
+        className={`flex h-14 w-14 items-center justify-center rounded-2xl ${tone}`}
+      >
+        <Icon className="h-7 w-7" size={28} aria-hidden />
+      </span>
+      <p className="max-w-[5.5rem] text-[12px] font-semibold leading-snug text-[#163A5F]">
+        {label}
+      </p>
+    </div>
+  );
+}
+
 export function AuthShell({
   children,
   title,
@@ -21,105 +89,118 @@ export function AuthShell({
   wide = false,
 }: AuthShellProps) {
   const t = useTranslations("auth");
-  const year = new Date().getFullYear();
 
-  const highlights = [
+  const features = [
     {
-      icon: Vault,
-      title: t("highlightVaultTitle"),
-      body: t("highlightVaultBody"),
+      icon: FaUserFriends,
+      label: t("featureMemberManagement"),
+      tone: "bg-[#DCEBFF] text-[#2B7DE9]",
     },
     {
-      icon: ShieldCheck,
-      title: t("highlightRbacTitle"),
-      body: t("highlightRbacBody"),
+      icon: BiSolidCoinStack,
+      label: t("featureLoanManagement"),
+      tone: "bg-[#D8F5F0] text-[#00A88E]",
     },
     {
-      icon: Building2,
-      title: t("highlightMultiBranchTitle"),
-      body: t("highlightMultiBranchBody"),
+      icon: StickyNotePlus,
+      label: t("featureSavingsDeposits"),
+      tone: "bg-[#EDE4FF] text-[#8B5CF6]",
+    },
+    {
+      icon: BsBarChartLineFill,
+      label: t("featureReportsAnalytics"),
+      tone: "bg-[#DCEBFF] text-[#2B7DE9]",
     },
   ] as const;
 
   return (
-    <div className="auth-shell flex min-h-dvh flex-col lg:flex-row">
-      <aside className="auth-aside relative flex flex-col overflow-hidden px-6 py-8 text-white sm:px-8 lg:w-[46%] lg:justify-between lg:px-11 lg:py-12">
-        <div className="auth-aside-grid pointer-events-none absolute inset-0" aria-hidden />
-        <div className="auth-aside-glow pointer-events-none absolute inset-0" aria-hidden />
+    <div className="auth-shell relative min-h-dvh w-full overflow-hidden ">
+      {/* Full-bleed scenic background — plant + waves sit bottom-left like the mockup */}
+     
+      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+        <Image
+          src="/floginpagebg.png"
+          alt=""
+          fill
+          priority
+          unoptimized
+          quality={100}
+          sizes="100vw"
+          className="select-none object-cover object-left object-bottom"
+        />
+        {/* Soft wash so left copy stays readable without a frosted card */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white/75 via-white/35 to-transparent lg:from-white/55 lg:via-white/15 lg:to-transparent" />
+        <div className="absolute inset-0 bg-white/50 lg:hidden" />
+      </div>
 
-        <div className="relative z-10">
-          <Link href="/login" className="inline-flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-brand text-sm font-bold tracking-tight text-white shadow-[0_8px_24px_rgba(22,163,74,0.35)]">
-              eZ
-            </span>
-            <span>
-              <span className="block text-lg font-semibold tracking-tight">
-                {t("brandName")}
-              </span>
-              <span className="block text-[10px] font-medium uppercase tracking-[0.18em] text-white/55">
-                {t("brandTagline")}
-              </span>
-            </span>
-          </Link>
+      {/* <p className="absolute end-5 top-5 z-20 hidden max-w-60 text-end text-[11px] font-medium leading-snug text-[#6F87A3] lg:end-8 lg:top-6 lg:block xl:end-10">
+        <span className="border-b-2 border-[#00A88E] pb-0.5">
+          {t("empoweringTagline")}
+        </span>
+      </p> */}
 
-          <div className="mt-9 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-medium tracking-wide text-emerald-200/90 backdrop-blur-sm">
-            <Lock className="h-3 w-3" />
-            {t("secureBadge")}
+      <div className="relative z-10 flex min-h-dvh flex-col items-center justify-center gap-8 p-4 sm:p-6 lg:flex-row lg:items-center lg:justify-center lg:gap-4 lg:px-8 xl:gap-6 xl:px-10">
+        {/* Left branding — closer to the login card, slightly higher */}
+        <section className="relative hidden w-full max-w-2xl shrink-0 lg:flex lg:justify-start lg:-translate-y-20 xl:-translate-y-24">
+          <div className="relative z-20 w-full max-w-2xl text-start">
+            {/* left branding */}
+            <BrandMark align="start" />
+            <h1 className="mt-8 text-[32px] font-extrabold leading-[1.2] tracking-tight text-[#163A5F] xl:mt-10 xl:text-[40px]">
+              <span className="block">{t("smarterTools")}</span>
+              <span className="block">
+                {t("forWord")}{" "}
+                <span className="text-[#00A88E]">{t("strongerCommunities")}</span>
+              </span>
+            </h1>
+            <div className="mt-9 flex max-w-2xl items-start xl:mt-11">
+              {features.map((item, index) => (
+                <FeatureItem
+                  key={item.label}
+                  icon={item.icon}
+                  label={item.label}
+                  tone={item.tone}
+                  showDivider={index < features.length - 1}
+                />
+              ))}
+            </div>
           </div>
+        </section>
 
-          <h1 className="mt-5 max-w-md text-[1.75rem] font-semibold tracking-tight text-white sm:text-[2rem] sm:leading-tight">
-            {t("heroTitle")}
-          </h1>
-          <p className="mt-3 max-w-md text-sm leading-6 text-slate-300/90">
-            {t("heroBody")}
-          </p>
+        {/* Right — login card, centered with left panel */}
+        <section className="flex w-full flex-none items-center justify-center lg:w-[min(100%,520px)] xl:w-[560px]">
+          <div
+            className={`auth-card w-full rounded-[22px] border border-white/90 bg-white px-6 py-8 shadow-[0_18px_50px_rgba(22,58,95,0.14)] sm:rounded-3xl sm:px-10 sm:py-10 ${
+              wide ? "max-w-[560px]" : "max-w-[500px]"
+            }`}
+          >
+            {/* login card branding */}
+            <div className="mb-6 flex justify-center sm:mb-7">
+              <BrandMark compact />
+            </div>
 
-          <ul className="mt-9 hidden space-y-3 lg:block">
-            {highlights.map((item) => (
-              <li
-                key={item.title}
-                className="flex gap-3.5 rounded-2xl border border-white/[0.08] bg-white/[0.04] px-4 py-3.5 backdrop-blur-[2px] transition hover:border-white/15 hover:bg-white/[0.06]"
-              >
-                <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand/15 text-emerald-300 ring-1 ring-brand/25">
-                  <item.icon className="h-4 w-4" />
-                </span>
-                <span>
-                  <span className="block text-sm font-semibold text-white">
-                    {item.title}
-                  </span>
-                  <span className="mt-1 block text-xs leading-5 text-slate-400">
-                    {item.body}
-                  </span>
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <p className="relative z-10 mt-8 text-[11px] leading-5 text-white/40 lg:mt-0">
-          {t("footer", { year })}
-        </p>
-      </aside>
-
-      <main className="auth-main relative flex flex-1 flex-col justify-center px-4 py-8 sm:px-8 lg:px-12 lg:py-10">
-        <div className="auth-main-pattern pointer-events-none absolute inset-0" aria-hidden />
-        <div
-          className={`relative z-10 mx-auto w-full ${wide ? "max-w-[540px]" : "max-w-[440px]"}`}
-        >
-          <div className="auth-card overflow-hidden rounded-[1.25rem] border border-slate-200/80 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04),0_20px_48px_-12px_rgba(15,23,42,0.12)]">
-            <div className="border-b border-slate-100 bg-gradient-to-b from-slate-50/80 to-white px-5 py-5 sm:px-7 sm:py-6">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-ink">
-                {t("staffPortal")}
-              </p>
-              <h2 className="mt-1.5 text-xl font-semibold tracking-tight text-slate-900 sm:text-[1.35rem]">
+            <div className="mb-6 text-center sm:mb-7">
+              <h2 className="text-[24px] font-extrabold leading-tight text-[#163A5F] sm:text-[26px]">
                 {title}
               </h2>
-              <p className="mt-1.5 text-sm leading-5 text-slate-500">{subtitle}</p>
+              <p className="mt-2 text-[13px] text-[#7A93B0] sm:text-sm">{subtitle}</p>
             </div>
-            <div className="px-5 py-5 sm:px-7 sm:py-6">{children}</div>
+
+            {children}
+
+            <p className="mt-6 text-center text-[11px] text-[#9AADC2] sm:mt-7 sm:text-xs">
+              {t("poweredByPrefix")}{" "}
+              <a
+                href="https://prioritysolutions.in"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="cursor-pointer font-semibold text-[#1B74D6] transition-colors hover:text-[#0D5FBF]"
+              >
+                {t("poweredByBrand")}
+              </a>
+            </p>
           </div>
-        </div>
-      </main>
+        </section>
+      </div>
     </div>
   );
 }
@@ -134,7 +215,7 @@ const languages = [
   { value: "or", labelKey: "localeOr" },
 ] as const;
 
-export function AuthLanguageSelect() {
+export function AuthLanguageSelect({ hideLabel = false }: { hideLabel?: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
   const locale = useLocale();
@@ -142,13 +223,18 @@ export function AuthLanguageSelect() {
 
   return (
     <div className="auth-field-group block text-sm">
-      <span className="auth-label mb-1.5 block font-medium text-slate-700">
-        {t("language")}
-      </span>
+      {hideLabel ? (
+        <span className="sr-only">{t("language")}</span>
+      ) : (
+        <span className="auth-label mb-1.5 block font-medium text-slate-700">
+          {t("language")}
+        </span>
+      )}
       <Select
         aria-label={t("language")}
         value={locale}
         clearable={false}
+        searchable={false}
         options={languages.map((lang) => ({
           value: lang.value,
           label: t(lang.labelKey),
