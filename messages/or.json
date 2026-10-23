@@ -263,26 +263,51 @@
   "auth": {
     "staffPortal": "ଷ୍ଟାଫ୍ ପୋର୍ଟାଲ୍",
     "signInTitle": "କୋର୍ ବ୍ୟାଙ୍କିଂରେ ସାଇନ୍ ଇନ୍",
-    "signInSubtitle": "ଜାରି ରଖିବାକୁ ଆପଣଙ୍କ ଇଉଜରନେମ୍ ଏବଂ ପାସୱାର୍ଡ ବ୍ୟବହାର କରନ୍ତୁ।",
+    "welcomeBack": "ପୁନର୍ବାର ସ୍ୱାଗତ",
+    "signInSubtitle": "ଜାରି ରଖିବାକୁ ଆପଣଙ୍କ ଆକାଉଣ୍ଟରେ ସାଇନ୍ ଇନ୍ କରନ୍ତୁ",
     "username": "ଇଉଜରନେମ୍",
-    "usernamePlaceholder": "ଇଉଜରନେମ୍",
+    "emailUsername": "ଇଉଜରନେମ୍",
+    "usernamePlaceholder": "ଇମେଲ୍ / ଇଉଜରନେମ୍",
     "password": "ପାସୱାର୍ଡ",
-    "passwordPlaceholder": "ଆପଣଙ୍କ ପାସୱାର୍ଡ ଲେଖନ୍ତୁ",
+    "passwordPlaceholder": "ପାସୱାର୍ଡ",
     "showPassword": "ପାସୱାର୍ଡ ଦେଖାନ୍ତୁ",
     "hidePassword": "ପାସୱାର୍ଡ ଲୁଚାନ୍ତୁ",
     "rememberDevice": "ଏହି ଡିଭାଇସ୍ ମନେ ରଖନ୍ତୁ",
+    "rememberMe": "ମୋତେ ମନେ ରଖନ୍ତୁ",
     "forgotPassword": "ପାସୱାର୍ଡ ଭୁଲିଯାଇଛନ୍ତି?",
     "signIn": "ସାଇନ୍ ଇନ୍",
+    "login": "ଲଗଇନ୍",
     "signingIn": "ସାଇନ୍ ଇନ୍ ହେଉଛି…",
     "newStaffUser": "ନୂଆ ଷ୍ଟାଫ୍ ଉପଯୋଗକର୍ତ୍ତା?",
     "registerAccount": "ଆକାଉଣ୍ଟ ପଞ୍ଜିକରଣ",
     "language": "ଭାଷା",
+    "financialYear": "ଆର୍ଥିକ ବର୍ଷ",
+    "financialYearPlaceholder": "ଆର୍ଥିକ ବର୍ଷ",
     "invalidCredentials": "ଅବୈଧ କ୍ରେଡେନ୍ସିଆଲ୍",
-    "brandName": "eZi-Micro",
-    "brandTagline": "କୋର୍ ବ୍ୟାଙ୍କିଂ ପୋର୍ଟାଲ୍",
+    "brandName": "PrioSuite LTE",
+    "brandTagline": "Microfinance Management Solution",
     "secureBadge": "RBI 2026 · ଏନକ୍ରିପ୍ଟେଡ୍ ଷ୍ଟାଫ୍ ସେସନ୍",
+    "secureLogin": "ସୁରକ୍ଷିତ ଲଗଇନ୍",
+    "empoweringTagline": "ଉନ୍ନତ ଆଗାମୀ ପାଇଁ ମାଇକ୍ରୋଫାଇନାନ୍ସକୁ ଶକ୍ତିଶାଳୀ କରିବା",
+    "smarterTools": "ସ୍ମାର୍ଟ ଟୁଲ୍ସ",
+    "smarterToolsFor": "ସ୍ମାର୍ଟ ଟୁଲ୍ସ",
+    "forWord": "ପାଇଁ",
+    "smarterBanking": "ସ୍ମାର୍ଟର ବ୍ୟାଙ୍କିଂ",
+    "strongerCommunities": "ଶକ୍ତିଶାଳୀ ସମ୍ପ୍ରଦାୟ",
+    "featureMemberManagement": "ସଦସ୍ୟ ପରିଚାଳନା",
+    "featureLoanManagement": "ଋଣ ପରିଚାଳନା",
+    "featureSavingsDeposits": "ସଞ୍ଚୟ ଏବଂ ଜମା",
+    "featureReportsAnalytics": "ରିପୋର୍ଟ ଏବଂ ବିଶ୍ଳେଷଣ",
     "heroTitle": "MFIN କାର୍ଯ୍ୟାବଳୀ ପାଇଁ ସୁରକ୍ଷିତ ଷ୍ଟାଫ୍ ପ୍ରବେଶ",
-    "heroBody": "ଆପଣଙ୍କ କର୍ମଚାରୀ ପରିଚୟ ସହିତ ପ୍ରମାଣୀକରଣ କରନ୍ତୁ। ସେସନ୍ ଅନୁଷ୍ଠାନିକ ସଫ୍ଟୱେର୍ ସମୟ ଏବଂ RBI କୋର୍ ବ୍ୟାଙ୍କିଂ ସୁରକ୍ଷା ନିର୍ଦ୍ଦେଶାବଳୀ ମାନେ।",
+    "heroBody": "ସୁରକ୍ଷିତ କାର୍ଯ୍ୟ, ଦ୍ରୁତ ୱାର୍କଫ୍ଲୋ ଏବଂ ଉନ୍ନତ ସଦସ୍ୟ ସେବା ପାଇଁ ନିର୍ମିତ ଆଧୁନିକ କୋର୍ ବ୍ୟାଙ୍କିଂ ପୋର୍ଟାଲ୍।",
+    "secureReliable": "ସୁରକ୍ଷିତ ଏବଂ ବିଶ୍ୱସ୍ତ",
+    "scalableArchitecture": "ସ୍କେଲେବଲ୍ ଆର୍କିଟେକଚର୍",
+    "fasterOperations": "ଦ୍ରୁତ କାର୍ଯ୍ୟାବଳୀ",
+    "betterMemberService": "ଉନ୍ନତ ସଦସ୍ୟ ସେବା",
+    "illustrationAlt": "ବ୍ୟାଙ୍କିଂ ପୋର୍ଟାଲ୍ ଚିତ୍ରଣ",
+    "poweredBy": "Powered by Priority Solutions",
+    "poweredByPrefix": "Powered by",
+    "poweredByBrand": "Priority Solutions",
     "highlightVaultTitle": "ବ୍ରାଞ୍ଚ ଭଲ୍ଟ ଏବଂ ଡେ କଣ୍ଟ୍ରୋଲ୍",
     "highlightVaultBody": "ଦ୍ୱୈତ ହେଫାଜତ ନଗଦ, ଦିନ ଖୋଲିବା/ବନ୍ଦ, ଏବଂ GL 111000 ମିଳ।",
     "highlightRbacTitle": "ମେକର୍-ଚେକର୍ ଏବଂ RBAC",
@@ -2763,9 +2788,21 @@
         "to": "ପର୍ଯ୍ୟନ୍ତ",
         "all": "ସବୁ"
       },
-      "modes": { "CA": "ନଗଦ", "CQ": "ଚେକ୍", "TR": "ସ୍ଥାନାନ୍ତର", "OL": "ଅନଲାଇନ୍" },
-      "statuses": { "1": "ପୋଷ୍ଟ ହୋଇଛି", "2": "ଅନୁମୋଦନ ଅପେକ୍ଷାରେ", "3": "ପ୍ରତ୍ୟାଖ୍ୟାତ" },
-      "types": { "1": "ଜମା", "2": "ଉଠାଣ" },
+      "modes": {
+        "CA": "ନଗଦ",
+        "CQ": "ଚେକ୍",
+        "TR": "ସ୍ଥାନାନ୍ତର",
+        "OL": "ଅନଲାଇନ୍"
+      },
+      "statuses": {
+        "1": "ପୋଷ୍ଟ ହୋଇଛି",
+        "2": "ଅନୁମୋଦନ ଅପେକ୍ଷାରେ",
+        "3": "ପ୍ରତ୍ୟାଖ୍ୟାତ"
+      },
+      "types": {
+        "1": "ଜମା",
+        "2": "ଉଠାଣ"
+      },
       "table": {
         "transNo": "କାରବାର",
         "account": "ଖାତା",
@@ -2826,6 +2863,267 @@
         "confirmApprove": "ଅନୁମୋଦନ",
         "confirmReject": "ପ୍ରତ୍ୟାଖ୍ୟାନ",
         "cancel": "ବାତିଲ"
+      }
+    }
+  },
+  "los": {
+    "applications": {
+      "title": "ଋଣ ଆବେଦନ",
+      "description": "ଖସଡ଼ାରୁ ବିତରଣ ପର୍ଯ୍ୟନ୍ତ ଆବେଦନ ତିଆରି କରନ୍ତୁ ଏବଂ ଅନୁସରଣ କରନ୍ତୁ।",
+      "create": "ନୂଆ ଆବେଦନ",
+      "view": "ଦେଖନ୍ତୁ",
+      "edit": "ସମ୍ପାଦନା",
+      "dash": "—",
+      "draftNumber": "ଖସଡ଼ା",
+      "saved": "ଆବେଦନ ଅପଡେଟ୍ ହେଲା",
+      "created": "ଆବେଦନ ଖସଡ଼ା ଭାବେ ସେଭ୍ ହେଲା",
+      "loadError": "ଆବେଦନ ଲୋଡ୍ ହେଲା ନାହିଁ",
+      "emptyTitle": "କୌଣସି ଆବେଦନ ନାହିଁ",
+      "emptyMessage": "ଫିଲ୍ଟର ବଦଳାନ୍ତୁ କିମ୍ବା ଏକ ଆବେଦନ ତିଆରି କରନ୍ତୁ।",
+      "filters": {
+        "search": "ଖୋଜନ୍ତୁ",
+        "searchPlaceholder": "ଆବେଦନ ନଂ, ଋଣଗ୍ରହୀତା, ସ୍କିମ",
+        "status": "ସ୍ଥିତି",
+        "scheme": "ସ୍କିମ",
+        "all": "ସବୁ"
+      },
+      "columns": {
+        "appNumber": "ଆବେଦନ",
+        "borrower": "ଋଣଗ୍ରହୀତା",
+        "scheme": "ସ୍କିମ",
+        "requested": "ଅନୁରୋଧିତ",
+        "status": "ସ୍ଥିତି",
+        "actions": "କାମ"
+      },
+      "statuses": {
+        "draft": "ଖସଡ଼ା",
+        "assessment": "ମୂଲ୍ୟାଙ୍କନ",
+        "field_verification": "କ୍ଷେତ୍ର ଯାଞ୍ଚ",
+        "approval": "ଅନୁମୋଦନ",
+        "sanctioned": "ମଞ୍ଜୁର",
+        "disbursed": "ବିତରଣ"
+      },
+      "risk": {
+        "low": "କମ ବିପଦ",
+        "fair": "ମଧ୍ୟମ",
+        "high": "ଅଧିକ ବିପଦ"
+      },
+      "summary": {
+        "title": "ଆର୍ଥିକ ସାରାଂଶ",
+        "requested": "ଅନୁରୋଧିତ",
+        "sanctioned": "ମଞ୍ଜୁର",
+        "disbursed": "ବିତରଣ",
+        "outstanding": "ବକେୟା ମୂଳଧନ",
+        "due": "ଦେୟ",
+        "collected": "ଆଦାୟ",
+        "total": "ମୋଟ",
+        "score": "ବ୍ୟୁରୋ ସ୍କୋର {score} · {risk}",
+        "noScore": "ବ୍ୟୁରୋ ସ୍କୋର ଏଯାଏଁ ନାହିଁ"
+      },
+      "form": {
+        "createTitle": "ନୂଆ ଆବେଦନ",
+        "editTitle": "ଆବେଦନ ସମ୍ପାଦନା",
+        "applicant": "ଆବେଦନକାରୀ",
+        "schemeSection": "ସ୍କିମ, ରାଶି ଏବଂ ପରିଶୋଧ",
+        "parties": "ବ୍ୟାଙ୍କ, ଗ୍ୟାରେଣ୍ଟର, ଜମାନତ ଏବଂ ଚାର୍ଜ",
+        "borrower": "ଋଣଗ୍ରହୀତା",
+        "purpose": "ଉଦ୍ଦେଶ୍ୟ",
+        "scheme": "ସ୍କିମ",
+        "schemePlaceholder": "ସ୍କିମ ବାଛନ୍ତୁ",
+        "amount": "ଅନୁରୋଧିତ ରାଶି",
+        "tenure": "ଅବଧି (ମାସ)",
+        "repayment": "ପରିଶୋଧ",
+        "bank": "ବ୍ୟାଙ୍କ ଖାତା",
+        "guarantor": "ଗ୍ୟାରେଣ୍ଟର",
+        "collateral": "ଜମାନତ",
+        "charges": "ଚାର୍ଜ କିମ୍ବା ମନ୍ତବ୍ୟ",
+        "required": "ଋଣଗ୍ରହୀତା, ସ୍କିମ ଏବଂ ଶୂନ୍ୟଠାରୁ ଅଧିକ ରାଶି ଆବଶ୍ୟକ",
+        "save": "ସେଭ୍",
+        "cancel": "ବାତିଲ",
+        "unsaved": "ଏହି ଆବେଦନରେ ଅସେଭ୍ ପରିବର୍ତ୍ତନ ଅଛି।",
+        "discard": "ବାତିଲ କରନ୍ତୁ",
+        "keepEditing": "ସମ୍ପାଦନା ଜାରି ରଖନ୍ତୁ"
+      }
+    }
+  },
+  "loanModule": {
+    "los": "ଋଣ ଉତ୍ପତ୍ତି",
+    "lms": "ଋଣ ପରିଚାଳନା",
+    "search": "ଖୋଜନ୍ତୁ",
+    "searchPlaceholder": "ଖାତା, ସଦସ୍ୟ, ଆବେଦନ",
+    "actions": "କାମ",
+    "view": "ଦେଖନ୍ତୁ",
+    "edit": "ସମ୍ପାଦନା",
+    "add": "ଯୋଗ",
+    "save": "ସେଭ୍",
+    "cancel": "ବାତିଲ",
+    "dash": "—",
+    "loadError": "ତାଲିକା ଲୋଡ୍ ହେଲା ନାହିଁ",
+    "emptyTitle": "କୌଣସି ଧାଡ଼ି ନାହିଁ",
+    "emptyMessage": "ଖୋଜ ବଦଳାନ୍ତୁ କିମ୍ବା ଏକ ଧାଡ଼ି ଯୋଗ କରନ୍ତୁ।",
+    "required": "ପ୍ରଥମ ଘର ଆବଶ୍ୟକ",
+    "unsaved": "ଏହି ଧାଡ଼ିରେ ଅସେଭ୍ ପରିବର୍ତ୍ତନ ଅଛି।",
+    "discard": "ବାତିଲ କରନ୍ତୁ",
+    "keepEditing": "ସମ୍ପାଦନା ଜାରି ରଖନ୍ତୁ",
+    "saved": "ଧାଡ଼ି ଅପଡେଟ୍ ହେଲା",
+    "created": "ଧାଡ଼ି ଯୋଗ ହେଲା",
+    "showing": "{total} ରୁ {count} ରେକର୍ଡ ଦେଖାଯାଉଛି",
+    "records": "ରେକର୍ଡ",
+    "screens": {
+      "tracking": {
+        "title": "ଆବେଦନ ଟ୍ରାକିଂ",
+        "description": "ଆବେଦନ ଖୋଜନ୍ତୁ ଏବଂ ତାହାର ସ୍ଥିତି ଓ ଦାୟିତ୍ୱ ଦେଖନ୍ତୁ।",
+        "columns": {
+          "appNo": "ଆବେଦନ",
+          "customer": "ଗ୍ରାହକ",
+          "branch": "ଶାଖା",
+          "date": "ତାରିଖ",
+          "owner": "ଦାୟିତ୍ୱ",
+          "status": "ସ୍ଥିତି"
+        }
+      },
+      "creditAssessment": {
+        "title": "କ୍ରେଡିଟ୍ ମୂଲ୍ୟାଙ୍କନ",
+        "description": "ଅନୁରୋଧିତ ରାଶି, ଉଦ୍ଦେଶ୍ୟ ଏବଂ ସୁପାରିଶ ଦେଖନ୍ତୁ।",
+        "columns": {
+          "appNo": "ଆବେଦନ",
+          "borrower": "ଋଣଗ୍ରହୀତା",
+          "requested": "ଅନୁରୋଧିତ",
+          "purpose": "ଉଦ୍ଦେଶ୍ୟ",
+          "recommendation": "ସୁପାରିଶ"
+        }
+      },
+      "fieldVerification": {
+        "title": "କ୍ଷେତ୍ର ଯାଞ୍ଚ",
+        "description": "ଯାଞ୍ଚ ତାରିଖ, ଅଧିକାରୀ, ଫଳ ଏବଂ ସୁପାରିଶିତ ରାଶି।",
+        "columns": {
+          "appNo": "ଆବେଦନ",
+          "inspectionDate": "ଯାଞ୍ଚ ତାରିଖ",
+          "officer": "ଅଧିକାରୀ",
+          "result": "ଫଳ",
+          "recommended": "ସୁପାରିଶ",
+          "notes": "ଟିପ୍ପଣୀ"
+        }
+      },
+      "approval": {
+        "title": "ଅନୁମୋଦନ ଓ ମଞ୍ଜୁରି",
+        "description": "ରେକର୍ଡରୁ ମଞ୍ଜୁର ରାଶି, ହାର, ଅବଧି ଓ ଅନୁମୋଦନକାରୀ।",
+        "columns": {
+          "appNo": "ଆବେଦନ",
+          "borrower": "ଋଣଗ୍ରହୀତା",
+          "sanctionAmount": "ମଞ୍ଜୁର ରାଶି",
+          "rate": "ହାର",
+          "duration": "ଅବଧି",
+          "approver": "ଅନୁମୋଦନକାରୀ",
+          "status": "ସ୍ଥିତି"
+        }
+      },
+      "disbursement": {
+        "title": "ବିତରଣ",
+        "description": "ବିତରଣରେ ଥିବା ମୋଟ, କଟକଣା ଓ ନିଟ୍ ରାଶି।",
+        "columns": {
+          "loanAccount": "ଋଣ ଖାତା",
+          "disbursementNo": "ବିତରଣ ନଂ",
+          "date": "ତାରିଖ",
+          "gross": "ମୋଟ",
+          "deductions": "କଟକଣା",
+          "net": "ନିଟ୍",
+          "mode": "ମାଧ୍ୟମ",
+          "status": "ସ୍ଥିତି"
+        }
+      },
+      "recovery": {
+        "title": "ଋଣ ଆଦାୟ",
+        "description": "ରସିଦରେ ଥିବା ଆଦାୟ ବଣ୍ଟନ ଓ ପରିଶୋଧ ମାଧ୍ୟମ।",
+        "columns": {
+          "loanAccount": "ଋଣ ଖାତା",
+          "member": "ସଦସ୍ୟ",
+          "date": "ତାରିଖ",
+          "principal": "ମୂଳଧନ",
+          "interest": "ସୁଧ",
+          "penalty": "ଜରିମାନା",
+          "collected": "ଆଦାୟ",
+          "mode": "ମାଧ୍ୟମ"
+        }
+      },
+      "advanceCollection": {
+        "title": "ଅଗ୍ରିମ ଆଦାୟ",
+        "description": "ଅଗ୍ରିମ ରାଶି, ତାରିଖ, ମାଧ୍ୟମ ଓ ରସିଦ ସନ୍ଦର୍ଭ।",
+        "columns": {
+          "loanAccount": "ଋଣ ଖାତା",
+          "member": "ସଦସ୍ୟ",
+          "date": "ତାରିଖ",
+          "advance": "ଅଗ୍ରିମ",
+          "mode": "ମାଧ୍ୟମ",
+          "reference": "ସନ୍ଦର୍ଭ",
+          "collector": "ଆଦାୟକାରୀ"
+        }
+      },
+      "overdueRecovery": {
+        "title": "ବକେୟା ଆଦାୟ",
+        "description": "ବକେୟା ତାଲିକା: ଦେୟ ତାରିଖ, ବକେୟା ଦିନ ଓ ରେକର୍ଡ ରାଶି।",
+        "columns": {
+          "loanAccount": "ଋଣ ଖାତା",
+          "member": "ସଦସ୍ୟ",
+          "branch": "ଶାଖା",
+          "dueDate": "ଦେୟ ତାରିଖ",
+          "daysOverdue": "ବକେୟା ଦିନ",
+          "due": "ଦେୟ",
+          "collected": "ଆଦାୟ",
+          "outstanding": "ବକେୟା",
+          "collector": "ଆଦାୟକାରୀ"
+        }
+      },
+      "adjustment": {
+        "title": "ଋଣ ସମନ୍ୱୟ",
+        "description": "ସମନ୍ୱୟ ପ୍ରକାର, ରାଶି, କାର୍ଯ୍ୟକାରୀ ତାରିଖ ଓ କାରଣ।",
+        "columns": {
+          "loanAccount": "ଋଣ ଖାତା",
+          "type": "ପ୍ରକାର",
+          "amount": "ରାଶି",
+          "effectiveDate": "କାର୍ଯ୍ୟକାରୀ ତାରିଖ",
+          "reference": "ସନ୍ଦର୍ଭ",
+          "reason": "କାରଣ"
+        }
+      },
+      "closure": {
+        "title": "ଋଣ ବନ୍ଦ",
+        "description": "ରେକର୍ଡର ବକେୟା ମୂଳଧନ, ବକେୟା ଦେୟ ଓ ପ୍ରସ୍ତାବିତ ନିଷ୍ପତ୍ତି।",
+        "columns": {
+          "loanAccount": "ଋଣ ଖାତା",
+          "member": "ସଦସ୍ୟ",
+          "outstanding": "ବକେୟା ମୂଳଧନ",
+          "pendingDues": "ବକେୟା ଦେୟ",
+          "closureDate": "ବନ୍ଦ ତାରିଖ",
+          "settlement": "ନିଷ୍ପତ୍ତି",
+          "status": "ସ୍ଥିତି"
+        }
+      },
+      "memberLedger": {
+        "title": "ସଦସ୍ୟ ଖାତା",
+        "description": "ଭାଉଚର, ବିବରଣୀ, ଡେବିଟ୍, କ୍ରେଡିଟ୍ ଓ ଚାଲୁ ବାଲାନ୍ସ।",
+        "columns": {
+          "loanAccount": "ଋଣ ଖାତା",
+          "date": "ତାରିଖ",
+          "voucher": "ଭାଉଚର",
+          "narration": "ବିବରଣୀ",
+          "debit": "ଡେବିଟ୍",
+          "credit": "କ୍ରେଡିଟ୍",
+          "balance": "ବାଲାନ୍ସ"
+        }
+      },
+      "amortization": {
+        "title": "କିସ୍ତି ତାଲିକା",
+        "description": "ତାଲିକାରୁ କିସ୍ତି ମୂଳଧନ, ସୁଧ, ମୋଟ ଓ ବକେୟା।",
+        "columns": {
+          "loanAccount": "ଋଣ ଖାତା",
+          "installmentNo": "କିସ୍ତି",
+          "dueDate": "ଦେୟ ତାରିଖ",
+          "principal": "ମୂଳଧନ",
+          "interest": "ସୁଧ",
+          "total": "ମୋଟ",
+          "outstanding": "ବକେୟା"
+        }
       }
     }
   }

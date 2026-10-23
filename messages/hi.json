@@ -263,26 +263,51 @@
   "auth": {
     "staffPortal": "स्टाफ़ पोर्टल",
     "signInTitle": "कोर बैंकिंग में साइन इन करें",
-    "signInSubtitle": "जारी रखने के लिए अपना यूज़रनेम और पासवर्ड उपयोग करें।",
+    "welcomeBack": "वापसी पर स्वागत है",
+    "signInSubtitle": "जारी रखने के लिए अपने खाते में साइन इन करें",
     "username": "यूज़रनेम",
-    "usernamePlaceholder": "यूज़रनेम",
+    "emailUsername": "यूज़रनेम",
+    "usernamePlaceholder": "ईमेल / यूज़रनेम",
     "password": "पासवर्ड",
-    "passwordPlaceholder": "अपना पासवर्ड दर्ज करें",
+    "passwordPlaceholder": "पासवर्ड",
     "showPassword": "पासवर्ड दिखाएँ",
     "hidePassword": "पासवर्ड छिपाएँ",
     "rememberDevice": "इस डिवाइस को याद रखें",
+    "rememberMe": "मुझे याद रखें",
     "forgotPassword": "पासवर्ड भूल गए?",
     "signIn": "साइन इन",
+    "login": "लॉगिन",
     "signingIn": "साइन इन हो रहा है…",
     "newStaffUser": "नए स्टाफ़ उपयोगकर्ता?",
     "registerAccount": "खाता पंजीकृत करें",
     "language": "भाषा",
+    "financialYear": "वित्तीय वर्ष",
+    "financialYearPlaceholder": "वित्तीय वर्ष",
     "invalidCredentials": "अमान्य क्रेडेंशियल",
-    "brandName": "eZi-Micro",
-    "brandTagline": "कोर बैंकिंग पोर्टल",
+    "brandName": "PrioSuite LTE",
+    "brandTagline": "Microfinance Management Solution",
     "secureBadge": "RBI 2026 · एन्क्रिप्टेड स्टाफ़ सत्र",
+    "secureLogin": "सुरक्षित लॉगिन",
+    "empoweringTagline": "बेहतर कल के लिए माइक्रोफ़ाइनेंस को सशक्त बनाना",
+    "smarterTools": "स्मार्ट उपकरण",
+    "smarterToolsFor": "स्मार्ट उपकरण",
+    "forWord": "के लिए",
+    "smarterBanking": "स्मार्ट बैंकिंग",
+    "strongerCommunities": "मज़बूत समुदाय",
+    "featureMemberManagement": "सदस्य प्रबंधन",
+    "featureLoanManagement": "ऋण प्रबंधन",
+    "featureSavingsDeposits": "बचत और जमा",
+    "featureReportsAnalytics": "रिपोर्ट और विश्लेषण",
     "heroTitle": "MFIN संचालन के लिए सुरक्षित स्टाफ़ पहुँच",
-    "heroBody": "अपने कर्मचारी क्रेडेंशियल से प्रमाणित करें। सत्र संस्थागत सॉफ़्टवेयर समय और RBI कोर बैंकिंग सुरक्षा दिशानिर्देशों का पालन करते हैं।",
+    "heroBody": "सुरक्षित संचालन, तेज़ वर्कफ़्लो और बेहतर सदस्य सेवा के लिए बना आधुनिक कोर बैंकिंग पोर्टल।",
+    "secureReliable": "सुरक्षित और विश्वसनीय",
+    "scalableArchitecture": "स्केलेबल आर्किटेक्चर",
+    "fasterOperations": "तेज़ संचालन",
+    "betterMemberService": "बेहतर सदस्य सेवा",
+    "illustrationAlt": "बैंकिंग पोर्टल चित्रण",
+    "poweredBy": "Powered by Priority Solutions",
+    "poweredByPrefix": "Powered by",
+    "poweredByBrand": "Priority Solutions",
     "highlightVaultTitle": "ब्रांच वॉल्ट और डे कंट्रोल",
     "highlightVaultBody": "दोहरी अभिरक्षा नकद, दिन खोलना/बंद करना, और GL 111000 समाधान।",
     "highlightRbacTitle": "मेकर-चेकर और RBAC",
@@ -2763,9 +2788,21 @@
         "to": "तक",
         "all": "सभी"
       },
-      "modes": { "CA": "नकद", "CQ": "चेक", "TR": "ट्रांसफर", "OL": "ऑनलाइन" },
-      "statuses": { "1": "पोस्टेड", "2": "स्वीकृति लंबित", "3": "अस्वीकृत" },
-      "types": { "1": "जमा", "2": "निकासी" },
+      "modes": {
+        "CA": "नकद",
+        "CQ": "चेक",
+        "TR": "ट्रांसफर",
+        "OL": "ऑनलाइन"
+      },
+      "statuses": {
+        "1": "पोस्टेड",
+        "2": "स्वीकृति लंबित",
+        "3": "अस्वीकृत"
+      },
+      "types": {
+        "1": "जमा",
+        "2": "निकासी"
+      },
       "table": {
         "transNo": "लेनदेन",
         "account": "खाता",
@@ -2826,6 +2863,267 @@
         "confirmApprove": "स्वीकृत करें",
         "confirmReject": "अस्वीकार करें",
         "cancel": "रद्द करें"
+      }
+    }
+  },
+  "los": {
+    "applications": {
+      "title": "ऋण आवेदन",
+      "description": "मसौदे से वितरण तक आवेदन बनाएँ और उसका पालन करें।",
+      "create": "नया आवेदन",
+      "view": "देखें",
+      "edit": "संपादित करें",
+      "dash": "—",
+      "draftNumber": "मसौदा",
+      "saved": "आवेदन अपडेट हो गया",
+      "created": "आवेदन मसौदे के रूप में सहेजा गया",
+      "loadError": "आवेदन लोड नहीं हो सके",
+      "emptyTitle": "कोई आवेदन नहीं",
+      "emptyMessage": "फ़िल्टर बदलें या एक आवेदन बनाएँ।",
+      "filters": {
+        "search": "खोजें",
+        "searchPlaceholder": "आवेदन नं, उधारकर्ता, योजना",
+        "status": "स्थिति",
+        "scheme": "योजना",
+        "all": "सभी"
+      },
+      "columns": {
+        "appNumber": "आवेदन",
+        "borrower": "उधारकर्ता",
+        "scheme": "योजना",
+        "requested": "मांगी गई राशि",
+        "status": "स्थिति",
+        "actions": "कार्य"
+      },
+      "statuses": {
+        "draft": "मसौदा",
+        "assessment": "आकलन",
+        "field_verification": "क्षेत्र सत्यापन",
+        "approval": "अनुमोदन",
+        "sanctioned": "स्वीकृत",
+        "disbursed": "वितरित"
+      },
+      "risk": {
+        "low": "कम जोखिम",
+        "fair": "मध्यम",
+        "high": "उच्च जोखिम"
+      },
+      "summary": {
+        "title": "वित्तीय सारांश",
+        "requested": "मांगी गई",
+        "sanctioned": "स्वीकृत",
+        "disbursed": "वितरित",
+        "outstanding": "बकाया मूलधन",
+        "due": "देय",
+        "collected": "वसूली",
+        "total": "कुल",
+        "score": "ब्यूरो स्कोर {score} · {risk}",
+        "noScore": "ब्यूरो स्कोर अभी उपलब्ध नहीं है"
+      },
+      "form": {
+        "createTitle": "नया आवेदन",
+        "editTitle": "आवेदन संपादित करें",
+        "applicant": "आवेदक",
+        "schemeSection": "योजना, राशि और पुनर्भुगतान",
+        "parties": "बैंक, गारंटर, जमानत और शुल्क",
+        "borrower": "उधारकर्ता",
+        "purpose": "उद्देश्य",
+        "scheme": "योजना",
+        "schemePlaceholder": "योजना चुनें",
+        "amount": "मांगी गई राशि",
+        "tenure": "अवधि (महीने)",
+        "repayment": "पुनर्भुगतान",
+        "bank": "बैंक खाता",
+        "guarantor": "गारंटर",
+        "collateral": "जमानत",
+        "charges": "शुल्क या टिप्पणी",
+        "required": "उधारकर्ता, योजना और शून्य से अधिक राशि आवश्यक है",
+        "save": "सहेजें",
+        "cancel": "रद्द करें",
+        "unsaved": "इस आवेदन में बिना सहेजे बदलाव हैं।",
+        "discard": "छोड़ें",
+        "keepEditing": "संपादन जारी रखें"
+      }
+    }
+  },
+  "loanModule": {
+    "los": "ऋण उत्पत्ति",
+    "lms": "ऋण प्रबंधन",
+    "search": "खोजें",
+    "searchPlaceholder": "खाता, सदस्य, आवेदन",
+    "actions": "कार्य",
+    "view": "देखें",
+    "edit": "संपादित करें",
+    "add": "जोड़ें",
+    "save": "सहेजें",
+    "cancel": "रद्द करें",
+    "dash": "—",
+    "loadError": "सूची लोड नहीं हो सकी",
+    "emptyTitle": "कोई पंक्ति नहीं",
+    "emptyMessage": "खोज बदलें या एक पंक्ति जोड़ें।",
+    "required": "पहला फ़ील्ड आवश्यक है",
+    "unsaved": "इस पंक्ति में बिना सहेजे बदलाव हैं।",
+    "discard": "छोड़ें",
+    "keepEditing": "संपादन जारी रखें",
+    "saved": "पंक्ति अपडेट हुई",
+    "created": "पंक्ति जोड़ी गई",
+    "showing": "{total} में से {count} रिकॉर्ड दिखाए जा रहे हैं",
+    "records": "रिकॉर्ड",
+    "screens": {
+      "tracking": {
+        "title": "आवेदन ट्रैकिंग",
+        "description": "आवेदन खोजें और उसकी वर्तमान स्थिति व मालिक देखें।",
+        "columns": {
+          "appNo": "आवेदन",
+          "customer": "ग्राहक",
+          "branch": "शाखा",
+          "date": "तिथि",
+          "owner": "ज़िम्मेदार",
+          "status": "स्थिति"
+        }
+      },
+      "creditAssessment": {
+        "title": "क्रेडिट आकलन",
+        "description": "मांगी गई राशि, उद्देश्य और रिकॉर्ड की सिफारिश देखें।",
+        "columns": {
+          "appNo": "आवेदन",
+          "borrower": "उधारकर्ता",
+          "requested": "मांगी गई",
+          "purpose": "उद्देश्य",
+          "recommendation": "सिफारिश"
+        }
+      },
+      "fieldVerification": {
+        "title": "क्षेत्र सत्यापन",
+        "description": "निरीक्षण तिथि, अधिकारी, परिणाम और सुझाई गई राशि।",
+        "columns": {
+          "appNo": "आवेदन",
+          "inspectionDate": "निरीक्षण तिथि",
+          "officer": "अधिकारी",
+          "result": "परिणाम",
+          "recommended": "सुझाव",
+          "notes": "नोट"
+        }
+      },
+      "approval": {
+        "title": "अनुमोदन और स्वीकृति",
+        "description": "रिकॉर्ड से स्वीकृत राशि, दर, अवधि और अनुमोदक।",
+        "columns": {
+          "appNo": "आवेदन",
+          "borrower": "उधारकर्ता",
+          "sanctionAmount": "स्वीकृत राशि",
+          "rate": "दर",
+          "duration": "अवधि",
+          "approver": "अनुमोदक",
+          "status": "स्थिति"
+        }
+      },
+      "disbursement": {
+        "title": "वितरण",
+        "description": "वितरण पर दर्ज सकल, कटौती और शुद्ध राशि।",
+        "columns": {
+          "loanAccount": "ऋण खाता",
+          "disbursementNo": "वितरण नं",
+          "date": "तिथि",
+          "gross": "सकल",
+          "deductions": "कटौती",
+          "net": "शुद्ध",
+          "mode": "माध्यम",
+          "status": "स्थिति"
+        }
+      },
+      "recovery": {
+        "title": "ऋण वसूली",
+        "description": "रसीद पर दर्ज वसूली का बंटवारा और भुगतान माध्यम।",
+        "columns": {
+          "loanAccount": "ऋण खाता",
+          "member": "सदस्य",
+          "date": "तिथि",
+          "principal": "मूलधन",
+          "interest": "ब्याज",
+          "penalty": "जुर्माना",
+          "collected": "वसूली",
+          "mode": "माध्यम"
+        }
+      },
+      "advanceCollection": {
+        "title": "अग्रिम वसूली",
+        "description": "अग्रिम राशि, तिथि, माध्यम और रसीद संदर्भ।",
+        "columns": {
+          "loanAccount": "ऋण खाता",
+          "member": "सदस्य",
+          "date": "तिथि",
+          "advance": "अग्रिम",
+          "mode": "माध्यम",
+          "reference": "संदर्भ",
+          "collector": "संग्राहक"
+        }
+      },
+      "overdueRecovery": {
+        "title": "अतिदेय वसूली",
+        "description": "अतिदेय सूची: देय तिथि, अतिदेय दिन और रिकॉर्ड की राशियाँ।",
+        "columns": {
+          "loanAccount": "ऋण खाता",
+          "member": "सदस्य",
+          "branch": "शाखा",
+          "dueDate": "देय तिथि",
+          "daysOverdue": "अतिदेय दिन",
+          "due": "देय",
+          "collected": "वसूली",
+          "outstanding": "बकाया",
+          "collector": "संग्राहक"
+        }
+      },
+      "adjustment": {
+        "title": "ऋण समायोजन",
+        "description": "समायोजन प्रकार, राशि, प्रभावी तिथि और कारण।",
+        "columns": {
+          "loanAccount": "ऋण खाता",
+          "type": "प्रकार",
+          "amount": "राशि",
+          "effectiveDate": "प्रभावी तिथि",
+          "reference": "संदर्भ",
+          "reason": "कारण"
+        }
+      },
+      "closure": {
+        "title": "ऋण बंद",
+        "description": "रिकॉर्ड का बकाया मूलधन, लंबित देय और प्रस्तावित निपटान।",
+        "columns": {
+          "loanAccount": "ऋण खाता",
+          "member": "सदस्य",
+          "outstanding": "बकाया मूलधन",
+          "pendingDues": "लंबित देय",
+          "closureDate": "बंद तिथि",
+          "settlement": "निपटान",
+          "status": "स्थिति"
+        }
+      },
+      "memberLedger": {
+        "title": "सदस्य खाता",
+        "description": "वाउचर, विवरण, डेबिट, क्रेडिट और रिकॉर्ड का चालू शेष।",
+        "columns": {
+          "loanAccount": "ऋण खाता",
+          "date": "तिथि",
+          "voucher": "वाउचर",
+          "narration": "विवरण",
+          "debit": "डेबिट",
+          "credit": "क्रेडिट",
+          "balance": "शेष"
+        }
+      },
+      "amortization": {
+        "title": "किस्त अनुसूची",
+        "description": "अनुसूची से किस्त का मूलधन, ब्याज, कुल और बकाया।",
+        "columns": {
+          "loanAccount": "ऋण खाता",
+          "installmentNo": "किस्त",
+          "dueDate": "देय तिथि",
+          "principal": "मूलधन",
+          "interest": "ब्याज",
+          "total": "कुल",
+          "outstanding": "बकाया"
+        }
       }
     }
   }

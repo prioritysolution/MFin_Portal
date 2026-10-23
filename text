@@ -1,202 +1,391 @@
-# DepositSignatory API
 
-### Columns
 
-`Id`, `Account_Id`, `Cust_Id`, `Sign_FileNm`, `Photo_FileNm`, `Is_Active`, `Created_By`, `Created_At`
 
-`Id` is exposed as `signatory_id`, `Cust_Id` (`mst_member.Member_Id`) as `cust_id`, `Sign_FileNm` / `Photo_FileNm` as `sign_file_nm` / `photo_file_nm`.
 
-### Business rules
+"use client";
 
-**Account**
-- The account must exist and be **open** (no `closing_date`). A signatory cannot move to another account.
+import { Form } from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { ClipLoader } from "react-spinners";
+import { useEffect, useState } from "react";
+import {
+  ArrowRight,
+  BarChart3,
+  CalendarDays,
+  Coins,
+  Globe,
+  Landmark,
+  Lock,
+  Mail,
+  ShieldCheck,
+  UserPlus,
+  Users,
+  Zap,
+} from "lucide-react";
+import { IoIosCloudOutline } from "react-icons/io";
+import Link from "next/link";
+import Image from "next/image";
+import DropdownFieldNew from "@/common/formFields/DropdownFieldNew";
+import InputField from "@/common/formFields/InputField";
+import BrandMark from "@/common/BrandMark";
+import { setAppLanguage } from "@/i18n";
+import { useTranslation } from "react-i18next";
 
-**Who can sign**
+const FeatureStripItem = ({ icon: Icon, label ,className}) => (
+  <div className={`flex flex-1 flex-col items-center gap-1.5 text-center ${className}`}>
+    <Icon
+      size={28}
+      className="shrink-0 text-white"
+      strokeWidth={2}
+      style={{ width: 28, height: 28 }}
+    />
+    <p className="text-[12px] font-medium leading-snug text-white/90 xl:text-[13px]">
+      {label}
+    </p>
+  </div>
+);
 
-| Account | Allowed signatory |
-|---------|-------------------|
-| Group (`cust_type_cd = 1`) | An **active member of that group** (`mst_member_group`, e.g. President / Secretary / Treasurer) |
-| Individual (`cust_type_cd = 2`) | An **account holder** (primary / joint 1 / joint 2) |
-| Individual with `op_mode_cd = 5` (Authorised Signatory) | Any active member |
+const Login = ({
+  loading,
+  afterLoginLoading,
+  terminateSessionLoading,
+  form,
+  handleSubmit,
+  financialYear = [],
+  showActiveSessionDialog,
+  setShowActiveSessionDialog,
+  showOtpForm,
+  handleShowOtpForm,
+  otpForm,
+  handleOtpFormSubmit,
+  showResendOtp,
+  handleResendOtp,
+}) => {
+  const { t, i18n } = useTranslation();
+  const [showLoginLoading, setShowLoginLoading] = useState(false);
 
-- The member must be active (`Status_Cd = 1`) when added or re-activated.
-- A member can be an **active** signatory of the same account only once.
+  const languageOptions = [
+    { Id: "en", Option_Value: t("auth.langEnglish") },
+    { Id: "bn", Option_Value: t("auth.langBangla") },
+    { Id: "hi", Option_Value: t("auth.langHindi") },
+    { Id: "or", Option_Value: t("auth.langOdia") },
+  ];
 
-**Files**
-- `sign_file_nm` / `photo_file_nm` (optional, max 75) are the stored file names of the specimen signature / photo. The list also returns the member's own `member_signature_path` / `member_photo_path` so the UI can fall back to them.
-
-**Edit / status**
-- Edit changes only the file names. To change the person, deactivate the signatory and add another one.
-- Activation re-checks member status, group membership / holder rule and duplicates.
-- `mst_deposit_account` list shows `signatory_count` (active signatories).
-
----
-
-## 1. DepositSignatoryList
-
-```
-GET /api/DepositSignatoryList
-```
-
-| Query | Type | Required | Description |
-|-------|------|----------|-------------|
-| `page` / `per_page` | int | No | Pagination (default 50, max 200) |
-| `signatory_id` | int | No | Exact id |
-| `account_id` | int | No | Signatories of one account |
-| `cust_id` | int | No | Rows where this member is a signatory |
-| `branch_id` | int | No | Account branch |
-| `is_active` / `status` | bool | No | `1` / `0` |
-| `keyword` / `search` | string | No | Member name, ref code, mobile, account appl no / holder name |
-
-Sorted by account (newest first), active rows first, then in the order added.
-
-```bash
-curl -X GET "http://116.193.129.229:8080/api/DepositSignatoryList?account_id=10&is_active=1" \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -H "Accept: application/json"
-```
-
-### Success `200`
-
-```json
-{
-  "success": true,
-  "message": "Signatories retrieved successfully",
-  "data": [
-    {
-      "signatory_id": 2,
-      "account_id": 13,
-      "appl_no": "DA-2026-00003",
-      "holder_name": "FDSA Savings",
-      "account_no": 1,
-      "cust_type_cd": 2,
-      "op_mode_cd": 5,
-      "op_mode_desc": "Authorised Signatory",
-      "branch_id": 2,
-      "account_is_closed": false,
-      "cust_id": 9042,
-      "cust_ref_code": "CUST-2026-0005",
-      "cust_name": "FDSA",
-      "cust_mobile": "9856423513",
-      "signatory_role": "Primary Holder",
-      "sign_file_nm": "sign_9042.png",
-      "photo_file_nm": null,
-      "member_signature_path": null,
-      "member_photo_path": null,
-      "is_active": true,
-      "created_by": 1,
-      "created_by_name": "admin",
-      "created_at": "2026-10-12 12:24:30"
+  useEffect(() => {
+    const current = i18n.language?.split("-")[0] || "en";
+    if (form?.getValues?.("language") !== current) {
+      form?.setValue?.("language", current, { shouldDirty: false });
     }
-  ],
-  "meta": { "total": 1, "page": 1, "per_page": 50, "last_page": 1, "has_more": false }
-}
-```
+  }, [i18n.language, form]);
 
-`signatory_role`: `Primary Holder` / `Joint Holder 1` / `Joint Holder 2` / `Authorised Signatory` for individual accounts; the member's group role (`President`, `Secretary`, `Treasurer`, `Member`) for group accounts.
+  useEffect(() => {
+    if (afterLoginLoading && !showLoginLoading) {
+      setShowLoginLoading(true);
+      const timer = setTimeout(() => {
+        setShowLoginLoading(false);
+      }, 5 * 60 * 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [afterLoginLoading, showLoginLoading]);
 
----
+  if (afterLoginLoading || showLoginLoading) {
+    return (
+      <div className="flex h-full min-h-dvh w-full flex-col items-center justify-center gap-4 bg-[#eaf4fc] px-4 sm:gap-6">
+        <BrandMark />
+        <div className="flex items-center gap-3 sm:gap-4">
+          <p className="text-base font-medium tracking-wide text-gray-700 sm:text-lg">
+            {t("auth.loading")}
+          </p>
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            {[0, 1, 2, 3].map((i) => (
+              <span
+                key={i}
+                className="inline-block h-2 w-2 rounded-full bg-[#1B74D6] sm:h-2.5 sm:w-2.5"
+                style={{
+                  animation: "bounce-dot 1.2s ease-in-out infinite",
+                  animationDelay: `${i * 0.2}s`,
+                }}
+              />
+            ))}
+          </div>
+        </div>
+        <style>{`
+          @keyframes bounce-dot {
+            0%, 80%, 100% { opacity: 0.2; transform: scale(0.75); }
+            40% { opacity: 1; transform: scale(1); }
+          }
+        `}</style>
+      </div>
+    );
+  }
 
-## 2. DepositSignatoryAdd
+  return (
+    <div className="relative h-full max-h-full w-full overflow-hidden bg-[#d7eefc]">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <Image
+          src="/floginpagebg.png"
+          alt=""
+          fill
+          priority
+          unoptimized
+          quality={100}
+          sizes="100vw"
+          className="select-none object-cover object-left"
+        />
+        <div className="absolute inset-0 bg-white/25 lg:hidden" />
+      </div>
 
-```
-POST /api/DepositSignatoryAdd
-```
+      <div className="relative z-10 flex h-full max-h-full flex-col overflow-hidden lg:flex-row">
+        <section className="relative hidden h-full min-h-0 flex-1 flex-col overflow-hidden lg:flex">
+         
+         {/* left side content — matches mockup: brand, one-line headline, two-line subtitle */}
+          <div className="relative z-20 shrink-0 px-10 pt-8 xl:px-14 xl:pt-10 2xl:px-16">
+            <BrandMark />
+            <h1 className="mt-7 whitespace-nowrap text-[22px] font-extrabold tracking-tight text-[#163A5F] xl:mt-8 xl:text-[26px] 2xl:text-[28px]">
+              {t("auth.smarterBanking")}
+              <span className="mx-2.5 font-medium text-[#1B74D6]">|</span>
+              {t("auth.strongerCommunities")}
+            </h1>
+            <p className="mt-3 max-w-[460px] text-[13px] leading-[1.55] text-[#6B849E] xl:text-[14px]">
+              {t("auth.subtitle")}
+            </p>
+          </div>
 
-Adds one or more signatories to an account. All are saved together or none are; errors are prefixed with `Signatory N:` when more than one is sent.
+          <div className="relative z-10 flex min-h-0 flex-1 items-center justify-center px-0 py-2">
+            <Image
+              src="/floginpageimg.png"
+              alt={t("auth.illustrationAlt")}
+              width={1536}
+              height={1024}
+              priority
+              unoptimized
+              className="h-auto w-[min(85%,780px)] max-h-[min(520px,55vh)] object-contain"
+            />
+          </div>
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `account_id` | int | Yes | Deposit account |
-| `signatories` | array | Yes | 1 – 10 items |
-| `signatories.*.cust_id` | int | Yes | Member id (see *Who can sign*); no repeats in the request |
-| `signatories.*.sign_file_nm` | string | No | Max 75 |
-| `signatories.*.photo_file_nm` | string | No | Max 75 |
+          {/* Bottom feature strip — solid gradient bar, full width, pinned to bottom */}
+          <div className="relative z-20 mt-auto w-full shrink-0  px-10 py-5 xl:px-14 xl:py-6 2xl:px-16">
+            <div className="mx-auto flex w-full max-w-[720px] items-start justify-between gap-4">
+              <FeatureStripItem icon={ShieldCheck} label={t("auth.secureReliable")}  className="border-r-2 border-r-[#1B74D6]" />
+              <FeatureStripItem icon={IoIosCloudOutline} label={t("auth.scalableArchitecture")}  className="border-r-2 border-r-[#1B74D6]" />
+              <FeatureStripItem icon={Zap} label={t("auth.fasterOperations")}  className="border-r-2 border-r-[#1B74D6]" />
+              <FeatureStripItem icon={Users} label={t("auth.betterMemberService")}  />
+            </div>
+          </div>
+        </section>
 
-```json
-{
-  "account_id": 10,
-  "signatories": [
-    { "cust_id": 9041, "sign_file_nm": "sign_9041.png", "photo_file_nm": "photo_9041.jpg" },
-    { "cust_id": 9042 }
-  ]
-}
-```
+        {/* Right login — fixed, no scroll */}
+        <section className="flex h-full w-full shrink-0 items-center justify-center overflow-hidden p-3 sm:p-5 lg:w-[min(100%,720px)] lg:-ml-16 lg:justify-start lg:pl-2 lg:pr-8 xl:w-[780px] xl:-ml-24 xl:pl-4 xl:pr-10">
+          <div
+            className="flex w-full max-w-[500px] flex-col rounded-2xl border border-white/80 bg-white/95 px-5 py-5 shadow-[0_18px_50px_rgba(22,58,95,0.14)] backdrop-blur-md sm:max-w-[540px] sm:rounded-[28px] sm:px-9 sm:py-7"
+            style={{ animation: "login-card-in 0.45s ease-out" }}
+          >
+            <div className="mb-2 flex items-center justify-end">
+              <span className="inline-flex items-center gap-1 rounded-full bg-[#F3F8FD] px-2 py-0.5 text-[10px] font-medium text-[#6F87A3] sm:text-[11px]">
+                <Lock className="h-3 w-3" />
+                {t("auth.secureLogin")}
+              </span>
+            </div>
 
-### Success `201`
+            <div className="mb-3 flex justify-center sm:mb-4">
+              <BrandMark compact />
+            </div>
 
-```json
-{
-  "success": true,
-  "message": "2 signatories added successfully",
-  "data": [ { "signatory_id": 1, "...": "list item" }, { "signatory_id": 2, "...": "list item" } ]
-}
-```
+            <div className="mb-5 text-center">
+              <h2 className="text-[22px] font-extrabold leading-tight text-[#163A5F] sm:text-[24px]">
+                {t("auth.welcomeBack")}
+              </h2>
+              <p className="mt-1 text-[12px] text-[#7A93B0] sm:text-[13px]">
+                {t("auth.signInSubtitle")}
+              </p>
+            </div>
 
----
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(handleSubmit)}
+                className="flex w-full flex-col gap-2.5 sm:gap-4"
+                autoComplete="off"
+              >
+                <DropdownFieldNew
+                  control={form.control}
+                  name="language"
+                  label={t("auth.language")}
+                  options={languageOptions}
+                  optionValueKey="Id"
+                  optionLabelKey="Option_Value"
+                  disableSorting
+                  startContent={<Globe className="h-4 w-4" />}
+                  onChange={(value) => {
+                    setAppLanguage(value || "en");
+                  }}
+                />
 
-## 3. DepositSignatoryEdit
+                <DropdownFieldNew
+                  control={form.control}
+                  name="year_id"
+                  label={t("auth.financialYear")}
+                  placeholder={t("auth.selectFinancialYearPlaceholder")}
+                  options={financialYear || []}
+                  optionValueKey="Id"
+                  optionLabelKey="Yr"
+                  disabled={!financialYear || financialYear.length === 0}
+                  startContent={<CalendarDays className="h-4 w-4" />}
+                />
 
-```
-POST /api/DepositSignatoryEdit
-```
+                <InputField
+                  control={form.control}
+                  name="email"
+                  label={t("auth.emailUsername")}
+                  placeholder={t("auth.enterEmailUsername")}
+                  autoComplete="username"
+                  autoFocus
+                  startContent={<Mail className="h-4 w-4" />}
+                />
 
-`signatory_id` (required) plus `sign_file_nm` and/or `photo_file_nm`. Fields left out keep their current value; send `null` to clear.
+                <InputField
+                  control={form.control}
+                  name="password"
+                  label={t("auth.password")}
+                  type="password"
+                  placeholder={t("auth.enterPassword")}
+                  autoComplete="current-password"
+                  startContent={<Lock className="h-4 w-4" />}
+                />
 
-```json
-{ "signatory_id": 2, "sign_file_nm": "sign_9042_v2.png" }
-```
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="cursor-pointer mt-2 h-12 w-full rounded-xl bg-linear-to-r from-[#1B74D6] to-[#0D5FBF] text-[14px] font-semibold text-white shadow-lg shadow-blue-600/20 transition-all duration-200 hover:-translate-y-0.5 hover:from-[#1668c2] hover:to-[#0b54ab] hover:shadow-xl active:translate-y-0 disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-70 sm:h-13 sm:text-[15px]"
+                >
+                  {loading ? (
+                    <ClipLoader color="#fff" size={22} speedMultiplier={0.7} />
+                  ) : (
+                    <span className="inline-flex items-center gap-2">
+                      {t("auth.signIn")}
+                      <ArrowRight className="h-4 w-4" />
+                    </span>
+                  )}
+                </Button>
 
-### Success `200`
+                <div className="flex justify-center">
+                  <Link
+                    href="/forgotPassword"
+                    className="text-[12px] font-medium text-[#1B74D6] transition-colors hover:text-[#0D5FBF] hover:underline sm:text-[13px]"
+                  >
+                    {t("auth.forgotPasswordLink")}
+                  </Link>
+                </div>
+              </form>
+            </Form>
 
-Returns the updated signatory row.
+            <div className="mt-5 flex items-center justify-center gap-1.5 border-t border-[#eef3f8] pt-4 text-[10px] text-[#9AADC2] sm:text-[11px]">
+              {/* <Image
+                src="/pristlogo.png"
+                alt=""
+                width={16}
+                height={16}
+                className="h-4 w-4 object-contain"
+              /> */}
+              <Link
+                href="https://prioritysolutions.in"
+                target="_blank"
+                className="text-[#9AADC2] hover:text-[#1B74D6]"
+              >
+                {t("auth.poweredBy")}
+              </Link>
+            </div>
+          </div>
+        </section>
+      </div>
 
----
+      <Dialog
+        open={showActiveSessionDialog}
+        onOpenChange={setShowActiveSessionDialog}
+      >
+        <DialogContent className="w-[calc(100vw-1.5rem)] max-w-[500px] rounded-2xl p-4 sm:rounded-3xl sm:p-8">
+          <div className="flex w-full flex-col gap-4 py-1 sm:gap-5">
+            {!showOtpForm ? (
+              <>
+                <p className="text-center text-base font-semibold text-[#1a2e44] sm:text-lg">
+                  {t("auth.terminateSession")}
+                </p>
+                <div className="flex flex-col-reverse gap-3 sm:flex-row sm:gap-4">
+                  <Button
+                    type="button"
+                    className="h-11 flex-1 rounded-xl bg-linear-to-r from-red-500 to-red-600 font-semibold text-white shadow-md transition-all duration-200 hover:from-red-600 hover:to-red-700 hover:shadow-lg"
+                    onClick={() => setShowActiveSessionDialog(false)}
+                  >
+                    {t("auth.cancel")}
+                  </Button>
+                  <Button
+                    type="button"
+                    className="h-11 flex-1 rounded-xl bg-linear-to-r from-blue-600 to-blue-700 font-semibold text-white shadow-md transition-all duration-200 hover:from-blue-700 hover:to-blue-800 hover:shadow-lg"
+                    onClick={handleShowOtpForm}
+                  >
+                    {t("auth.continue")}
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <Form {...otpForm}>
+                <form
+                  onSubmit={otpForm.handleSubmit(handleOtpFormSubmit)}
+                  className="w-full space-y-4 sm:space-y-5"
+                  autoComplete="off"
+                >
+                  <InputField
+                    control={otpForm.control}
+                    name="otp"
+                    label={t("auth.otp")}
+                    placeholder={t("auth.enterOtp")}
+                    type="number"
+                    maxLength={6}
+                    startContent={
+                      <Lock className="h-4 w-4 text-[#b0bec8]" />
+                    }
+                  />
 
-## 4. DepositSignatoryStatus
+                  {showResendOtp && (
+                    <button
+                      type="button"
+                      onClick={handleResendOtp}
+                      className="text-[13px] font-medium text-[#1B74D6] hover:underline focus:outline-none"
+                    >
+                      {t("auth.resendOtp")}
+                    </button>
+                  )}
 
-```
-POST /api/DepositSignatoryStatus
-```
+                  <Button
+                    type="submit"
+                    disabled={terminateSessionLoading}
+                    className="h-11 w-full rounded-xl bg-linear-to-r from-[#1B74D6] to-[#0D5FBF] text-[14px] font-semibold text-white shadow-lg transition-all duration-200 hover:from-[#1668c2] hover:to-[#0b54ab] disabled:cursor-not-allowed disabled:opacity-70 sm:h-12 sm:text-[15px]"
+                  >
+                    {terminateSessionLoading ? (
+                      <ClipLoader
+                        color="#fff"
+                        size={22}
+                        speedMultiplier={0.7}
+                      />
+                    ) : (
+                      t("auth.submit")
+                    )}
+                  </Button>
+                </form>
+              </Form>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `signatory_id` | int | Yes | Signatory id |
-| `is_active` | bool | Yes | `true` / `1` activate, `false` / `0` deactivate |
+      <style>{`
+        @keyframes login-card-in {
+          from { opacity: 0; transform: translateY(14px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+    </div>
+  );
+};
 
-```json
-{ "signatory_id": 2, "is_active": false }
-```
-
-### Success `200`
-
-Returns the signatory row. Same status again → `200` *Signatory is already active / inactive*. Activation can fail with `422` when the member is inactive, has left the group / is no longer a holder, or is already active on the account.
-
----
-
-## Errors
-
-| HTTP | When |
-|------|------|
-| `401` | Unauthorized |
-| `404` | Signatory / deposit account / signatory member not found |
-| `422` | Validation; closed account; inactive member; not a member of the account's group; not an account holder (non Authorised Signatory accounts); duplicate active signatory |
-
----
-
-## 5. Frontend UI/UX Guide
-
-The signatory screen lives inside the deposit account view (see [DepositAccount.md](DepositAccount.md) §6.3), tab **Signatories**.
-
-| Item | Value |
-|------|-------|
-| Entry | Deposits → Deposit Accounts → View account → **Signatories** tab (deep link `/deposits/accounts/{account_id}?tab=signatories`) |
-| APIs | `GET /api/DepositSignatoryList`, `POST /api/DepositSignatoryAdd`, `POST /api/DepositSignatoryEdit`, `POST /api/DepositSignatoryStatus` |
-| Lookups | Group account: `GET /api/MemberGroupList?group_id={cust_id_primary}&is_active=1`. Individual: the account holders; for Authorised Signatory mode `GET /api/MemberList?status_cd=1&keyword=…` |
-
-- Card per signatory: photo (`photo_file_nm`, else `member_photo_path`), name, ref code, mobile, `signatory_role` chip, specimen signature thumbnail (`sign_file_nm`, else `member_signature_path`). Actions ✏ Edit (files) and ⏻ Deactivate.
-- **Add signatory** drawer: member select (filtered as in *Lookups*, excluding active signatories), signature / photo upload fields that store the uploaded file name. "+ Another signatory" adds a block. On `Signatory N: …` highlight block N (nothing was saved).
-- Group accounts: suggest President, Secretary and Treasurer first.
-- When `op_mode_cd = 5` and there is no active signatory, show an amber banner on the account: *Authorised Signatory account has no signatory yet.*
-- Inactive rows under **Show inactive**, muted, with **Activate**. Hide all actions when the account is closed.
-
+export default Login;

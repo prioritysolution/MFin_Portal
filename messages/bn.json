@@ -263,26 +263,51 @@
   "auth": {
     "staffPortal": "স্টাফ পোর্টাল",
     "signInTitle": "কোর ব্যাংকিং-এ সাইন ইন",
-    "signInSubtitle": "চালিয়ে যেতে আপনার ইউজারনেম এবং পাসওয়ার্ড ব্যবহার করুন।",
+    "welcomeBack": "ফিরে আসার জন্য স্বাগতম",
+    "signInSubtitle": "চালিয়ে যেতে আপনার অ্যাকাউন্টে সাইন ইন করুন",
     "username": "ইউজারনেম",
-    "usernamePlaceholder": "ইউজারনেম",
+    "emailUsername": "ইউজারনেম",
+    "usernamePlaceholder": "ইমেইল / ইউজারনেম",
     "password": "পাসওয়ার্ড",
-    "passwordPlaceholder": "আপনার পাসওয়ার্ড লিখুন",
+    "passwordPlaceholder": "পাসওয়ার্ড",
     "showPassword": "পাসওয়ার্ড দেখান",
     "hidePassword": "পাসওয়ার্ড লুকান",
     "rememberDevice": "এই ডিভাইস মনে রাখুন",
+    "rememberMe": "আমাকে মনে রাখুন",
     "forgotPassword": "পাসওয়ার্ড ভুলে গেছেন?",
     "signIn": "সাইন ইন",
+    "login": "লগইন",
     "signingIn": "সাইন ইন হচ্ছে…",
     "newStaffUser": "নতুন স্টাফ ব্যবহারকারী?",
     "registerAccount": "অ্যাকাউন্ট নিবন্ধন",
     "language": "ভাষা",
+    "financialYear": "অর্থবছর",
+    "financialYearPlaceholder": "অর্থবছর",
     "invalidCredentials": "অবৈধ পরিচয়পত্র",
-    "brandName": "eZi-Micro",
-    "brandTagline": "কোর ব্যাংকিং পোর্টাল",
+    "brandName": "PrioSuite LTE",
+    "brandTagline": "Microfinance Management Solution",
     "secureBadge": "RBI 2026 · এনক্রিপ্টেড স্টাফ সেশন",
+    "secureLogin": "নিরাপদ লগইন",
+    "empoweringTagline": "উন্নত আগামীর জন্য মাইক্রোফাইন্যান্সকে শক্তিশালী করা",
+    "smarterTools": "স্মার্ট টুলস",
+    "smarterToolsFor": "স্মার্ট টুলস",
+    "forWord": "জন্য",
+    "smarterBanking": "স্মার্টার ব্যাংকিং",
+    "strongerCommunities": "শক্তিশালী কমিউনিটি",
+    "featureMemberManagement": "সদস্য ব্যবস্থাপনা",
+    "featureLoanManagement": "ঋণ ব্যবস্থাপনা",
+    "featureSavingsDeposits": "সঞ্চয় ও আমানত",
+    "featureReportsAnalytics": "রিপোর্ট ও অ্যানালিটিক্স",
     "heroTitle": "MFIN অপারেশনে নিরাপদ স্টাফ অ্যাক্সেস",
-    "heroBody": "আপনার কর্মচারী পরিচয়পত্র দিয়ে প্রমাণীকরণ করুন। সেশন প্রতিষ্ঠানের সফটওয়্যার সময়সূচি এবং RBI কোর ব্যাংকিং নিরাপত্তা নির্দেশিকা অনুসরণ করে।",
+    "heroBody": "নিরাপদ অপারেশন, দ্রুত ওয়ার্কফ্লো এবং উন্নত সদস্য সেবার জন্য নির্মিত আধুনিক কোর ব্যাংকিং পোর্টাল।",
+    "secureReliable": "নিরাপদ ও নির্ভরযোগ্য",
+    "scalableArchitecture": "স্কেলেবল আর্কিটেকচার",
+    "fasterOperations": "দ্রুত অপারেশন",
+    "betterMemberService": "উন্নত সদস্য সেবা",
+    "illustrationAlt": "ব্যাংকিং পোর্টাল চিত্রণ",
+    "poweredBy": "Powered by Priority Solutions",
+    "poweredByPrefix": "Powered by",
+    "poweredByBrand": "Priority Solutions",
     "highlightVaultTitle": "ব্রাঞ্চ ভল্ট ও ডে কন্ট্রোল",
     "highlightVaultBody": "দ্বৈত হেফাজত নগদ, দিন খোলা/বন্ধ, এবং GL 111000 মিল।",
     "highlightRbacTitle": "মেকার-চেকার ও RBAC",
@@ -2763,9 +2788,21 @@
         "to": "পর্যন্ত",
         "all": "সব"
       },
-      "modes": { "CA": "নগদ", "CQ": "চেক", "TR": "স্থানান্তর", "OL": "অনলাইন" },
-      "statuses": { "1": "পোস্ট হয়েছে", "2": "অনুমোদনের অপেক্ষায়", "3": "প্রত্যাখ্যাত" },
-      "types": { "1": "জমা", "2": "উত্তোলন" },
+      "modes": {
+        "CA": "নগদ",
+        "CQ": "চেক",
+        "TR": "স্থানান্তর",
+        "OL": "অনলাইন"
+      },
+      "statuses": {
+        "1": "পোস্ট হয়েছে",
+        "2": "অনুমোদনের অপেক্ষায়",
+        "3": "প্রত্যাখ্যাত"
+      },
+      "types": {
+        "1": "জমা",
+        "2": "উত্তোলন"
+      },
       "table": {
         "transNo": "লেনদেন",
         "account": "অ্যাকাউন্ট",
@@ -2826,6 +2863,267 @@
         "confirmApprove": "অনুমোদন",
         "confirmReject": "প্রত্যাখ্যান",
         "cancel": "বাতিল"
+      }
+    }
+  },
+  "los": {
+    "applications": {
+      "title": "ঋণ আবেদন",
+      "description": "খসড়া থেকে বিতরণ পর্যন্ত আবেদন তৈরি ও অনুসরণ করুন।",
+      "create": "নতুন আবেদন",
+      "view": "দেখুন",
+      "edit": "সম্পাদনা",
+      "dash": "—",
+      "draftNumber": "খসড়া",
+      "saved": "আবেদন আপডেট হয়েছে",
+      "created": "আবেদন খসড়া হিসেবে সেভ হয়েছে",
+      "loadError": "আবেদন লোড করা যায়নি",
+      "emptyTitle": "কোনো আবেদন নেই",
+      "emptyMessage": "ফিল্টার বদলান বা একটি আবেদন তৈরি করুন।",
+      "filters": {
+        "search": "খুঁজুন",
+        "searchPlaceholder": "আবেদন নং, ঋণগ্রহীতা, স্কিম",
+        "status": "অবস্থা",
+        "scheme": "স্কিম",
+        "all": "সব"
+      },
+      "columns": {
+        "appNumber": "আবেদন",
+        "borrower": "ঋণগ্রহীতা",
+        "scheme": "স্কিম",
+        "requested": "আবেদিত",
+        "status": "অবস্থা",
+        "actions": "কাজ"
+      },
+      "statuses": {
+        "draft": "খসড়া",
+        "assessment": "মূল্যায়ন",
+        "field_verification": "মাঠ যাচাই",
+        "approval": "অনুমোদন",
+        "sanctioned": "মঞ্জুর",
+        "disbursed": "বিতরণ"
+      },
+      "risk": {
+        "low": "কম ঝুঁকি",
+        "fair": "মাঝারি",
+        "high": "উচ্চ ঝুঁকি"
+      },
+      "summary": {
+        "title": "আর্থিক সারাংশ",
+        "requested": "আবেদিত",
+        "sanctioned": "মঞ্জুর",
+        "disbursed": "বিতরণ",
+        "outstanding": "বকেয়া আসল",
+        "due": "দেয়",
+        "collected": "আদায়",
+        "total": "মোট",
+        "score": "ব্যুরো স্কোর {score} · {risk}",
+        "noScore": "ব্যুরো স্কোর এখনও নেই"
+      },
+      "form": {
+        "createTitle": "নতুন আবেদন",
+        "editTitle": "আবেদন সম্পাদনা",
+        "applicant": "আবেদনকারী",
+        "schemeSection": "স্কিম, পরিমাণ ও পরিশোধ",
+        "parties": "ব্যাংক, জামিনদার, জামানত ও চার্জ",
+        "borrower": "ঋণগ্রহীতা",
+        "purpose": "উদ্দেশ্য",
+        "scheme": "স্কিম",
+        "schemePlaceholder": "স্কিম বেছে নিন",
+        "amount": "আবেদিত পরিমাণ",
+        "tenure": "মেয়াদ (মাস)",
+        "repayment": "পরিশোধ",
+        "bank": "ব্যাংক অ্যাকাউন্ট",
+        "guarantor": "জামিনদার",
+        "collateral": "জামানত",
+        "charges": "চার্জ বা মন্তব্য",
+        "required": "ঋণগ্রহীতা, স্কিম এবং শূন্যের বেশি পরিমাণ দিন",
+        "save": "সেভ",
+        "cancel": "বাতিল",
+        "unsaved": "এই আবেদনে অসেভ পরিবর্তন আছে।",
+        "discard": "বাতিল করুন",
+        "keepEditing": "সম্পাদনা চালিয়ে যান"
+      }
+    }
+  },
+  "loanModule": {
+    "los": "ঋণ উৎপত্তি",
+    "lms": "ঋণ ব্যবস্থাপনা",
+    "search": "খুঁজুন",
+    "searchPlaceholder": "হিসাব, সদস্য, আবেদন",
+    "actions": "কাজ",
+    "view": "দেখুন",
+    "edit": "সম্পাদনা",
+    "add": "যোগ",
+    "save": "সেভ",
+    "cancel": "বাতিল",
+    "dash": "—",
+    "loadError": "তালিকা লোড হয়নি",
+    "emptyTitle": "কোনো সারি নেই",
+    "emptyMessage": "খোঁজ বদলান বা একটি সারি যোগ করুন।",
+    "required": "প্রথম ঘরটি দিন",
+    "unsaved": "এই সারিতে অসেভ পরিবর্তন আছে।",
+    "discard": "বাতিল করুন",
+    "keepEditing": "সম্পাদনা চালিয়ে যান",
+    "saved": "সারি আপডেট হয়েছে",
+    "created": "সারি যোগ হয়েছে",
+    "showing": "{total}টির মধ্যে {count}টি রেকর্ড দেখানো হচ্ছে",
+    "records": "রেকর্ড",
+    "screens": {
+      "tracking": {
+        "title": "আবেদন ট্র্যাকিং",
+        "description": "আবেদন খুঁজে তার বর্তমান অবস্থা ও দায়িত্বপ্রাপ্ত দেখুন।",
+        "columns": {
+          "appNo": "আবেদন",
+          "customer": "গ্রাহক",
+          "branch": "শাখা",
+          "date": "তারিখ",
+          "owner": "দায়িত্ব",
+          "status": "অবস্থা"
+        }
+      },
+      "creditAssessment": {
+        "title": "ক্রেডিট মূল্যায়ন",
+        "description": "আবেদিত পরিমাণ, উদ্দেশ্য এবং রেকর্ডের সুপারিশ দেখুন।",
+        "columns": {
+          "appNo": "আবেদন",
+          "borrower": "ঋণগ্রহীতা",
+          "requested": "আবেদিত",
+          "purpose": "উদ্দেশ্য",
+          "recommendation": "সুপারিশ"
+        }
+      },
+      "fieldVerification": {
+        "title": "মাঠ যাচাই",
+        "description": "পরিদর্শনের তারিখ, কর্মকর্তা, ফল এবং সুপারিশকৃত পরিমাণ।",
+        "columns": {
+          "appNo": "আবেদন",
+          "inspectionDate": "পরিদর্শনের তারিখ",
+          "officer": "কর্মকর্তা",
+          "result": "ফল",
+          "recommended": "সুপারিশ",
+          "notes": "নোট"
+        }
+      },
+      "approval": {
+        "title": "অনুমোদন ও মঞ্জুরি",
+        "description": "রেকর্ড থেকে মঞ্জুর পরিমাণ, হার, মেয়াদ ও অনুমোদনকারী।",
+        "columns": {
+          "appNo": "আবেদন",
+          "borrower": "ঋণগ্রহীতা",
+          "sanctionAmount": "মঞ্জুর পরিমাণ",
+          "rate": "হার",
+          "duration": "মেয়াদ",
+          "approver": "অনুমোদনকারী",
+          "status": "অবস্থা"
+        }
+      },
+      "disbursement": {
+        "title": "বিতরণ",
+        "description": "বিতরণে থাকা মোট, কর্তন ও নিট পরিমাণ।",
+        "columns": {
+          "loanAccount": "ঋণ হিসাব",
+          "disbursementNo": "বিতরণ নং",
+          "date": "তারিখ",
+          "gross": "মোট",
+          "deductions": "কর্তন",
+          "net": "নিট",
+          "mode": "মাধ্যম",
+          "status": "অবস্থা"
+        }
+      },
+      "recovery": {
+        "title": "ঋণ আদায়",
+        "description": "রসিদে থাকা আদায়ের ভাগ ও পরিশোধের মাধ্যম।",
+        "columns": {
+          "loanAccount": "ঋণ হিসাব",
+          "member": "সদস্য",
+          "date": "তারিখ",
+          "principal": "আসল",
+          "interest": "সুদ",
+          "penalty": "জরিমানা",
+          "collected": "আদায়",
+          "mode": "মাধ্যম"
+        }
+      },
+      "advanceCollection": {
+        "title": "অগ্রিম আদায়",
+        "description": "অগ্রিম পরিমাণ, তারিখ, মাধ্যম ও রসিদ রেফারেন্স।",
+        "columns": {
+          "loanAccount": "ঋণ হিসাব",
+          "member": "সদস্য",
+          "date": "তারিখ",
+          "advance": "অগ্রিম",
+          "mode": "মাধ্যম",
+          "reference": "রেফারেন্স",
+          "collector": "আদায়কারী"
+        }
+      },
+      "overdueRecovery": {
+        "title": "বকেয়া আদায়",
+        "description": "বকেয়া তালিকা: দেয় তারিখ, বকেয়া দিন ও রেকর্ডের পরিমাণ।",
+        "columns": {
+          "loanAccount": "ঋণ হিসাব",
+          "member": "সদস্য",
+          "branch": "শাখা",
+          "dueDate": "দেয় তারিখ",
+          "daysOverdue": "বকেয়া দিন",
+          "due": "দেয়",
+          "collected": "আদায়",
+          "outstanding": "বকেয়া",
+          "collector": "আদায়কারী"
+        }
+      },
+      "adjustment": {
+        "title": "ঋণ সমন্বয়",
+        "description": "সমন্বয়ের ধরন, পরিমাণ, কার্যকর তারিখ ও কারণ।",
+        "columns": {
+          "loanAccount": "ঋণ হিসাব",
+          "type": "ধরন",
+          "amount": "পরিমাণ",
+          "effectiveDate": "কার্যকর তারিখ",
+          "reference": "রেফারেন্স",
+          "reason": "কারণ"
+        }
+      },
+      "closure": {
+        "title": "ঋণ বন্ধ",
+        "description": "রেকর্ডের বকেয়া আসল, বকেয়া দেয় ও প্রস্তাবিত নিষ্পত্তি।",
+        "columns": {
+          "loanAccount": "ঋণ হিসাব",
+          "member": "সদস্য",
+          "outstanding": "বকেয়া আসল",
+          "pendingDues": "বকেয়া দেয়",
+          "closureDate": "বন্ধের তারিখ",
+          "settlement": "নিষ্পত্তি",
+          "status": "অবস্থা"
+        }
+      },
+      "memberLedger": {
+        "title": "সদস্য খতিয়ান",
+        "description": "ভাউচার, বিবরণ, ডেবিট, ক্রেডিট ও রেকর্ডের চলতি ব্যালেন্স।",
+        "columns": {
+          "loanAccount": "ঋণ হিসাব",
+          "date": "তারিখ",
+          "voucher": "ভাউচার",
+          "narration": "বিবরণ",
+          "debit": "ডেবিট",
+          "credit": "ক্রেডিট",
+          "balance": "ব্যালেন্স"
+        }
+      },
+      "amortization": {
+        "title": "কিস্তি তালিকা",
+        "description": "তালিকা থেকে কিস্তির আসল, সুদ, মোট ও বকেয়া।",
+        "columns": {
+          "loanAccount": "ঋণ হিসাব",
+          "installmentNo": "কিস্তি",
+          "dueDate": "দেয় তারিখ",
+          "principal": "আসল",
+          "interest": "সুদ",
+          "total": "মোট",
+          "outstanding": "বকেয়া"
+        }
       }
     }
   }

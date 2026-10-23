@@ -103,15 +103,13 @@ export function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      <AuthLanguageSelect />
-
+    <form onSubmit={handleSubmit} className="flex w-full flex-col gap-3.5">
       <TextField
-        label={t("username")}
+        label={t("emailUsername")}
         name="username"
         required
         autoComplete="username"
-        placeholder={t("usernamePlaceholder")}
+        placeholder={t("emailUsername")}
         value={username}
         maxLength={100}
         error={fieldErrors.username}
@@ -130,7 +128,7 @@ export function LoginForm() {
         type={showPassword ? "text" : "password"}
         required
         autoComplete="current-password"
-        placeholder={t("passwordPlaceholder")}
+        placeholder={t("password")}
         value={password}
         maxLength={100}
         error={fieldErrors.password}
@@ -142,7 +140,7 @@ export function LoginForm() {
           <button
             type="button"
             onClick={() => setShowPassword((prev) => !prev)}
-            className="rounded-md p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+            className="cursor-pointer rounded-md p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
             aria-label={showPassword ? t("hidePassword") : t("showPassword")}
           >
             {showPassword ? (
@@ -154,34 +152,45 @@ export function LoginForm() {
         }
       />
 
+      <AuthLanguageSelect />
+
       {error ? (
-        <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+        <p
+          className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700"
+          role="alert"
+        >
           {error}
         </p>
       ) : null}
 
+      <button
+        type="submit"
+        disabled={submitting}
+        className="mt-1 flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#1B74D6] text-[15px] font-semibold text-white shadow-[0_10px_24px_-8px_rgba(27,116,214,0.55)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#1668c2] hover:shadow-lg active:translate-y-0 disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-70"
+      >
+        {submitting ? (
+          t("signingIn")
+        ) : (
+          <>
+            <LogIn className="h-4 w-4" aria-hidden />
+            {t("login")}
+          </>
+        )}
+      </button>
+
       <div className="flex flex-wrap items-center justify-between gap-3 pt-0.5 text-sm">
         <CheckboxField
-          label={t("rememberDevice")}
+          label={t("rememberMe")}
           checked={remember}
           onChange={updateRemember}
         />
         <Link
           href="/forgot-password"
-          className="font-semibold text-blue-600 hover:text-blue-700 hover:underline"
+          className="cursor-pointer font-semibold text-[#1B74D6] transition-colors hover:text-[#0D5FBF] hover:underline"
         >
           {t("forgotPassword")}
         </Link>
       </div>
-
-      <button
-        type="submit"
-        disabled={submitting}
-        className="btn btn-primary mt-1 w-full justify-center gap-2 py-3.5 text-[0.9375rem] shadow-[0_8px_20px_-6px_rgba(37,99,235,0.55)]"
-      >
-        <LogIn className="h-4 w-4" />
-        {submitting ? t("signingIn") : t("signIn")}
-      </button>
     </form>
   );
 }

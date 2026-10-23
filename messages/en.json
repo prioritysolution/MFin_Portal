@@ -263,26 +263,51 @@
   "auth": {
     "staffPortal": "Staff portal",
     "signInTitle": "Sign in to Core Banking",
-    "signInSubtitle": "Use your username and password to continue.",
+    "welcomeBack": "Welcome Back",
+    "signInSubtitle": "Sign in to your account to continue",
     "username": "Username",
-    "usernamePlaceholder": "Username",
+    "emailUsername": "Username",
+    "usernamePlaceholder": "Email / Username",
     "password": "Password",
-    "passwordPlaceholder": "Enter your password",
+    "passwordPlaceholder": "Password",
     "showPassword": "Show password",
     "hidePassword": "Hide password",
     "rememberDevice": "Remember this device",
-    "forgotPassword": "Forgot password?",
+    "rememberMe": "Remember Me",
+    "forgotPassword": "Forgot Password?",
     "signIn": "Sign In",
+    "login": "Login",
     "signingIn": "Signing in…",
     "newStaffUser": "New staff user?",
     "registerAccount": "Register account",
     "language": "Language",
+    "financialYear": "Financial Year",
+    "financialYearPlaceholder": "Financial Year",
     "invalidCredentials": "Invalid credentials",
-    "brandName": "eZi-Micro",
-    "brandTagline": "Core Banking Portal",
+    "brandName": "PrioSuite LTE",
+    "brandTagline": "Microfinance Management Solution",
     "secureBadge": "RBI 2026 · Encrypted staff session",
+    "secureLogin": "Secure login",
+    "empoweringTagline": "Empowering Microfinance for a Better Tomorrow",
+    "smarterTools": "Smarter Tools",
+    "smarterToolsFor": "Smarter Tools for",
+    "forWord": "for",
+    "smarterBanking": "Smarter Banking",
+    "strongerCommunities": "Stronger Communities",
+    "featureMemberManagement": "Member Management",
+    "featureLoanManagement": "Loan Management",
+    "featureSavingsDeposits": "Savings & Deposits",
+    "featureReportsAnalytics": "Reports & Analytics",
     "heroTitle": "Secure staff access to MFIN operations",
-    "heroBody": "Authenticate with your employee credentials. Sessions respect institutional software timings and RBI Core Banking Security Guidelines.",
+    "heroBody": "A modern core banking portal built for secure operations, faster workflows, and better member service.",
+    "secureReliable": "Secure & Reliable",
+    "scalableArchitecture": "Scalable Architecture",
+    "fasterOperations": "Faster Operations",
+    "betterMemberService": "Better Member Service",
+    "illustrationAlt": "Banking portal illustration",
+    "poweredBy": "Powered by Priority Solutions",
+    "poweredByPrefix": "Powered by",
+    "poweredByBrand": "Priority Solutions",
     "highlightVaultTitle": "Branch Vault & Day Controls",
     "highlightVaultBody": "Dual-custody cash, day open/close, and GL 111000 reconciliation.",
     "highlightRbacTitle": "Maker-Checker & RBAC",
@@ -2838,6 +2863,267 @@
         "confirmApprove": "Approve",
         "confirmReject": "Reject",
         "cancel": "Cancel"
+      }
+    }
+  },
+  "los": {
+    "applications": {
+      "title": "Loan applications",
+      "description": "Create and follow an application from draft through disbursement.",
+      "create": "New application",
+      "view": "View",
+      "edit": "Edit",
+      "dash": "—",
+      "draftNumber": "Draft",
+      "saved": "Application updated",
+      "created": "Application saved as a draft",
+      "loadError": "Applications could not be loaded",
+      "emptyTitle": "No applications",
+      "emptyMessage": "Change the filters or create an application.",
+      "filters": {
+        "search": "Search",
+        "searchPlaceholder": "Application no, borrower, scheme",
+        "status": "Status",
+        "scheme": "Scheme",
+        "all": "All"
+      },
+      "columns": {
+        "appNumber": "Application",
+        "borrower": "Borrower",
+        "scheme": "Scheme",
+        "requested": "Requested",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "statuses": {
+        "draft": "Draft",
+        "assessment": "Assessment",
+        "field_verification": "Field verification",
+        "approval": "Approval",
+        "sanctioned": "Sanctioned",
+        "disbursed": "Disbursed"
+      },
+      "risk": {
+        "low": "Low risk",
+        "fair": "Fair",
+        "high": "High risk"
+      },
+      "summary": {
+        "title": "Financial summary",
+        "requested": "Requested",
+        "sanctioned": "Sanctioned",
+        "disbursed": "Disbursed",
+        "outstanding": "Principal outstanding",
+        "due": "Due",
+        "collected": "Collected",
+        "total": "Total",
+        "score": "Bureau score {score} · {risk}",
+        "noScore": "Bureau score is not available yet"
+      },
+      "form": {
+        "createTitle": "New application",
+        "editTitle": "Edit application",
+        "applicant": "Applicant",
+        "schemeSection": "Scheme, amount and repayment",
+        "parties": "Bank, guarantor, collateral and charges",
+        "borrower": "Borrower",
+        "purpose": "Purpose",
+        "scheme": "Scheme",
+        "schemePlaceholder": "Choose a scheme",
+        "amount": "Requested amount",
+        "tenure": "Tenure (months)",
+        "repayment": "Repayment",
+        "bank": "Bank account",
+        "guarantor": "Guarantor",
+        "collateral": "Collateral",
+        "charges": "Charges or remark",
+        "required": "Borrower, scheme and an amount greater than zero are required",
+        "save": "Save",
+        "cancel": "Cancel",
+        "unsaved": "This application has unsaved changes.",
+        "discard": "Discard",
+        "keepEditing": "Keep editing"
+      }
+    }
+  },
+  "loanModule": {
+    "los": "Loan origination",
+    "lms": "Loan management",
+    "search": "Search",
+    "searchPlaceholder": "Account, member, application",
+    "actions": "Actions",
+    "view": "View",
+    "edit": "Edit",
+    "add": "Add",
+    "save": "Save",
+    "cancel": "Cancel",
+    "dash": "—",
+    "loadError": "The list could not be loaded",
+    "emptyTitle": "No rows",
+    "emptyMessage": "Change the search or add a row.",
+    "required": "The first field is required",
+    "unsaved": "This row has unsaved changes.",
+    "discard": "Discard",
+    "keepEditing": "Keep editing",
+    "saved": "Row updated",
+    "created": "Row added",
+    "showing": "Showing {count} of {total} records",
+    "records": "records",
+    "screens": {
+      "tracking": {
+        "title": "Application tracking",
+        "description": "Search an application and see its current status and owner.",
+        "columns": {
+          "appNo": "Application",
+          "customer": "Customer",
+          "branch": "Branch",
+          "date": "Date",
+          "owner": "Owner",
+          "status": "Status"
+        }
+      },
+      "creditAssessment": {
+        "title": "Credit assessment",
+        "description": "Review requested amount, purpose and the recommendation on the record.",
+        "columns": {
+          "appNo": "Application",
+          "borrower": "Borrower",
+          "requested": "Requested",
+          "purpose": "Purpose",
+          "recommendation": "Recommendation"
+        }
+      },
+      "fieldVerification": {
+        "title": "Field verification",
+        "description": "Inspection date, officer, result and recommended amount.",
+        "columns": {
+          "appNo": "Application",
+          "inspectionDate": "Inspection date",
+          "officer": "Officer",
+          "result": "Result",
+          "recommended": "Recommended",
+          "notes": "Notes"
+        }
+      },
+      "approval": {
+        "title": "Approval and sanction",
+        "description": "Sanction amount, rate, duration and approver from the record.",
+        "columns": {
+          "appNo": "Application",
+          "borrower": "Borrower",
+          "sanctionAmount": "Sanction amount",
+          "rate": "Rate",
+          "duration": "Duration",
+          "approver": "Approver",
+          "status": "Status"
+        }
+      },
+      "disbursement": {
+        "title": "Disbursement",
+        "description": "Gross, deductions and net amount stored on the disbursement.",
+        "columns": {
+          "loanAccount": "Loan account",
+          "disbursementNo": "Disbursement no",
+          "date": "Date",
+          "gross": "Gross",
+          "deductions": "Deductions",
+          "net": "Net",
+          "mode": "Mode",
+          "status": "Status"
+        }
+      },
+      "recovery": {
+        "title": "Loan recovery",
+        "description": "Collection split and payment mode as stored on the receipt.",
+        "columns": {
+          "loanAccount": "Loan account",
+          "member": "Member",
+          "date": "Date",
+          "principal": "Principal",
+          "interest": "Interest",
+          "penalty": "Penalty",
+          "collected": "Collected",
+          "mode": "Mode"
+        }
+      },
+      "advanceCollection": {
+        "title": "Advance collection",
+        "description": "Advance amount, date, mode and receipt reference.",
+        "columns": {
+          "loanAccount": "Loan account",
+          "member": "Member",
+          "date": "Date",
+          "advance": "Advance",
+          "mode": "Mode",
+          "reference": "Reference",
+          "collector": "Collector"
+        }
+      },
+      "overdueRecovery": {
+        "title": "Overdue recovery",
+        "description": "Overdue list with due date, days overdue and amounts from the record.",
+        "columns": {
+          "loanAccount": "Loan account",
+          "member": "Member",
+          "branch": "Branch",
+          "dueDate": "Due date",
+          "daysOverdue": "Days overdue",
+          "due": "Due",
+          "collected": "Collected",
+          "outstanding": "Outstanding",
+          "collector": "Collector"
+        }
+      },
+      "adjustment": {
+        "title": "Loan adjustment",
+        "description": "Adjustment type, amount, effective date and reason.",
+        "columns": {
+          "loanAccount": "Loan account",
+          "type": "Type",
+          "amount": "Amount",
+          "effectiveDate": "Effective date",
+          "reference": "Reference",
+          "reason": "Reason"
+        }
+      },
+      "closure": {
+        "title": "Loan closure",
+        "description": "Outstanding, pending dues and proposed settlement from the record.",
+        "columns": {
+          "loanAccount": "Loan account",
+          "member": "Member",
+          "outstanding": "Outstanding",
+          "pendingDues": "Pending dues",
+          "closureDate": "Closure date",
+          "settlement": "Settlement",
+          "status": "Status"
+        }
+      },
+      "memberLedger": {
+        "title": "Member ledger",
+        "description": "Voucher, narration, debit, credit and running balance from the record.",
+        "columns": {
+          "loanAccount": "Loan account",
+          "date": "Date",
+          "voucher": "Voucher",
+          "narration": "Narration",
+          "debit": "Debit",
+          "credit": "Credit",
+          "balance": "Balance"
+        }
+      },
+      "amortization": {
+        "title": "Amortization schedule",
+        "description": "Installment principal, interest, total and outstanding from the schedule.",
+        "columns": {
+          "loanAccount": "Loan account",
+          "installmentNo": "Installment",
+          "dueDate": "Due date",
+          "principal": "Principal",
+          "interest": "Interest",
+          "total": "Total",
+          "outstanding": "Outstanding"
+        }
       }
     }
   }

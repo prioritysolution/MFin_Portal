@@ -32,7 +32,8 @@ export type ModuleId =
   | "security.loginSettings"
   | "onboarding.groupManagement"
   | "onboarding.groupMemberMapping"
-  | "onboarding.customerKyc";
+  | "onboarding.customerKyc"
+  | "loan.module";
 
 export type ModulePageMeta = {
   /** Stable module id used for registry / analytics. */
