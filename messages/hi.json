@@ -2882,12 +2882,16 @@
       "emptyMessage": "फ़िल्टर बदलें या एक आवेदन बनाएँ।",
       "filters": {
         "search": "खोजें",
-        "searchPlaceholder": "आवेदन नं, उधारकर्ता, योजना",
+        "searchPlaceholder": "खाता, आवेदन, उधारकर्ता, योजना",
         "status": "स्थिति",
         "scheme": "योजना",
-        "all": "सभी"
+        "all": "सभी",
+        "active": "सक्रिय",
+        "closed": "बंद",
+        "writtenOff": "राइट ऑफ"
       },
       "columns": {
+        "account": "खाता",
         "appNumber": "आवेदन",
         "borrower": "उधारकर्ता",
         "scheme": "योजना",
@@ -2919,6 +2923,10 @@
         "total": "कुल",
         "score": "ब्यूरो स्कोर {score} · {risk}",
         "noScore": "ब्यूरो स्कोर अभी उपलब्ध नहीं है"
+      },
+      "detail": {
+        "loanDate": "ऋण तिथि",
+        "rate": "ब्याज दर"
       },
       "form": {
         "createTitle": "नया आवेदन",

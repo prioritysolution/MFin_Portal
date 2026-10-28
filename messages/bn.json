@@ -2882,12 +2882,16 @@
       "emptyMessage": "ফিল্টার বদলান বা একটি আবেদন তৈরি করুন।",
       "filters": {
         "search": "খুঁজুন",
-        "searchPlaceholder": "আবেদন নং, ঋণগ্রহীতা, স্কিম",
+        "searchPlaceholder": "হিসাব, আবেদন, ঋণগ্রহীতা, স্কিম",
         "status": "অবস্থা",
         "scheme": "স্কিম",
-        "all": "সব"
+        "all": "সব",
+        "active": "সক্রিয়",
+        "closed": "বন্ধ",
+        "writtenOff": "রাইট অফ"
       },
       "columns": {
+        "account": "হিসাব",
         "appNumber": "আবেদন",
         "borrower": "ঋণগ্রহীতা",
         "scheme": "স্কিম",
@@ -2919,6 +2923,10 @@
         "total": "মোট",
         "score": "ব্যুরো স্কোর {score} · {risk}",
         "noScore": "ব্যুরো স্কোর এখনও নেই"
+      },
+      "detail": {
+        "loanDate": "ঋণের তারিখ",
+        "rate": "সুদের হার"
       },
       "form": {
         "createTitle": "নতুন আবেদন",

@@ -2882,12 +2882,16 @@
       "emptyMessage": "Change the filters or create an application.",
       "filters": {
         "search": "Search",
-        "searchPlaceholder": "Application no, borrower, scheme",
+        "searchPlaceholder": "Account, application, borrower, scheme",
         "status": "Status",
         "scheme": "Scheme",
-        "all": "All"
+        "all": "All",
+        "active": "Active",
+        "closed": "Closed",
+        "writtenOff": "Written off"
       },
       "columns": {
+        "account": "Account",
         "appNumber": "Application",
         "borrower": "Borrower",
         "scheme": "Scheme",
@@ -2919,6 +2923,10 @@
         "total": "Total",
         "score": "Bureau score {score} · {risk}",
         "noScore": "Bureau score is not available yet"
+      },
+      "detail": {
+        "loanDate": "Loan date",
+        "rate": "Interest rate"
       },
       "form": {
         "createTitle": "New application",
