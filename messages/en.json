@@ -2502,6 +2502,211 @@
       "searchPlaceholder": "Search a place",
       "searching": "Searching…",
       "noSearchResults": "No matching place in India"
+    },
+    "shareSubscription": {
+      "title": "Share Subscription",
+      "description": "Allot shares to a member or group, and approve pending subscriptions.",
+      "custTypes": {
+        "1": "Group",
+        "2": "Individual"
+      },
+      "paymentModes": {
+        "1": "Cash",
+        "2": "Bank cheque",
+        "3": "Bank transfer"
+      },
+      "statuses": {
+        "1": "Approved",
+        "2": "Pending approval",
+        "3": "Rejected",
+        "4": "Reversed"
+      },
+      "filters": {
+        "search": "Search",
+        "searchPlaceholder": "Subscription no, name, code",
+        "type": "Subscriber type",
+        "status": "Status",
+        "from": "From",
+        "to": "To",
+        "all": "All",
+        "apply": "Apply"
+      },
+      "table": {
+        "subscriptionNo": "Subscription",
+        "subscriber": "Subscriber",
+        "date": "Date",
+        "shares": "Shares",
+        "atFaceValue": "at {value} each",
+        "amount": "Amount",
+        "paid": "Paid",
+        "outstanding": "Outstanding",
+        "mode": "Mode",
+        "status": "Status",
+        "actions": "Actions",
+        "approve": "Approve",
+        "reject": "Reject",
+        "empty": "No share subscriptions found",
+        "loadError": "Share subscriptions could not be loaded"
+      },
+      "form": {
+        "title": "New share subscription",
+        "custType": "Subscriber type",
+        "search": "Find subscriber",
+        "searchPlaceholderMember": "Member name, code, mobile",
+        "searchPlaceholderGroup": "Group name or code",
+        "searchButton": "Search",
+        "subscriber": "Subscriber",
+        "subscriberEmpty": "Search and select a subscriber",
+        "noResults": "No active subscriber matches this search",
+        "code": "Code",
+        "name": "Name",
+        "branch": "Branch",
+        "faceValue": "Face value per share",
+        "holdingShares": "Shares held",
+        "holdingAmount": "Share capital",
+        "holdingOutstanding": "Unpaid on shares",
+        "pendingShares": "Shares pending approval",
+        "holdingLoading": "Loading…",
+        "holdingError": "Share holding could not be loaded",
+        "date": "Subscription date",
+        "shares": "Number of shares",
+        "sharesHint": "Minimum {min} per subscription, maximum {max} held",
+        "amount": "Subscription amount",
+        "paid": "Amount paid now",
+        "outstanding": "Balance unpaid",
+        "paymentMode": "Payment mode",
+        "refNo": "Reference no",
+        "remarks": "Remarks",
+        "submit": "Save subscription",
+        "saving": "Saving…",
+        "saved": "Share subscription saved",
+        "sentForApproval": "Share subscription sent for approval",
+        "errors": {
+          "subscriberRequired": "Select a subscriber",
+          "holdingRequired": "Wait for the share holding to load",
+          "dateRequired": "Enter the subscription date",
+          "futureDate": "Date cannot be in the future",
+          "sharesInvalid": "Enter a whole number of shares greater than zero",
+          "sharesBelowMin": "At least {min} shares are required",
+          "sharesAboveMax": "Holding cannot go above {max} shares ({available} more allowed)",
+          "paidInvalid": "Enter the amount paid, up to 2 decimals",
+          "paidExceeds": "Amount paid cannot be more than {amount}",
+          "refRequired": "Reference no is required for cheque and bank transfer",
+          "saveFailed": "Share subscription could not be saved"
+        }
+      },
+      "approval": {
+        "approveTitle": "Approve share subscription",
+        "rejectTitle": "Reject share subscription",
+        "summary": "{shares} shares for {name}, {amount}",
+        "remarks": "Remarks",
+        "remarksRequired": "A reason is required to reject",
+        "confirmApprove": "Approve",
+        "confirmReject": "Reject",
+        "cancel": "Cancel",
+        "failed": "Share subscription could not be updated"
+      }
+    },
+    "membershipClosure": {
+      "title": "Membership Closure",
+      "description": "Check a member's open items and close the membership or record a death",
+      "closed": "{name} is now marked {status}",
+      "failed": "Membership could not be closed",
+      "alreadyClosed": "This member is already {status}. There is nothing to close.",
+      "types": {
+        "4": "Closed",
+        "5": "Death"
+      },
+      "search": {
+        "title": "Find member",
+        "label": "Search member",
+        "placeholder": "Member code, name or mobile",
+        "button": "Search",
+        "member": "Member",
+        "memberEmpty": "Search, then select a member",
+        "noResults": "No member matches this search",
+        "failed": "Members could not be searched"
+      },
+      "profile": {
+        "code": "Member code",
+        "name": "Name",
+        "mobile": "Mobile",
+        "status": "Status",
+        "branch": "Branch",
+        "center": "Center",
+        "joined": "Joined on",
+        "kyc": "KYC",
+        "kycValue": "{verified} of {total} verified"
+      },
+      "checks": {
+        "title": "Pre-closure checks",
+        "refresh": "Check again",
+        "loading": "Checking…",
+        "failed": "This check could not be completed",
+        "unknown": "Could not be checked: {message}",
+        "deathNote": "For a death closure, open items do not stop the closure. Settle them with the nominee afterwards.",
+        "group": {
+          "label": "Group membership",
+          "pass": "Not in any active group",
+          "active": "Active in {group} as {role}. Remove the member from the group first.",
+          "member": "member",
+          "action": "Remove from group"
+        },
+        "loans": {
+          "label": "Loans",
+          "pass": "No active loans",
+          "active": "{count, plural, one {# active loan} other {# active loans}} must be closed first"
+        },
+        "deposits": {
+          "label": "Deposit accounts",
+          "pass": "No open deposit accounts",
+          "active": "{count, plural, one {# open deposit account} other {# open deposit accounts}} must be closed first"
+        },
+        "shares": {
+          "label": "Share capital",
+          "pass": "No shares held",
+          "active": "Holds {shares} shares (paid {amount}). Refund or transfer them outside this screen.",
+          "pending": "{count} shares pending approval",
+          "unpaid": "{amount} still unpaid"
+        }
+      },
+      "states": {
+        "loading": "Checking",
+        "pass": "Clear",
+        "block": "Must fix",
+        "warn": "Review",
+        "unknown": "Not checked"
+      },
+      "form": {
+        "type": "Closure type",
+        "ack": "I have reviewed the items above and settled all dues with the member",
+        "ackDeath": "I have reviewed the items above; dues will be settled with the nominee",
+        "blocked": "Fix the items marked “Must fix” before closing this membership.",
+        "submit": "Close membership",
+        "submitDeath": "Record death"
+      },
+      "confirm": {
+        "title": "Close membership?",
+        "titleDeath": "Record member death?",
+        "description": "The member will be marked {status} and can no longer open accounts or take loans.",
+        "itemType": "Member",
+        "cancel": "Cancel"
+      },
+      "register": {
+        "title": "Closed members",
+        "statusFilter": "Status",
+        "search": "Search",
+        "searchPlaceholder": "Member code, name or mobile",
+        "apply": "Apply",
+        "code": "Member code",
+        "member": "Member",
+        "branch": "Branch / Center",
+        "joined": "Joined on",
+        "status": "Status",
+        "updated": "Last updated",
+        "empty": "No closed members found",
+        "loadError": "Closed members could not be loaded"
+      }
     }
   },
   "deposits": {

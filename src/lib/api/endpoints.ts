@@ -50,6 +50,7 @@ export const endpoints = {
     memberKyc: "/api/onboarding/member-kyc",
     memberLocation: "/api/onboarding/member-location",
     groupMemberMapping: "/api/onboarding/group-member-mapping",
+    shareSubscription: "/api/onboarding/share-subscription",
     savingsTransactions: "/api/deposits/savings-transactions",
   },
   menuTree: "/api/MenuTree",
@@ -259,6 +260,13 @@ export const endpoints = {
     list: "/api/SavingsTransactionList",
     add: "/api/SavingsTransactionAdd",
     approve: "/api/SavingsTransactionApprove",
+  },
+  /** Contract: docs/share-subscription-api.md. Not yet in apilist.txt. */
+  shareSubscription: {
+    list: "/api/ShareSubscriptionList",
+    add: "/api/ShareSubscriptionAdd",
+    approve: "/api/ShareSubscriptionApprove",
+    holding: "/api/ShareHoldingGet",
   },
   operationalDays: {
     list: "/api/OperationalDaysList",
