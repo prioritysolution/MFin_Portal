@@ -46,7 +46,7 @@ function defaultRowKey<T>(_row: T, index: number) {
 }
 
 export function DataTable<T>({
-  data,
+  data: rawData = [],
   columns,
   getRowKey = defaultRowKey,
   loading = false,
@@ -71,6 +71,7 @@ export function DataTable<T>({
   description,
   actions,
 }: DataTableProps<T>) {
+  const data = Array.isArray(rawData) ? rawData : [];
   const t = useTranslations("ui");
 
   const selectionKeys = selection ? new Set(selection.selectedKeys) : null;

@@ -3087,12 +3087,16 @@
       "emptyMessage": "ଫିଲ୍ଟର ବଦଳାନ୍ତୁ କିମ୍ବା ଏକ ଆବେଦନ ତିଆରି କରନ୍ତୁ।",
       "filters": {
         "search": "ଖୋଜନ୍ତୁ",
-        "searchPlaceholder": "ଆବେଦନ ନଂ, ଋଣଗ୍ରହୀତା, ସ୍କିମ",
+        "searchPlaceholder": "ଖାତା, ଆବେଦନ, ଋଣଗ୍ରହୀତା, ସ୍କିମ",
         "status": "ସ୍ଥିତି",
         "scheme": "ସ୍କିମ",
-        "all": "ସବୁ"
+        "all": "ସବୁ",
+        "active": "ସକ୍ରିୟ",
+        "closed": "ବନ୍ଦ",
+        "writtenOff": "ରାଇଟ୍ ଅଫ୍"
       },
       "columns": {
+        "account": "ଖାତା",
         "appNumber": "ଆବେଦନ",
         "borrower": "ଋଣଗ୍ରହୀତା",
         "scheme": "ସ୍କିମ",
@@ -3124,6 +3128,10 @@
         "total": "ମୋଟ",
         "score": "ବ୍ୟୁରୋ ସ୍କୋର {score} · {risk}",
         "noScore": "ବ୍ୟୁରୋ ସ୍କୋର ଏଯାଏଁ ନାହିଁ"
+      },
+      "detail": {
+        "loanDate": "ଋଣ ତାରିଖ",
+        "rate": "ସୁଧ ହାର"
       },
       "form": {
         "createTitle": "ନୂଆ ଆବେଦନ",

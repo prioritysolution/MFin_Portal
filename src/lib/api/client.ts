@@ -181,8 +181,9 @@ export async function apiClient<TResponse>(
     signal,
   );
 
+  const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
   const requestHeaders = new Headers(headers);
-  if (body !== undefined && !requestHeaders.has("Content-Type")) {
+  if (body !== undefined && !isFormData && !requestHeaders.has("Content-Type")) {
     requestHeaders.set("Content-Type", "application/json");
   }
   if (!requestHeaders.has("Accept")) {
@@ -196,7 +197,7 @@ export async function apiClient<TResponse>(
     const response = await fetch(url, {
       method,
       headers: requestHeaders,
-      body: body === undefined ? undefined : JSON.stringify(body),
+      body: body === undefined ? undefined : isFormData ? body : JSON.stringify(body),
       signal: requestSignal,
       // Browser never holds the Laravel token; server/BFF calls use Bearer header.
       credentials: "omit",

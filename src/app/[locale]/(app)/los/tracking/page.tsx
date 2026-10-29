@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { LoanScreenView } from "@/features/loan/components/LoanScreenView";
+import { LosTrackingView } from "@/features/los/components/LosTrackingView";
 
 export async function generateMetadata() {
   const t = await getTranslations("loanModule.screens.tracking");
@@ -10,5 +10,5 @@ export async function generateMetadata() {
 }
 
 export default function Page() {
-  return <LoanScreenView screen="tracking" />;
+  return <LosTrackingView />;
 }

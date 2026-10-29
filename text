@@ -1,391 +1,187 @@
+# Loan Book, Schedule & Member Ledger
 
+Screens: **Loan Book** (`/lms/loan-book`), loan account drawer, repayment schedule tab, member ledger.
 
+Tables: `mst_loan_account`, `trans_loanac_schedule`, `trans_loan_collection`, `mst_loan_account_disbursement`.
 
+| Endpoint | Method | Procedure |
+|----------|--------|-----------|
+| `/api/LoanBookList` | `GET` | `USP_LOAN_BOOK_LIST` |
+| `/api/LoanAccountGet` | `GET` | `USP_LOAN_BOOK_LIST` (one row) + schedule, collections, disbursements, adjustments, charges, guarantors, mortgages, freezes |
+| `/api/LoanScheduleList` | `GET` | `USP_LOAN_SCHEDULE_LIST` |
+| `/api/LoanMemberLedger` | `GET` | `USP_LOAN_MEMBER_LEDGER` |
 
-"use client";
+> The design calls the book list `LoanAccountList`; that name is already taken by the existing loan-account master API (`/api/LoanAccountList`, unchanged), so the book is `/api/LoanBookList`.
 
-import { Form } from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { ClipLoader } from "react-spinners";
-import { useEffect, useState } from "react";
-import {
-  ArrowRight,
-  BarChart3,
-  CalendarDays,
-  Coins,
-  Globe,
-  Landmark,
-  Lock,
-  Mail,
-  ShieldCheck,
-  UserPlus,
-  Users,
-  Zap,
-} from "lucide-react";
-import { IoIosCloudOutline } from "react-icons/io";
-import Link from "next/link";
-import Image from "next/image";
-import DropdownFieldNew from "@/common/formFields/DropdownFieldNew";
-import InputField from "@/common/formFields/InputField";
-import BrandMark from "@/common/BrandMark";
-import { setAppLanguage } from "@/i18n";
-import { useTranslation } from "react-i18next";
+### Computed values (all "as on" `as_on_date`, default today)
 
-const FeatureStripItem = ({ icon: Icon, label ,className}) => (
-  <div className={`flex flex-1 flex-col items-center gap-1.5 text-center ${className}`}>
-    <Icon
-      size={28}
-      className="shrink-0 text-white"
-      strokeWidth={2}
-      style={{ width: 28, height: 28 }}
-    />
-    <p className="text-[12px] font-medium leading-snug text-white/90 xl:text-[13px]">
-      {label}
-    </p>
-  </div>
-);
+| Value | Meaning |
+|-------|---------|
+| `principal_outstanding` | Disbursed − principal collected − principal waived (+ capitalized interest) |
+| `overdue_principal` / `overdue_interest` | Unpaid scheduled amounts with due date before the as-on date |
+| `principal_due` / `interest_due` | Overdue + the installment due on the as-on date |
+| `penalty_due` | Scheme penalty on overdue installments − penalty already collected / waived |
+| `dpd` | Days past due of the oldest unpaid installment (0 when nothing overdue) |
+| `bucket` | `current` (DPD 0), `par` (DPD ≥ 1, below the scheme's NPA days), `npa` (DPD ≥ scheme NPA days, or marked NPA), `closed` (closed / written off) |
+| `is_defaulter` / `is_npa` | Manual flags (see [08](08_LoanMonitoring.md)) |
 
-const Login = ({
-  loading,
-  afterLoginLoading,
-  terminateSessionLoading,
-  form,
-  handleSubmit,
-  financialYear = [],
-  showActiveSessionDialog,
-  setShowActiveSessionDialog,
-  showOtpForm,
-  handleShowOtpForm,
-  otpForm,
-  handleOtpFormSubmit,
-  showResendOtp,
-  handleResendOtp,
-}) => {
-  const { t, i18n } = useTranslation();
-  const [showLoginLoading, setShowLoginLoading] = useState(false);
+---
 
-  const languageOptions = [
-    { Id: "en", Option_Value: t("auth.langEnglish") },
-    { Id: "bn", Option_Value: t("auth.langBangla") },
-    { Id: "hi", Option_Value: t("auth.langHindi") },
-    { Id: "or", Option_Value: t("auth.langOdia") },
-  ];
+## 1. LoanBookList
 
-  useEffect(() => {
-    const current = i18n.language?.split("-")[0] || "en";
-    if (form?.getValues?.("language") !== current) {
-      form?.setValue?.("language", current, { shouldDirty: false });
+```
+GET /api/LoanBookList?bucket=par&page=1&per_page=20
+```
+
+| Query | Type | Description |
+|-------|------|-------------|
+| `loan_account_id`, `branch_id`, `group_id`, `center_id`, `scheme_id`, `fo_id`, `member_id` | int | |
+| `ln_status_cd` | int | Group 40: 1 Active, 2 Closed, 3 Written Off |
+| `bucket` | string | `current`, `par`, `npa`, `closed`, or a DPD range `par_1_30`, `par_31_60`, `par_61_90`, `npa_90_plus` |
+| `is_defaulter`, `is_npa` | bool | |
+| `as_on_date` | date | Default today |
+| `keyword` / `search` | string | Loan account no, application no, member / group name, mobile |
+| `page` / `per_page` | int | |
+
+### Success `200`
+
+```json
+{
+  "success": true,
+  "message": "Loan book retrieved successfully",
+  "data": [
+    {
+      "loan_account_id": 9, "loan_account_no": "LN-2026-00005",
+      "application_id": 13, "application_no": "LA-2026-00001",
+      "cust_type_cd": 2, "cust_type": "Individual",
+      "member_id": 9046, "member_name": "M2", "member_ref_code": "CUST-2026-0009", "mobile_no": "9000000000",
+      "group_id": null, "group_name": null, "center_id": null, "center_name": null,
+      "scheme_id": 9, "scheme_name": "test 1",
+      "loan_date": "2026-10-28", "loan_amount": 38000, "interest_rate": 18, "disbursed_amount": 38000,
+      "principal_outstanding": 35086.16,
+      "total_collected": 3483.84, "principal_collected": 2913.84, "interest_collected": 570,
+      "installment_amount": 3483.84, "tenure": 12, "paid_installments": 1,
+      "next_due_date": "2026-12-28", "next_due_amount": 3483.84,
+      "principal_due": 0, "interest_due": 0,
+      "overdue_principal": 0, "overdue_interest": 0, "overdue_amount": 0, "overdue_installments": 0,
+      "penalty_due": 0, "oldest_due_date": null, "dpd": 0, "bucket": "current",
+      "is_defaulter": false, "is_npa": false,
+      "final_due_date": "2027-10-28", "ln_status_cd": 1, "ln_status": "Active",
+      "branch_id": 2, "branch_name": "Salt Lake Branch", "fo_id": 2, "fo_name": "Anita Desai"
     }
-  }, [i18n.language, form]);
-
-  useEffect(() => {
-    if (afterLoginLoading && !showLoginLoading) {
-      setShowLoginLoading(true);
-      const timer = setTimeout(() => {
-        setShowLoginLoading(false);
-      }, 5 * 60 * 1000);
-      return () => clearTimeout(timer);
+  ],
+  "meta": {
+    "total": 1, "page": 1, "per_page": 20, "last_page": 1, "has_more": false,
+    "summary": {
+      "total_count": 1, "active_count": 1,
+      "total_outstanding": 35086.16, "total_overdue": 0,
+      "par_count": 0, "par_amount": 0, "npa_count": 0, "npa_amount": 0,
+      "current_count": 1, "closed_count": 0
     }
-  }, [afterLoginLoading, showLoginLoading]);
-
-  if (afterLoginLoading || showLoginLoading) {
-    return (
-      <div className="flex h-full min-h-dvh w-full flex-col items-center justify-center gap-4 bg-[#eaf4fc] px-4 sm:gap-6">
-        <BrandMark />
-        <div className="flex items-center gap-3 sm:gap-4">
-          <p className="text-base font-medium tracking-wide text-gray-700 sm:text-lg">
-            {t("auth.loading")}
-          </p>
-          <div className="flex items-center gap-2 sm:gap-2.5">
-            {[0, 1, 2, 3].map((i) => (
-              <span
-                key={i}
-                className="inline-block h-2 w-2 rounded-full bg-[#1B74D6] sm:h-2.5 sm:w-2.5"
-                style={{
-                  animation: "bounce-dot 1.2s ease-in-out infinite",
-                  animationDelay: `${i * 0.2}s`,
-                }}
-              />
-            ))}
-          </div>
-        </div>
-        <style>{`
-          @keyframes bounce-dot {
-            0%, 80%, 100% { opacity: 0.2; transform: scale(0.75); }
-            40% { opacity: 1; transform: scale(1); }
-          }
-        `}</style>
-      </div>
-    );
   }
+}
+```
 
-  return (
-    <div className="relative h-full max-h-full w-full overflow-hidden bg-[#d7eefc]">
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <Image
-          src="/floginpagebg.png"
-          alt=""
-          fill
-          priority
-          unoptimized
-          quality={100}
-          sizes="100vw"
-          className="select-none object-cover object-left"
-        />
-        <div className="absolute inset-0 bg-white/25 lg:hidden" />
-      </div>
+`meta.summary` covers **all** rows matching the filters (not only the page) — use it for the KPI cards.
 
-      <div className="relative z-10 flex h-full max-h-full flex-col overflow-hidden lg:flex-row">
-        <section className="relative hidden h-full min-h-0 flex-1 flex-col overflow-hidden lg:flex">
-         
-         {/* left side content — matches mockup: brand, one-line headline, two-line subtitle */}
-          <div className="relative z-20 shrink-0 px-10 pt-8 xl:px-14 xl:pt-10 2xl:px-16">
-            <BrandMark />
-            <h1 className="mt-7 whitespace-nowrap text-[22px] font-extrabold tracking-tight text-[#163A5F] xl:mt-8 xl:text-[26px] 2xl:text-[28px]">
-              {t("auth.smarterBanking")}
-              <span className="mx-2.5 font-medium text-[#1B74D6]">|</span>
-              {t("auth.strongerCommunities")}
-            </h1>
-            <p className="mt-3 max-w-[460px] text-[13px] leading-[1.55] text-[#6B849E] xl:text-[14px]">
-              {t("auth.subtitle")}
-            </p>
-          </div>
+---
 
-          <div className="relative z-10 flex min-h-0 flex-1 items-center justify-center px-0 py-2">
-            <Image
-              src="/floginpageimg.png"
-              alt={t("auth.illustrationAlt")}
-              width={1536}
-              height={1024}
-              priority
-              unoptimized
-              className="h-auto w-[min(85%,780px)] max-h-[min(520px,55vh)] object-contain"
-            />
-          </div>
+## 2. LoanAccountGet
 
-          {/* Bottom feature strip — solid gradient bar, full width, pinned to bottom */}
-          <div className="relative z-20 mt-auto w-full shrink-0  px-10 py-5 xl:px-14 xl:py-6 2xl:px-16">
-            <div className="mx-auto flex w-full max-w-[720px] items-start justify-between gap-4">
-              <FeatureStripItem icon={ShieldCheck} label={t("auth.secureReliable")}  className="border-r-2 border-r-[#1B74D6]" />
-              <FeatureStripItem icon={IoIosCloudOutline} label={t("auth.scalableArchitecture")}  className="border-r-2 border-r-[#1B74D6]" />
-              <FeatureStripItem icon={Zap} label={t("auth.fasterOperations")}  className="border-r-2 border-r-[#1B74D6]" />
-              <FeatureStripItem icon={Users} label={t("auth.betterMemberService")}  />
-            </div>
-          </div>
-        </section>
+```
+GET /api/LoanAccountGet?loan_account_id=9&as_on_date=2026-10-28
+```
 
-        {/* Right login — fixed, no scroll */}
-        <section className="flex h-full w-full shrink-0 items-center justify-center overflow-hidden p-3 sm:p-5 lg:w-[min(100%,720px)] lg:-ml-16 lg:justify-start lg:pl-2 lg:pr-8 xl:w-[780px] xl:-ml-24 xl:pl-4 xl:pr-10">
-          <div
-            className="flex w-full max-w-[500px] flex-col rounded-2xl border border-white/80 bg-white/95 px-5 py-5 shadow-[0_18px_50px_rgba(22,58,95,0.14)] backdrop-blur-md sm:max-w-[540px] sm:rounded-[28px] sm:px-9 sm:py-7"
-            style={{ animation: "login-card-in 0.45s ease-out" }}
-          >
-            <div className="mb-2 flex items-center justify-end">
-              <span className="inline-flex items-center gap-1 rounded-full bg-[#F3F8FD] px-2 py-0.5 text-[10px] font-medium text-[#6F87A3] sm:text-[11px]">
-                <Lock className="h-3 w-3" />
-                {t("auth.secureLogin")}
-              </span>
-            </div>
+`data` = the book row above plus:
 
-            <div className="mb-3 flex justify-center sm:mb-4">
-              <BrandMark compact />
-            </div>
+| Key | Content |
+|-----|---------|
+| `schedule` | `LoanScheduleList` rows |
+| `collections` | `LoanCollectionList` items of this loan (see [06](06_LoanCollection.md)) |
+| `disbursements` | `LoanDisbursementList` items (see [04](04_LoanDisbursement.md)) |
+| `adjustments` | `LoanAdjustmentList` items (see [07](07_LoanAdjustmentClosure.md)) |
+| `charges`, `guarantors`, `mortgages`, `deposit_freezes` | Child lists of the application (see [02](02_LoanApplicationChildren.md)) |
 
-            <div className="mb-5 text-center">
-              <h2 className="text-[22px] font-extrabold leading-tight text-[#163A5F] sm:text-[24px]">
-                {t("auth.welcomeBack")}
-              </h2>
-              <p className="mt-1 text-[12px] text-[#7A93B0] sm:text-[13px]">
-                {t("auth.signInSubtitle")}
-              </p>
-            </div>
+`404` *Loan account not found*.
 
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(handleSubmit)}
-                className="flex w-full flex-col gap-2.5 sm:gap-4"
-                autoComplete="off"
-              >
-                <DropdownFieldNew
-                  control={form.control}
-                  name="language"
-                  label={t("auth.language")}
-                  options={languageOptions}
-                  optionValueKey="Id"
-                  optionLabelKey="Option_Value"
-                  disableSorting
-                  startContent={<Globe className="h-4 w-4" />}
-                  onChange={(value) => {
-                    setAppLanguage(value || "en");
-                  }}
-                />
+---
 
-                <DropdownFieldNew
-                  control={form.control}
-                  name="year_id"
-                  label={t("auth.financialYear")}
-                  placeholder={t("auth.selectFinancialYearPlaceholder")}
-                  options={financialYear || []}
-                  optionValueKey="Id"
-                  optionLabelKey="Yr"
-                  disabled={!financialYear || financialYear.length === 0}
-                  startContent={<CalendarDays className="h-4 w-4" />}
-                />
+## 3. LoanScheduleList
 
-                <InputField
-                  control={form.control}
-                  name="email"
-                  label={t("auth.emailUsername")}
-                  placeholder={t("auth.enterEmailUsername")}
-                  autoComplete="username"
-                  autoFocus
-                  startContent={<Mail className="h-4 w-4" />}
-                />
+```
+GET /api/LoanScheduleList?loan_account_id=9
+```
 
-                <InputField
-                  control={form.control}
-                  name="password"
-                  label={t("auth.password")}
-                  type="password"
-                  placeholder={t("auth.enterPassword")}
-                  autoComplete="current-password"
-                  startContent={<Lock className="h-4 w-4" />}
-                />
+| Query | Type | Required |
+|-------|------|----------|
+| `loan_account_id` | int | Yes |
+| `as_on_date` | date | No (decides Due / Overdue) |
 
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="cursor-pointer mt-2 h-12 w-full rounded-xl bg-linear-to-r from-[#1B74D6] to-[#0D5FBF] text-[14px] font-semibold text-white shadow-lg shadow-blue-600/20 transition-all duration-200 hover:-translate-y-0.5 hover:from-[#1668c2] hover:to-[#0b54ab] hover:shadow-xl active:translate-y-0 disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-70 sm:h-13 sm:text-[15px]"
-                >
-                  {loading ? (
-                    <ClipLoader color="#fff" size={22} speedMultiplier={0.7} />
-                  ) : (
-                    <span className="inline-flex items-center gap-2">
-                      {t("auth.signIn")}
-                      <ArrowRight className="h-4 w-4" />
-                    </span>
-                  )}
-                </Button>
+Paid amounts are allocated FIFO from approved collections.
 
-                <div className="flex justify-center">
-                  <Link
-                    href="/forgotPassword"
-                    className="text-[12px] font-medium text-[#1B74D6] transition-colors hover:text-[#0D5FBF] hover:underline sm:text-[13px]"
-                  >
-                    {t("auth.forgotPasswordLink")}
-                  </Link>
-                </div>
-              </form>
-            </Form>
+```json
+{
+  "success": true,
+  "message": "Repayment schedule retrieved successfully",
+  "data": [
+    {
+      "schedule_id": 101, "loan_account_id": 9, "installment_no": 1, "due_date": "2026-11-28",
+      "principal_due": 2913.84, "interest_due": 570, "total_due": 3483.84,
+      "principal_waived": 0, "interest_waived": 0, "advance_paid": 3483.84,
+      "principal_paid": 2913.84, "interest_paid": 570, "paid_amount": 3483.84, "balance_due": 0,
+      "outs_principal": 35086.16, "collection_id": 41, "collection_trans_no": "LC-0000003",
+      "status": "Paid"
+    }
+  ]
+}
+```
 
-            <div className="mt-5 flex items-center justify-center gap-1.5 border-t border-[#eef3f8] pt-4 text-[10px] text-[#9AADC2] sm:text-[11px]">
-              {/* <Image
-                src="/pristlogo.png"
-                alt=""
-                width={16}
-                height={16}
-                className="h-4 w-4 object-contain"
-              /> */}
-              <Link
-                href="https://prioritysolutions.in"
-                target="_blank"
-                className="text-[#9AADC2] hover:text-[#1B74D6]"
-              >
-                {t("auth.poweredBy")}
-              </Link>
-            </div>
-          </div>
-        </section>
-      </div>
+`status`: `Paid`, `Partly Paid`, `Due` (first unpaid on / after the as-on date), `Overdue` (before the as-on date), `Upcoming`, `Closed` (unpaid rows of a closed / written-off loan).
 
-      <Dialog
-        open={showActiveSessionDialog}
-        onOpenChange={setShowActiveSessionDialog}
-      >
-        <DialogContent className="w-[calc(100vw-1.5rem)] max-w-[500px] rounded-2xl p-4 sm:rounded-3xl sm:p-8">
-          <div className="flex w-full flex-col gap-4 py-1 sm:gap-5">
-            {!showOtpForm ? (
-              <>
-                <p className="text-center text-base font-semibold text-[#1a2e44] sm:text-lg">
-                  {t("auth.terminateSession")}
-                </p>
-                <div className="flex flex-col-reverse gap-3 sm:flex-row sm:gap-4">
-                  <Button
-                    type="button"
-                    className="h-11 flex-1 rounded-xl bg-linear-to-r from-red-500 to-red-600 font-semibold text-white shadow-md transition-all duration-200 hover:from-red-600 hover:to-red-700 hover:shadow-lg"
-                    onClick={() => setShowActiveSessionDialog(false)}
-                  >
-                    {t("auth.cancel")}
-                  </Button>
-                  <Button
-                    type="button"
-                    className="h-11 flex-1 rounded-xl bg-linear-to-r from-blue-600 to-blue-700 font-semibold text-white shadow-md transition-all duration-200 hover:from-blue-700 hover:to-blue-800 hover:shadow-lg"
-                    onClick={handleShowOtpForm}
-                  >
-                    {t("auth.continue")}
-                  </Button>
-                </div>
-              </>
-            ) : (
-              <Form {...otpForm}>
-                <form
-                  onSubmit={otpForm.handleSubmit(handleOtpFormSubmit)}
-                  className="w-full space-y-4 sm:space-y-5"
-                  autoComplete="off"
-                >
-                  <InputField
-                    control={otpForm.control}
-                    name="otp"
-                    label={t("auth.otp")}
-                    placeholder={t("auth.enterOtp")}
-                    type="number"
-                    maxLength={6}
-                    startContent={
-                      <Lock className="h-4 w-4 text-[#b0bec8]" />
-                    }
-                  />
+---
 
-                  {showResendOtp && (
-                    <button
-                      type="button"
-                      onClick={handleResendOtp}
-                      className="text-[13px] font-medium text-[#1B74D6] hover:underline focus:outline-none"
-                    >
-                      {t("auth.resendOtp")}
-                    </button>
-                  )}
+## 4. LoanMemberLedger
 
-                  <Button
-                    type="submit"
-                    disabled={terminateSessionLoading}
-                    className="h-11 w-full rounded-xl bg-linear-to-r from-[#1B74D6] to-[#0D5FBF] text-[14px] font-semibold text-white shadow-lg transition-all duration-200 hover:from-[#1668c2] hover:to-[#0b54ab] disabled:cursor-not-allowed disabled:opacity-70 sm:h-12 sm:text-[15px]"
-                  >
-                    {terminateSessionLoading ? (
-                      <ClipLoader
-                        color="#fff"
-                        size={22}
-                        speedMultiplier={0.7}
-                      />
-                    ) : (
-                      t("auth.submit")
-                    )}
-                  </Button>
-                </form>
-              </Form>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+Principal statement of a loan account, or of every loan of a member (as borrower, joint applicant or group member).
 
-      <style>{`
-        @keyframes login-card-in {
-          from { opacity: 0; transform: translateY(14px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
-    </div>
-  );
-};
+```
+GET /api/LoanMemberLedger?member_id=9046&from_date=2026-10-01&to_date=2026-10-31
+```
 
-export default Login;
+| Query | Type | Required | Description |
+|-------|------|----------|-------------|
+| `loan_account_id` | int | One of the two | |
+| `member_id` | int | One of the two | |
+| `from_date` / `to_date` | date | No | Entries before `from_date` form the opening balance |
+
+- **Debit**: approved disbursement (gross) and capitalized interest. **Credit**: principal collected and principal waived.
+- `interest`, `penalty`, `total` are informational (amounts collected / waived on that entry).
+- `balance` = running principal balance (`opening_balance` + debit − credit).
+
+```json
+{
+  "success": true,
+  "message": "Member ledger retrieved successfully",
+  "data": {
+    "opening_balance": 0,
+    "entries": [
+      { "date": "2026-10-28", "entry_date": "2026-10-28", "loan_account_id": 9, "loan_account_no": "LN-2026-00005", "entry_type": "disbursement", "ref_no": "DB-000001", "voucher_id": null, "voucher_no": null, "narration": "Loan disbursement", "debit": 20000, "credit": 0, "interest": 0, "penalty": 0, "total": 20000, "balance": 20000 },
+      { "date": "2026-10-28", "entry_date": "2026-10-28", "loan_account_id": 9, "loan_account_no": "LN-2026-00005", "entry_type": "collection", "ref_no": "LC-0000003", "voucher_id": 33, "voucher_no": "RV-2026-00002", "narration": "Advance collection", "debit": 0, "credit": 2913.84, "interest": 570, "penalty": 0, "total": 3483.84, "balance": 17086.16 }
+    ],
+    "closing_balance": 17086.16
+  }
+}
+```
+
+`entry_type`: `disbursement`, `collection`, `adjustment`.
+
+---
+
+## Errors
+
+| HTTP | When |
+|------|------|
+| `401` | Unauthorized |
+| `404` | Loan account not found (Get / Schedule) |
+| `422` | Missing `loan_account_id` (Get / Schedule) or both `loan_account_id` and `member_id` (Ledger); `to_date` before `from_date` |
+

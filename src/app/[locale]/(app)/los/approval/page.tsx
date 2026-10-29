@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { LoanScreenView } from "@/features/loan/components/LoanScreenView";
+import { LosApprovalView } from "@/features/los/components/LosApprovalView";
 
 export async function generateMetadata() {
   const t = await getTranslations("loanModule.screens.approval");
@@ -10,5 +10,5 @@ export async function generateMetadata() {
 }
 
 export default function Page() {
-  return <LoanScreenView screen="approval" />;
+  return <LosApprovalView />;
 }
