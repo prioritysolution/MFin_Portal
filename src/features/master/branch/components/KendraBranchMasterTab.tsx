@@ -293,17 +293,6 @@ export function KendraBranchMasterTab({
     <>
       <PageToast message={successMessage} />
 
-      <BranchFilters
-        values={filters}
-        onChange={setFilters}
-        onReset={() => {
-          setFilters(DEFAULT_FILTERS);
-          setAppliedFilters(DEFAULT_FILTERS);
-          setPage(1);
-          setSuccessMessage(null);
-        }}
-      />
-
       <div className="grid gap-3 sm:grid-cols-3">
         <StatCard
           label={t("stats.total")}
@@ -321,6 +310,17 @@ export function KendraBranchMasterTab({
           tone="bg-amber-50 text-amber-700"
         />
       </div>
+
+      <BranchFilters
+        values={filters}
+        onChange={setFilters}
+        onReset={() => {
+          setFilters(DEFAULT_FILTERS);
+          setAppliedFilters(DEFAULT_FILTERS);
+          setPage(1);
+          setSuccessMessage(null);
+        }}
+      />
 
       <DataTable<Branch>
         title={t("directoryTitle")}

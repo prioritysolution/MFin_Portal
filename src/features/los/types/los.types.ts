@@ -73,9 +73,16 @@ export type LoanApplicationRow = {
   appl_tenure: number;
   repay_duration_cd: number;
   repay_duration: string;
+  /** `mst_appl_options` group 41: 1 Cash, 2 Bank Cheque, 3 Bank Transfer, 4 S/B Account, 5 Adjustment. */
+  payment_mode_cd?: number | null;
+  payment_mode?: string | null;
   beneficiary_name: string | null;
+  bank_name?: string | null;
   bank_account_no: string | null;
   ifsc_code: string | null;
+  sb_account_id?: number | null;
+  sb_account_no?: string | null;
+  adjustment_ref?: string | null;
   guarantor_name: string | null;
   guarantor_count: number;
   mortgage_summary: string | null;
@@ -300,9 +307,13 @@ export type LoanApplicationAddInput = {
   appl_amount: number;
   appl_tenure: number;
   repay_duration_cd: number;
+  payment_mode_cd: number;
   beneficiary_name?: string | null;
+  bank_name?: string | null;
   bank_account_no?: string | null;
   ifsc_code?: string | null;
+  sb_account_id?: number | null;
+  adjustment_ref?: string | null;
   fo_id?: number | null;
   branch_id?: number | null;
   remarks?: string | null;
@@ -328,9 +339,12 @@ export type LoanApplicationBulkAddInput = {
   fo_id?: number | null;
   branch_id?: number | null;
   remarks?: string | null;
+  payment_mode_cd: number;
   beneficiary_name?: string | null;
+  bank_name?: string | null;
   bank_account_no?: string | null;
   ifsc_code?: string | null;
+  adjustment_ref?: string | null;
   members: LoanApplicationBulkAddMember[];
 };
 

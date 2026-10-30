@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { ArrowLeft, Check, Eye, EyeOff, Plus, X } from "lucide-react";
+import { ArrowLeft, Check, Eye, EyeOff, Plus, RotateCcw, Search, X } from "lucide-react";
 import { ModulePageShell } from "@/components/shared/ModulePageShell";
 import { DataTable } from "@/components/shared/DataTable/DataTable";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
@@ -352,10 +352,7 @@ export function CustomerKycView() {
   }
 
   return (
-    <ModulePageShell
-      page={onboardingModulePages.customerKyc}
-      actions={<Button type="button" icon={Plus} onClick={() => setPickerOpen(true)}>{t("capture")}</Button>}
-    >
+    <ModulePageShell page={onboardingModulePages.customerKyc}>
       <div className="mb-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
         {(["pending", "verified", "rejected", "all"] as TabId[]).map((item) => (
           <button
@@ -369,18 +366,32 @@ export function CustomerKycView() {
           </button>
         ))}
       </div>
-      <div className="mb-3 grid gap-2 md:grid-cols-[minmax(0,1fr)_12rem_12rem_auto] md:items-end">
-        <input value={draftKeyword} onChange={(event) => setDraftKeyword(event.target.value)} placeholder={t("searchPlaceholder")} aria-label={t("search")} className="input w-full" />
-        {branchBound ? null : (
-          <Select aria-label={t("branch")} placeholder={t("allBranches")} clearable value={branchId} onChange={(value) => writeQuery({ branch_id: value || null }, true)} options={branches} />
-        )}
-        <Select aria-label={t("documentType")} placeholder={t("allTypes")} clearable value={docType} onChange={(value) => writeQuery({ doc_type_cd: value || null }, true)} options={types} />
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={showInactive} onChange={(event) => writeQuery({ inactive: event.target.checked ? "1" : null }, true)} />
-          {t("showInactive")}
-        </label>
-      </div>
       <DataTable
+        toolbar={
+          <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
+            <div className="relative min-w-0 flex-1">
+              <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" aria-hidden />
+              <input value={draftKeyword} onChange={(event) => setDraftKeyword(event.target.value)} placeholder={t("searchPlaceholder")} aria-label={t("search")} className="input w-full ps-9" />
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2 lg:flex lg:items-center">
+              {branchBound ? null : (
+                <div className="lg:w-48">
+                  <Select aria-label={t("branch")} placeholder={t("allBranches")} clearable value={branchId} onChange={(value) => writeQuery({ branch_id: value || null }, true)} options={branches} />
+                </div>
+              )}
+              <div className="lg:w-48">
+                <Select aria-label={t("documentType")} placeholder={t("allTypes")} clearable value={docType} onChange={(value) => writeQuery({ doc_type_cd: value || null }, true)} options={types} />
+              </div>
+            </div>
+            <div className="flex items-center justify-between gap-3 lg:justify-end">
+              <label className="flex shrink-0 items-center gap-2 whitespace-nowrap text-sm text-slate-700">
+                <input type="checkbox" checked={showInactive} onChange={(event) => writeQuery({ inactive: event.target.checked ? "1" : null }, true)} />
+                {t("showInactive")}
+              </label>
+              <Button type="button" icon={Plus} className="shrink-0" onClick={() => setPickerOpen(true)}>{t("capture")}</Button>
+            </div>
+          </div>
+        }
         data={rows}
         loading={loading}
         error={error}
@@ -465,7 +476,7 @@ export function CustomerKycView() {
         <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-border bg-white p-3">
           <span className="text-sm">{t("selected", { count: selected.length })}</span>
           <Button type="button" size="sm" variant="success" onClick={() => { setDecision({ ids: selected.map(Number), status: 1 }); setRemarks(""); setDecisionError(""); }}>{t("verifySelected")}</Button>
-          <Button type="button" size="sm" variant="danger" onClick={() => { setDecision({ ids: selected.map(Number), status: 2 }); setRemarks(""); setDecisionError(""); }}>{t("rejectSelected")}</Button>
+          <Button type="button" size="sm" variant="danger" icon={X} onClick={() => { setDecision({ ids: selected.map(Number), status: 2 }); setRemarks(""); setDecisionError(""); }}>{t("rejectSelected")}</Button>
         </div>
       ) : null}
       <MemberPickerModal open={pickerOpen} onClose={() => setPickerOpen(false)} onPick={(picked) => { setPickerOpen(false); writeQuery({ member_id: String(picked.memberId) }); }} />
@@ -535,9 +546,9 @@ function DocumentCard({
         <Button type="button" size="sm" variant="ghost" icon={revealed ? EyeOff : Eye} onClick={onReveal}>{revealed ? t("hideNumber") : t("showNumber")}</Button>
         <Button type="button" size="sm" variant="secondary" onClick={onReview}>{t("review")}</Button>
         {row.isActive && row.verifyStatus !== 1 ? <Button type="button" size="sm" variant="secondary" onClick={onEdit}>{row.verifyStatus === 2 ? t("resubmit") : t("edit")}</Button> : null}
-        {canVerify ? <Button type="button" size="sm" variant="success" onClick={() => onDecision(1)}>{t("verify")}</Button> : null}
-        {row.isActive && row.verifyStatus !== 2 ? <Button type="button" size="sm" variant="danger" onClick={() => onDecision(2)}>{t("reject")}</Button> : null}
-        {row.isActive && row.verifyStatus !== 0 ? <Button type="button" size="sm" variant="warning" onClick={() => onDecision(0)}>{t("reopen")}</Button> : null}
+        {canVerify ? <Button type="button" size="sm" variant="success" icon={Check} onClick={() => onDecision(1)}>{t("verify")}</Button> : null}
+        {row.isActive && row.verifyStatus !== 2 ? <Button type="button" size="sm" variant="danger" icon={X} onClick={() => onDecision(2)}>{t("reject")}</Button> : null}
+        {row.isActive && row.verifyStatus !== 0 ? <Button type="button" size="sm" variant="warning" icon={RotateCcw} onClick={() => onDecision(0)}>{t("reopen")}</Button> : null}
         <Button type="button" size="sm" variant="secondary" onClick={onToggle}>{row.isActive ? t("deactivate") : t("activate")}</Button>
       </div>
     </article>
@@ -581,9 +592,9 @@ function ReviewDialog({
           <p className={row.isExpired ? "text-rose-700" : ""}>{t("expires")} {formatDate(row.expiryDate)}</p>
           <p className="mt-2 text-muted">{t("addedBy", { name: row.createdByName ?? "", date: formatDate(row.createdAt) })}</p>
           <div className="mt-4 flex flex-wrap gap-2">
-            {!row.isExpired && row.isActive && row.verifyStatus === 0 ? <Button type="button" variant="success" onClick={() => onDecision(1)}>{t("verify")}</Button> : null}
-            {row.isActive && row.verifyStatus !== 2 ? <Button type="button" variant="danger" onClick={() => onDecision(2)}>{t("reject")}</Button> : null}
-            {row.isActive && row.verifyStatus !== 0 ? <Button type="button" variant="warning" onClick={() => onDecision(0)}>{t("reopen")}</Button> : null}
+            {!row.isExpired && row.isActive && row.verifyStatus === 0 ? <Button type="button" variant="success" icon={Check} onClick={() => onDecision(1)}>{t("verify")}</Button> : null}
+            {row.isActive && row.verifyStatus !== 2 ? <Button type="button" variant="danger" icon={X} onClick={() => onDecision(2)}>{t("reject")}</Button> : null}
+            {row.isActive && row.verifyStatus !== 0 ? <Button type="button" variant="warning" icon={RotateCcw} onClick={() => onDecision(0)}>{t("reopen")}</Button> : null}
             <Button type="button" variant="secondary" onClick={onClose}>{t("close")}</Button>
           </div>
         </div>

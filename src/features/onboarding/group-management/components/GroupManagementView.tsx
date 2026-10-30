@@ -38,6 +38,7 @@ import { GroupManagementTable } from "./GroupManagementTable";
 import { GroupManagementDrawer } from "./GroupManagementDrawer";
 import { GroupManagementForm, type GroupFormState } from "./GroupManagementForm";
 import { GroupStatusConfirmDialog } from "./GroupStatusConfirmDialog";
+import { GroupKycModal } from "@/features/onboarding/group-kyc";
 
 const DEFAULT_FILTERS: GroupFilterValues = {
   keyword: "",
@@ -189,6 +190,7 @@ export function GroupManagementView() {
   const [formOpen, setFormOpen] = useState(false);
   const [editingGroup, setEditingGroup] = useState<Group | null>(null);
   const [viewingGroup, setViewingGroup] = useState<Group | null>(null);
+  const [kycGroup, setKycGroup] = useState<Group | null>(null);
   const [statusDialogTarget, setStatusDialogTarget] = useState<Group | null>(null);
   const [statusDialogNext, setStatusDialogNext] = useState<GroupStatus | null>(null);
   const [saving, setSaving] = useState(false);
@@ -492,21 +494,6 @@ export function GroupManagementView() {
     <ModulePageShell page={pageMeta}>
       <PageToast message={successMessage} />
 
-      {/* Top Filter Panel */}
-      <GroupManagementFilters
-        values={filters}
-        branches={branches}
-        centers={centers}
-        staff={staff}
-        groupTypeOptions={groupTypes}
-        isBranchBound={isBranchBound}
-        onChange={(next) => {
-          setFilters(next);
-          setPage(1);
-        }}
-        onReset={handleFilterReset}
-      />
-
       {/* Stat Summary Cards (Exact Branch Directory pattern) */}
       <div className="grid gap-3 sm:grid-cols-4">
         <StatCard
@@ -530,6 +517,20 @@ export function GroupManagementView() {
           tone="bg-amber-50 text-amber-700"
         />
       </div>
+
+      <GroupManagementFilters
+        values={filters}
+        branches={branches}
+        centers={centers}
+        staff={staff}
+        groupTypeOptions={groupTypes}
+        isBranchBound={isBranchBound}
+        onChange={(next) => {
+          setFilters(next);
+          setPage(1);
+        }}
+        onReset={handleFilterReset}
+      />
 
       {/* Error notification banner if any */}
       {errorMessage && items.length > 0 ? (
@@ -566,6 +567,7 @@ export function GroupManagementView() {
         }}
         onView={handleView}
         onEdit={handleOpenEdit}
+        onOpenKyc={setKycGroup}
         onRequestStatusChange={handleRequestStatus}
         onResetFilters={handleFilterReset}
         onCreateNew={handleOpenCreate}
@@ -579,6 +581,8 @@ export function GroupManagementView() {
           </Button>
         }
       />
+
+      <GroupKycModal group={kycGroup} onClose={() => setKycGroup(null)} />
 
       {/* View Drawer (Read-only) */}
       {viewingGroup ? (

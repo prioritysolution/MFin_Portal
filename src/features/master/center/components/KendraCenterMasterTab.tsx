@@ -333,6 +333,30 @@ export function KendraCenterMasterTab({
     <>
       <PageToast message={successMessage} />
 
+      <div className="grid gap-3 sm:grid-cols-3">
+        <StatCard
+          label={t("stats.total")}
+          value={String(total)}
+          tone="bg-violet-50 text-violet-700"
+        />
+        <StatCard
+          label={t("stats.active")}
+          value={loading ? "…" : String(activeCount)}
+          tone="bg-emerald-50 text-emerald-700"
+        />
+        <StatCard
+          label={t("filters.branch")}
+          value={
+            appliedFilters.branchId
+              ? (branches.find(
+                  (b) => String(b.branchId) === appliedFilters.branchId,
+                )?.branchCode ?? "—")
+              : t("filters.branchAll")
+          }
+          tone="bg-blue-50 text-blue-700"
+        />
+      </div>
+
       <FilterPanel
         onReset={() => {
           setFilters(DEFAULT_FILTERS);
@@ -393,30 +417,6 @@ export function KendraCenterMasterTab({
             />
           </div>
       </FilterPanel>
-
-      <div className="grid gap-3 sm:grid-cols-3">
-        <StatCard
-          label={t("stats.total")}
-          value={String(total)}
-          tone="bg-violet-50 text-violet-700"
-        />
-        <StatCard
-          label={t("stats.active")}
-          value={loading ? "…" : String(activeCount)}
-          tone="bg-emerald-50 text-emerald-700"
-        />
-        <StatCard
-          label={t("filters.branch")}
-          value={
-            appliedFilters.branchId
-              ? (branches.find(
-                  (b) => String(b.branchId) === appliedFilters.branchId,
-                )?.branchCode ?? "—")
-              : t("filters.branchAll")
-          }
-          tone="bg-blue-50 text-blue-700"
-        />
-      </div>
 
       <DataTable<Center>
         title={t("directoryTitle")}

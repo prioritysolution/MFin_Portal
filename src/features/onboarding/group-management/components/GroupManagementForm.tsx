@@ -7,6 +7,7 @@ import {
   CreditCard,
   FileText,
   MapPin,
+  Save,
   Users,
   ExternalLink,
 } from "lucide-react";
@@ -549,7 +550,7 @@ export function GroupManagementForm({
               >
                 Cancel
               </Button>
-              <Button loading={saving} onClick={handleSubmit}>
+              <Button icon={Save} loading={saving} onClick={handleSubmit}>
                 Save Group
               </Button>
             </div>

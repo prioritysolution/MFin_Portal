@@ -513,72 +513,69 @@
     },
     "globalSettings": {
       "title": "Global Settings",
-      "description": "Institution-wide locale, accounting, and operational defaults",
+      "description": "Institution-wide language, security, transaction, period-closing and KYC rules",
       "loading": "Loading global settings…",
+      "loadErrorTitle": "Unable to load global settings",
+      "notConfiguredHint": "Global settings have not been saved yet. Defaults are shown; review them and save to create the configuration.",
       "save": "Save Global Settings",
       "saving": "Saving…",
       "saveSuccess": "Global settings saved successfully.",
       "validationFailed": "Please check the form and correct the highlighted fields.",
-      "localOnlyHint": "Settings are stored in this browser until the backend Global Settings API is available.",
+      "lastUpdated": "Last updated by {name} on {date}",
       "sections": {
-        "locale": {
-          "title": "Locale & Display",
-          "hint": "Timezone, date format, currency, and default language for the institution."
+        "general": {
+          "title": "General & Security",
+          "hint": "Default language and login security for all users."
         },
-        "accounting": {
-          "title": "Accounting Defaults",
-          "hint": "Interest day-count, rounding, and backdated transaction controls."
+        "transactions": {
+          "title": "Transaction Controls",
+          "hint": "Whether users may post transactions with a past date, and how far back."
         },
-        "controls": {
-          "title": "Operational Controls",
-          "hint": "Branch access, maker-checker for masters, EOD enforcement, and audit retention."
+        "closing": {
+          "title": "Period Closing",
+          "hint": "Closing processes that must be completed before the next period opens."
+        },
+        "kyc": {
+          "title": "Customer KYC & Onboarding",
+          "hint": "Documents and data required when registering a customer."
         }
       },
       "fields": {
-        "timezone": "Timezone",
-        "dateFormat": "Date format",
-        "currencyCode": "Base currency",
-        "decimalPlaces": "Amount decimal places",
-        "defaultLocale": "Default language",
-        "dayCountBasis": "Interest day-count basis",
-        "roundingMode": "Amount rounding",
-        "allowBackdatedTxn": "Allow backdated transactions",
-        "maxBackdateDays": "Max backdate days",
-        "multiBranchAccess": "Allow multi-branch user access",
-        "requireMakerCheckerMasters": "Require maker-checker for master changes",
-        "forceEodBeforeNextDay": "Require EOD before next business day",
-        "auditRetentionDays": "Audit log retention (days)"
+        "defaultLanguage": "Default Language",
+        "passwordExpiryDays": "Password Expiry Days",
+        "loginAttemptLimit": "Login Attempt Limit",
+        "allowBackdatedTxn": "Allow Backdated Transactions",
+        "maxBackdateDays": "Maximum Backdate Days",
+        "dayEndRequired": "Day-End Required",
+        "monthEndRequired": "Month-End Required",
+        "yearEndRequired": "Year-End Closing Required",
+        "panRequired": "PAN Required",
+        "aadhaarRequired": "Aadhaar Required",
+        "voterIdRequired": "Voter ID Required",
+        "geoTaggingRequired": "Customer Geo-Tagging Required"
       },
       "hints": {
-        "decimalPlaces": "Typically 2 for INR amounts.",
-        "maxBackdateDays": "Maximum days in the past that vouchers may be posted.",
-        "auditRetentionDays": "How long audit trail entries are retained (30–3650)."
+        "passwordExpiryDays": "0 = passwords never expire. Shared with Login Settings.",
+        "loginAttemptLimit": "Failed attempts before the account is locked (1–20). Shared with Login Settings.",
+        "maxBackdateDays": "How many days in the past a transaction may be dated (1–365)."
       },
       "options": {
-        "timezone": {
-          "kolkata": "Asia/Kolkata (IST)",
-          "dhaka": "Asia/Dhaka (BST)",
-          "utc": "UTC"
-        },
-        "currency": {
-          "inr": "INR — Indian Rupee",
-          "usd": "USD — US Dollar"
-        },
-        "locale": {
+        "language": {
           "en": "English",
           "bn": "বাংলা",
           "hi": "हिन्दी",
           "or": "ଓଡ଼ିଆ"
-        },
-        "dayCount": {
-          "360": "Actual / 360",
-          "365": "Actual / 365"
-        },
-        "rounding": {
-          "nearest": "Round to nearest",
-          "up": "Round up",
-          "down": "Round down"
         }
+      },
+      "rangeError": "Enter a value between {min} and {max}.",
+      "flagHints": {
+        "dayEndRequired": "Block next-day postings until day-end is run.",
+        "monthEndRequired": "Block next-month postings until month-end is run.",
+        "yearEndRequired": "Block new-year postings until year-end closing is done.",
+        "panRequired": "PAN is mandatory during member registration.",
+        "aadhaarRequired": "Aadhaar is mandatory during member registration.",
+        "voterIdRequired": "Voter ID is mandatory during member registration.",
+        "geoTaggingRequired": "Capture location when onboarding a customer."
       }
     },
     "smsSettings": {
@@ -2088,6 +2085,64 @@
         "parameterValue": "Enter the text or date this rule compares.",
         "effectiveFrom": "Effective from must be a valid date."
       }
+    },
+    "generalSettings": {
+      "title": "General Settings",
+      "description": "Switch institution-wide operating rules on or off",
+      "loading": "Loading general settings…",
+      "loadError": "Unable to load general settings",
+      "loadErrorTitle": "Unable to load general settings",
+      "updateError": "Unable to update the setting. Please try again.",
+      "emptyTitle": "No settings found",
+      "emptyMessage": "General settings have not been set up yet.",
+      "noMatchTitle": "No matching settings",
+      "noMatchMessage": "Try a different search or status filter.",
+      "readOnly": "Only head office users can change general settings.",
+      "summary": "{active} of {total} active",
+      "groupSummary": "{active} of {total} active",
+      "groupFallback": "Group {number}",
+      "toggleLabel": "Turn {purpose} on or off",
+      "activated": "{purpose} is now active",
+      "deactivated": "{purpose} is now inactive",
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "filters": {
+        "search": "Search",
+        "searchPlaceholder": "Search by setting or code",
+        "status": "Status",
+        "all": "All",
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "groups": {
+        "1": "Login & Calendar",
+        "2": "Field Operations",
+        "3": "Registration KYC",
+        "4": "Customer Notifications",
+        "5": "Period Closing",
+        "6": "Loans & Transactions"
+      },
+      "bulk": {
+        "toolbar": "Bulk status update",
+        "selectAll": "Select all",
+        "selectGroup": "Select all in {group}",
+        "selectRow": "Select {purpose}",
+        "selected": "{count, plural, one {# setting selected} other {# settings selected}}",
+        "activate": "Activate",
+        "deactivate": "Deactivate",
+        "clear": "Clear",
+        "activateTitle": "{count, plural, one {Activate # setting?} other {Activate # settings?}}",
+        "deactivateTitle": "{count, plural, one {Deactivate # setting?} other {Deactivate # settings?}}",
+        "activateDescription": "These rules take effect for every branch as soon as you confirm.",
+        "deactivateDescription": "These rules stop applying for every branch as soon as you confirm.",
+        "andMore": "and {count} more",
+        "activatedCount": "{count, plural, one {# setting activated} other {# settings activated}}",
+        "deactivatedCount": "{count, plural, one {# setting deactivated} other {# settings deactivated}}",
+        "alreadyActive": "All selected settings are already active",
+        "alreadyInactive": "All selected settings are already inactive"
+      }
     }
   },
   "security": {
@@ -2268,7 +2323,8 @@
         "4": "1 letter and 7 digits",
         "5": "State, RTO, then 9–12 characters",
         "6": "3–25 letters, digits, / or -"
-      }
+      },
+      "emptyHint": "Add Aadhaar, PAN, Voter ID or other documents to complete this member's KYC."
     },
     "customerKyc": {
       "title": "Borrower KYC Registry",
@@ -2382,7 +2438,10 @@
       "searchMembers": "Search members",
       "searchMembersPlaceholder": "Name, code, or mobile",
       "selectGroup": "Select a group",
+      "noGroupSelected": "No group selected",
+      "noGroupSelectedHint": "Choose a group from the list to view and manage its members.",
       "noGroups": "No active groups",
+      "noGroupsHint": "Try changing the branch, center, or search filters to find groups.",
       "loading": "Loading…",
       "belowMinimum": "Below minimum",
       "addMembers": "Add members",
@@ -2439,7 +2498,8 @@
         "President": "President",
         "Secretary": "Secretary",
         "Treasurer": "Treasurer"
-      }
+      },
+      "groupOption": "{name} ({code})"
     },
     "memberLocation": {
       "open": "Addresses",
@@ -2501,7 +2561,8 @@
       "mapAttribution": "OpenStreetMap",
       "searchPlaceholder": "Search a place",
       "searching": "Searching…",
-      "noSearchResults": "No matching place in India"
+      "noSearchResults": "No matching place in India",
+      "emptyHint": "Add the member's permanent or present address to record their location."
     },
     "shareSubscription": {
       "title": "Share Subscription",
@@ -2516,10 +2577,11 @@
         "3": "Bank transfer"
       },
       "statuses": {
-        "1": "Approved",
-        "2": "Pending approval",
+        "1": "Entered",
+        "2": "Approved",
         "3": "Rejected",
-        "4": "Reversed"
+        "4": "Reversed",
+        "5": "Deleted"
       },
       "filters": {
         "search": "Search",
@@ -2546,7 +2608,10 @@
         "approve": "Approve",
         "reject": "Reject",
         "empty": "No share subscriptions found",
-        "loadError": "Share subscriptions could not be loaded"
+        "loadError": "Share subscriptions could not be loaded",
+        "verify": "Verify",
+        "edit": "Edit",
+        "view": "View"
       },
       "form": {
         "title": "New share subscription",
@@ -2604,7 +2669,50 @@
         "confirmApprove": "Approve",
         "confirmReject": "Reject",
         "cancel": "Cancel",
+        "failed": "Share subscription could not be updated",
+        "verifyTitle": "Verify share subscription",
+        "confirmVerify": "Verify"
+      },
+      "picker": {
+        "titleMember": "Select member",
+        "titleGroup": "Select group",
+        "subtitle": "Leave the filter empty and search to list all active subscribers.",
+        "filter": "Filter",
+        "columns": {
+          "code": "Code",
+          "name": "Name",
+          "branch": "Branch",
+          "detail": "Details",
+          "action": "Action"
+        },
+        "select": "Select",
+        "selected": "Selected",
+        "loading": "Loading subscribers…",
+        "empty": "No active subscriber found",
+        "emptyHint": "Try a different name, code or mobile number.",
+        "showing": "Showing {from}–{to} of {total}",
+        "previous": "Previous",
+        "next": "Next",
+        "close": "Close",
+        "loadError": "Subscribers could not be loaded"
+      },
+      "edit": {
+        "title": "Edit share subscription",
+        "subtitle": "{no} · {name}",
+        "submit": "Save changes",
+        "saved": "Share subscription updated",
         "failed": "Share subscription could not be updated"
+      },
+      "detail": {
+        "title": "Share subscription details",
+        "sharesAt": "{shares} at {value} each",
+        "voucherNo": "Voucher no",
+        "enteredBy": "Entered by",
+        "verifiedBy": "Verified by",
+        "rejectedBy": "Rejected by",
+        "byAt": "{name}, {at}",
+        "decisionRemarks": "Verification remarks",
+        "close": "Close"
       }
     },
     "membershipClosure": {
@@ -2707,6 +2815,105 @@
         "empty": "No closed members found",
         "loadError": "Closed members could not be loaded"
       }
+    },
+    "groupKyc": {
+      "open": "KYC",
+      "title": "Group KYC — {name}",
+      "groupLocked": "This group is closed. KYC documents can be viewed but not changed.",
+      "addDocument": "Add document",
+      "editDocument": "Edit document",
+      "documentType": "Document type",
+      "documentNumber": "Document number",
+      "numberHint": {
+        "1": "Registration number, e.g. SHG/WB/2024/0123",
+        "2": "10 characters, e.g. AAAAA1234A",
+        "3": "Bank account number, 9 to 18 digits",
+        "4": "Resolution reference, e.g. RES/2026/04",
+        "5": "Bye-laws reference number",
+        "6": "15 characters, e.g. 19AAAAA1234A1Z5",
+        "7": "3 to 50 letters, digits, / - ."
+      },
+      "docTypes": {
+        "1": "Registration certificate",
+        "2": "PAN card",
+        "3": "Bank passbook / statement",
+        "4": "Group resolution",
+        "5": "Bye-laws",
+        "6": "GST certificate",
+        "7": "Others"
+      },
+      "issueDate": "Issue date",
+      "expiryDate": "Expiry date",
+      "frontImage": "Front / page 1",
+      "backImage": "Back / page 2",
+      "save": "Save",
+      "saved": "Group KYC document saved",
+      "cancel": "Cancel",
+      "close": "Close",
+      "empty": "No KYC documents yet",
+      "emptyHint": "Add the group's registration, PAN or bank documents to complete its KYC.",
+      "loadError": "Group KYC documents could not be loaded",
+      "typeRequired": "Select a document type",
+      "numberRequired": "Enter the document number",
+      "numberFormat": "Document number format is not valid for this document type",
+      "issueFuture": "Issue date cannot be in the future",
+      "issueBeforeFormation": "Issue date cannot be before the group's formation date",
+      "expiryAfterIssue": "Expiry date must be after the issue date",
+      "expiryPast": "Document has expired",
+      "reasonRequired": "A reason is required",
+      "requestFailed": "Group KYC request failed",
+      "inactive": "Inactive",
+      "verified": "Verified",
+      "rejected": "Rejected",
+      "pending": "Pending",
+      "dates": "Issued {issued} · Expires {expires}",
+      "expired": "Expired",
+      "decidedBy": "By {name} on {date}",
+      "edit": "Edit",
+      "verify": "Verify",
+      "reject": "Reject",
+      "reopen": "Reopen",
+      "deactivate": "Deactivate",
+      "activate": "Activate",
+      "verifyHint": "Confirm the document details match the original.",
+      "reasonHint": "Give a reason. It is shown on the document.",
+      "reason": "Reason",
+      "reasonPlaceholder": "Enter the reason"
+    },
+    "memberNominees": {
+      "add": "Add nominee",
+      "count": "{count} of {max}",
+      "maxReached": "You can add up to {max} nominees",
+      "title": "Nominee {number}",
+      "remove": "Remove nominee {number}",
+      "name": "Nominee Name",
+      "namePlaceholder": "Full name of nominee",
+      "relation": "Relationship to Member",
+      "relationPlaceholder": "Select relationship",
+      "dob": "Nominee Date of Birth",
+      "mobile": "Nominee Mobile No.",
+      "mobilePlaceholder": "10 digits",
+      "share": "Share (%)",
+      "sharePlaceholder": "e.g. 50",
+      "shareHint": "Total share: {total, number}% of 100%",
+      "shareTotal": "Nominee shares must add up to 100% (now {total, number}%)",
+      "shareValue": "{share, number, ::percent .##}",
+      "firstRequired": "Fill in the first nominee before adding another",
+      "nameRequired": "Nominee name is required",
+      "relationRequired": "Relationship is required",
+      "dobFuture": "Date of birth cannot be in the future",
+      "mobileInvalid": "Enter a valid 10-digit mobile number",
+      "shareRequired": "Share is required",
+      "issues": {
+        "max": "A member can have at most {max} nominees",
+        "invalid": "Check the nominee details",
+        "duplicate": "The same nominee is added more than once",
+        "shareRequired": "Enter a share for every nominee",
+        "shareTotal": "Nominee shares must add up to 100%"
+      }
+    },
+    "memberAdmissionFee": {
+      "voucherNo": "Admission Fee Voucher"
     }
   },
   "deposits": {
@@ -2773,55 +2980,52 @@
         "stepLabel": "Step {current} of {total}",
         "stepCustomer": "Customer",
         "stepScheme": "Scheme",
-        "stepSavings": "Savings details",
+        "stepSavings": "Savings Details",
         "stepHolders": "Holders",
         "stepApplication": "Application",
-        "customerType": "Customer type",
+        "customerType": "Customer Type",
         "individual": "Individual",
         "group": "Group",
         "customer": "Customer",
-        "customerSearch": "Search customer",
+        "customerSearch": "Search Customer",
         "customerSearchPlaceholder": "Name, ref code, or mobile",
         "customerPlaceholder": "Select a customer",
         "customerCardBranch": "Branch",
         "customerCardFo": "Field officer",
-        "joiningDate": "Joining date",
-        "formationDate": "Formation date",
+        "joiningDate": "Joining Date",
+        "formationDate": "Formation Date",
         "scheme": "Scheme",
         "schemePlaceholder": "Select a savings scheme",
-        "depositType": "Deposit type",
+        "depositType": "Deposit Type",
         "depositTypeHint": "The scheme list follows this type, and the scheme must use the same type.",
         "savingsType": "Savings",
         "sb": {
-          "startDate": "Start date",
-          "opening": "Opening deposit",
-          "roi": "Interest rate (%)",
+          "startDate": "Start Date",
+          "opening": "Opening Deposit",
+          "roi": "Interest Rate (%)",
           "roiPlaceholder": "Scheme rate",
-          "accountNo": "Account no",
-          "accountNoPlaceholder": "Auto",
-          "refAcNo": "Reference account no",
-          "cbsAcNo": "CBS account no",
+          "refAcNo": "Reference Account No",
+          "cbsAcNo": "CBS Account No",
           "locked": "Start date, account number, and opening deposit stay locked while the balance is not zero."
         },
-        "operationMode": "Operation mode",
-        "joint1": "Joint holder 1",
-        "joint2": "Joint holder 2",
-        "holderName": "Holder name",
+        "operationMode": "Operation Mode",
+        "joint1": "Joint Holder 1",
+        "joint2": "Joint Holder 2",
+        "holderName": "Holder Name",
         "holderNameHint": "Built from the holder names. Use the pencil to override.",
         "editHolderName": "Edit holder name",
-        "specialCategory": "Special category",
+        "specialCategory": "Special Category",
         "seniorHint": "Needs age 60+",
-        "nominee": "Nominee registered",
-        "nomineeHint": "Nominees are added on the next step.",
-        "applDate": "Application date",
-        "applNo": "Application no",
+        "nominee": "Nominee Registered",
+        "applDate": "Application Date",
+        "applNo": "Application No",
         "applNoPlaceholder": "Auto (DA-{year}-xxxxx)",
         "branch": "Branch",
-        "fieldOfficer": "Field officer",
+        "fieldOfficer": "Field Officer",
         "fieldOfficerPlaceholder": "Select a field officer",
-        "initialStatus": "Initial status",
+        "initialStatus": "Initial Status",
         "active": "Active",
-        "kycPending": "KYC pending",
+        "kycPending": "KYC Pending",
         "kycSuggest": "This member has pending KYC. KYC pending is a good starting status.",
         "lockedHint": "Locked after the account is opened.",
         "closedEdit": "Closed accounts cannot be edited.",
@@ -2875,19 +3079,19 @@
           "add": "Add nominee",
           "another": "Another nominee",
           "remove": "Remove nominee",
-          "linkMember": "Existing member",
+          "linkMember": "Existing Member",
           "member": "Member",
           "name": "Name",
           "relation": "Relation",
           "relationPlaceholder": "Select a relation",
-          "birthDate": "Birth date",
+          "birthDate": "Birth Date",
           "ageOnly": "Age only",
           "useBirthDate": "Use birth date",
           "age": "Age",
           "ageValue": "{age} yrs",
           "minorNotice": "Nominee is a minor. A guardian is required.",
-          "guardian": "Guardian name",
-          "contact": "Contact no",
+          "guardian": "Guardian Name",
+          "contact": "Contact No",
           "address": "Address",
           "share": "Share %",
           "shareValue": "{percent}%",
@@ -2923,7 +3127,11 @@
           "authorisedEmpty": "Authorised Signatory account has no signatory yet.",
           "loadError": "Signatories could not be loaded.",
           "loadMembersError": "Group members could not be loaded."
-        }
+        },
+        "collapse": "Collapse",
+        "expand": "Expand",
+        "collapseSection": "Collapse {section}",
+        "expandSection": "Expand {section}"
       },
       "view": {
         "title": "Account",
@@ -3156,6 +3364,59 @@
         "unsaved": "This application has unsaved changes.",
         "discard": "Discard",
         "keepEditing": "Keep editing"
+      },
+      "disbursement": {
+        "sectionTitle": "Disbursement Mode & Remarks",
+        "paymentMode": "Payment Mode",
+        "paymentModePlaceholder": "Select payment mode",
+        "modes": {
+          "cash": "Cash",
+          "cheque": "Bank Cheque",
+          "bankTransfer": "Bank Transfer",
+          "sbAccount": "S/B Account",
+          "adjustment": "Adjustment"
+        },
+        "notes": {
+          "cash": "Loan amount will be paid in cash at the branch counter after sanction.",
+          "cheque": "Cheque number and cheque date are recorded at disbursement.",
+          "bankTransfer": "Amount will be transferred by NEFT / RTGS / IMPS to the account below.",
+          "sbGroup": "Each member's active savings account will be credited at disbursement. Members without an active savings account will be rejected by the system.",
+          "sbSelectBorrower": "Select a borrower first to list their savings accounts.",
+          "adjustment": "Loan amount will be adjusted against an existing account (e.g. renewal or top-up of an earlier loan) instead of being paid out."
+        },
+        "receiverName": "Receiver Name",
+        "receiverPlaceholder": "Defaults to borrower",
+        "receiverGroupPlaceholder": "Each member receives their share",
+        "payeeName": "Payee Name",
+        "payeePlaceholder": "Name to print on the cheque",
+        "beneficiaryName": "Beneficiary Name",
+        "beneficiaryPlaceholder": "As per bank passbook",
+        "bankName": "Bank Name",
+        "bankNamePlaceholder": "e.g. State Bank of India",
+        "accountNo": "Bank Account No",
+        "accountNoPlaceholder": "Account number",
+        "confirmAccountNo": "Confirm Account No",
+        "confirmAccountNoPlaceholder": "Re-enter account number",
+        "ifsc": "IFSC Code",
+        "ifscPlaceholder": "e.g. SBIN0001234",
+        "ifscHint": "11 characters: 4 letters, 0, then 6 letters or digits",
+        "sbAccount": "Savings Account to Credit",
+        "sbAccountPlaceholder": "Select savings account",
+        "sbBalance": "Bal {amount}",
+        "loadingSbAccounts": "Loading savings accounts…",
+        "noSbAccount": "This borrower has no active savings account. Open one in Deposits, or choose another payment mode.",
+        "adjustmentRef": "Adjustment Reference",
+        "adjustmentRefPlaceholder": "e.g. existing loan account no.",
+        "errors": {
+          "modeRequired": "Please select a payment mode for disbursement.",
+          "payeeRequired": "Payee name is required for cheque disbursement.",
+          "beneficiaryRequired": "Beneficiary name is required for bank transfer.",
+          "accountInvalid": "Enter a valid bank account number (9 to 18 digits).",
+          "accountMismatch": "Account numbers do not match.",
+          "ifscInvalid": "Enter a valid 11-character IFSC code (e.g. SBIN0001234).",
+          "sbRequired": "Select the borrower's savings account to credit.",
+          "adjustmentRequired": "Adjustment reference is required."
+        }
       }
     }
   },

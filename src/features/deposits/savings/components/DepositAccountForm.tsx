@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type FormEvent, type MouseEvent, type ReactNode } from "react";
-import { Pencil, Save } from "lucide-react";
+import { ArrowRight, ChevronDown, ChevronUp, Save } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { Modal } from "@/components/ui/Modal";
 import { Alert } from "@/components/ui/Alert";
@@ -100,17 +100,46 @@ function FormSection({
   layout,
   id,
   title,
+  collapsible = false,
   children,
 }: {
   layout: "dialog" | "page";
   id: string;
   title: string;
+  collapsible?: boolean;
   children: ReactNode;
 }) {
+  const t = useTranslations("deposits.savings.form");
+  const [expanded, setExpanded] = useState(true);
   if (layout === "dialog") return children;
+  const toggleLabel = expanded
+    ? t("collapseSection", { section: title })
+    : t("expandSection", { section: title });
   return (
-    <Card title={title}>
-      <div id={id} className="flex flex-col gap-4">
+    <Card
+      title={title}
+      trailing={
+        collapsible ? (
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            icon={expanded ? ChevronUp : ChevronDown}
+            aria-expanded={expanded}
+            aria-controls={id}
+            aria-label={toggleLabel}
+            onClick={() => setExpanded((value) => !value)}
+          >
+            {expanded ? t("collapse") : t("expand")}
+          </Button>
+        ) : undefined
+      }
+    >
+      <div
+        id={id}
+        hidden={collapsible && !expanded}
+        className={collapsible && !expanded ? "hidden" : "flex flex-col gap-4"}
+      >
         {children}
       </div>
     </Card>
@@ -161,15 +190,6 @@ function SavingsDetails({
           error={errors.sbRoi}
           placeholder={t("form.sb.roiPlaceholder")}
           onChange={(sbRoi) => onChange({ sbRoi, sbRoiTouched: true })}
-        />
-        <TextField
-          label={t("form.sb.accountNo")}
-          restrict="digits"
-          value={form.sbAccountNo}
-          disabled={locked}
-          error={errors.sbAccountNo}
-          placeholder={t("form.sb.accountNoPlaceholder")}
-          onChange={(sbAccountNo) => onChange({ sbAccountNo })}
         />
         <TextField
           label={t("form.sb.refAcNo")}
@@ -1347,40 +1367,6 @@ function DepositAccountFormBody({
               }}
             />
           ) : null}
-          <TextField
-            label={t("form.holderName")}
-            value={shownHolder}
-            maxLength={300}
-            readOnly={!form.holderNameManual}
-            error={fieldErrors.holderName}
-            hint={t("form.holderNameHint")}
-            onChange={(holderName) => patch({ holderName, holderNameManual: true })}
-            trailing={
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                icon={Pencil}
-                tooltip={t("form.editHolderName")}
-                onClick={() =>
-                  patch({
-                    holderNameManual: true,
-                    holderName: form.holderNameManual ? form.holderName : preview,
-                  })
-                }
-              />
-            }
-          />
-          {form.custTypeCd === CUST_TYPE_INDIVIDUAL ? (
-            <CheckboxField
-              label={t("form.nominee")}
-              checked={form.nomRegd}
-              onChange={(nomRegd) => patch({ nomRegd })}
-            />
-          ) : null}
-          {form.custTypeCd === CUST_TYPE_INDIVIDUAL ? (
-            <p className="text-xs text-muted">{t("form.nomineeHint")}</p>
-          ) : null}
         </div>
         </FormSection>
         <FormSection
@@ -1486,6 +1472,13 @@ function DepositAccountFormBody({
           id="deposit-account-section-4"
           title={t("form.stepNominees")}
         >
+        {form.custTypeCd === CUST_TYPE_INDIVIDUAL ? (
+          <CheckboxField
+            label={t("form.nominee")}
+            checked={form.nomRegd}
+            onChange={(nomRegd) => patch({ nomRegd })}
+          />
+        ) : null}
         <DepositAccountNomineeStep
           drafts={nominees}
           holderIds={[form.customer?.id, form.joint1?.id, form.joint2?.id].filter(
@@ -1546,6 +1539,7 @@ function DepositAccountFormBody({
           layout={layout}
           id="deposit-account-section-6"
           title={t("form.stepSummary")}
+          collapsible
         >
         <DepositAccountSummaryStep sections={summarySections} />
         </FormSection>
@@ -1566,7 +1560,7 @@ function DepositAccountFormBody({
           </Button>
         ) : null}
         {layout === "dialog" && form.step < 6 ? (
-          <Button type="button" onClick={goNext}>
+          <Button type="button" icon={ArrowRight} onClick={goNext}>
             {t("form.next")}
           </Button>
         ) : (

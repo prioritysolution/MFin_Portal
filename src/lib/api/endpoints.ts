@@ -17,6 +17,8 @@ export const endpoints = {
     auditLog: "/api/security/audit-log",
     smsSettings: "/api/master/sms-settings",
     whatsAppSettings: "/api/master/whatsapp-settings",
+    globalSettings: "/api/master/global-settings",
+    generalSettings: "/api/master/general-settings",
     finYear: "/api/master/fin-year",
     holiday: "/api/master/holiday",
     center: "/api/master/center",
@@ -48,6 +50,8 @@ export const endpoints = {
     groupManagement: "/api/onboarding/group-management",
     memberRegistration: "/api/onboarding/member-registration",
     memberKyc: "/api/onboarding/member-kyc",
+    groupKyc: "/api/onboarding/group-kyc",
+    groupKycFile: "/api/onboarding/group-kyc/file",
     memberLocation: "/api/onboarding/member-location",
     groupMemberMapping: "/api/onboarding/group-member-mapping",
     shareSubscription: "/api/onboarding/share-subscription",
@@ -255,6 +259,17 @@ export const endpoints = {
     get: "/api/WhatsAppSettingsGet",
     update: "/api/WhatsAppSettingsUpdate",
   },
+  /** Contract: docs/global-settings-api.md. Not yet in apilist.txt. */
+  globalSettings: {
+    get: "/api/GlobalSettingsGet",
+    update: "/api/GlobalSettingsUpdate",
+  },
+  /** `mst_settings_general`. Contract: docs/general-settings-api.md. */
+  generalSettings: {
+    list: "/api/GeneralSettingsList",
+    status: "/api/GeneralSettingsStatus",
+    bulkStatus: "/api/GeneralSettingsBulkStatus",
+  },
   rbiLendingPolicy: {
     get: "/api/RbiLendingPolicyGet",
     update: "/api/RbiLendingPolicyUpdate",
@@ -317,6 +332,14 @@ export const endpoints = {
     verify: "/api/MemberKycVerify",
     status: "/api/MemberKycStatus",
   },
+  /** Contract: docs/group-kyc-api.md. Not yet in apilist.txt. */
+  groupKyc: {
+    list: "/api/GroupKycList",
+    add: "/api/GroupKycAdd",
+    edit: "/api/GroupKycEdit",
+    verify: "/api/GroupKycVerify",
+    status: "/api/GroupKycStatus",
+  },
   memberGroup: {
     list: "/api/MemberGroupList",
     check: "/api/MemberGroupCheck",
@@ -334,6 +357,7 @@ export const endpoints = {
   shareSubscription: {
     list: "/api/ShareSubscriptionList",
     add: "/api/ShareSubscriptionAdd",
+    edit: "/api/ShareSubscriptionEdit",
     approve: "/api/ShareSubscriptionApprove",
     holding: "/api/ShareHoldingGet",
   },

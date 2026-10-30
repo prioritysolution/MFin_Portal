@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Eye, Pencil, Plus } from "lucide-react";
+import { Eye, Pencil, Plus, Save } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { DataTable, type DataTableColumn } from "@/components/shared/DataTable";
 import { FilterPanel } from "@/components/shared/FilterPanel";
@@ -273,7 +273,7 @@ export function LoanScreenView({ screen }: LoanScreenViewProps) {
             <Button type="button" variant="secondary" onClick={requestClose}>
               {tCommon("cancel")}
             </Button>
-            <Button type="button" onClick={save}>
+            <Button type="button" icon={Save} onClick={save}>
               {tCommon("save")}
             </Button>
           </div>

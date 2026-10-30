@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Building2,
   GitBranch,
@@ -8,19 +8,18 @@ import {
   Network,
   Plus,
   Search,
-  Users,
 } from "lucide-react";
 import { DataTable } from "@/components/shared/DataTable";
 import type { DataTableColumn } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { KendraBranchMasterTab } from "@/features/master/branch/components/KendraBranchMasterTab";
+import { fetchBranchList } from "@/features/master/branch/services/branch-client";
 import { KendraCenterMasterTab } from "@/features/master/center/components/KendraCenterMasterTab";
 import type { Branch } from "@/features/master/branch/types/branch.types";
 import type { Center } from "@/features/master/center/types/center.types";
 
-type TabId = "branches" | "kendras" | "jlg" | "org";
+type TabId = "kendras" | "jlg" | "org";
 
 type OrgBranch = {
   id: number;
@@ -39,9 +38,7 @@ type JlgRow = {
 };
 
 const tabs: { id: TabId; label: string; icon: typeof Building2 }[] = [
-  { id: "branches", label: "Branch Master", icon: Building2 },
   { id: "kendras", label: "Kendra Centres", icon: MapPin },
-  { id: "jlg", label: "JLG Groups", icon: Users },
   { id: "org", label: "Org Chart", icon: Network },
 ];
 
@@ -65,8 +62,23 @@ const initialJlgs: JlgRow[] = [
 ];
 
 export function KendraJlgView() {
-  const [activeTab, setActiveTab] = useState<TabId>("branches");
+  const [activeTab, setActiveTab] = useState<TabId>("kendras");
   const [liveBranches, setLiveBranches] = useState<Branch[]>([]);
+
+  useEffect(() => {
+    if (activeTab !== "org") return;
+    let cancelled = false;
+    fetchBranchList({ page: 1, perPage: 200 })
+      .then((result) => {
+        if (!cancelled) setLiveBranches(result.items);
+      })
+      .catch(() => {
+        if (!cancelled) setLiveBranches([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [activeTab]);
   const [liveCenters, setLiveCenters] = useState<Center[]>([]);
   const [jlgs] = useState<JlgRow[]>(initialJlgs);
   const [query, setQuery] = useState("");
@@ -137,10 +149,6 @@ export function KendraJlgView() {
           );
         })}
       </div>
-
-      {activeTab === "branches" ? (
-        <KendraBranchMasterTab onBranchesChange={setLiveBranches} />
-      ) : null}
 
       {activeTab === "kendras" ? (
         <KendraCenterMasterTab onCentersChange={setLiveCenters} />
@@ -288,7 +296,7 @@ function OrgChartPanel({
     <div className="grid gap-4">
       {branches.length === 0 ? (
         <p className="rounded-2xl border border-border bg-surface p-6 text-sm text-muted">
-          Open the Branch Master tab once to load live branches for the chart.
+          No branches found. Add branches in Branch Master.
         </p>
       ) : null}
       {branches.map((branch) => {

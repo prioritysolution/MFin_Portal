@@ -21,6 +21,7 @@ export type ModuleId =
   | "master.staff"
   | "master.smsSettings"
   | "master.globalSettings"
+  | "master.generalSettings"
   | "master.makerChecker"
   | "master.depositSchemes"
   | "master.depositInterest"
@@ -170,7 +171,7 @@ export const masterModulePages = {
   }),
   branch: new ModulePage({
     id: "master.branch",
-    route: "/master/kendra-jlg",
+    route: "/master/branch-vault",
     messageNamespace: "master.branch",
     titleKey: "title",
     descriptionKey: "description",
@@ -200,6 +201,13 @@ export const masterModulePages = {
     id: "master.globalSettings",
     route: "/master/global-settings",
     messageNamespace: "master.globalSettings",
+    titleKey: "title",
+    descriptionKey: "description",
+  }),
+  generalSettings: new ModulePage({
+    id: "master.generalSettings",
+    route: "/master/general-settings",
+    messageNamespace: "master.generalSettings",
     titleKey: "title",
     descriptionKey: "description",
   }),

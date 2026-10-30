@@ -11,6 +11,7 @@ import {
   History,
   Lock,
   Plus,
+  Save,
   Scale,
   Shield,
   Trash2,
@@ -1039,7 +1040,7 @@ export function LosApplicationDrawer({
         footer={
           <div className="flex justify-end gap-2">
             <Button variant="secondary" onClick={() => setChargeModalOpen(false)}>Cancel</Button>
-            <Button onClick={handleAddCharge} disabled={submittingChild || !chargeForm.chargeId}>
+            <Button onClick={handleAddCharge} icon={Save} disabled={submittingChild || !chargeForm.chargeId}>
               {submittingChild ? "Saving..." : "Save Charge"}
             </Button>
           </div>
@@ -1086,7 +1087,7 @@ export function LosApplicationDrawer({
         footer={
           <div className="flex justify-end gap-2">
             <Button variant="secondary" onClick={() => setGuarantorModalOpen(false)}>Cancel</Button>
-            <Button onClick={handleAddGuarantor} disabled={submittingChild || !guarantorForm.guarantorId}>
+            <Button onClick={handleAddGuarantor} icon={UserCheck} disabled={submittingChild || !guarantorForm.guarantorId}>
               {submittingChild ? "Attaching..." : "Attach Guarantor"}
             </Button>
           </div>
@@ -1138,7 +1139,7 @@ export function LosApplicationDrawer({
         footer={
           <div className="flex justify-end gap-2">
             <Button variant="secondary" onClick={() => setMortgageModalOpen(false)}>Cancel</Button>
-            <Button onClick={handleAddMortgage} disabled={submittingChild || !mortgageForm.description}>
+            <Button onClick={handleAddMortgage} icon={Save} disabled={submittingChild || !mortgageForm.description}>
               {submittingChild ? "Saving..." : "Save Asset"}
             </Button>
           </div>
@@ -1191,7 +1192,7 @@ export function LosApplicationDrawer({
         footer={
           <div className="flex justify-end gap-2">
             <Button variant="secondary" onClick={() => setFreezeModalOpen(false)}>Cancel</Button>
-            <Button onClick={handleAddDepositFreeze} disabled={submittingChild || !freezeForm.depositAccountId || !freezeForm.freezeAmount}>
+            <Button onClick={handleAddDepositFreeze} icon={Lock} disabled={submittingChild || !freezeForm.depositAccountId || !freezeForm.freezeAmount}>
               {submittingChild ? "Creating..." : "Mark Lien"}
             </Button>
           </div>

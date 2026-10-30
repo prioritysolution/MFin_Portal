@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Save, Send, Trash2 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
@@ -208,7 +208,7 @@ export function CaptureDocumentsModal({
           <Button type="button" variant="secondary" onClick={onClose}>
             {t("cancel")}
           </Button>
-          <Button type="button" loading={saving} onClick={() => void save()}>
+          <Button type="button" icon={Save} loading={saving} onClick={() => void save()}>
             {t("saveAll")}
           </Button>
         </>
@@ -331,7 +331,7 @@ export function EditDocumentModal({
       footer={
         <>
           <Button type="button" variant="secondary" onClick={onClose}>{t("cancel")}</Button>
-          <Button type="button" loading={saving} onClick={() => void save()}>{document?.verifyStatus === 2 ? t("resubmit") : t("save")}</Button>
+          <Button type="button" icon={document?.verifyStatus === 2 ? Send : Save} loading={saving} onClick={() => void save()}>{document?.verifyStatus === 2 ? t("resubmit") : t("save")}</Button>
         </>
       }
     >

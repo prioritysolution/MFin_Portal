@@ -101,11 +101,11 @@ function MenuLabel({
   const title = english ? `${name} (${english})` : name;
   return (
     <span className="min-w-0 flex-1" title={title}>
-      <span className={`block truncate ${emphasize ? "font-medium" : ""}`}>
+      <span className={`block break-words leading-snug ${emphasize ? "font-medium" : ""}`}>
         {name}
       </span>
       {english ? (
-        <span className="block truncate text-[11px] font-normal leading-tight text-muted-soft">
+        <span className="block break-words text-[11px] font-normal leading-tight text-muted-soft">
           {english}
         </span>
       ) : null}

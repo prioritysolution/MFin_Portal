@@ -417,7 +417,7 @@ export function LosFieldVerificationView() {
             <Button variant="secondary" onClick={() => setInspectionModalOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSaveInspection} disabled={submitting}>
+            <Button onClick={handleSaveInspection} icon={ShieldCheck} disabled={submitting}>
               {submitting ? "Saving..." : "Submit Verification"}
             </Button>
           </div>

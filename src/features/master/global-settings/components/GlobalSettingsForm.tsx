@@ -1,204 +1,165 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
-import { useTranslations } from "next-intl";
-import { Settings } from "lucide-react";
+import { useState, type FormEvent, type ReactNode } from "react";
+import { useFormatter, useTranslations } from "next-intl";
+import { RotateCcw, Save } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Alert } from "@/components/ui/Alert";
 import { PageToast, useToastText } from "@/components/ui/PageToast";
 import { Card } from "@/components/ui/Card";
 import { CheckboxField, SelectField, TextField } from "@/components/ui/Form";
-import { LoadingState } from "@/components/shared/LoadingState";
 import {
-  fetchGlobalSettings,
-  saveGlobalSettings,
-} from "@/features/master/global-settings/services/global-settings-client";
-import { globalSettingsUpdateInputSchema } from "@/features/master/global-settings/schemas/global-settings.schema";
-import {
-  CURRENCY_OPTIONS,
-  DATE_FORMAT_OPTIONS,
-  DAY_COUNT_OPTIONS,
-  DEFAULT_LOCALE_OPTIONS,
-  GLOBAL_SETTINGS_DEFAULTS,
-  ROUNDING_OPTIONS,
-  TIMEZONE_OPTIONS,
-  type DateFormatOption,
-  type DayCountBasis,
-  type DefaultLocaleOption,
-  type GlobalSettings,
-  type RoundingMode,
+  DEFAULT_LANGUAGE_OPTIONS,
+  type DefaultLanguage,
 } from "@/features/master/global-settings/types/global-settings.types";
 
-type FormState = {
-  timezone: string;
-  dateFormat: DateFormatOption;
-  currencyCode: string;
-  decimalPlaces: string;
-  defaultLocale: DefaultLocaleOption;
-  dayCountBasis: DayCountBasis;
-  roundingMode: RoundingMode;
-  allowBackdatedTxn: boolean;
+type FlagKey =
+  | "allowBackdatedTxn"
+  | "dayEndRequired"
+  | "monthEndRequired"
+  | "yearEndRequired"
+  | "panRequired"
+  | "aadhaarRequired"
+  | "voterIdRequired"
+  | "geoTaggingRequired";
+
+type HintedFlagKey = Exclude<FlagKey, "allowBackdatedTxn">;
+
+type FormState = Record<FlagKey, boolean> & {
+  defaultLanguage: DefaultLanguage;
+  passwordExpiryDays: string;
+  loginAttemptLimit: string;
   maxBackdateDays: string;
-  multiBranchAccess: boolean;
-  requireMakerCheckerMasters: boolean;
-  forceEodBeforeNextDay: boolean;
-  auditRetentionDays: string;
 };
 
-type LoadStatus = { status: "loading" } | { status: "ready" };
+type NumberField = "passwordExpiryDays" | "loginAttemptLimit" | "maxBackdateDays";
+type FieldErrors = Partial<Record<NumberField, string>>;
 
-function toFormState(data: GlobalSettings): FormState {
-  return {
-    timezone: data.timezone,
-    dateFormat: data.dateFormat,
-    currencyCode: data.currencyCode,
-    decimalPlaces: String(data.decimalPlaces),
-    defaultLocale: data.defaultLocale,
-    dayCountBasis: data.dayCountBasis,
-    roundingMode: data.roundingMode,
-    allowBackdatedTxn: data.allowBackdatedTxn,
-    maxBackdateDays: String(data.maxBackdateDays),
-    multiBranchAccess: data.multiBranchAccess,
-    requireMakerCheckerMasters: data.requireMakerCheckerMasters,
-    forceEodBeforeNextDay: data.forceEodBeforeNextDay,
-    auditRetentionDays: String(data.auditRetentionDays),
-  };
-}
+const SAMPLE_SETTINGS: FormState = {
+  defaultLanguage: "en",
+  passwordExpiryDays: "90",
+  loginAttemptLimit: "5",
+  allowBackdatedTxn: true,
+  maxBackdateDays: "7",
+  dayEndRequired: true,
+  monthEndRequired: true,
+  yearEndRequired: true,
+  panRequired: false,
+  aadhaarRequired: true,
+  voterIdRequired: false,
+  geoTaggingRequired: true,
+};
+
+const SAMPLE_UPDATED_BY = "Head Office Admin";
+const SAMPLE_UPDATED_AT = new Date("2026-10-28T16:35:00+05:30");
+
+const RANGES: Record<NumberField, { min: number; max: number }> = {
+  passwordExpiryDays: { min: 0, max: 365 },
+  loginAttemptLimit: { min: 1, max: 20 },
+  maxBackdateDays: { min: 1, max: 365 },
+};
+
+const PERIOD_FLAGS: HintedFlagKey[] = ["dayEndRequired", "monthEndRequired", "yearEndRequired"];
+const KYC_FLAGS: HintedFlagKey[] = ["panRequired", "aadhaarRequired", "voterIdRequired", "geoTaggingRequired"];
 
 function parseWholeNumber(raw: string): number {
   if (!/^\d+$/.test(raw.trim())) return Number.NaN;
   return Number(raw.trim());
 }
 
+function outOfRange(field: NumberField, raw: string): boolean {
+  const value = parseWholeNumber(raw);
+  const { min, max } = RANGES[field];
+  return Number.isNaN(value) || value < min || value > max;
+}
+
+function Section({ title, hint, children }: { title: string; hint: string; children: ReactNode }) {
+  return (
+    <section className="rounded-xl border border-border p-4 sm:p-5">
+      <div className="mb-4">
+        <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
+        <p className="mt-1 text-sm text-muted">{hint}</p>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function FlagField({
+  label,
+  hint,
+  checked,
+  onChange,
+}: {
+  label: string;
+  hint: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+}) {
+  return (
+    <div className="rounded-lg border border-border p-3">
+      <CheckboxField label={label} checked={checked} onChange={onChange} />
+      <p className="mt-1 ps-6 text-xs text-muted">{hint}</p>
+    </div>
+  );
+}
+
 export function GlobalSettingsForm() {
   const t = useTranslations("master.globalSettings");
-  const tErrors = useTranslations("errors");
+  const tCommon = useTranslations("common");
+  const format = useFormatter();
 
-  const [loadState, setLoadState] = useState<LoadStatus>({ status: "loading" });
-  const [form, setForm] = useState<FormState | null>(null);
-  const [saving, setSaving] = useState(false);
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [saved, setSaved] = useState<FormState>(SAMPLE_SETTINGS);
+  const [form, setForm] = useState<FormState>(SAMPLE_SETTINGS);
+  const [updatedAt, setUpdatedAt] = useState<Date>(SAMPLE_UPDATED_AT);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useToastText();
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function load() {
-      setLoadState({ status: "loading" });
-      setFormError(null);
-      setSuccessMessage(null);
-
-      try {
-        const data = await fetchGlobalSettings();
-        if (cancelled) return;
-        setForm(toFormState(data));
-        setLoadState({ status: "ready" });
-      } catch {
-        if (cancelled) return;
-        setForm(toFormState(GLOBAL_SETTINGS_DEFAULTS));
-        setLoadState({ status: "ready" });
-        setFormError(tErrors("generic"));
-      }
-    }
-
-    void load();
-    return () => {
-      cancelled = true;
-    };
-  }, [setSuccessMessage, tErrors]);
+  const dirty = JSON.stringify(form) !== JSON.stringify(saved);
+  const languageOptions = DEFAULT_LANGUAGE_OPTIONS.map((value) => ({
+    value,
+    label: t(`options.language.${value}`),
+  }));
 
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
-    setForm((prev) => (prev ? { ...prev, [key]: value } : prev));
+    setForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!form) return;
+  function validate(): FieldErrors {
+    const fields: NumberField[] = ["passwordExpiryDays", "loginAttemptLimit"];
+    if (form.allowBackdatedTxn) fields.push("maxBackdateDays");
+    const errors: FieldErrors = {};
+    for (const field of fields) {
+      if (outOfRange(field, form[field])) errors[field] = t("rangeError", RANGES[field]);
+    }
+    return errors;
+  }
 
-    setFormError(null);
-    setSuccessMessage(null);
+  function handleReset() {
+    setForm(saved);
     setFieldErrors({});
+    setFormError(null);
+  }
 
-    const payload = {
-      timezone: form.timezone,
-      dateFormat: form.dateFormat,
-      currencyCode: form.currencyCode,
-      decimalPlaces: parseWholeNumber(form.decimalPlaces),
-      defaultLocale: form.defaultLocale,
-      dayCountBasis: form.dayCountBasis,
-      roundingMode: form.roundingMode,
-      allowBackdatedTxn: form.allowBackdatedTxn,
-      maxBackdateDays: parseWholeNumber(form.maxBackdateDays),
-      multiBranchAccess: form.multiBranchAccess,
-      requireMakerCheckerMasters: form.requireMakerCheckerMasters,
-      forceEodBeforeNextDay: form.forceEodBeforeNextDay,
-      auditRetentionDays: parseWholeNumber(form.auditRetentionDays),
-    };
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSuccessMessage(null);
 
-    const parsed = globalSettingsUpdateInputSchema.safeParse(payload);
-    if (!parsed.success) {
-      const flat = parsed.error.flatten().fieldErrors;
-      setFieldErrors({
-        timezone: flat.timezone?.[0] ?? "",
-        dateFormat: flat.dateFormat?.[0] ?? "",
-        currencyCode: flat.currencyCode?.[0] ?? "",
-        decimalPlaces: flat.decimalPlaces?.[0] ?? "",
-        defaultLocale: flat.defaultLocale?.[0] ?? "",
-        dayCountBasis: flat.dayCountBasis?.[0] ?? "",
-        roundingMode: flat.roundingMode?.[0] ?? "",
-        maxBackdateDays: flat.maxBackdateDays?.[0] ?? "",
-        auditRetentionDays: flat.auditRetentionDays?.[0] ?? "",
-      });
+    const errors = validate();
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) {
       setFormError(t("validationFailed"));
       return;
     }
 
-    setSaving(true);
-    try {
-      const updated = await saveGlobalSettings(parsed.data);
-      setForm(toFormState(updated));
-      setSuccessMessage(t("saveSuccess"));
-    } catch {
-      setFormError(tErrors("generic"));
-    } finally {
-      setSaving(false);
-    }
+    const next = { ...form, maxBackdateDays: form.allowBackdatedTxn ? form.maxBackdateDays : "0" };
+    setFormError(null);
+    setForm(next);
+    setSaved(next);
+    setUpdatedAt(new Date());
+    setSuccessMessage(t("saveSuccess"));
   }
-
-  if (loadState.status === "loading" || !form) {
-    return <LoadingState title={t("loading")} />;
-  }
-
-  const timezoneOptions = TIMEZONE_OPTIONS.map((item) => ({
-    value: item.value,
-    label: t(item.labelKey),
-  }));
-
-  const dateFormatOptions = DATE_FORMAT_OPTIONS.map((value) => ({
-    value,
-    label: value,
-  }));
-
-  const currencyOptions = CURRENCY_OPTIONS.map((item) => ({
-    value: item.value,
-    label: t(item.labelKey),
-  }));
-
-  const localeOptions = DEFAULT_LOCALE_OPTIONS.map((value) => ({
-    value,
-    label: t(`options.locale.${value}`),
-  }));
-
-  const dayCountOptions = DAY_COUNT_OPTIONS.map((value) => ({
-    value,
-    label: t(`options.dayCount.${value}`),
-  }));
-
-  const roundingOptions = ROUNDING_OPTIONS.map((value) => ({
-    value,
-    label: t(`options.rounding.${value}`),
-  }));
 
   return (
     <div className="flex min-w-0 flex-col gap-4 sm:gap-5">
@@ -206,177 +167,111 @@ export function GlobalSettingsForm() {
 
       <Card title={t("title")} description={t("description")}>
         <div className="flex min-w-0 flex-col gap-4 sm:gap-5">
-          <Alert tone="info">{t("localOnlyHint")}</Alert>
           {formError ? <Alert tone="error">{formError}</Alert> : null}
 
-          <form
-            id="global-settings-form"
-            onSubmit={(event) => void handleSubmit(event)}
-          >
+          <form id="global-settings-form" onSubmit={handleSubmit} noValidate>
             <div className="flex min-w-0 flex-col gap-4 sm:gap-5">
-              <section className="rounded-xl border border-border p-4 sm:p-5">
-                <div className="mb-4">
-                  <h3 className="text-sm font-semibold text-slate-900">{t("sections.locale.title")}</h3>
-                  <p className="mt-1 text-sm text-muted">{t("sections.locale.hint")}</p>
+              <Section title={t("sections.general.title")} hint={t("sections.general.hint")}>
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                  <SelectField
+                    label={t("fields.defaultLanguage")}
+                    value={form.defaultLanguage}
+                    required
+                    searchable={false}
+                    options={languageOptions}
+                    onChange={(value) => updateField("defaultLanguage", value as DefaultLanguage)}
+                  />
+                  <TextField
+                    label={t("fields.passwordExpiryDays")}
+                    value={form.passwordExpiryDays}
+                    required
+                    inputMode="numeric"
+                    restrict="digits"
+                    hint={t("hints.passwordExpiryDays")}
+                    error={fieldErrors.passwordExpiryDays}
+                    onChange={(value) => updateField("passwordExpiryDays", value)}
+                  />
+                  <TextField
+                    label={t("fields.loginAttemptLimit")}
+                    value={form.loginAttemptLimit}
+                    required
+                    inputMode="numeric"
+                    restrict="digits"
+                    hint={t("hints.loginAttemptLimit")}
+                    error={fieldErrors.loginAttemptLimit}
+                    onChange={(value) => updateField("loginAttemptLimit", value)}
+                  />
                 </div>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              <SelectField
-                label={t("fields.timezone")}
-                value={form.timezone}
-                required
-                searchable={false}
-                options={timezoneOptions}
-                error={fieldErrors.timezone || undefined}
-                onChange={(value) => updateField("timezone", value)}
-              />
-              <SelectField
-                label={t("fields.dateFormat")}
-                value={form.dateFormat}
-                required
-                searchable={false}
-                options={dateFormatOptions}
-                error={fieldErrors.dateFormat || undefined}
-                onChange={(value) =>
-                  updateField("dateFormat", value as DateFormatOption)
-                }
-              />
-              <SelectField
-                label={t("fields.currencyCode")}
-                value={form.currencyCode}
-                required
-                searchable={false}
-                options={currencyOptions}
-                error={fieldErrors.currencyCode || undefined}
-                onChange={(value) => updateField("currencyCode", value)}
-              />
-              <TextField
-                label={t("fields.decimalPlaces")}
-                value={form.decimalPlaces}
-                required
-                inputMode="numeric"
-                restrict="digits"
-                hint={t("hints.decimalPlaces")}
-                error={fieldErrors.decimalPlaces || undefined}
-                onChange={(value) => updateField("decimalPlaces", value)}
-              />
-              <SelectField
-                label={t("fields.defaultLocale")}
-                value={form.defaultLocale}
-                required
-                searchable={false}
-                options={localeOptions}
-                error={fieldErrors.defaultLocale || undefined}
-                onChange={(value) =>
-                  updateField("defaultLocale", value as DefaultLocaleOption)
-                }
-              />
-            </div>
-              </section>
+              </Section>
 
-              <section className="rounded-xl border border-border p-4 sm:p-5">
-                <div className="mb-4">
-                  <h3 className="text-sm font-semibold text-slate-900">{t("sections.accounting.title")}</h3>
-                  <p className="mt-1 text-sm text-muted">{t("sections.accounting.hint")}</p>
+              <Section title={t("sections.transactions.title")} hint={t("sections.transactions.hint")}>
+                <CheckboxField
+                  label={t("fields.allowBackdatedTxn")}
+                  checked={form.allowBackdatedTxn}
+                  onChange={(checked) => {
+                    updateField("allowBackdatedTxn", checked);
+                    if (!checked) updateField("maxBackdateDays", "0");
+                    else if (outOfRange("maxBackdateDays", form.maxBackdateDays)) updateField("maxBackdateDays", "7");
+                  }}
+                />
+                <div className="mt-3 max-w-md">
+                  <TextField
+                    label={t("fields.maxBackdateDays")}
+                    value={form.maxBackdateDays}
+                    required={form.allowBackdatedTxn}
+                    inputMode="numeric"
+                    restrict="digits"
+                    disabled={!form.allowBackdatedTxn}
+                    hint={t("hints.maxBackdateDays")}
+                    error={fieldErrors.maxBackdateDays}
+                    onChange={(value) => updateField("maxBackdateDays", value)}
+                  />
                 </div>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              <SelectField
-                label={t("fields.dayCountBasis")}
-                value={form.dayCountBasis}
-                required
-                searchable={false}
-                options={dayCountOptions}
-                error={fieldErrors.dayCountBasis || undefined}
-                onChange={(value) =>
-                  updateField("dayCountBasis", value as DayCountBasis)
-                }
-              />
-              <SelectField
-                label={t("fields.roundingMode")}
-                value={form.roundingMode}
-                required
-                searchable={false}
-                options={roundingOptions}
-                error={fieldErrors.roundingMode || undefined}
-                onChange={(value) =>
-                  updateField("roundingMode", value as RoundingMode)
-                }
-              />
-            </div>
+              </Section>
 
-            <div className="mt-4 flex flex-col gap-3">
-              <CheckboxField
-                label={t("fields.allowBackdatedTxn")}
-                checked={form.allowBackdatedTxn}
-                onChange={(checked) => {
-                  updateField("allowBackdatedTxn", checked);
-                  if (!checked) updateField("maxBackdateDays", "0");
-                  else if (form.maxBackdateDays === "0") {
-                    updateField("maxBackdateDays", "7");
-                  }
-                }}
-              />
-            </div>
-
-            <div className="mt-3 max-w-md">
-              <TextField
-                label={t("fields.maxBackdateDays")}
-                value={form.maxBackdateDays}
-                required
-                inputMode="numeric"
-                restrict="digits"
-                disabled={!form.allowBackdatedTxn}
-                hint={t("hints.maxBackdateDays")}
-                error={fieldErrors.maxBackdateDays || undefined}
-                onChange={(value) => updateField("maxBackdateDays", value)}
-              />
-            </div>
-              </section>
-
-              <section className="rounded-xl border border-border p-4 sm:p-5">
-                <div className="mb-4">
-                  <h3 className="text-sm font-semibold text-slate-900">{t("sections.controls.title")}</h3>
-                  <p className="mt-1 text-sm text-muted">{t("sections.controls.hint")}</p>
+              <Section title={t("sections.closing.title")} hint={t("sections.closing.hint")}>
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                  {PERIOD_FLAGS.map((key) => (
+                    <FlagField
+                      key={key}
+                      label={t(`fields.${key}`)}
+                      hint={t(`flagHints.${key}`)}
+                      checked={form[key]}
+                      onChange={(checked) => updateField(key, checked)}
+                    />
+                  ))}
                 </div>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              <TextField
-                label={t("fields.auditRetentionDays")}
-                value={form.auditRetentionDays}
-                required
-                inputMode="numeric"
-                restrict="digits"
-                hint={t("hints.auditRetentionDays")}
-                error={fieldErrors.auditRetentionDays || undefined}
-                onChange={(value) => updateField("auditRetentionDays", value)}
-              />
-            </div>
+              </Section>
 
-            <div className="mt-4 flex flex-col gap-3">
-              <CheckboxField
-                label={t("fields.multiBranchAccess")}
-                checked={form.multiBranchAccess}
-                onChange={(checked) => updateField("multiBranchAccess", checked)}
-              />
-              <CheckboxField
-                label={t("fields.requireMakerCheckerMasters")}
-                checked={form.requireMakerCheckerMasters}
-                onChange={(checked) =>
-                  updateField("requireMakerCheckerMasters", checked)
-                }
-              />
-              <CheckboxField
-                label={t("fields.forceEodBeforeNextDay")}
-                checked={form.forceEodBeforeNextDay}
-                onChange={(checked) =>
-                  updateField("forceEodBeforeNextDay", checked)
-                }
-              />
-            </div>
+              <Section title={t("sections.kyc.title")} hint={t("sections.kyc.hint")}>
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                  {KYC_FLAGS.map((key) => (
+                    <FlagField
+                      key={key}
+                      label={t(`fields.${key}`)}
+                      hint={t(`flagHints.${key}`)}
+                      checked={form[key]}
+                      onChange={(checked) => updateField(key, checked)}
+                    />
+                  ))}
+                </div>
+              </Section>
 
-              </section>
-              <div className="btn-actions border-t border-border pt-4">
-                <Button type="submit" disabled={saving} icon={Settings}>
-                  {saving ? t("saving") : t("save")}
-                </Button>
+              <div className="btn-actions flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
+                <p className="text-xs text-muted">
+                  {t("lastUpdated", {
+                    name: SAMPLE_UPDATED_BY,
+                    date: format.dateTime(updatedAt, { dateStyle: "medium", timeStyle: "short" }),
+                  })}
+                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button type="button" variant="secondary" icon={RotateCcw} disabled={!dirty} onClick={handleReset}>
+                    {tCommon("reset")}
+                  </Button>
+                  <Button type="submit" icon={Save} disabled={!dirty}>
+                    {t("save")}
+                  </Button>
+                </div>
               </div>
             </div>
           </form>

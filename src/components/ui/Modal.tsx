@@ -33,6 +33,10 @@ type ModalProps = {
   footer?: ReactNode;
   size?: ModalSize;
   className?: string;
+  /** Ask "Save these details?" before submitting an edited form. The discard prompt on close is unaffected. */
+  confirmOnSave?: boolean;
+  /** Ask "Discard changes?" when closing after input. Turn off for search/picker dialogs. */
+  confirmOnClose?: boolean;
 };
 
 /**
@@ -47,6 +51,8 @@ export function Modal({
   footer,
   size = "lg",
   className = "",
+  confirmOnSave = true,
+  confirmOnClose = true,
 }: ModalProps) {
   const titleId = useId();
   const t = useTranslations("common");
@@ -64,7 +70,7 @@ export function Modal({
   }, [open]);
 
   function requestClose() {
-    if (dirty) {
+    if (dirty && confirmOnClose) {
       pendingRef.current = null;
       setPrompt("close");
       return;
@@ -97,6 +103,8 @@ export function Modal({
       button.type === "submit" || button.classList.contains("btn-primary");
     const dismiss = button.classList.contains("btn-secondary");
     if (!save && !dismiss) return;
+    if (save && !confirmOnSave) return;
+    if (dismiss && !confirmOnClose) return;
     event.preventDefault();
     event.stopPropagation();
     if (dismiss) {
@@ -109,7 +117,7 @@ export function Modal({
   }
 
   function onSubmitCapture(event: FormEvent<HTMLDivElement>) {
-    if (bypassRef.current || !dirty) return;
+    if (bypassRef.current || !dirty || !confirmOnSave) return;
     const form = event.target;
     if (!(form instanceof HTMLFormElement)) return;
     event.preventDefault();

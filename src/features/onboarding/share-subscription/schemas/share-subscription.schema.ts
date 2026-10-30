@@ -44,6 +44,7 @@ export const shareSubscriptionDtoSchema = z
     created_at: optionalText,
     approved_by_name: optionalText,
     approved_at: optionalText,
+    approval_remarks: optionalText,
   })
   .passthrough();
 
@@ -72,6 +73,30 @@ export const shareSubscriptionAddSchema = z
   .object({
     custTypeCd: z.union([z.literal(CUST_TYPES[0]), z.literal(CUST_TYPES[1])]),
     customerId: z.number().int().positive(),
+    subscriptionDate: ymd,
+    noOfShares: z.number().int().positive(),
+    paidAmount: z.number().min(0),
+    paymentModeCd: z.union([
+      z.literal(PAYMENT_MODES[0]),
+      z.literal(PAYMENT_MODES[1]),
+      z.literal(PAYMENT_MODES[2]),
+    ]),
+    transRefNo: z.string().trim().max(25).nullable().optional(),
+    remarks: z.string().trim().max(250).nullable().optional(),
+  })
+  .superRefine((value, context) => {
+    if (value.paymentModeCd !== PAYMENT_MODE_CASH && !value.transRefNo?.trim()) {
+      context.addIssue({
+        code: "custom",
+        path: ["transRefNo"],
+        message: "Reference number is required for cheque and bank transfer",
+      });
+    }
+  });
+
+export const shareSubscriptionEditSchema = z
+  .object({
+    subscriptionId: z.number().int().positive(),
     subscriptionDate: ymd,
     noOfShares: z.number().int().positive(),
     paidAmount: z.number().min(0),

@@ -69,6 +69,7 @@
   --color-accent-violet-soft: var(--accent-violet-soft);
   --color-accent-rose: var(--accent-rose);
   --color-accent-rose-soft: var(--accent-rose-soft);
+  --color-danger: var(--accent-rose);
   --color-demo: var(--demo);
   --color-demo-ink: var(--demo-ink);
   --font-sans: var(--font-geist-sans);

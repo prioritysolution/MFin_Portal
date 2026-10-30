@@ -1,8 +1,10 @@
 "use client";
 
 import { useMemo, useState, useEffect, type ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import {
   Eye,
+  FileCheck2,
   MoreVertical,
   Pencil,
   Power,
@@ -33,6 +35,7 @@ export type GroupManagementTableProps = {
   onPageSizeChange: (pageSize: number) => void;
   onView: (group: Group) => void;
   onEdit: (group: Group) => void;
+  onOpenKyc: (group: Group) => void;
   onRequestStatusChange: (group: Group, nextStatus: GroupStatus) => void;
   headerActions?: ReactNode;
   onResetFilters?: () => void;
@@ -53,11 +56,13 @@ export function GroupManagementTable({
   onPageSizeChange,
   onView,
   onEdit,
+  onOpenKyc,
   onRequestStatusChange,
   headerActions,
   onResetFilters,
   onCreateNew,
 }: GroupManagementTableProps) {
+  const tKyc = useTranslations("onboarding.groupKyc");
   const [activeMenuId, setActiveMenuId] = useState<number | null>(null);
 
   // Close popup menu when clicking outside
@@ -300,6 +305,16 @@ export function GroupManagementTable({
                   onClick={() => onEdit(row)}
                 />
               ) : null}
+
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                icon={FileCheck2}
+                tooltip={tKyc("open")}
+                aria-label={tKyc("open")}
+                onClick={() => onOpenKyc(row)}
+              />
 
               {/* Quick toggle status button (matching Branch Directory Ban/CircleCheck) */}
               <Button

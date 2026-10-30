@@ -5,6 +5,7 @@ import type {
   ShareSubscription,
   ShareSubscriptionAddInput,
   ShareSubscriptionApproveInput,
+  ShareSubscriptionEditInput,
   ShareSubscriptionListQuery,
   ShareSubscriptionListResult,
   ShareSubscriptionResult,
@@ -123,6 +124,16 @@ export async function addShareSubscription(
   const payload = await post<ShareSubscription>({ action: "add", ...input });
   if (!payload.data) {
     throw { status: 500, message: payload.message || "Share subscription could not be saved" };
+  }
+  return { item: payload.data, message: payload.message || "" };
+}
+
+export async function editShareSubscription(
+  input: ShareSubscriptionEditInput,
+): Promise<ShareSubscriptionResult> {
+  const payload = await post<ShareSubscription>({ action: "edit", ...input });
+  if (!payload.data) {
+    throw { status: 500, message: payload.message || "Share subscription could not be updated" };
   }
   return { item: payload.data, message: payload.message || "" };
 }

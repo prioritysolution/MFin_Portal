@@ -9,6 +9,7 @@ import {
   mapShareSubscriptionAddToDto,
   mapShareSubscriptionApproveToDto,
   mapShareSubscriptionDto,
+  mapShareSubscriptionEditToDto,
 } from "../mappers/share-subscription.mapper";
 import {
   paginationMetaDtoSchema,
@@ -17,6 +18,7 @@ import {
   shareSubscriptionAddSchema,
   shareSubscriptionApproveSchema,
   shareSubscriptionDtoSchema,
+  shareSubscriptionEditSchema,
 } from "../schemas/share-subscription.schema";
 import type {
   ShareHolding,
@@ -195,6 +197,30 @@ export async function addShareSubscription(
     );
     if (!payload || payload.success !== true) {
       throw failure(payload, "Share subscription could not be saved", 422);
+    }
+    return {
+      item: parseItem(payload.data, "Share subscription response was unexpected"),
+      message: payload.message,
+    };
+  });
+}
+
+/** Laravel: POST /api/ShareSubscriptionEdit */
+export async function editShareSubscription(
+  input: unknown,
+): Promise<ShareSubscriptionResult> {
+  const validated = shareSubscriptionEditSchema.safeParse(input);
+  if (!validated.success) throw validationError(validated.error);
+
+  return withUnauthorizedClear(async () => {
+    const token = await requireAccessToken();
+    const payload = await api.post<LaravelResponse<unknown>>(
+      endpoints.shareSubscription.edit,
+      mapShareSubscriptionEditToDto(validated.data),
+      { accessToken: token, expectEnvelope: false },
+    );
+    if (!payload || payload.success !== true) {
+      throw failure(payload, "Share subscription could not be updated", 422);
     }
     return {
       item: parseItem(payload.data, "Share subscription response was unexpected"),

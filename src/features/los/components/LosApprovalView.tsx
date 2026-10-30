@@ -448,6 +448,7 @@ export function LosApprovalView() {
               </Button>
               <Button
                 variant={decisionCd === 1 ? "primary" : decisionCd === 2 ? "danger" : "secondary"}
+                icon={decisionCd === 1 ? CheckCircle2 : decisionCd === 2 ? XCircle : RotateCw}
                 onClick={handleDecisionSubmit}
                 disabled={submittingDecision}
               >

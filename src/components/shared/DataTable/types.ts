@@ -62,6 +62,8 @@ export type DataTableProps<T> = {
   description?: ReactNode;
   /** Actions on the right of the card heading, such as Add. */
   actions?: ReactNode;
+  /** Full-width controls (search, filters, buttons) above the rows, inside the same card. */
+  toolbar?: ReactNode;
   /** Extra class on the outer card/section. */
   className?: string;
   /** Minimum table width for horizontal scroll (CSS length). */

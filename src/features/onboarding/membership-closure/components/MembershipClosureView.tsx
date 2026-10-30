@@ -510,6 +510,7 @@ export function MembershipClosureView() {
             <Button
               type="button"
               variant="danger"
+              icon={UserMinus}
               disabled={!canClose}
               onClick={() => setConfirmOpen(true)}
             >

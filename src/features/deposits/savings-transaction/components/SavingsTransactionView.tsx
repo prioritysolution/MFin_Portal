@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
-import { Check, Search, X } from "lucide-react";
+import { Check, Search, Send, X } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { FilterPanel } from "@/components/shared/FilterPanel";
@@ -722,7 +722,7 @@ export function SavingsTransactionView() {
           />
         </div>
         <div className="mt-4 flex justify-end">
-          <Button type="submit" loading={saving} disabled={saving || !transTypeCd}>
+          <Button type="submit" icon={Send} loading={saving} disabled={saving || !transTypeCd}>
             {saving ? t("form.saving") : t("form.submit")}
           </Button>
         </div>
@@ -805,6 +805,7 @@ export function SavingsTransactionView() {
             <Button
               type="button"
               variant={decision?.approve ? "success" : "danger"}
+              icon={decision?.approve ? Check : X}
               loading={deciding}
               onClick={() => void confirmDecision()}
             >

@@ -6,6 +6,7 @@ import {
   BookOpen,
   CalendarDays,
   Clock3,
+  CreditCard,
   FileText,
   MapPin,
   Printer,
@@ -283,6 +284,7 @@ export function CustomerPortalView() {
               type="button"
               className="btn btn-primary"
             >
+              <CreditCard className="h-4 w-4" />
               Pay Now
             </button>
           </div>

@@ -1,5 +1,23 @@
 export type MemberStatus = 1 | 2 | 3 | 4 | 5;
 
+export type MemberNominee = {
+  nomineeId: number | null;
+  name: string;
+  relationCd: number | null;
+  relationDesc: string | null;
+  dob: string | null;
+  mobile: string | null;
+  sharePercent: number | null;
+};
+
+export type MemberNomineeInput = {
+  name: string;
+  relationCd: number;
+  dob: string | null;
+  mobile: string | null;
+  sharePercent: number | null;
+};
+
 export type Member = {
   memberId: number;
   memberCode: number | string;
@@ -43,12 +61,14 @@ export type Member = {
   nomineeRelation: string | null;
   nomineeDob: string | null;
   nomineeMobile: string | null;
+  nominees: MemberNominee[];
   photoPath: string | null;
   signaturePath: string | null;
   foId: number | null;
   foCode: string | null;
   foName: string | null;
   admFees: number | null;
+  admFeeVoucherNo: string | null;
   remarks: string | null;
   kycCount: number;
   kycVerifiedCount: number;
@@ -115,6 +135,7 @@ export type MemberSaveInput = {
   nomineeRelation?: string | null;
   nomineeDob?: string | null;
   nomineeMobile?: string | null;
+  nominees?: MemberNomineeInput[];
   photoPath?: string | null;
   signaturePath?: string | null;
   foId?: number | null;

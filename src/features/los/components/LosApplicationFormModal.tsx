@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AlertCircle, Plus, Trash2, Users, User } from "lucide-react";
+import { useFormatter, useTranslations } from "next-intl";
+import { AlertCircle, Info, Plus, Save, Send, Trash2, UserPlus, Users, User } from "lucide-react";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -17,6 +18,20 @@ import { fetchBranchList } from "@/features/master/branch/services/branch-client
 import { fetchLoanSchemeSetups } from "@/features/master/loan-schemes/services/loan-schemes-client";
 import { fetchStaffList } from "@/features/master/staff/services/staff-client";
 import { fetchGroups } from "@/features/onboarding/group-management/services/group-client";
+import { fetchApplOptions } from "@/features/master/appl-options/services/appl-options-client";
+import { fetchDepositAccounts } from "@/features/deposits/savings/services/deposit-account-client";
+import { SAVINGS_DEPOSIT_TYPE } from "@/features/deposits/savings/deposit-account.constants";
+import {
+  ACCOUNT_NO_PATTERN,
+  IFSC_PATTERN,
+  OPT_PAYMENT_MODE,
+  PAY_MODE_ADJUSTMENT,
+  PAY_MODE_BANK_TRANSFER,
+  PAY_MODE_CASH,
+  PAY_MODE_CHEQUE,
+  PAY_MODE_SB_ACCOUNT,
+  PAYMENT_MODE_FALLBACK,
+} from "../los-disbursement.constants";
 import type {
   LoanApplicationBulkAddMember,
   LoanApplicationRow,
@@ -37,6 +52,8 @@ export function LosApplicationFormModal({
   onSuccess,
 }: LosApplicationFormModalProps) {
   const isEdit = Boolean(editingApp);
+  const tPay = useTranslations("los.applications.disbursement");
+  const format = useFormatter();
   const [custTypeCd, setCustTypeCd] = useState<2 | 1>(editingApp?.cust_type_cd === 1 ? 1 : 2);
 
   // Common fields
@@ -47,9 +64,17 @@ export function LosApplicationFormModal({
   const [applTenure, setApplTenure] = useState("12");
   const [repayDurationCd, setRepayDurationCd] = useState("4"); // 4 Monthly
   const [remarks, setRemarks] = useState("");
+  const [paymentModeCd, setPaymentModeCd] = useState("");
+  const [paymentModes, setPaymentModes] = useState<{ value: string; label: string }[] | null>(null);
   const [beneficiaryName, setBeneficiaryName] = useState("");
+  const [bankName, setBankName] = useState("");
   const [bankAccountNo, setBankAccountNo] = useState("");
+  const [confirmAccountNo, setConfirmAccountNo] = useState("");
   const [ifscCode, setIfscCode] = useState("");
+  const [sbAccountId, setSbAccountId] = useState("");
+  const [sbAccounts, setSbAccounts] = useState<{ value: string; label: string }[]>([]);
+  const [loadingSbAccounts, setLoadingSbAccounts] = useState(false);
+  const [adjustmentRef, setAdjustmentRef] = useState("");
 
   // Individual fields
   const [borrowerSearch, setBorrowerSearch] = useState("");
@@ -130,7 +155,22 @@ export function LosApplicationFormModal({
       })
       .catch(() => {});
 
+    fetchApplOptions(OPT_PAYMENT_MODE)
+      .then((options) => {
+        const active = options
+          .filter((option) => option.isActive)
+          .map((option) => ({ value: String(option.optCode), label: option.optDescription }));
+        setPaymentModes(active.length > 0 ? active : null);
+      })
+      .catch(() => setPaymentModes(null));
+
+    setConfirmAccountNo("");
     if (editingApp) {
+      setPaymentModeCd(editingApp.payment_mode_cd ? String(editingApp.payment_mode_cd) : "");
+      setBankName(editingApp.bank_name || "");
+      setConfirmAccountNo(editingApp.bank_account_no || "");
+      setSbAccountId(editingApp.sb_account_id ? String(editingApp.sb_account_id) : "");
+      setAdjustmentRef(editingApp.adjustment_ref || "");
       setCustTypeCd(editingApp.cust_type_cd === 1 ? 1 : 2);
       setApplicationDate(editingApp.application_date || new Date().toISOString().slice(0, 10));
       setBranchId(String(editingApp.branch_id || ""));
@@ -149,8 +189,64 @@ export function LosApplicationFormModal({
       setSelectedBorrower(null);
       setGroupMembers([]);
       setRemarks("");
+      setPaymentModeCd("");
+      setBeneficiaryName("");
+      setBankName("");
+      setBankAccountNo("");
+      setIfscCode("");
+      setSbAccountId("");
+      setAdjustmentRef("");
     }
   }, [open, editingApp]);
+
+  const sbMemberId =
+    custTypeCd === 2 ? (selectedBorrower?.member_id ?? (isEdit ? editingApp?.cust_id_primary : undefined)) : undefined;
+
+  useEffect(() => {
+    if (!open || Number(paymentModeCd) !== PAY_MODE_SB_ACCOUNT || !sbMemberId) {
+      setSbAccounts([]);
+      return;
+    }
+    let cancelled = false;
+    setLoadingSbAccounts(true);
+    fetchDepositAccounts({
+      memberId: sbMemberId,
+      depositTypeCd: SAVINGS_DEPOSIT_TYPE,
+      isClosed: false,
+      page: 1,
+      perPage: 20,
+    })
+      .then((res) => {
+        if (cancelled) return;
+        const options = res.items
+          .filter((account) => !account.isClosed && account.isActive)
+          .map((account) => ({
+            value: String(account.accountId),
+            label: [
+              account.refAcNo || account.cbsAcNo || account.applNo,
+              account.schemeName,
+              account.currentBalance != null
+                ? tPay("sbBalance", {
+                    amount: format.number(account.currentBalance, { style: "currency", currency: "INR" }),
+                  })
+                : null,
+            ]
+              .filter(Boolean)
+              .join(" · "),
+          }));
+        setSbAccounts(options);
+        if (options.length === 1) setSbAccountId(options[0].value);
+      })
+      .catch(() => {
+        if (!cancelled) setSbAccounts([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingSbAccounts(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, paymentModeCd, sbMemberId, tPay, format]);
 
   // Load staff when branch changes
   useEffect(() => {
@@ -268,6 +364,45 @@ export function LosApplicationFormModal({
     setGroupMembers((prev) => prev.filter((_, i) => i !== idx));
   };
 
+  const payMode = Number(paymentModeCd);
+  const isGroupLoan = custTypeCd === 1;
+
+  function validateDisbursement(): string | null {
+    if (!payMode) return tPay("errors.modeRequired");
+    if (payMode === PAY_MODE_CHEQUE && !beneficiaryName.trim()) {
+      return tPay("errors.payeeRequired");
+    }
+    if (payMode === PAY_MODE_BANK_TRANSFER) {
+      if (!beneficiaryName.trim()) return tPay("errors.beneficiaryRequired");
+      if (!ACCOUNT_NO_PATTERN.test(bankAccountNo.trim())) return tPay("errors.accountInvalid");
+      if (bankAccountNo.trim() !== confirmAccountNo.trim()) return tPay("errors.accountMismatch");
+      if (!IFSC_PATTERN.test(ifscCode.trim().toUpperCase())) return tPay("errors.ifscInvalid");
+    }
+    if (payMode === PAY_MODE_SB_ACCOUNT && !isGroupLoan && !sbAccountId) {
+      return tPay("errors.sbRequired");
+    }
+    if (payMode === PAY_MODE_ADJUSTMENT && !adjustmentRef.trim()) {
+      return tPay("errors.adjustmentRequired");
+    }
+    return null;
+  }
+
+  function disbursementPayload() {
+    const text = (value: string) => value.trim() || null;
+    return {
+      payment_mode_cd: payMode,
+      beneficiary_name:
+        payMode === PAY_MODE_CASH || payMode === PAY_MODE_CHEQUE || payMode === PAY_MODE_BANK_TRANSFER
+          ? text(beneficiaryName)
+          : null,
+      bank_name: payMode === PAY_MODE_BANK_TRANSFER ? text(bankName) : null,
+      bank_account_no: payMode === PAY_MODE_BANK_TRANSFER ? text(bankAccountNo) : null,
+      ifsc_code: payMode === PAY_MODE_BANK_TRANSFER ? text(ifscCode.toUpperCase()) : null,
+      sb_account_id: payMode === PAY_MODE_SB_ACCOUNT && sbAccountId ? Number(sbAccountId) : null,
+      adjustment_ref: payMode === PAY_MODE_ADJUSTMENT ? text(adjustmentRef) : null,
+    };
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
@@ -283,6 +418,13 @@ export function LosApplicationFormModal({
       return;
     }
 
+    const disbursementError = validateDisbursement();
+    if (disbursementError) {
+      setFormError(disbursementError);
+      return;
+    }
+    const disbursement = disbursementPayload();
+
     setSubmitting(true);
     try {
       if (isEdit && editingApp) {
@@ -293,9 +435,7 @@ export function LosApplicationFormModal({
           appl_tenure: tenure,
           repay_duration_cd: Number(repayDurationCd),
           remarks: remarks || undefined,
-          beneficiary_name: beneficiaryName || undefined,
-          bank_account_no: bankAccountNo || undefined,
-          ifsc_code: ifscCode ? ifscCode.toUpperCase() : undefined,
+          ...disbursement,
           fo_id: foId ? Number(foId) : undefined,
         });
       } else if (custTypeCd === 2) {
@@ -330,9 +470,7 @@ export function LosApplicationFormModal({
           branch_id: selectedBorrower.branch_id || (branchId ? Number(branchId) : undefined),
           fo_id: foId ? Number(foId) : undefined,
           remarks: remarks || undefined,
-          beneficiary_name: beneficiaryName || selectedBorrower.member_name,
-          bank_account_no: bankAccountNo || selectedBorrower.bank_account_no || undefined,
-          ifsc_code: ifscCode ? ifscCode.toUpperCase() : selectedBorrower.ifsc_code || undefined,
+          ...disbursement,
         });
       } else {
         // Group JLG BulkAdd
@@ -365,9 +503,12 @@ export function LosApplicationFormModal({
           branch_id: branchId ? Number(branchId) : undefined,
           fo_id: foId ? Number(foId) : undefined,
           remarks: remarks || undefined,
-          beneficiary_name: beneficiaryName || undefined,
-          bank_account_no: bankAccountNo || undefined,
-          ifsc_code: ifscCode ? ifscCode.toUpperCase() : undefined,
+          payment_mode_cd: disbursement.payment_mode_cd,
+          beneficiary_name: disbursement.beneficiary_name,
+          bank_name: disbursement.bank_name,
+          bank_account_no: disbursement.bank_account_no,
+          ifsc_code: disbursement.ifsc_code,
+          adjustment_ref: disbursement.adjustment_ref,
           members: mappedMembers,
         });
       }
@@ -387,13 +528,14 @@ export function LosApplicationFormModal({
         open={open}
       title={isEdit ? `Edit Application #${editingApp?.application_no}` : "Create Loan Application"}
       size="xl"
+      confirmOnSave={false}
       onClose={onClose}
       footer={
         <div className="flex justify-end gap-3">
           <Button variant="secondary" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={submitting}>
+          <Button onClick={handleSubmit} icon={isEdit ? Save : Send} disabled={submitting}>
             {submitting ? "Saving..." : isEdit ? "Update Application" : "Submit Application"}
           </Button>
         </div>
@@ -467,6 +609,12 @@ export function LosApplicationFormModal({
                           setBorrowerSearch(`${b.member_name} (${b.ref_code})`);
                           if (b.branch_id) setBranchId(String(b.branch_id));
                           if (b.fo_id) setFoId(String(b.fo_id));
+                          setSbAccountId("");
+                          setBeneficiaryName(b.member_name);
+                          setBankName(b.bank_name || "");
+                          setBankAccountNo(b.bank_account_no || "");
+                          setConfirmAccountNo(b.bank_account_no || "");
+                          setIfscCode(b.ifsc_code || "");
                         }}
                         className="w-full p-2.5 text-left text-xs hover:bg-teal-50/60 flex items-center justify-between"
                       >
@@ -681,29 +829,143 @@ export function LosApplicationFormModal({
           </div>
         </div>
 
-        {/* SECTION 3: BANK & REMARKS */}
+        {/* SECTION 3: DISBURSEMENT MODE & REMARKS */}
         <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-4">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-600">Disbursement Account & Remarks</h4>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <TextField
-              label="Beneficiary Name"
-              value={beneficiaryName}
-              placeholder="As per bank passbook"
-              onChange={setBeneficiaryName}
-            />
-            <TextField
-              label="Bank Account No"
-              value={bankAccountNo}
-              placeholder="Account Number"
-              onChange={setBankAccountNo}
-            />
-            <TextField
-              label="IFSC Code"
-              value={ifscCode}
-              placeholder="e.g. SBIN0001234"
-              onChange={setIfscCode}
+          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-600">{tPay("sectionTitle")}</h4>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <SelectField
+              label={tPay("paymentMode")}
+              value={paymentModeCd}
+              required
+              options={
+                paymentModes ??
+                PAYMENT_MODE_FALLBACK.map((mode) => ({ value: mode.value, label: tPay(`modes.${mode.key}`) }))
+              }
+              placeholder={tPay("paymentModePlaceholder")}
+              onChange={setPaymentModeCd}
             />
           </div>
+
+          {payMode === PAY_MODE_CASH && (
+            <div className="space-y-3">
+              <DisbursementNote>{tPay("notes.cash")}</DisbursementNote>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <TextField
+                  label={tPay("receiverName")}
+                  value={beneficiaryName}
+                  placeholder={isGroupLoan ? tPay("receiverGroupPlaceholder") : tPay("receiverPlaceholder")}
+                  onChange={setBeneficiaryName}
+                />
+              </div>
+            </div>
+          )}
+
+          {payMode === PAY_MODE_CHEQUE && (
+            <div className="space-y-3">
+              <DisbursementNote>{tPay("notes.cheque")}</DisbursementNote>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <TextField
+                  label={tPay("payeeName")}
+                  value={beneficiaryName}
+                  required
+                  placeholder={tPay("payeePlaceholder")}
+                  onChange={setBeneficiaryName}
+                />
+              </div>
+            </div>
+          )}
+
+          {payMode === PAY_MODE_BANK_TRANSFER && (
+            <div className="space-y-3">
+              <DisbursementNote>{tPay("notes.bankTransfer")}</DisbursementNote>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <TextField
+                  label={tPay("beneficiaryName")}
+                  value={beneficiaryName}
+                  required
+                  placeholder={tPay("beneficiaryPlaceholder")}
+                  onChange={setBeneficiaryName}
+                />
+                <TextField
+                  label={tPay("bankName")}
+                  value={bankName}
+                  placeholder={tPay("bankNamePlaceholder")}
+                  onChange={setBankName}
+                />
+                <TextField
+                  label={tPay("accountNo")}
+                  value={bankAccountNo}
+                  required
+                  restrict="digits"
+                  placeholder={tPay("accountNoPlaceholder")}
+                  onChange={setBankAccountNo}
+                />
+                <TextField
+                  label={tPay("confirmAccountNo")}
+                  value={confirmAccountNo}
+                  required
+                  restrict="digits"
+                  placeholder={tPay("confirmAccountNoPlaceholder")}
+                  error={
+                    confirmAccountNo && confirmAccountNo !== bankAccountNo
+                      ? tPay("errors.accountMismatch")
+                      : undefined
+                  }
+                  onChange={setConfirmAccountNo}
+                />
+                <TextField
+                  label={tPay("ifsc")}
+                  value={ifscCode}
+                  required
+                  restrict="code"
+                  placeholder={tPay("ifscPlaceholder")}
+                  hint={tPay("ifscHint")}
+                  onChange={(value) => setIfscCode(value.toUpperCase())}
+                />
+              </div>
+            </div>
+          )}
+
+          {payMode === PAY_MODE_SB_ACCOUNT && (
+            <div className="space-y-3">
+              {isGroupLoan ? (
+                <DisbursementNote>{tPay("notes.sbGroup")}</DisbursementNote>
+              ) : !sbMemberId ? (
+                <DisbursementNote>{tPay("notes.sbSelectBorrower")}</DisbursementNote>
+              ) : loadingSbAccounts ? (
+                <p className="text-xs text-slate-400">{tPay("loadingSbAccounts")}</p>
+              ) : sbAccounts.length === 0 ? (
+                <Alert tone="warning">{tPay("noSbAccount")}</Alert>
+              ) : (
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <SelectField
+                    label={tPay("sbAccount")}
+                    value={sbAccountId}
+                    required
+                    options={sbAccounts}
+                    placeholder={tPay("sbAccountPlaceholder")}
+                    onChange={setSbAccountId}
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
+          {payMode === PAY_MODE_ADJUSTMENT && (
+            <div className="space-y-3">
+              <DisbursementNote>{tPay("notes.adjustment")}</DisbursementNote>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <TextField
+                  label={tPay("adjustmentRef")}
+                  value={adjustmentRef}
+                  required
+                  placeholder={tPay("adjustmentRefPlaceholder")}
+                  onChange={setAdjustmentRef}
+                />
+              </div>
+            </div>
+          )}
+
           <TextField
             label="Application Remarks"
             value={remarks}
@@ -730,7 +992,7 @@ export function LosApplicationFormModal({
           <Button variant="secondary" onClick={() => setMemberModalOpen(false)}>
             Cancel
           </Button>
-          <Button onClick={handleConfirmAddMember}>
+          <Button onClick={handleConfirmAddMember} icon={UserPlus}>
             Add to Loan Application
           </Button>
         </div>
@@ -902,5 +1164,14 @@ export function LosApplicationFormModal({
       </div>
     </Modal>
     </>
+  );
+}
+
+function DisbursementNote({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="flex items-start gap-2 rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-xs text-sky-900">
+      <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
+      <span>{children}</span>
+    </p>
   );
 }

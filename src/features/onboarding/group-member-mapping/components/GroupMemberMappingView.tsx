@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { ArrowRightLeft, History, Pencil, Plus, UserMinus } from "lucide-react";
+import { ArrowRightLeft, History, Pencil, Plus, UserMinus, UsersRound } from "lucide-react";
 import { ModulePageShell } from "@/components/shared/ModulePageShell";
+import { EmptyState } from "@/components/shared/EmptyState";
 import { DataTable } from "@/components/shared/DataTable/DataTable";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { Badge } from "@/components/ui/Badge";
@@ -241,7 +242,7 @@ export function GroupMemberMappingView() {
               onChange={(event) => setKeyword(event.target.value)}
               placeholder={t("searchGroups")}
               aria-label={t("searchGroups")}
-              className="input w-full"
+              className="w-full rounded-[var(--radius-control)] border border-border bg-surface px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-muted hover:border-border-strong focus:border-brand focus:shadow-[var(--focus-ring)]"
             />
           </div>
           <div className="mt-3 lg:hidden">
@@ -250,7 +251,10 @@ export function GroupMemberMappingView() {
               placeholder={t("selectGroup")}
               value={selectedId ? String(selectedId) : ""}
               onChange={(value) => selectGroup(Number(value))}
-              options={groups.map((group) => ({ value: String(group.groupId), label: group.groupName }))}
+              options={groups.map((group) => ({
+                value: String(group.groupId),
+                label: t("groupOption", { name: group.groupName, code: String(group.groupCode) }),
+              }))}
             />
           </div>
           <ul className="mt-3 hidden max-h-[32rem] space-y-1 overflow-auto lg:block">
@@ -262,7 +266,13 @@ export function GroupMemberMappingView() {
                 ))
               : null}
             {!groupsLoading && groups.length === 0 ? (
-              <li className="px-2 py-3 text-sm text-muted">{t("noGroups")}</li>
+              <li className="flex flex-col items-center gap-2 px-3 py-8 text-center" role="status">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-surface-muted text-muted">
+                  <UsersRound className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <span className="text-sm font-semibold text-slate-800">{t("noGroups")}</span>
+                <span className="max-w-[14rem] text-xs text-muted">{t("noGroupsHint")}</span>
+              </li>
             ) : null}
             {groups.map((group) => {
               const cap = groupCapacity(group.memberNo);
@@ -277,8 +287,13 @@ export function GroupMemberMappingView() {
                   >
                     <span className="min-w-0">
                       <span className="block truncate font-medium">{group.groupName}</span>
-                      <span className="text-muted">
-                        {group.activeMembers}/{cap}
+                      <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
+                        <span className="rounded-full bg-blue-50 px-2 py-0.5 font-mono font-semibold text-blue-700">
+                          {group.groupCode}
+                        </span>
+                        <span className="text-muted">
+                          {group.activeMembers}/{cap}
+                        </span>
                       </span>
                     </span>
                     {low ? <Badge tone="amber">{t("belowMinimum")}</Badge> : null}
@@ -294,7 +309,12 @@ export function GroupMemberMappingView() {
             <header className="mb-4 space-y-3 border-b border-border pb-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <h2 className="text-lg font-semibold text-slate-900">{selected.groupName}</h2>
+                  <h2 className="flex flex-wrap items-center gap-2 text-lg font-semibold text-slate-900">
+                    {selected.groupName}
+                    <span className="rounded-full bg-blue-50 px-2.5 py-0.5 font-mono text-xs font-semibold text-blue-700">
+                      {selected.groupCode}
+                    </span>
+                  </h2>
                   <p className="mt-1 text-sm text-muted">
                     {[selected.groupTypeDesc, selected.groupGenderDesc, selected.statusDesc, selected.centerName, selected.foName]
                       .filter(Boolean)
@@ -333,7 +353,12 @@ export function GroupMemberMappingView() {
               </p>
             </header>
           ) : (
-            <p className="text-sm text-muted">{t("selectGroup")}</p>
+            <EmptyState
+              title={t("noGroupSelected")}
+              message={t("noGroupSelectedHint")}
+              icon={<UsersRound className="h-5 w-5" aria-hidden="true" />}
+              className="min-h-[18rem]"
+            />
           )}
 
           {selected ? (

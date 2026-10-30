@@ -83,19 +83,24 @@ export function MemberRegistrationTable({
     () => [
       {
         id: "code",
-        header: "CODE",
+        header: "MEMBER CODE",
         cell: (row) => (
-          <div className="flex flex-col">
-            <span className="inline-block w-fit rounded-full bg-blue-50 px-2.5 py-1 font-mono text-[11px] font-semibold text-blue-700">
-              {row.memberCode}
-            </span>
-            {row.refCode ? (
-              <span className="mt-0.5 text-[11px] text-muted">
-                {row.refCode}
-              </span>
-            ) : null}
-          </div>
+          <span className="inline-block w-fit rounded-full bg-blue-50 px-2.5 py-1 font-mono text-[11px] font-semibold text-blue-700">
+            {row.memberCode}
+          </span>
         ),
+      },
+      {
+        id: "refCode",
+        header: "REF CODE",
+        cell: (row) =>
+          row.refCode ? (
+            <span className="whitespace-nowrap font-mono text-xs font-medium text-slate-700">
+              {row.refCode}
+            </span>
+          ) : (
+            <span className="text-xs text-muted-soft">—</span>
+          ),
       },
       {
         id: "memberName",

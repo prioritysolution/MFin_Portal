@@ -101,6 +101,8 @@ export function MemberRegistrationDrawer({
   onOpenLocation,
 }: MemberRegistrationDrawerProps) {
   const tLocation = useTranslations("onboarding.memberLocation");
+  const tNominee = useTranslations("onboarding.memberNominees");
+  const tFee = useTranslations("onboarding.memberAdmissionFee");
   const [revealAccount, setRevealAccount] = useState(false);
 
   useEffect(() => {
@@ -277,6 +279,9 @@ export function MemberRegistrationDrawer({
                   <Field label="Monthly Income" value={formatCurrency(member.monthlyIncome)} mono />
                   <Field label="Monthly Expense" value={formatCurrency(member.monthlyExpense)} mono />
                   <Field label="Admission Fees" value={formatCurrency(member.admFees)} mono />
+                  {member.admFeeVoucherNo ? (
+                    <Field label={tFee("voucherNo")} value={member.admFeeVoucherNo} mono />
+                  ) : null}
                 </dl>
               </section>
 
@@ -318,12 +323,38 @@ export function MemberRegistrationDrawer({
 
               <section className="space-y-3">
                 <SectionTitle icon={Users}>Nominee Details</SectionTitle>
-                <dl className="grid grid-cols-2 gap-3 text-xs">
-                  <Field label="Nominee Name" value={member.nomineeName || "—"} />
-                  <Field label="Relationship" value={member.nomineeRelation || "—"} />
-                  <Field label="Date of Birth" value={formatDate(member.nomineeDob)} />
-                  <Field label="Mobile Number" value={member.nomineeMobile || "—"} mono />
-                </dl>
+                {member.nominees.length > 1 ? (
+                  <ul className="space-y-3">
+                    {member.nominees.map((nominee, index) => (
+                      <li
+                        key={nominee.nomineeId ?? index}
+                        className="rounded-lg border border-border/70 p-3"
+                      >
+                        <div className="mb-2 flex items-center justify-between gap-2 text-xs font-semibold text-slate-700">
+                          <span>{tNominee("title", { number: index + 1 })}</span>
+                          {nominee.sharePercent != null ? (
+                            <Badge tone="info">
+                              {tNominee("shareValue", { share: nominee.sharePercent / 100 })}
+                            </Badge>
+                          ) : null}
+                        </div>
+                        <dl className="grid grid-cols-2 gap-3 text-xs">
+                          <Field label={tNominee("name")} value={nominee.name} />
+                          <Field label={tNominee("relation")} value={nominee.relationDesc || "—"} />
+                          <Field label={tNominee("dob")} value={formatDate(nominee.dob)} />
+                          <Field label={tNominee("mobile")} value={nominee.mobile || "—"} mono />
+                        </dl>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <dl className="grid grid-cols-2 gap-3 text-xs">
+                    <Field label="Nominee Name" value={member.nomineeName || "—"} />
+                    <Field label="Relationship" value={member.nomineeRelation || "—"} />
+                    <Field label="Date of Birth" value={formatDate(member.nomineeDob)} />
+                    <Field label="Mobile Number" value={member.nomineeMobile || "—"} mono />
+                  </dl>
+                )}
               </section>
 
               <div className="border-t border-border pt-3 text-[11px] text-muted">

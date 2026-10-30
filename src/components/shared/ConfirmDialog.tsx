@@ -12,6 +12,7 @@ import { useTranslations } from "next-intl";
 import {
   AlertTriangle,
   Ban,
+  Check,
   CheckCircle2,
   HelpCircle,
   PowerOff,
@@ -132,6 +133,7 @@ const VARIANT_STYLES: Record<
     iconWrap: string;
     buttonVariant: ButtonVariant;
     defaultIcon: LucideIcon;
+    buttonIcon: LucideIcon;
   }
 > = {
   danger: {
@@ -140,6 +142,7 @@ const VARIANT_STYLES: Record<
       "bg-rose-50 text-rose-600 border-rose-200 ring-rose-500/15",
     buttonVariant: "danger",
     defaultIcon: AlertTriangle,
+    buttonIcon: XCircle,
   },
   warning: {
     topBar: "bg-amber-500",
@@ -147,6 +150,7 @@ const VARIANT_STYLES: Record<
       "bg-amber-50 text-amber-600 border-amber-200 ring-amber-500/15",
     buttonVariant: "warning",
     defaultIcon: PowerOff,
+    buttonIcon: PowerOff,
   },
   success: {
     topBar: "bg-emerald-600",
@@ -154,6 +158,7 @@ const VARIANT_STYLES: Record<
       "bg-emerald-50 text-emerald-600 border-emerald-200 ring-emerald-500/15",
     buttonVariant: "success",
     defaultIcon: CheckCircle2,
+    buttonIcon: CheckCircle2,
   },
   primary: {
     topBar: "bg-brand",
@@ -161,6 +166,7 @@ const VARIANT_STYLES: Record<
       "bg-blue-50 text-blue-600 border-blue-200 ring-blue-500/15",
     buttonVariant: "primary",
     defaultIcon: HelpCircle,
+    buttonIcon: Check,
   },
   secondary: {
     topBar: "bg-slate-400",
@@ -168,6 +174,7 @@ const VARIANT_STYLES: Record<
       "bg-slate-100 text-slate-600 border-slate-200 ring-slate-400/15",
     buttonVariant: "secondary",
     defaultIcon: HelpCircle,
+    buttonIcon: Check,
   },
   neutral: {
     topBar: "bg-slate-400",
@@ -175,6 +182,7 @@ const VARIANT_STYLES: Record<
       "bg-slate-100 text-slate-600 border-slate-200 ring-slate-400/15",
     buttonVariant: "secondary",
     defaultIcon: HelpCircle,
+    buttonIcon: Check,
   },
 };
 
@@ -215,6 +223,7 @@ function ConfirmDialogContent({
 
   const styles = VARIANT_STYLES[effectiveVariant];
   const IconComponent = CustomIcon ?? preset?.icon ?? styles.defaultIcon;
+  const ConfirmButtonIcon = CustomIcon ?? preset?.icon ?? styles.buttonIcon;
 
   // Resolved titles & texts
   const resolvedTitle =
@@ -401,6 +410,7 @@ function ConfirmDialogContent({
             type="button"
             variant={styles.buttonVariant}
             size="md"
+            icon={ConfirmButtonIcon}
             loading={isBusy}
             disabled={isBusy || !isKeywordValid}
             onClick={handleConfirmClick}

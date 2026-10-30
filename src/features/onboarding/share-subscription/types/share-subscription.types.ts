@@ -24,6 +24,7 @@ export type ShareSubscription = {
   createdAt: string | null;
   approvedByName: string;
   approvedAt: string | null;
+  approvalRemarks: string;
 };
 
 export type ShareSubscriptionListQuery = {
@@ -71,6 +72,16 @@ export type ShareHoldingQuery = {
 export type ShareSubscriptionAddInput = {
   custTypeCd: number;
   customerId: number;
+  subscriptionDate: string;
+  noOfShares: number;
+  paidAmount: number;
+  paymentModeCd: number;
+  transRefNo?: string | null;
+  remarks?: string | null;
+};
+
+export type ShareSubscriptionEditInput = {
+  subscriptionId: number;
   subscriptionDate: string;
   noOfShares: number;
   paidAmount: number;

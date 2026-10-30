@@ -216,6 +216,7 @@ export function LmsDisbursementModal({ open, onClose, onSuccess }: Props) {
             </Button>
             <Button
               onClick={handleSubmit}
+              icon={CheckCircle2}
               loading={submitting}
               disabled={submitting || hasPendingDisbursement || !selectedAccountId}
             >

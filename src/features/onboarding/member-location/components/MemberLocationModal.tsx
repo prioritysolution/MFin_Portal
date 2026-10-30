@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { MapPin, Plus } from "lucide-react";
+import { ExternalLink, MapPin, Pencil, Plus, Power, PowerOff, Save, ShieldCheck, ShieldOff } from "lucide-react";
+import { EmptyState } from "@/components/shared/EmptyState";
 import { Modal } from "@/components/ui/Modal";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Button } from "@/components/ui/Button";
@@ -356,7 +357,7 @@ export function MemberLocationModal({
                 <TextField label={t("gramPanchayat")} value={draft.gramPanchayat} maxLength={100} placeholder={t("gramPanchayat")} onChange={(value) => updateDraft(draft.key, { gramPanchayat: value })} />
                 <TextField label={t("block")} value={draft.blockName} maxLength={100} placeholder={t("block")} onChange={(value) => updateDraft(draft.key, { blockName: value })} />
                 <TextField label={t("district")} required value={draft.districtName} maxLength={100} placeholder={t("district")} onChange={(value) => updateDraft(draft.key, { districtName: value })} />
-                <TextField label={t("pin")} required value={draft.pinCode} placeholder="700135" maxLength={8} onChange={(value) => updateDraft(draft.key, { pinCode: value })} />
+                <TextField label={t("pin")} required value={draft.pinCode} placeholder="700135" inputMode="numeric" restrict="digits" maxLength={6} onChange={(value) => updateDraft(draft.key, { pinCode: value })} />
                 <LocationMapPicker
                   latitude={draft.latitude}
                   longitude={draft.longitude}
@@ -395,7 +396,7 @@ export function MemberLocationModal({
               <Button type="button" variant="ghost" onClick={() => setDrafts(null)}>
                 {t("cancel")}
               </Button>
-              <Button type="button" loading={saving} onClick={() => void submitForm()}>
+              <Button type="button" icon={Save} loading={saving} onClick={() => void submitForm()}>
                 {t("save")}
               </Button>
             </div>
@@ -408,7 +409,12 @@ export function MemberLocationModal({
             <Skeleton className="h-24 w-full" />
           </div>
         ) : items.length === 0 ? (
-          <p className="text-sm text-muted">{t("empty")}</p>
+          <EmptyState
+            className="rounded-xl border border-dashed border-border"
+            icon={<MapPin className="h-5 w-5" aria-hidden="true" />}
+            title={t("empty")}
+            message={t("emptyHint")}
+          />
         ) : (
           <ul className="space-y-3">
             {items.map((item) => (
@@ -438,15 +444,17 @@ export function MemberLocationModal({
                         href={item.mapUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center rounded-lg px-2.5 py-1.5 text-xs font-semibold text-brand hover:underline"
+                        className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-brand hover:underline"
                       >
+                        <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
                         {t("map")}
                       </a>
                     ) : null}
                     <Button
                       type="button"
                       size="sm"
-                      variant="secondary"
+                      variant="primary"
+                      icon={Pencil}
                       disabled={locked || !item.isActive}
                       onClick={() => {
                         setDrafts([fromLocation(item)]);
@@ -458,13 +466,21 @@ export function MemberLocationModal({
                     <Button
                       type="button"
                       size="sm"
-                      variant={item.geoVerified ? "ghost" : "primary"}
+                      variant={item.geoVerified ? "amber" : "success"}
+                      icon={item.geoVerified ? ShieldOff : ShieldCheck}
                       disabled={locked || !item.isActive}
                       onClick={() => void verify(item, !item.geoVerified)}
                     >
                       {item.geoVerified ? t("clearVerification") : t("verify")}
                     </Button>
-                    <Button type="button" size="sm" variant="secondary" disabled={locked} onClick={() => void toggle(item)}>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={item.isActive ? "warning" : "success"}
+                      icon={item.isActive ? PowerOff : Power}
+                      disabled={locked}
+                      onClick={() => void toggle(item)}
+                    >
                       {item.isActive ? t("deactivate") : t("activate")}
                     </Button>
                   </div>

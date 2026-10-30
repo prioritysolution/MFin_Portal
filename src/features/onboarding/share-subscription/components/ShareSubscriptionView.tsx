@@ -1,20 +1,22 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
-import { Check, Search, X } from "lucide-react";
+import { Eye, Pencil, Search, Send, ShieldCheck, X } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { FilterPanel } from "@/components/shared/FilterPanel";
 import { DataTable, type DataTableColumn } from "@/components/shared/DataTable";
 import { Alert } from "@/components/ui/Alert";
-import { Badge, type BadgeTone } from "@/components/ui/Badge";
+import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { DateField, SelectField, TextField } from "@/components/ui/Form";
 import { Modal } from "@/components/ui/Modal";
 import { fetchApplOptions } from "@/features/master/appl-options";
 import { todayYmd } from "@/features/deposits/savings/deposit-account.rules";
-import { fetchMembers } from "@/features/onboarding/member-registration/services/member-client";
-import { fetchGroups } from "@/features/onboarding/group-management/services/group-client";
+import { SubscriberPickerModal, type Subscriber } from "./SubscriberPickerModal";
+import { ShareSubscriptionEditModal } from "./ShareSubscriptionEditModal";
+import { ShareSubscriptionDetailModal } from "./ShareSubscriptionDetailModal";
+import { cents, moneyAmount, statusTone, wholeNumber } from "../share-subscription.utils";
 import {
   CUST_TYPE_GROUP,
   CUST_TYPE_INDIVIDUAL,
@@ -24,9 +26,7 @@ import {
   PAYMENT_MODE_CASH,
   PAYMENT_MODES,
   STATUS_CODES,
-  STATUS_PENDING,
-  STATUS_POSTED,
-  STATUS_REJECTED,
+  STATUS_ENTERED,
 } from "../share-subscription.constants";
 import {
   addShareSubscription,
@@ -53,39 +53,7 @@ const emptyFilters: Filters = {
   toDate: "",
 };
 
-type Subscriber = {
-  id: number;
-  code: string;
-  name: string;
-  branchName: string;
-  detail: string;
-};
-
 type Option = { value: string; label: string };
-
-function statusTone(statusCd: number): BadgeTone {
-  if (statusCd === STATUS_POSTED) return "success";
-  if (statusCd === STATUS_PENDING) return "warning";
-  if (statusCd === STATUS_REJECTED) return "danger";
-  return "neutral";
-}
-
-function moneyAmount(raw: string): number | null {
-  const trimmed = raw.trim();
-  if (!/^\d+(\.\d{1,2})?$/.test(trimmed)) return null;
-  return Number(trimmed);
-}
-
-function wholeNumber(raw: string): number | null {
-  const trimmed = raw.trim();
-  if (!/^\d+$/.test(trimmed)) return null;
-  const value = Number(trimmed);
-  return value > 0 ? value : null;
-}
-
-function cents(value: number): number {
-  return Math.round(value * 100);
-}
 
 export function ShareSubscriptionView() {
   const t = useTranslations("onboarding.shareSubscription");
@@ -108,9 +76,8 @@ export function ShareSubscriptionView() {
   const [paymentModeOptions, setPaymentModeOptions] = useState<Option[]>([]);
 
   const [custTypeCd, setCustTypeCd] = useState(String(CUST_TYPE_INDIVIDUAL));
-  const [keyword, setKeyword] = useState("");
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
-  const [searching, setSearching] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
   const [customerId, setCustomerId] = useState("");
   const [holding, setHolding] = useState<ShareHolding | null>(null);
   const [holdingLoading, setHoldingLoading] = useState(false);
@@ -132,6 +99,8 @@ export function ShareSubscriptionView() {
   const [decisionRemarks, setDecisionRemarks] = useState("");
   const [decisionError, setDecisionError] = useState<string | null>(null);
   const [deciding, setDeciding] = useState(false);
+  const [editing, setEditing] = useState<ShareSubscription | null>(null);
+  const [viewing, setViewing] = useState<ShareSubscription | null>(null);
 
   const selected = subscribers.find((item) => String(item.id) === customerId) ?? null;
   const shareCount = wholeNumber(shares);
@@ -248,44 +217,13 @@ export function ShareSubscriptionView() {
     setFormError(null);
   }
 
-  async function searchSubscribers() {
-    const term = keyword.trim();
-    if (!term) return;
-    setSearching(true);
+  function pickSubscriber(item: Subscriber) {
+    setSubscribers([item]);
+    setCustomerId(String(item.id));
+    setPaidTouched(false);
+    setPaid("");
     setFormError(null);
-    try {
-      const items: Subscriber[] =
-        Number(custTypeCd) === CUST_TYPE_GROUP
-          ? (await fetchGroups({ keyword: term, statusCd: 1, perPage: 20, page: 1 })).items.map(
-              (group) => ({
-                id: group.groupId,
-                code: group.refCode || String(group.groupCode),
-                name: group.groupName,
-                branchName: group.branchName,
-                detail: [group.groupTypeDesc, group.centerName].filter(Boolean).join(" · "),
-              }),
-            )
-          : (await fetchMembers({ keyword: term, statusCd: 1, perPage: 20, page: 1 })).items.map(
-              (member) => ({
-                id: member.memberId,
-                code: member.refCode || String(member.memberCode),
-                name: member.memberName,
-                branchName: member.branchName,
-                detail: [member.groupName, member.mobileNo].filter(Boolean).join(" · "),
-              }),
-            );
-      setSubscribers(items);
-      setCustomerId(items.length === 1 ? String(items[0].id) : "");
-      if (items.length === 0) setFormError(t("form.noResults"));
-    } catch (error) {
-      setSubscribers([]);
-      setCustomerId("");
-      setFormError(
-        isShareSubscriptionClientError(error) ? error.message : t("form.noResults"),
-      );
-    } finally {
-      setSearching(false);
-    }
+    setPickerOpen(false);
   }
 
   function sharesError(value: string): string | undefined {
@@ -358,7 +296,7 @@ export function ShareSubscriptionView() {
       setNotice({
         tone: "success",
         text:
-          result.item.statusCd === STATUS_PENDING
+          result.item.statusCd === STATUS_ENTERED
             ? t("form.sentForApproval")
             : result.message || t("form.saved"),
       });
@@ -418,11 +356,42 @@ export function ShareSubscriptionView() {
     }
   }
 
+  async function afterEdit(message: string) {
+    const row = editing;
+    setEditing(null);
+    setNotice({ tone: "success", text: message });
+    await load();
+    if (
+      row &&
+      holding &&
+      holding.customerId === row.customerId &&
+      holding.custTypeCd === row.custTypeCd
+    ) {
+      await loadHolding(holding.custTypeCd, holding.customerId);
+    }
+  }
+
   const statusLabel = useCallback(
     (row: ShareSubscription) =>
       row.statusDesc ||
       ((STATUS_CODES as readonly number[]).includes(row.statusCd)
         ? t(`statuses.${row.statusCd as (typeof STATUS_CODES)[number]}`)
+        : "—"),
+    [t],
+  );
+
+  const typeLabel = useCallback(
+    (row: ShareSubscription) =>
+      row.custTypeDesc ||
+      (row.custTypeCd === CUST_TYPE_GROUP ? t("custTypes.1") : t("custTypes.2")),
+    [t],
+  );
+
+  const modeLabel = useCallback(
+    (row: ShareSubscription) =>
+      row.paymentModeDesc ||
+      ((PAYMENT_MODES as readonly number[]).includes(row.paymentModeCd ?? 0)
+        ? t(`paymentModes.${row.paymentModeCd as (typeof PAYMENT_MODES)[number]}`)
         : "—"),
     [t],
   );
@@ -443,15 +412,7 @@ export function ShareSubscriptionView() {
               {row.customerName || "—"}
             </span>
             <span className="block truncate text-xs text-muted">
-              {[
-                row.customerCode,
-                row.custTypeDesc ||
-                  (row.custTypeCd === CUST_TYPE_GROUP
-                    ? t("custTypes.1")
-                    : t("custTypes.2")),
-              ]
-                .filter(Boolean)
-                .join(" · ")}
+              {[row.customerCode, typeLabel(row)].filter(Boolean).join(" · ")}
             </span>
           </span>
         ),
@@ -495,11 +456,7 @@ export function ShareSubscriptionView() {
       {
         id: "mode",
         header: t("table.mode"),
-        cell: (row) =>
-          row.paymentModeDesc ||
-          ((PAYMENT_MODES as readonly number[]).includes(row.paymentModeCd ?? 0)
-            ? t(`paymentModes.${row.paymentModeCd as (typeof PAYMENT_MODES)[number]}`)
-            : "—"),
+        cell: (row) => modeLabel(row),
       },
       {
         id: "status",
@@ -511,7 +468,7 @@ export function ShareSubscriptionView() {
         ),
       },
     ],
-    [format, money, statusLabel, t],
+    [format, modeLabel, money, statusLabel, t, typeLabel],
   );
 
   const statusOptions = STATUS_CODES.map((code) => ({
@@ -550,25 +507,23 @@ export function ShareSubscriptionView() {
             options={custTypeOptions}
             onChange={(value) => {
               setCustTypeCd(value);
-              setKeyword("");
               resetSubscriber();
             }}
           />
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end lg:col-span-2">
             <div className="min-w-0 flex-1">
               <TextField
-                label={t("form.search")}
-                value={keyword}
-                onChange={setKeyword}
-                placeholder={
-                  Number(custTypeCd) === CUST_TYPE_GROUP
-                    ? t("form.searchPlaceholderGroup")
-                    : t("form.searchPlaceholderMember")
-                }
+                label={t("form.subscriber")}
+                value={selected ? [selected.code, selected.name, selected.detail].filter(Boolean).join(" · ") : ""}
+                required
+                readOnly
+                placeholder={t("form.subscriberEmpty")}
+                inputClassName="cursor-pointer"
+                onClick={() => setPickerOpen(true)}
                 onKeyDown={(event) => {
-                  if (event.key !== "Enter") return;
+                  if (event.key !== "Enter" && event.key !== " ") return;
                   event.preventDefault();
-                  void searchSubscribers();
+                  setPickerOpen(true);
                 }}
               />
             </div>
@@ -576,29 +531,12 @@ export function ShareSubscriptionView() {
               type="button"
               variant="secondary"
               icon={Search}
-              loading={searching}
               className="w-full sm:w-auto"
-              onClick={() => void searchSubscribers()}
+              disabled={!custTypeCd}
+              onClick={() => setPickerOpen(true)}
             >
               {t("form.searchButton")}
             </Button>
-          </div>
-          <div className="sm:col-span-2 lg:col-span-3">
-            <SelectField
-              label={t("form.subscriber")}
-              value={customerId}
-              required
-              placeholder={t("form.subscriberEmpty")}
-              options={subscribers.map((item) => ({
-                value: String(item.id),
-                label: [item.code, item.name, item.detail].filter(Boolean).join(" · "),
-              }))}
-              onChange={(value) => {
-                setCustomerId(value);
-                setPaidTouched(false);
-                setPaid("");
-              }}
-            />
           </div>
 
           {selected ? (
@@ -629,7 +567,7 @@ export function ShareSubscriptionView() {
               </p>
               <p>
                 <span className="block text-muted">{t("form.holdingOutstanding")}</span>
-                {money(holding?.outstandingAmount ?? null)}
+                {money(holding ? Math.max(0, (cents(holding.totalAmount) - cents(holding.paidAmount)) / 100) : null)}
               </p>
               <p>
                 <span className="block text-muted">{t("form.pendingShares")}</span>
@@ -708,11 +646,19 @@ export function ShareSubscriptionView() {
           </div>
         </div>
         <div className="mt-4 flex justify-end">
-          <Button type="submit" loading={saving} disabled={saving || !holding}>
+          <Button type="submit" icon={Send} loading={saving} disabled={saving || !holding}>
             {saving ? t("form.saving") : t("form.submit")}
           </Button>
         </div>
       </form>
+
+      <SubscriberPickerModal
+        open={pickerOpen}
+        custTypeCd={Number(custTypeCd)}
+        selectedId={customerId ? Number(customerId) : null}
+        onClose={() => setPickerOpen(false)}
+        onSelect={pickSubscriber}
+      />
 
       <FilterPanel
         onReset={() => {
@@ -794,44 +740,77 @@ export function ShareSubscriptionView() {
         }}
         rowActions={{
           header: t("table.actions"),
-          render: (row) =>
-            row.statusCd === STATUS_PENDING ? (
-              <div className="flex flex-wrap justify-end gap-2">
+          render: (row) => (
+            <div className="inline-flex items-center justify-end gap-1.5">
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                icon={Eye}
+                tooltip={t("table.view")}
+                onClick={() => setViewing(row)}
+              />
+              {row.statusCd === STATUS_ENTERED ? (
+                <>
                 <Button
                   type="button"
                   size="sm"
                   variant="success"
-                  icon={Check}
+                  icon={ShieldCheck}
+                  tooltip={t("table.verify")}
                   onClick={() => {
                     setDecision({ row, approve: true });
                     setDecisionRemarks("");
                     setDecisionError(null);
                   }}
-                >
-                  {t("table.approve")}
-                </Button>
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  icon={Pencil}
+                  tooltip={t("table.edit")}
+                  onClick={() => setEditing(row)}
+                />
                 <Button
                   type="button"
                   size="sm"
                   variant="danger"
                   icon={X}
+                  tooltip={t("table.reject")}
                   onClick={() => {
                     setDecision({ row, approve: false });
                     setDecisionRemarks("");
                     setDecisionError(null);
                   }}
-                >
-                  {t("table.reject")}
-                </Button>
-              </div>
-            ) : null,
+                />
+                </>
+              ) : null}
+            </div>
+          ),
         }}
+      />
+
+      <ShareSubscriptionDetailModal
+        row={viewing}
+        statusLabel={statusLabel}
+        modeLabel={modeLabel}
+        typeLabel={typeLabel}
+        onClose={() => setViewing(null)}
+      />
+
+      <ShareSubscriptionEditModal
+        row={editing}
+        today={today}
+        paymentModeOptions={paymentModeOptions}
+        onClose={() => setEditing(null)}
+        onSaved={(message) => void afterEdit(message)}
       />
 
       <Modal
         open={decision != null}
         size="sm"
-        title={decision?.approve ? t("approval.approveTitle") : t("approval.rejectTitle")}
+        title={decision?.approve ? t("approval.verifyTitle") : t("approval.rejectTitle")}
         onClose={() => {
           if (deciding) return;
           setDecision(null);
@@ -849,10 +828,11 @@ export function ShareSubscriptionView() {
             <Button
               type="button"
               variant={decision?.approve ? "success" : "danger"}
+              icon={decision?.approve ? ShieldCheck : X}
               loading={deciding}
               onClick={() => void confirmDecision()}
             >
-              {decision?.approve ? t("approval.confirmApprove") : t("approval.confirmReject")}
+              {decision?.approve ? t("approval.confirmVerify") : t("approval.confirmReject")}
             </Button>
           </div>
         }

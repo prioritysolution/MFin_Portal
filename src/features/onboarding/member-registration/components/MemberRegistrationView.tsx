@@ -473,22 +473,6 @@ export function MemberRegistrationView() {
     <ModulePageShell page={pageMeta}>
       <PageToast message={successMessage} />
 
-      {/* Top Filter Panel */}
-      <MemberRegistrationFilters
-        values={filters}
-        branches={branches}
-        centers={centers}
-        groups={groups}
-        staff={staff}
-        genderOptions={genderOptions}
-        isBranchBound={isBranchBound}
-        onChange={(next) => {
-          setFilters(next);
-          setPage(1);
-        }}
-        onReset={handleFilterReset}
-      />
-
       {/* Stat Summary Cards (Exact Branch Directory & Group Management pattern) */}
       <div className="grid gap-3 sm:grid-cols-4">
         <StatCard
@@ -514,6 +498,22 @@ export function MemberRegistrationView() {
           </button>
         </div>
       ) : null}
+
+      {/* Top Filter Panel */}
+      <MemberRegistrationFilters
+        values={filters}
+        branches={branches}
+        centers={centers}
+        groups={groups}
+        staff={staff}
+        genderOptions={genderOptions}
+        isBranchBound={isBranchBound}
+        onChange={(next) => {
+          setFilters(next);
+          setPage(1);
+        }}
+        onReset={handleFilterReset}
+      />
 
       {/* Main Members Directory Table */}
       <MemberRegistrationTable

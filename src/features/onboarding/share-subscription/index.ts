@@ -2,6 +2,7 @@ export { ShareSubscriptionView } from "./components/ShareSubscriptionView";
 export {
   addShareSubscription,
   approveShareSubscription,
+  editShareSubscription,
   fetchShareHolding,
   fetchShareSubscriptions,
   isShareSubscriptionClientError,
@@ -13,6 +14,7 @@ export type {
   ShareSubscription,
   ShareSubscriptionAddInput,
   ShareSubscriptionApproveInput,
+  ShareSubscriptionEditInput,
   ShareSubscriptionListQuery,
   ShareSubscriptionListResult,
   ShareSubscriptionResult,

@@ -9,6 +9,7 @@ import type {
   Member,
   MemberListQuery,
   MemberListResult,
+  MemberNominee,
   MemberSaveInput,
   MemberStatus,
 } from "@/features/onboarding/member-registration/types/member.types";
@@ -32,7 +33,10 @@ function getField(row: RawMember, ...aliases: string[]): unknown {
 function text(row: RawMember, ...keys: string[]): string | null {
   const value = getField(row, ...keys);
   if (value == null) return null;
-  if (typeof value === "string") return value.trim() !== "" ? value.trim() : null;
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return trimmed !== "" && trimmed.toUpperCase() !== "NULL" ? trimmed : null;
+  }
   if (typeof value === "number") return String(value);
   return null;
 }
@@ -47,6 +51,38 @@ function numberValue(row: RawMember, ...keys: string[]): number | null {
 function bool(row: RawMember, ...keys: string[]): boolean {
   const value = getField(row, ...keys);
   return value === true || value === 1 || value === "1" || value === "true";
+}
+
+function mapNominees(raw: RawMember): MemberNominee[] {
+  const list = getField(raw, "nominees", "Nominees");
+  if (Array.isArray(list)) {
+    return list.flatMap((item): MemberNominee[] => {
+      if (!item || typeof item !== "object") return [];
+      const n = item as RawMember;
+      const name = text(n, "nominee_name", "name", "Nominee_Name");
+      if (!name) return [];
+      return [{
+        nomineeId: numberValue(n, "member_nominee_id", "nominee_id", "Member_Nominee_Id"),
+        name,
+        relationCd: numberValue(n, "nominee_rel_cd", "relation_cd", "nominee_relation", "Nominee_Rel_Cd"),
+        relationDesc: text(n, "relation_desc", "nominee_rel_desc", "Relation_Desc"),
+        dob: text(n, "nominee_dob", "dob", "Nominee_DOB"),
+        mobile: text(n, "nominee_mobile", "mobile", "Nominee_Mobile"),
+        sharePercent: numberValue(n, "share_percent", "sharePercent", "Share_Percent"),
+      }];
+    });
+  }
+  const name = text(raw, "nominee_name", "nomineeName", "Nominee_Name");
+  if (!name) return [];
+  return [{
+    nomineeId: null,
+    name,
+    relationCd: numberValue(raw, "nominee_rel_cd", "nominee_relation", "Nominee_Rel_Cd"),
+    relationDesc: text(raw, "nominee_relation_desc", "Nominee_Relation_Desc"),
+    dob: text(raw, "nominee_dob", "nomineeDob", "Nominee_Dob"),
+    mobile: text(raw, "nominee_mobile", "nomineeMobile", "Nominee_Mobile"),
+    sharePercent: null,
+  }];
 }
 
 function mapMember(row: unknown): Member | null {
@@ -100,12 +136,14 @@ function mapMember(row: unknown): Member | null {
     nomineeRelation: text(raw, "nominee_relation", "nomineeRelation", "Nominee_Relation"),
     nomineeDob: text(raw, "nominee_dob", "nomineeDob", "Nominee_Dob"),
     nomineeMobile: text(raw, "nominee_mobile", "nomineeMobile", "Nominee_Mobile"),
+    nominees: mapNominees(raw),
     photoPath: text(raw, "photo_path", "photoPath", "Photo_Path"),
     signaturePath: text(raw, "signature_path", "signaturePath", "Signature_Path"),
     foId: numberValue(raw, "fo_id", "foId", "Fo_Id"),
     foCode: text(raw, "fo_code", "foCode", "Fo_Code"),
     foName: text(raw, "fo_name", "foName", "Fo_Name"),
     admFees: numberValue(raw, "adm_fees", "admFees", "Adm_Fees"),
+    admFeeVoucherNo: text(raw, "adm_fee_voucher_no", "admFeeVoucherNo", "Adm_Fee_Voucher_No"),
     remarks: text(raw, "remarks", "Remarks"),
     kycCount: numberValue(raw, "kyc_count", "kycCount", "Kyc_Count") ?? 0,
     kycVerifiedCount: numberValue(raw, "kyc_verified_count", "kycVerifiedCount", "Kyc_Verified_Count") ?? 0,
@@ -163,6 +201,7 @@ export async function listMembers(
           return m ? [m] : [];
         })
       : [];
+    items.sort((a, b) => b.memberId - a.memberId);
     const rawMeta = payload?.meta as Record<string, unknown> | undefined;
     const total = numberValue(rawMeta ?? {}, "total") ?? items.length;
     const page = numberValue(rawMeta ?? {}, "page") ?? query.page ?? 1;
@@ -233,6 +272,16 @@ export async function saveMember(input: MemberSaveInput): Promise<Member | null>
         if (value != null && value !== "") requestBody[key] = value;
       }
       if (body.statusCd === 1 || body.statusCd === 2) requestBody.status_cd = body.statusCd;
+    }
+
+    if (body.nominees) {
+      requestBody.nominees = body.nominees.map((n) => ({
+        nominee_name: n.name,
+        nominee_rel_cd: n.relationCd,
+        nominee_dob: n.dob,
+        nominee_mobile: n.mobile,
+        share_percent: n.sharePercent,
+      }));
     }
 
     const data = await api.post<RawMember>(

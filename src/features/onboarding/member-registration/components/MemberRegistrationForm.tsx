@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   User,
   Users,
@@ -9,6 +10,10 @@ import {
   CreditCard,
   Briefcase,
   FileText,
+  Plus,
+  Save,
+  Trash2,
+  UserPlus,
 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
@@ -19,7 +24,14 @@ import {
   TextAreaField,
 } from "@/components/ui/Form";
 import type { SelectOption } from "@/components/ui/Select";
-import type { Member, MemberSaveInput } from "../types/member.types";
+import type { Member, MemberNomineeInput, MemberSaveInput } from "../types/member.types";
+import {
+  MEMBER_NOMINEE_MAX,
+  NOMINEE_MOBILE_PATTERN,
+  REF_CODE_MAX_LENGTH,
+  nomineeListIssue,
+  refCodeError,
+} from "../member.constants";
 import type { Branch } from "@/features/master/branch/types/branch.types";
 import type { Center } from "@/features/master/center/types/center.types";
 import type { Staff } from "@/features/master/staff/types/staff.types";
@@ -70,8 +82,21 @@ export type MemberFormState = {
   nomineeRelation: string;
   nomineeDob: string;
   nomineeMobile: string;
+  nomineeShare: string;
   remarks: string;
 };
+
+type NomineeRow = {
+  key: number;
+  name: string;
+  relationCd: string;
+  dob: string;
+  mobile: string;
+  share: string;
+};
+
+type NomineeRowField = Exclude<keyof NomineeRow, "key">;
+type NomineeRowErrors = Partial<Record<NomineeRowField, string>>;
 
 const EMPTY_FORM: MemberFormState = {
   memberName: "",
@@ -110,8 +135,16 @@ const EMPTY_FORM: MemberFormState = {
   nomineeRelation: "",
   nomineeDob: "",
   nomineeMobile: "",
+  nomineeShare: "",
   remarks: "",
 };
+
+function shareInput(value: string): string {
+  const cleaned = value.replace(/[^\d.]/g, "");
+  const [whole = "", ...rest] = cleaned.split(".");
+  const fraction = rest.join("").slice(0, 2);
+  return (cleaned.includes(".") ? `${whole.slice(0, 3)}.${fraction}` : whole.slice(0, 3));
+}
 
 function resolveRelationCode(
   stored: string | null | undefined,
@@ -172,12 +205,30 @@ export function MemberRegistrationForm({
 }: MemberRegistrationFormProps) {
   const [form, setForm] = useState<MemberFormState>(EMPTY_FORM);
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof MemberFormState, string>>>({});
+  const [extraNominees, setExtraNominees] = useState<NomineeRow[]>([]);
+  const [nomineeErrors, setNomineeErrors] = useState<Record<number, NomineeRowErrors>>({});
+  const [nomineeListError, setNomineeListError] = useState<string | null>(null);
+  const nomineeKey = useRef(0);
+  const tNominee = useTranslations("onboarding.memberNominees");
   const today = useMemo(() => new Date().toISOString().split("T")[0], []);
 
   // Sync state when open or editing changes
   useEffect(() => {
     if (!open) return;
+    setNomineeErrors({});
+    setNomineeListError(null);
     if (editing) {
+      const [first, ...rest] = editing.nominees;
+      setExtraNominees(
+        rest.map((n) => ({
+          key: ++nomineeKey.current,
+          name: n.name,
+          relationCd: n.relationCd != null ? String(n.relationCd) : "",
+          dob: n.dob ?? "",
+          mobile: n.mobile ?? "",
+          share: n.sharePercent != null ? String(n.sharePercent) : "",
+        })),
+      );
       setForm({
         memberName: editing.memberName || "",
         genderCd: editing.genderCd ? String(editing.genderCd) : "",
@@ -211,13 +262,18 @@ export function MemberRegistrationForm({
         ifscCode: editing.ifscCode || "",
         admFees: editing.admFees != null ? String(editing.admFees) : "",
 
-        nomineeName: editing.nomineeName || "",
-        nomineeRelation: resolveRelationCode(editing.nomineeRelation, relationOptions),
-        nomineeDob: editing.nomineeDob || "",
-        nomineeMobile: editing.nomineeMobile || "",
+        nomineeName: first?.name ?? editing.nomineeName ?? "",
+        nomineeRelation:
+          first?.relationCd != null
+            ? String(first.relationCd)
+            : resolveRelationCode(editing.nomineeRelation, relationOptions),
+        nomineeDob: first?.dob ?? editing.nomineeDob ?? "",
+        nomineeMobile: first?.mobile ?? editing.nomineeMobile ?? "",
+        nomineeShare: first?.sharePercent != null ? String(first.sharePercent) : "",
         remarks: editing.remarks || "",
       });
     } else {
+      setExtraNominees([]);
       const defaultBranch = isBranchBound && userBranchId ? String(userBranchId) : branches[0] ? String(branches[0].branchId) : "";
       setForm({
         ...EMPTY_FORM,
@@ -245,6 +301,70 @@ export function MemberRegistrationForm({
       return next;
     });
     setFieldErrors((prev) => ({ ...prev, [key]: undefined }));
+    if (key === "nomineeShare") setNomineeListError(null);
+  };
+
+  const nomineeCount = (form.nomineeName.trim() ? 1 : 0) + extraNominees.length;
+  const canAddNominee = 1 + extraNominees.length < MEMBER_NOMINEE_MAX;
+
+  const addNominee = () => {
+    if (!form.nomineeName.trim()) {
+      setFieldErrors((prev) => ({ ...prev, nomineeName: tNominee("firstRequired") }));
+      return;
+    }
+    if (!canAddNominee) return;
+    setExtraNominees((prev) => [
+      ...prev,
+      { key: ++nomineeKey.current, name: "", relationCd: "", dob: "", mobile: "", share: "" },
+    ]);
+    setNomineeListError(null);
+  };
+
+  const removeNominee = (key: number) => {
+    setExtraNominees((prev) => prev.filter((row) => row.key !== key));
+    setNomineeErrors((prev) => {
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
+    setNomineeListError(null);
+  };
+
+  const updateNominee = (key: number, field: NomineeRowField, value: string) => {
+    setExtraNominees((prev) => prev.map((row) => (row.key === key ? { ...row, [field]: value } : row)));
+    setNomineeErrors((prev) => ({ ...prev, [key]: { ...prev[key], [field]: undefined } }));
+    if (field === "share") setNomineeListError(null);
+  };
+
+  const showShares = extraNominees.length > 0;
+
+  const nomineeShareTotal = useMemo(() => {
+    const cents = [form.nomineeShare, ...extraNominees.map((row) => row.share)].reduce(
+      (sum, value) => sum + Math.round((Number(value) || 0) * 100),
+      0,
+    );
+    return cents / 100;
+  }, [form.nomineeShare, extraNominees]);
+
+  const buildNominees = (): MemberNomineeInput[] => {
+    if (!form.nomineeName.trim()) return [];
+    const share = (value: string) => (showShares && value.trim() ? Number(value) : null);
+    return [
+      {
+        name: form.nomineeName.trim(),
+        relationCd: Number(form.nomineeRelation),
+        dob: form.nomineeDob || null,
+        mobile: form.nomineeMobile.trim() || null,
+        sharePercent: share(form.nomineeShare),
+      },
+      ...extraNominees.map((row) => ({
+        name: row.name.trim(),
+        relationCd: Number(row.relationCd),
+        dob: row.dob || null,
+        mobile: row.mobile.trim() || null,
+        sharePercent: share(row.share),
+      })),
+    ];
   };
 
   // Calculated Age
@@ -428,6 +548,11 @@ export function MemberRegistrationForm({
       errs.memberName = "Member name cannot exceed 150 characters";
     }
 
+    const refCodeMessage = refCodeError(form.refCode);
+    if (refCodeMessage) {
+      errs.refCode = refCodeMessage;
+    }
+
     if (!form.genderCd) {
       errs.genderCd = "Please select gender";
     }
@@ -529,10 +654,36 @@ export function MemberRegistrationForm({
       if (form.nomineeDob && form.nomineeDob > today) {
         errs.nomineeDob = "Nominee DOB cannot be in the future";
       }
-      if (form.nomineeMobile.trim() && !/^[6-9]\d{9}$/.test(form.nomineeMobile.trim())) {
+      if (form.nomineeMobile.trim() && !NOMINEE_MOBILE_PATTERN.test(form.nomineeMobile.trim())) {
         errs.nomineeMobile = "Must be a valid 10-digit mobile number";
       }
     }
+
+    const rowErrs: Record<number, NomineeRowErrors> = {};
+    let listError: string | null = null;
+    if (extraNominees.length > 0) {
+      if (!hasNomineeDetails) errs.nomineeName = tNominee("firstRequired");
+      if (!form.nomineeShare.trim()) errs.nomineeShare = tNominee("shareRequired");
+      for (const row of extraNominees) {
+        const rowErr: NomineeRowErrors = {};
+        if (!row.name.trim()) rowErr.name = tNominee("nameRequired");
+        if (!row.relationCd) rowErr.relationCd = tNominee("relationRequired");
+        if (row.dob && row.dob > today) rowErr.dob = tNominee("dobFuture");
+        if (row.mobile && !NOMINEE_MOBILE_PATTERN.test(row.mobile)) rowErr.mobile = tNominee("mobileInvalid");
+        if (!row.share.trim()) rowErr.share = tNominee("shareRequired");
+        if (Object.keys(rowErr).length > 0) rowErrs[row.key] = rowErr;
+      }
+      if (Object.keys(errs).length === 0 && Object.keys(rowErrs).length === 0) {
+        const issue = nomineeListIssue(buildNominees(), today);
+        if (issue === "shareTotal") {
+          listError = tNominee("shareTotal", { total: nomineeShareTotal });
+        } else if (issue) {
+          listError = tNominee(`issues.${issue}`, { max: MEMBER_NOMINEE_MAX });
+        }
+      }
+    }
+    setNomineeErrors(rowErrs);
+    setNomineeListError(listError);
 
     // 8. Financial limits
     if (form.monthlyIncome.trim()) {
@@ -555,7 +706,7 @@ export function MemberRegistrationForm({
     }
 
     setFieldErrors(errs);
-    return Object.keys(errs).length === 0;
+    return Object.keys(errs).length === 0 && Object.keys(rowErrs).length === 0 && !listError;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -569,7 +720,7 @@ export function MemberRegistrationForm({
       dateOfBirth: form.dateOfBirth,
       mobileNo: form.mobileNo.trim(),
       branchId: Number(form.branchId),
-      refCode: form.refCode.trim() || null,
+      refCode: form.refCode.trim().toUpperCase() || null,
       fatherName: form.fatherName.trim() || null,
       motherName: form.motherName.trim() || null,
       spouseName: form.spouseName.trim() || null,
@@ -592,6 +743,7 @@ export function MemberRegistrationForm({
       nomineeRelation: form.nomineeRelation.trim() || null,
       nomineeDob: form.nomineeDob || null,
       nomineeMobile: form.nomineeMobile.trim() || null,
+      nominees: buildNominees(),
       foId: form.foId ? Number(form.foId) : null,
       photoPath: editing?.photoPath ?? null,
       signaturePath: editing?.signaturePath ?? null,
@@ -608,6 +760,7 @@ export function MemberRegistrationForm({
       <Modal
         open={open}
         onClose={onClose}
+        confirmOnSave={false}
         title={editing ? `Edit Member: ${editing.memberName}` : "Register New Member"}
         subtitle={
           editing
@@ -630,6 +783,7 @@ export function MemberRegistrationForm({
               </Button>
               <Button
                 variant="primary"
+                icon={editing ? Save : UserPlus}
                 onClick={handleSubmit}
                 loading={submitting}
               >
@@ -664,10 +818,11 @@ export function MemberRegistrationForm({
                 <TextField
                   label="Display Ref Code"
                   value={form.refCode}
-                  onChange={(val) => updateField("refCode", val.toUpperCase())}
+                  maxLength={REF_CODE_MAX_LENGTH}
+                  onChange={(val) => updateField("refCode", val.toUpperCase().replace(/\s+/g, ""))}
                   error={fieldErrors.refCode}
-                  placeholder="Auto-generated if empty"
-                  hint="Borrower series (e.g. CUST-2026-0004)"
+                  placeholder="e.g. CUST-2026-0004"
+                  hint="Optional. Letters, digits, - / _ (must be unique)"
                 />
               </div>
 
@@ -1011,39 +1166,71 @@ export function MemberRegistrationForm({
 
           {/* Section 6: Nominee & Other */}
           <section className="rounded-lg border border-slate-200/80 bg-slate-50/50 p-4">
-            <div className="mb-3 flex items-center gap-2 text-xs font-bold tracking-wider text-slate-800 uppercase">
-              <FileText className="h-4 w-4 text-brand" />
-              6. Nominee & Additional Remarks
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2 text-xs font-bold tracking-wider text-slate-800 uppercase">
+                <FileText className="h-4 w-4 text-brand" />
+                6. Nominee & Additional Remarks
+                {nomineeCount > 0 && (
+                  <span className="rounded-full bg-brand/10 px-2 py-0.5 text-[11px] font-semibold tracking-normal text-brand normal-case">
+                    {tNominee("count", { count: nomineeCount, max: MEMBER_NOMINEE_MAX })}
+                  </span>
+                )}
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                icon={Plus}
+                onClick={addNominee}
+                disabled={!canAddNominee || submitting}
+                tooltip={canAddNominee ? undefined : tNominee("maxReached", { max: MEMBER_NOMINEE_MAX })}
+              >
+                {tNominee("add")}
+              </Button>
             </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+            <div className={showShares ? "rounded-lg border border-slate-200 bg-white p-3" : undefined}>
+            {showShares && (
+              <div className="mb-2 flex min-h-8 items-center">
+                <p className="text-xs font-semibold text-slate-600">
+                  {tNominee("title", { number: 1 })}
+                </p>
+              </div>
+            )}
+            <div
+              className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${showShares ? "lg:grid-cols-5" : "lg:grid-cols-4"}`}
+            >
               {/* Nominee Name */}
               <div>
                 <TextField
-                  label="Nominee Name"
+                  label={tNominee("name")}
                   value={form.nomineeName}
                   onChange={(val) => updateField("nomineeName", val)}
                   error={fieldErrors.nomineeName}
-                  placeholder="Full name of nominee"
+                  placeholder={tNominee("namePlaceholder")}
+                  maxLength={150}
+                  required={showShares}
                 />
               </div>
 
               {/* Nominee Relationship */}
               <div>
                 <SelectField
-                  label="Relationship to Member"
+                  label={tNominee("relation")}
                   value={form.nomineeRelation}
                   searchable={false}
-                  placeholder="Select relationship"
+                  placeholder={tNominee("relationPlaceholder")}
                   onChange={(val) => updateField("nomineeRelation", val)}
                   error={fieldErrors.nomineeRelation}
                   options={relationSelectOptions}
+                  required={showShares}
                 />
               </div>
 
               {/* Nominee DOB */}
               <div>
                 <DateField
-                  label="Nominee Date of Birth"
+                  label={tNominee("dob")}
                   value={form.nomineeDob}
                   max={today}
                   onChange={(val) => updateField("nomineeDob", val)}
@@ -1054,13 +1241,112 @@ export function MemberRegistrationForm({
               {/* Nominee Mobile */}
               <div>
                 <TextField
-                  label="Nominee Mobile No."
+                  label={tNominee("mobile")}
                   value={form.nomineeMobile}
                   onChange={(val) => updateField("nomineeMobile", val.replace(/\D/g, "").slice(0, 10))}
                   error={fieldErrors.nomineeMobile}
-                  placeholder="10 digits"
+                  placeholder={tNominee("mobilePlaceholder")}
+                  inputMode="numeric"
                 />
               </div>
+
+              {showShares && (
+                <div>
+                  <TextField
+                    label={tNominee("share")}
+                    value={form.nomineeShare}
+                    onChange={(val) => updateField("nomineeShare", shareInput(val))}
+                    error={fieldErrors.nomineeShare}
+                    placeholder={tNominee("sharePlaceholder")}
+                    inputMode="decimal"
+                    required
+                  />
+                </div>
+              )}
+            </div>
+            </div>
+
+            {extraNominees.map((row, index) => {
+              const rowErr = nomineeErrors[row.key] ?? {};
+              return (
+                <div
+                  key={row.key}
+                  className="mt-4 rounded-lg border border-slate-200 bg-white p-3"
+                >
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <p className="text-xs font-semibold text-slate-600">
+                      {tNominee("title", { number: index + 2 })}
+                    </p>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="danger"
+                      icon={Trash2}
+                      onClick={() => removeNominee(row.key)}
+                      disabled={submitting}
+                      tooltip={tNominee("remove", { number: index + 2 })}
+                      aria-label={tNominee("remove", { number: index + 2 })}
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                    <TextField
+                      label={tNominee("name")}
+                      value={row.name}
+                      onChange={(val) => updateNominee(row.key, "name", val)}
+                      error={rowErr.name}
+                      placeholder={tNominee("namePlaceholder")}
+                      maxLength={150}
+                      required
+                    />
+                    <SelectField
+                      label={tNominee("relation")}
+                      value={row.relationCd}
+                      searchable={false}
+                      placeholder={tNominee("relationPlaceholder")}
+                      onChange={(val) => updateNominee(row.key, "relationCd", val)}
+                      error={rowErr.relationCd}
+                      options={relationSelectOptions}
+                      required
+                    />
+                    <DateField
+                      label={tNominee("dob")}
+                      value={row.dob}
+                      max={today}
+                      onChange={(val) => updateNominee(row.key, "dob", val)}
+                      error={rowErr.dob}
+                    />
+                    <TextField
+                      label={tNominee("mobile")}
+                      value={row.mobile}
+                      onChange={(val) => updateNominee(row.key, "mobile", val.replace(/\D/g, "").slice(0, 10))}
+                      error={rowErr.mobile}
+                      placeholder={tNominee("mobilePlaceholder")}
+                      inputMode="numeric"
+                    />
+                    <TextField
+                      label={tNominee("share")}
+                      value={row.share}
+                      onChange={(val) => updateNominee(row.key, "share", shareInput(val))}
+                      error={rowErr.share}
+                      placeholder={tNominee("sharePlaceholder")}
+                      inputMode="decimal"
+                      required
+                    />
+                  </div>
+                </div>
+              );
+            })}
+
+            {showShares && (
+              <p
+                className={`mt-3 text-xs ${nomineeListError ? "font-medium text-rose-600" : "text-slate-500"}`}
+                role={nomineeListError ? "alert" : undefined}
+              >
+                {nomineeListError ?? tNominee("shareHint", { total: nomineeShareTotal })}
+              </p>
+            )}
+
+            <div className="mt-4 grid grid-cols-1 gap-4">
 
               {/* Remarks */}
               <div className="sm:col-span-2 lg:col-span-4">

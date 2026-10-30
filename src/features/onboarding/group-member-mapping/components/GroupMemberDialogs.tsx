@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { ArrowRightLeft, Save, UserMinus, UserPlus } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Button } from "@/components/ui/Button";
@@ -12,7 +13,6 @@ import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { showToast } from "@/components/ui/toast";
 import { fetchGroups } from "@/features/onboarding/group-management/services/group-client";
 import { fetchMembers } from "@/features/onboarding/member-registration/services/member-client";
-import { fetchStaffList } from "@/features/master/staff/services/staff-client";
 import type { Group } from "@/features/onboarding/group-management/types/group.types";
 import type { Member } from "@/features/onboarding/member-registration/types/member.types";
 import {
@@ -192,7 +192,7 @@ export function AssignMembersModal({
           <Button type="button" variant="secondary" onClick={onClose}>
             {t("cancel")}
           </Button>
-          <Button type="button" loading={saving} disabled={count === 0} onClick={() => void submit()}>
+          <Button type="button" icon={UserPlus} loading={saving} disabled={count === 0} onClick={() => void submit()}>
             {t("addSelected", { count })}
           </Button>
         </>
@@ -412,7 +412,7 @@ export function MoveMemberModal({
           <Button type="button" variant="secondary" onClick={onClose}>
             {t("cancel")}
           </Button>
-          <Button type="button" loading={saving} disabled={!groupId} onClick={() => void submit()}>
+          <Button type="button" icon={ArrowRightLeft} loading={saving} disabled={!groupId} onClick={() => void submit()}>
             {t("move")}
           </Button>
         </>
@@ -489,9 +489,7 @@ export function EditMembershipModal({
 }) {
   const t = useTranslations("onboarding.groupMemberMapping");
   const [role, setRole] = useState<MemberRole>("Member");
-  const [foId, setFoId] = useState("");
   const [joinDate, setJoinDate] = useState("");
-  const [staff, setStaff] = useState<SelectOption[]>([]);
   const [swap, setSwap] = useState<GroupMembership | null>(null);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -499,15 +497,9 @@ export function EditMembershipModal({
   useEffect(() => {
     if (!open || !row || !group) return;
     setRole(normalizeRole(row.memberRole));
-    setFoId(row.foId != null ? String(row.foId) : "");
     setJoinDate(row.joinDate ?? todayYmd());
     setError("");
     setSwap(null);
-    fetchStaffList({ branchId: group.branchId, status: 1, perPage: 200 })
-      .then((result) =>
-        setStaff(result.items.map((person) => ({ value: String(person.staffId), label: person.fullName }))),
-      )
-      .catch(() => setStaff([]));
   }, [open, row, group]);
 
   const taken = row ? heldRoles(roster, row.memberId) : new Set<MemberRole>();
@@ -522,8 +514,6 @@ export function EditMembershipModal({
       }
       const input: Parameters<typeof editMembership>[0] = { memGroupId: row.memGroupId };
       if (nextRole !== normalizeRole(row.memberRole) || holder) input.memberRole = nextRole;
-      const nextFo = foId === "" ? null : Number(foId);
-      if (nextFo !== row.foId) input.foId = nextFo;
       if (joinDate && joinDate !== row.joinDate) input.joinDate = joinDate;
       const saved = await editMembership(input);
       onSaved(saved.message);
@@ -558,7 +548,7 @@ export function EditMembershipModal({
             <Button type="button" variant="secondary" onClick={onClose}>
               {t("cancel")}
             </Button>
-            <Button type="button" loading={saving} onClick={submit}>
+            <Button type="button" icon={Save} loading={saving} onClick={submit}>
               {t("save")}
             </Button>
           </>
@@ -574,17 +564,6 @@ export function EditMembershipModal({
               options={MEMBER_ROLES.filter((item) => item === "Member" || item === role || !taken.has(item)).map(
                 (item) => ({ value: item, label: t(`roles.${item}`) }),
               )}
-            />
-          </label>
-          <label className="block text-sm">
-            <span className="mb-1 block font-medium text-slate-700">{t("fieldOfficer")}</span>
-            <Select
-              aria-label={t("fieldOfficer")}
-              clearable
-              placeholder={t("fieldOfficer")}
-              value={foId}
-              onChange={setFoId}
-              options={staff}
             />
           </label>
           <label className="block text-sm">
@@ -675,7 +654,7 @@ export function ExitMemberModal({
           <Button type="button" variant="secondary" onClick={onClose}>
             {t("cancel")}
           </Button>
-          <Button type="button" variant="danger" loading={saving} onClick={() => void submit()}>
+          <Button type="button" variant="danger" icon={UserMinus} loading={saving} onClick={() => void submit()}>
             {t("remove")}
           </Button>
         </>

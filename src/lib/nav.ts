@@ -116,11 +116,6 @@ export const mainModules: NavItem[] = [
       },
       { label: "Staff Master", href: "/master/staff", icon: UserRound },
       {
-        label: "Branch Vault Master",
-        href: "/master/branch-vault",
-        icon: Vault,
-      },
-      {
         label: "Maker-Checker Rules",
         href: "/master/maker-checker",
         icon: ShieldCheck,

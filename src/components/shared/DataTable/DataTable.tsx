@@ -70,6 +70,7 @@ export function DataTable<T>({
   title,
   description,
   actions,
+  toolbar,
 }: DataTableProps<T>) {
   const data = Array.isArray(rawData) ? rawData : [];
   const t = useTranslations("ui");
@@ -116,9 +117,14 @@ export function DataTable<T>({
   }
 
   const heading = (
-    <TableHeading title={title} description={description} actions={actions} />
+    <>
+      <TableHeading title={title} description={description} actions={actions} />
+      {toolbar ? (
+        <div className="mb-4 border-b border-border pb-4">{toolbar}</div>
+      ) : null}
+    </>
   );
-  const hasHeading = Boolean(title || description || actions);
+  const hasHeading = Boolean(title || description || actions || toolbar);
   const hasCustomMinHeight = Boolean(minHeight || className.includes("min-h-"));
   const defaultMinHeightClass = hasCustomMinHeight ? "" : "min-h-[440px]";
   const cardClass =

@@ -809,6 +809,7 @@ export function BranchVaultMasterView() {
                   className="btn btn-primary"
                   onClick={() => setModal(null)}
                 >
+                  <CheckCircle2 className="h-4 w-4" />
                   Confirm Audit
                 </button>
               </div>
@@ -862,6 +863,7 @@ export function BranchVaultMasterView() {
                   className="btn btn-primary"
                   onClick={() => setModal(null)}
                 >
+                  <Truck className="h-4 w-4" />
                   Dispatch Transfer
                 </button>
               </div>
@@ -927,6 +929,7 @@ export function BranchVaultMasterView() {
                   className="btn btn-primary"
                   onClick={() => setModal(null)}
                 >
+                  <Save className="h-4 w-4" />
                   Process & Post
                 </button>
               </div>
@@ -967,6 +970,7 @@ export function BranchVaultMasterView() {
                     setModal(null);
                   }}
                 >
+                  <KeyRound className="h-4 w-4" />
                   {dayStatus === "open" ? "Submit Day Close" : "Confirm Day Open"}
                 </button>
               </div>

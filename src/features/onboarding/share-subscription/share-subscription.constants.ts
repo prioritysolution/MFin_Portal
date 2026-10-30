@@ -12,14 +12,16 @@ export type CustType = (typeof CUST_TYPES)[number];
 export const PAYMENT_MODE_CASH = 1;
 export const PAYMENT_MODES = [1, 2, 3] as const;
 
-/** Same `Tr_Status_Cd` meaning as `trans_savings_transaction`, not lookup group 48. */
-export const STATUS_POSTED = 1;
-export const STATUS_PENDING = 2;
+/** `Tr_Status_Cd`, `mst_appl_options` group 48: Trans / Voucher Status. */
+export const STATUS_ENTERED = 1;
+export const STATUS_APPROVED = 2;
 export const STATUS_REJECTED = 3;
 export const STATUS_REVERSED = 4;
+export const STATUS_DELETED = 5;
 export const STATUS_CODES = [
-  STATUS_POSTED,
-  STATUS_PENDING,
+  STATUS_ENTERED,
+  STATUS_APPROVED,
   STATUS_REJECTED,
   STATUS_REVERSED,
+  STATUS_DELETED,
 ] as const;

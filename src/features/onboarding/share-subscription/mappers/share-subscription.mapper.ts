@@ -8,6 +8,7 @@ import type {
   ShareSubscription,
   ShareSubscriptionAddInput,
   ShareSubscriptionApproveInput,
+  ShareSubscriptionEditInput,
 } from "../types/share-subscription.types";
 
 type SubscriptionDto = z.infer<typeof shareSubscriptionDtoSchema>;
@@ -44,6 +45,7 @@ export function mapShareSubscriptionDto(dto: SubscriptionDto): ShareSubscription
     createdAt: dto.created_at ?? null,
     approvedByName: text(dto.approved_by_name),
     approvedAt: dto.approved_at ?? null,
+    approvalRemarks: text(dto.approval_remarks),
   };
 }
 
@@ -77,6 +79,20 @@ export function mapShareSubscriptionAddToDto(
   if (input.transRefNo?.trim()) payload.trans_ref_no = input.transRefNo.trim();
   if (input.remarks?.trim()) payload.remarks = input.remarks.trim();
   return payload;
+}
+
+export function mapShareSubscriptionEditToDto(
+  input: ShareSubscriptionEditInput,
+): Record<string, unknown> {
+  return {
+    subscription_id: input.subscriptionId,
+    subscription_date: input.subscriptionDate,
+    no_of_shares: input.noOfShares,
+    paid_amount: input.paidAmount,
+    payment_mode_cd: input.paymentModeCd,
+    trans_ref_no: input.transRefNo?.trim() || null,
+    remarks: input.remarks?.trim() || null,
+  };
 }
 
 export function mapShareSubscriptionApproveToDto(

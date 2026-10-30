@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { useFormatter, useTranslations } from "next-intl";
+import { Lock } from "lucide-react";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { DateField, FormField } from "@/components/ui/Form";
@@ -82,6 +83,7 @@ export function DepositAccountCloseModal({
             type="submit"
             form="close-deposit-account"
             variant="danger"
+            icon={Lock}
             loading={saving}
             disabled={blocked}
           >

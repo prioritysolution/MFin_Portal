@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { RefreshCw } from "lucide-react";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -68,6 +69,7 @@ export function DepositAccountStatusModal({
           </Button>
           <Button
             type="button"
+            icon={RefreshCw}
             loading={saving}
             disabled={!statusCd}
             onClick={() => onConfirm(Number(statusCd))}

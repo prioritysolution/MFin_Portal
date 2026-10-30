@@ -15,12 +15,15 @@ export function KycImageField({
   value,
   onChange,
   fileUrl = "/api/onboarding/member-kyc/file",
+  ownerField = "member_id",
 }: {
   label: string;
   memberId: number;
   value: string;
   onChange: (path: string) => void;
   fileUrl?: string;
+  /** Form field the upload route reads the owner id from. */
+  ownerField?: "member_id" | "group_id";
 }) {
   const t = useTranslations("onboarding.memberKyc");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -42,7 +45,7 @@ export function KycImageField({
     setError("");
     try {
       const body = new FormData();
-      body.set("member_id", String(memberId));
+      body.set(ownerField, String(memberId));
       body.set("file", file);
       const response = await fetch(fileUrl, {
         method: "POST",

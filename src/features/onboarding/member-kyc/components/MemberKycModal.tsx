@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Eye, EyeOff, Plus } from "lucide-react";
+import { AlertCircle, Check, Eye, EyeOff, FileText, Pencil, Plus, Power, PowerOff, RotateCcw, Save, X } from "lucide-react";
+import { EmptyState } from "@/components/shared/EmptyState";
 import { Modal } from "@/components/ui/Modal";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Button } from "@/components/ui/Button";
@@ -285,12 +286,17 @@ export function MemberKycModal({
                   onChange={(path) => setForm({ ...form, backPhotoPath: path })}
                 />
               </div>
-              {fieldError ? <p className="text-sm text-danger">{fieldError}</p> : null}
+              {fieldError ? (
+                <p className="flex items-start gap-1.5 text-sm text-danger" role="alert">
+                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                  <span>{fieldError}</span>
+                </p>
+              ) : null}
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="secondary" onClick={() => setForm(null)}>
                   {t("cancel")}
                 </Button>
-                <Button type="button" loading={saving} onClick={() => void submitForm()}>
+                <Button type="button" icon={Save} loading={saving} onClick={() => void submitForm()}>
                   {t("save")}
                 </Button>
               </div>
@@ -304,7 +310,14 @@ export function MemberKycModal({
               ))}
             </div>
           ) : null}
-          {!loading && items.length === 0 ? <p className="text-sm text-muted">{t("empty")}</p> : null}
+          {!loading && items.length === 0 ? (
+            <EmptyState
+              className="rounded-xl border border-dashed border-border"
+              icon={<FileText className="h-5 w-5" aria-hidden="true" />}
+              title={t("empty")}
+              message={t("emptyHint")}
+            />
+          ) : null}
           <ul className="space-y-2">
             {items.map((document) => {
               const tone =
@@ -348,6 +361,7 @@ export function MemberKycModal({
                         type="button"
                         size="sm"
                         variant="secondary"
+                        icon={Pencil}
                         onClick={() => {
                           setFieldError("");
                           setForm({
@@ -365,22 +379,22 @@ export function MemberKycModal({
                       </Button>
                     ) : null}
                     {document.isActive && document.verifyStatus === 0 && !locked && !document.isExpired ? (
-                      <Button type="button" size="sm" variant="success" onClick={() => { setDecision({ document, status: 1 }); setRemarks(""); setFieldError(""); }}>
+                      <Button type="button" size="sm" variant="success" icon={Check} onClick={() => { setDecision({ document, status: 1 }); setRemarks(""); setFieldError(""); }}>
                         {t("verify")}
                       </Button>
                     ) : null}
                     {document.isActive && document.verifyStatus !== 2 && !locked ? (
-                      <Button type="button" size="sm" variant="danger" onClick={() => { setDecision({ document, status: 2 }); setRemarks(""); setFieldError(""); }}>
+                      <Button type="button" size="sm" variant="danger" icon={X} onClick={() => { setDecision({ document, status: 2 }); setRemarks(""); setFieldError(""); }}>
                         {t("reject")}
                       </Button>
                     ) : null}
                     {document.isActive && document.verifyStatus !== 0 && !locked ? (
-                      <Button type="button" size="sm" variant="warning" onClick={() => { setDecision({ document, status: 0 }); setRemarks(""); setFieldError(""); }}>
+                      <Button type="button" size="sm" variant="warning" icon={RotateCcw} onClick={() => { setDecision({ document, status: 0 }); setRemarks(""); setFieldError(""); }}>
                         {t("reopen")}
                       </Button>
                     ) : null}
                     {!locked ? (
-                      <Button type="button" size="sm" variant="secondary" onClick={() => void toggleActive(document)}>
+                      <Button type="button" size="sm" variant="secondary" icon={document.isActive ? PowerOff : Power} onClick={() => void toggleActive(document)}>
                         {document.isActive ? t("deactivate") : t("activate")}
                       </Button>
                     ) : null}

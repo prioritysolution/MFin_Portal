@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CheckCircle2, XCircle } from "lucide-react";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -73,6 +74,7 @@ export function LosApplicationStatusModal({
           </Button>
           <Button
             variant={statusCd === "3" ? "danger" : "primary"}
+            icon={statusCd === "3" ? XCircle : CheckCircle2}
             onClick={handleSubmit}
             disabled={submitting}
           >

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import {
   addShareSubscription,
   approveShareSubscription,
+  editShareSubscription,
   getShareHolding,
   listShareSubscriptions,
 } from "@/features/onboarding/share-subscription/services/share-subscription.service";
@@ -69,10 +70,12 @@ export async function POST(request: Request) {
     const result =
       action === "approve"
         ? await approveShareSubscription(payload)
-        : await addShareSubscription(payload);
+        : action === "edit"
+          ? await editShareSubscription(payload)
+          : await addShareSubscription(payload);
     return NextResponse.json(
       { success: true, message: result.message, data: result.item },
-      { status: action === "approve" ? 200 : 201 },
+      { status: action === "approve" || action === "edit" ? 200 : 201 },
     );
   } catch (error) {
     return toBffErrorResponse(error);
