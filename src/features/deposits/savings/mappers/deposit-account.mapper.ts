@@ -109,6 +109,9 @@ export function mapDepositAccountDto(dto: DepositAccountDto): DepositAccount {
           maturityAmount: dto.td.maturity_amt ?? null,
           interestPayable: dto.td.intt_payable_amt ?? null,
           maturityInstruction: text(dto.td.matu_ins_desc),
+          matuInsCd: dto.td.matu_ins_cd ?? null,
+          sbcreditAcId: dto.td.sbcredit_ac_id ?? null,
+          tdsDeduct: dto.td.tds_deduct === true,
           currentBalance: dto.td.current_balance ?? null,
         }
       : null,
@@ -134,10 +137,13 @@ export function mapDepositAccountCreateToDto(
   if (input.holderName) payload.holder_name = input.holderName;
   if (input.foId != null) payload.fo_id = input.foId;
   if (input.branchId != null) payload.branch_id = input.branchId;
+  if (input.depositTypeCd != null) payload.deposit_type_cd = input.depositTypeCd;
+  if (input.prodTypeCd != null) payload.prod_type_cd = input.prodTypeCd;
   if (input.sb) {
     const sb = mapSbToDto(input.sb);
     if (Object.keys(sb).length > 0) payload.sb = sb;
   }
+  if (input.td) payload.td = mapTdToDto(input.td);
   return payload;
 }
 
@@ -166,11 +172,35 @@ export function mapDepositAccountEditToDto(
   if (input.nomRegd !== undefined) payload.nom_regd = input.nomRegd;
   if (input.foId !== undefined) payload.fo_id = input.foId;
   if (input.branchId !== undefined) payload.branch_id = input.branchId;
+  if (input.depositTypeCd !== undefined) payload.deposit_type_cd = input.depositTypeCd;
+  if (input.prodTypeCd !== undefined) payload.prod_type_cd = input.prodTypeCd;
   if (input.sb) {
     const sb = mapSbToDto(input.sb);
     if (Object.keys(sb).length > 0) payload.sb = sb;
   }
+  if (input.td) payload.td = mapTdToDto(input.td);
   return payload;
+}
+
+function mapTdToDto(input: NonNullable<DepositAccountCreateInput["td"]>) {
+  const row: Record<string, unknown> = {
+    inst_amount: input.instAmount,
+  };
+  if (input.periodYy != null) row.period_yy = input.periodYy;
+  if (input.periodMm != null) row.period_mm = input.periodMm;
+  if (input.periodDd != null) row.period_dd = input.periodDd;
+  if (input.startDate) row.start_date = input.startDate;
+  if (input.instNo != null) row.inst_no = input.instNo;
+  if (input.roi != null) row.roi = input.roi;
+  if (input.accountNo != null) row.account_no = input.accountNo;
+  if (input.refAcNo) row.ref_ac_no = input.refAcNo;
+  if (input.matuInsCd != null) row.matu_ins_cd = input.matuInsCd;
+  if (input.sbcreditAcId != null) row.sbcredit_ac_id = input.sbcreditAcId;
+  if (input.tdsDeduct) row.tds_deduct = true;
+  if (input.collectDeposit) row.collect_deposit = true;
+  if (input.paymentModeCd != null) row.payment_mode_cd = input.paymentModeCd;
+  if (input.remarks) row.remarks = input.remarks;
+  return row;
 }
 
 function mapSbToDto(input: NonNullable<DepositAccountCreateInput["sb"]>) {

@@ -189,7 +189,10 @@ type FormSnapshot = {
   foId: number | null;
   branchId: number | null;
   statusCd: number;
+  depositTypeCd?: number;
+  prodTypeCd?: number | null;
   sb?: DepositAccountCreateInput["sb"];
+  td?: DepositAccountCreateInput["td"];
 };
 
 export function toCreateInput(form: FormSnapshot): DepositAccountCreateInput {
@@ -210,7 +213,10 @@ export function toCreateInput(form: FormSnapshot): DepositAccountCreateInput {
     foId: form.foId,
     branchId: form.branchId,
     statusCd: form.statusCd === 7 ? 7 : 1,
+    depositTypeCd: form.depositTypeCd,
+    prodTypeCd: form.prodTypeCd,
     sb: form.sb,
+    td: form.td,
   };
 }
 
@@ -247,6 +253,9 @@ export function toEditInput(
   if ((next.branchId ?? null) !== (account.branchId ?? null)) {
     input.branchId = next.branchId ?? null;
   }
+  if (next.depositTypeCd != null) input.depositTypeCd = next.depositTypeCd;
+  if (next.prodTypeCd != null) input.prodTypeCd = next.prodTypeCd;
+  if (next.td) input.td = next.td;
   if (next.sb) {
     const sb: NonNullable<DepositAccountEditInput["sb"]> = {};
     if ((next.sb.startDate ?? null) !== (account.startDate || null)) {

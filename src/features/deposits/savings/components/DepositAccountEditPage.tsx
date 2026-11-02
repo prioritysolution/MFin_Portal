@@ -7,7 +7,7 @@ import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Link, useRouter } from "@/i18n/navigation";
-import { SAVINGS_DEPOSIT_TYPE } from "../deposit-account.constants";
+import { SAVINGS_DEPOSIT_TYPE, TERM_DEPOSIT_TYPE } from "../deposit-account.constants";
 import { mapApiMessageToField } from "../deposit-account.rules";
 import {
   addDepositNominees,
@@ -31,10 +31,14 @@ import { DepositAccountForm } from "./DepositAccountForm";
 
 type DepositAccountEditPageProps = {
   accountId: number;
+  kind?: "savings" | "term";
+  listPath?: string;
 };
 
 export function DepositAccountEditPage({
   accountId,
+  kind = "savings",
+  listPath = "/deposits/savings",
 }: DepositAccountEditPageProps) {
   const t = useTranslations("deposits.savings");
   const tUi = useTranslations("ui");
@@ -52,7 +56,7 @@ export function DepositAccountEditPage({
     fetchDepositAccounts({
       accountId,
       perPage: 1,
-      depositTypeCd: SAVINGS_DEPOSIT_TYPE,
+      depositTypeCd: kind === "term" ? TERM_DEPOSIT_TYPE : SAVINGS_DEPOSIT_TYPE,
     })
       .then((result) => {
         if (!cancelled) setAccount(result.items[0] ?? null);
@@ -66,7 +70,7 @@ export function DepositAccountEditPage({
     return () => {
       cancelled = true;
     };
-  }, [accountId]);
+  }, [accountId, kind]);
 
   function leave() {
     if (saving) return;
@@ -74,7 +78,7 @@ export function DepositAccountEditPage({
       router.back();
       return;
     }
-    router.push("/deposits/savings");
+    router.push(listPath);
   }
 
   async function handleSave(
@@ -137,14 +141,14 @@ export function DepositAccountEditPage({
         });
       }
       const updated = encodeURIComponent(saved.applNo);
-      router.push(`/deposits/savings?updated=${updated}`);
+      router.push(`${listPath}?updated=${updated}`);
     } catch (err) {
       const message = isDepositAccountClientError(err)
         ? err.message
         : tErrors("generic");
       if (mapApiMessageToField(message) === "toast") {
         router.push(
-          `/deposits/savings?created=${encodeURIComponent(message)}&createdTone=error`,
+          `${listPath}?created=${encodeURIComponent(message)}&createdTone=error`,
         );
         return;
       }
@@ -170,7 +174,7 @@ export function DepositAccountEditPage({
           title={t("form.editTitle")}
           description={account?.applNo || t("form.stepHint")}
           breadcrumbs={
-            <Link href="/deposits/savings" className="hover:text-slate-800">
+            <Link href={listPath} className="hover:text-slate-800">
               {/* {t("title")} */}
             </Link>
           }
@@ -193,6 +197,7 @@ export function DepositAccountEditPage({
           open
           layout="page"
           mode="edit"
+          kind={kind}
           account={account}
           saving={saving}
           errorMessage={formError}

@@ -22,7 +22,15 @@ import type {
 } from "../types/deposit-account.types";
 import { DepositAccountForm } from "./DepositAccountForm";
 
-export function DepositAccountOpenPage() {
+type DepositAccountOpenPageProps = {
+  kind?: "savings" | "term";
+  listPath?: string;
+};
+
+export function DepositAccountOpenPage({
+  kind = "savings",
+  listPath = "/deposits/savings",
+}: DepositAccountOpenPageProps = {}) {
   const t = useTranslations("deposits.savings");
   const tErrors = useTranslations("errors");
   const router = useRouter();
@@ -43,7 +51,7 @@ export function DepositAccountOpenPage() {
       router.back();
       return;
     }
-    router.push("/deposits/savings");
+    router.push(listPath);
   }
 
   async function handleSave(
@@ -73,14 +81,14 @@ export function DepositAccountOpenPage() {
         });
       }
       const created = encodeURIComponent(saved.applNo);
-      router.push(`/deposits/savings?created=${created}`);
+      router.push(`${listPath}?created=${created}`);
     } catch (err) {
       const message = isDepositAccountClientError(err)
         ? err.message
         : tErrors("generic");
       if (mapApiMessageToField(message) === "toast") {
         router.push(
-          `/deposits/savings?created=${encodeURIComponent(message)}&createdTone=error`,
+          `${listPath}?created=${encodeURIComponent(message)}&createdTone=error`,
         );
         return;
       }
@@ -106,7 +114,7 @@ export function DepositAccountOpenPage() {
           title={t("form.createTitle")}
           description={t("form.stepHint")}
           breadcrumbs={
-            <Link href="/deposits/savings" className="hover:text-slate-800">
+            <Link href={listPath} className="hover:text-slate-800">
               {/* {t("title")} */}
             </Link>
           }
@@ -116,6 +124,7 @@ export function DepositAccountOpenPage() {
         open
         layout="page"
         mode="create"
+        kind={kind}
         account={null}
         saving={saving}
         errorMessage={formError}

@@ -89,7 +89,10 @@ export type DepositAccountDto = {
     maturity_date?: string | null;
     maturity_amt?: number | null;
     intt_payable_amt?: number | null;
+    matu_ins_cd?: number | null;
     matu_ins_desc?: string | null;
+    sbcredit_ac_id?: number | null;
+    tds_deduct?: boolean | null;
     current_balance?: number | null;
   } | null;
 };
@@ -108,6 +111,9 @@ export type DepositAccountTerm = {
   maturityAmount: number | null;
   interestPayable: number | null;
   maturityInstruction: string;
+  matuInsCd: number | null;
+  sbcreditAcId: number | null;
+  tdsDeduct: boolean;
   currentBalance: number | null;
 };
 
@@ -180,6 +186,24 @@ export type DepositAccountSbInput = {
   openingDeposit?: number | null;
 };
 
+export type DepositAccountTdInput = {
+  periodYy?: number;
+  periodMm?: number;
+  periodDd?: number;
+  instAmount: number;
+  startDate?: string | null;
+  instNo?: number | null;
+  roi?: number | null;
+  accountNo?: number | null;
+  refAcNo?: string | null;
+  matuInsCd?: number | null;
+  sbcreditAcId?: number | null;
+  tdsDeduct?: boolean;
+  collectDeposit?: boolean;
+  paymentModeCd?: number | null;
+  remarks?: string | null;
+};
+
 export type DepositAccountListQuery = {
   page?: number;
   perPage?: number;
@@ -222,7 +246,10 @@ export type DepositAccountCreateInput = {
   foId?: number | null;
   branchId?: number | null;
   statusCd?: number;
+  depositTypeCd?: number;
+  prodTypeCd?: number | null;
   sb?: DepositAccountSbInput;
+  td?: DepositAccountTdInput;
 };
 
 export type DepositAccountEditInput = {
@@ -240,7 +267,10 @@ export type DepositAccountEditInput = {
   nomRegd?: boolean;
   foId?: number | null;
   branchId?: number | null;
+  depositTypeCd?: number;
+  prodTypeCd?: number | null;
   sb?: DepositAccountSbInput;
+  td?: DepositAccountTdInput;
 };
 
 export type DepositAccountStatusInput = {

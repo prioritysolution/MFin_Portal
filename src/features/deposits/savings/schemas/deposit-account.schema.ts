@@ -108,7 +108,10 @@ export const depositAccountDtoSchema = z.object({
       maturity_date: z.string().nullish(),
       maturity_amt: optionalNumber.nullish(),
       intt_payable_amt: optionalNumber.nullish(),
+      matu_ins_cd: optionalInt.nullish(),
       matu_ins_desc: z.string().nullish(),
+      sbcredit_ac_id: optionalInt.nullish(),
+      tds_deduct: optionalBoolean.nullish(),
       current_balance: optionalNumber.nullish(),
     })
     .nullish(),
@@ -121,6 +124,24 @@ const optionalText = (max: number) =>
     const trimmed = value.trim();
     return trimmed === "" ? null : trimmed;
   }, z.string().max(max).nullable().optional());
+
+const tdInputSchema = z.object({
+  periodYy: z.number().int().min(0).max(50).optional(),
+  periodMm: z.number().int().min(0).max(120).optional(),
+  periodDd: z.number().int().min(0).max(120).optional(),
+  instAmount: z.number().positive(),
+  startDate: ymd.nullable().optional(),
+  instNo: z.number().int().positive().nullable().optional(),
+  roi: z.number().min(0).max(100).nullable().optional(),
+  accountNo: z.number().int().min(1).max(32767).nullable().optional(),
+  refAcNo: optionalText(15),
+  matuInsCd: z.number().int().positive().nullable().optional(),
+  sbcreditAcId: z.number().int().positive().nullable().optional(),
+  tdsDeduct: z.boolean().optional(),
+  collectDeposit: z.boolean().optional(),
+  paymentModeCd: z.number().int().positive().nullable().optional(),
+  remarks: optionalText(250),
+});
 
 const sbInputSchema = z.object({
   startDate: ymd.nullable().optional(),
@@ -146,7 +167,10 @@ export const depositAccountCreateSchema = z.object({
   foId: z.number().int().positive().nullable().optional(),
   branchId: z.number().int().positive().nullable().optional(),
   statusCd: z.union([z.literal(1), z.literal(7)]).optional(),
+  depositTypeCd: z.number().int().positive().optional(),
+  prodTypeCd: z.number().int().positive().nullable().optional(),
   sb: sbInputSchema.optional(),
+  td: tdInputSchema.optional(),
 });
 
 export const depositAccountEditSchema = z.object({
@@ -164,7 +188,10 @@ export const depositAccountEditSchema = z.object({
   nomRegd: z.boolean().optional(),
   foId: z.number().int().positive().nullable().optional(),
   branchId: z.number().int().positive().nullable().optional(),
+  depositTypeCd: z.number().int().positive().optional(),
+  prodTypeCd: z.number().int().positive().nullable().optional(),
   sb: sbInputSchema.optional(),
+  td: tdInputSchema.optional(),
 });
 
 export const depositAccountStatusSchema = z.object({

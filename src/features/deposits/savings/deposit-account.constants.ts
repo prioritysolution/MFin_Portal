@@ -19,6 +19,12 @@ export const OPT_OP_MODE = 9;
 export const OPT_SPECIAL = 11;
 export const OPT_STATUS = 14;
 export const OPT_CUST_TYPE = 34;
+export const OPT_MATURITY_INSTRUCTION = 13;
+export const OPT_PAYMENT_MODE = 41;
+export const PROD_DAILY = 1;
+export const PROD_RECURRING = 2;
+export const MATU_RENEW_PAY_INTEREST = 1;
+export const MATU_PAY_SB = 4;
 
 export const GROUP_OP_MODES = [OP_MODE_SINGLE, OP_MODE_SIGNATORY] as const;
 export const GROUP_SPECIAL = [SPECIAL_NORMAL, SPECIAL_OTHERS] as const;

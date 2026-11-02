@@ -207,13 +207,16 @@ export function DepositsSavingsView({
   }
 
   function openCreate() {
-    if (variant === "term") return;
-    router.push("/deposits/savings/open");
+    router.push(variant === "term" ? "/deposits/fd/open" : "/deposits/savings/open");
   }
 
   function openEdit(item: DepositAccount) {
-    if (variant === "term" || item.isClosed) return;
-    router.push(`/deposits/savings/${item.accountId}/edit`);
+    if (item.isClosed) return;
+    router.push(
+      variant === "term"
+        ? `/deposits/fd/${item.accountId}/edit`
+        : `/deposits/savings/${item.accountId}/edit`,
+    );
   }
 
   async function handleStatus(statusCd: number) {
@@ -314,11 +317,9 @@ export function DepositsSavingsView({
         onOpen={openCreate}
         variant={variant}
         headerActions={
-          variant === "term" ? undefined : (
           <Button type="button" icon={Plus} onClick={openCreate}>
             {t("openAccount")}
           </Button>
-          )
         }
       />
 
