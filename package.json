@@ -19,7 +19,7 @@
     "react-dom": "19.2.8",
     "react-icons": "^5.7.0",
     "server-only": "^0.0.1",
-    "zod": "^4.6.5"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -36,5 +36,10 @@
     "@parcel/watcher": false,
     "@swc/core": false,
     "unrs-resolver": false
+  },
+  "overrides": {
+    "@typescript-eslint/typescript-estree": {
+      "minimatch": "^11.0.1"
+    }
   }
 }
