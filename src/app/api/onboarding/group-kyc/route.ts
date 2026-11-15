@@ -1,3 +1,4 @@
+import { resolveBranchFilter as scopedBranch } from "@/lib/auth/bff-scope";
 import { NextResponse } from "next/server";
 import { listGroups } from "@/features/onboarding/group-management/services/group.service";
 import {
@@ -89,7 +90,7 @@ export async function POST(request: Request) {
     const user = await requireSessionUser();
     const body = (await request.json()) as Record<string, unknown>;
     const action = String(body.action ?? "");
-    const branchId = user.isHead ? undefined : user.branchId;
+    const branchId = scopedBranch(user, undefined);
 
     if (action === "save") {
       const groupId = optionalNumber(body.groupId);

@@ -3,9 +3,10 @@ import type { MemberLedgerTxnQuery } from "./types/member-ledger.types";
 
 export function memberLedgerBranchScope(user: {
   isHead: boolean;
+  isAdmin?: boolean;
   branchId: number | null;
 }): number | undefined {
-  if (user.isHead) return undefined;
+  if (user.isHead || user.isAdmin) return undefined;
   if (user.branchId == null) {
     throw new ApiError({ message: "Forbidden", status: 403, code: "FORBIDDEN" });
   }

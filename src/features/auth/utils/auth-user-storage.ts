@@ -25,7 +25,7 @@ export function getStoredAuthUser(): AuthUser | null {
     const user = value as Partial<AuthUser>;
     return typeof user.userId === "number" &&
       typeof user.orgId === "number" &&
-      typeof user.branchId === "number"
+      (typeof user.branchId === "number" || user.branchId === null)
       ? (value as AuthUser)
       : null;
   } catch {

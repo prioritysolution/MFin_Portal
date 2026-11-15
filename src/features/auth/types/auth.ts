@@ -24,7 +24,7 @@ export type AuthRoleDto = {
 export type AuthUserDto = {
   user_id: number;
   org_id: number;
-  branch_id: number;
+  branch_id: number | null;
   user_name: string;
   short_name?: string | null;
   user_code?: string | null;
@@ -35,8 +35,8 @@ export type AuthUserDto = {
   org_disp_nm: string;
   legal_name: string;
   org_schema: string;
-  branch_code: string;
-  branch_name: string;
+  branch_code: string | null;
+  branch_name: string | null;
   is_head: boolean;
   /** Primary role — required for MenuTree `role_id` query. */
   role_id?: number | null;
@@ -69,7 +69,7 @@ export type AuthRole = {
 export type AuthUser = {
   userId: number;
   orgId: number;
-  branchId: number;
+  branchId: number | null;
   userName: string;
   shortName: string;
   userCode: string;
@@ -81,8 +81,8 @@ export type AuthUser = {
   orgDisplayName: string;
   legalName: string;
   orgSchema: string;
-  branchCode: string;
-  branchName: string;
+  branchCode: string | null;
+  branchName: string | null;
   isHead: boolean;
   roleId: number | null;
   roleName: string | null;
@@ -97,4 +97,5 @@ export type AuthSession = {
   expiresAt: number;
   orgSchema: string;
   user: AuthUser;
+  persist?: boolean;
 };

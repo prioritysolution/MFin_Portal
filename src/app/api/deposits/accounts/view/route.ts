@@ -24,7 +24,7 @@ export async function GET(request: Request) {
         : undefined;
 
     const data = await viewDepositAccount(accountId, txnLimit);
-    if (!user.isHead && data.branchId !== user.branchId) {
+    if (!user.isHead && !user.isAdmin && (user.branchId == null || data.branchId !== user.branchId)) {
       throw new ApiError({
         message: "Deposit account not found",
         status: 404,

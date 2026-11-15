@@ -86,7 +86,7 @@ export async function POST(request: Request) {
     if (input.Treasurer_Member_Id !== undefined && input.treasurerMemberId === undefined) {
       input.treasurerMemberId = input.Treasurer_Member_Id;
     }
-    if (!user.isHead) input.branchId = user.branchId;
+    if (!user.isHead && !user.isAdmin) input.branchId = resolveBranchFilter(user, undefined);
     const result = await saveGroup(input as unknown as GroupSaveInput);
     return NextResponse.json({ success: true, message: "Group saved successfully", data: result });
   } catch (error) {

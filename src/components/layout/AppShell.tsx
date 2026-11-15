@@ -17,6 +17,7 @@ type AppShellProps = {
 };
 
 export function AppShell({ children, user }: AppShellProps) {
+  const [currentUser, setCurrentUser] = useState(user);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
@@ -34,6 +35,8 @@ export function AppShell({ children, user }: AppShellProps) {
     void refreshStoredAuthUser(() => {
       router.replace("/login");
       router.refresh();
+    }).then((refreshed) => {
+      if (refreshed) setCurrentUser(refreshed);
     }).catch(() => undefined);
   }, [user, router]);
 
@@ -66,7 +69,7 @@ export function AppShell({ children, user }: AppShellProps) {
       <Sidebar
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
-        user={user}
+        user={currentUser}
       />
       <div
         style={{
@@ -78,7 +81,7 @@ export function AppShell({ children, user }: AppShellProps) {
           height: "100%",
         }}
       >
-        <Header onMenuClick={() => setSidebarOpen(true)} user={user} />
+        <Header onMenuClick={() => setSidebarOpen(true)} user={currentUser} />
         <main
           ref={mainRef}
           className="scrollbar-thin"
@@ -86,7 +89,12 @@ export function AppShell({ children, user }: AppShellProps) {
         >
           <div className="app-content">
             <div className="app-content-inner">
-              {user.passwordExpired ? (
+              {!currentUser.isAdmin && !currentUser.isHead && currentUser.branchId == null ? (
+                <p role="alert" className="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                  {t("branchAssignmentRequired")}
+                </p>
+              ) : null}
+              {currentUser.passwordExpired ? (
                 <p role="alert" className="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
                   {t("passwordExpiredNotice")}
                 </p>

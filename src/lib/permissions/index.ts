@@ -17,7 +17,7 @@ const HEAD_OFFICE_PATH_PREFIXES = [
 ] as const;
 
 export function isHeadOfficeUser(user: AuthUser): boolean {
-  return user.isHead === true;
+  return user.isHead === true || user.isAdmin === true;
 }
 
 /**

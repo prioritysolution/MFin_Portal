@@ -74,11 +74,11 @@ function readUserFields(raw: AuthUserDto & Record<string, unknown>) {
     branchCode: asText(
       (raw.branch_code as string | undefined) ??
         (raw.branchCode as string | undefined),
-    ),
+    ) || null,
     branchName: asText(
       (raw.branch_name as string | undefined) ??
         (raw.branchName as string | undefined),
-    ),
+    ) || null,
     isHead: asBoolean(raw.is_head) || asBoolean(raw.isHead),
     roleId: asNumber(raw.role_id) ?? asNumber(raw.roleId),
     roleName: asText(
@@ -130,8 +130,8 @@ export function mapAuthUserDto(dto: AuthUserDto): AuthUser {
   const raw = dto as AuthUserDto & Record<string, unknown>;
   const fields = readUserFields(raw);
 
-  if (fields.userId == null || fields.orgId == null || fields.branchId == null) {
-    throw new Error("Login user DTO missing userId/orgId/branchId");
+  if (fields.userId == null || fields.orgId == null) {
+    throw new Error("Login user DTO missing userId/orgId");
   }
 
   const roles = mapRoles(fields.rolesRaw, {

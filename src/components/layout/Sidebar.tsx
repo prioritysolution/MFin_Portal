@@ -573,7 +573,7 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
                 </span>
               </div>
               <p className="truncate text-[11px] uppercase tracking-wide text-muted-soft">
-                {t("branchLabel", { branch: user.branchName })}
+                {t("branchLabel", { branch: user.branchName ?? "—" })}
               </p>
             </div>
             <button

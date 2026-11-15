@@ -45,10 +45,11 @@ export async function resolveRecordPage({
   if (!code) return null;
   const user = await getSessionUser();
   if (!user) return null;
+  if (!user.isHead && !user.isAdmin && user.branchId == null) return null;
 
   let found: RecordRef | null;
   try {
-    found = await resolve(code, user.isHead ? undefined : user.branchId);
+    found = await resolve(code, user.isHead || user.isAdmin ? undefined : user.branchId ?? undefined);
   } catch (error) {
     if (error instanceof ApiError && (error.isNotFound || error.isForbidden)) return null;
     throw error;

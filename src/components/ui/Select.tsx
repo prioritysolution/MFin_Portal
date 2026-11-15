@@ -136,9 +136,12 @@ export function Select({
     const gap = 6;
     const spaceBelow = window.innerHeight - trigger.bottom - gap - 8;
     const spaceAbove = trigger.top - gap - 8;
-    const openBelow = spaceBelow >= 140 || spaceBelow >= spaceAbove;
-    const maxHeight = Math.min(280, Math.max(96, openBelow ? spaceBelow : spaceAbove));
-    const menuHeight = Math.min(menuRef.current?.offsetHeight ?? maxHeight, maxHeight);
+    // Measure the full content, not the currently constrained height, so a
+    // previously shortened menu can still switch sides when space changes.
+    const desiredHeight = Math.min(280, menuRef.current ? menuRef.current.scrollHeight + 2 : 280);
+    const openBelow = spaceBelow >= desiredHeight || spaceBelow >= spaceAbove;
+    const maxHeight = Math.max(0, Math.min(280, openBelow ? spaceBelow : spaceAbove));
+    const menuHeight = Math.min(desiredHeight, maxHeight);
     const top = openBelow
       ? trigger.bottom + gap
       : Math.max(8, trigger.top - gap - menuHeight);

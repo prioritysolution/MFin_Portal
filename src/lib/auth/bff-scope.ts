@@ -29,7 +29,7 @@ export async function requireSessionUser(): Promise<AuthUser> {
 
 /** Head-office (is_head) gate for sensitive master/security mutations. */
 export function assertHeadOffice(user: AuthUser): void {
-  if (!user.isHead) throw forbidden();
+  if (!user.isHead && !user.isAdmin) throw forbidden();
 }
 
 /**
@@ -40,7 +40,9 @@ export function resolveBranchFilter(
   user: AuthUser,
   requested: number | undefined,
 ): number | undefined {
-  if (user.isHead) return requested;
+  if (user.isHead || user.isAdmin) return requested;
+
+  if (user.branchId == null) throw forbidden("Branch assignment is required");
 
   if (requested != null && requested !== user.branchId) {
     throw forbidden();
@@ -56,7 +58,7 @@ export function resolveAuditUserFilter(
   user: AuthUser,
   requested: number | undefined,
 ): number | undefined {
-  if (user.isHead) return requested;
+  if (user.isHead || user.isAdmin) return requested;
 
   if (requested != null && requested !== user.userId) {
     throw forbidden();
@@ -71,7 +73,9 @@ export function applyStaffBranchScope(
   user: AuthUser,
   body: Record<string, unknown>,
 ): Record<string, unknown> {
-  if (user.isHead) return body;
+  if (user.isHead || user.isAdmin) return body;
+
+  if (user.branchId == null) throw forbidden("Branch assignment is required");
 
   const requested =
     typeof body.branchId === "number"
@@ -96,7 +100,7 @@ export function assertBranchMutationScope(
   branchId: number | undefined,
   mode: "create" | "update",
 ): void {
-  if (user.isHead) return;
+  if (user.isHead || user.isAdmin) return;
   if (mode === "create") throw forbidden();
   if (branchId == null || branchId !== user.branchId) throw forbidden();
 }

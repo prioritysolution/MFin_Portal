@@ -64,8 +64,8 @@ export async function setAuthSession(
   options: { persist?: boolean } = {},
 ): Promise<void> {
   const store = await cookies();
-  const sealed = await sealSessionPayload(session, getAuthSessionSecret());
   const persist = options.persist !== false;
+  const sealed = await sealSessionPayload({ ...session, persist }, getAuthSessionSecret());
   const maxAge = persist
     ? Math.max(1, Math.floor((session.expiresAt - Date.now()) / 1000))
     : undefined;
@@ -110,6 +110,7 @@ export async function getAuthSession(): Promise<AuthSession | null> {
     tokenType: session.tokenType,
     expiresAt: session.expiresAt,
     orgSchema: session.orgSchema,
+    persist: session.persist !== false,
     user: normalizeSessionUser(session.user),
   };
 }

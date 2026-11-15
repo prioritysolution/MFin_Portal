@@ -55,7 +55,7 @@ export function CustomerKycView() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [user] = useState(() => getStoredAuthUser());
-  const branchBound = Boolean(user && !user.isHead && user.branchId);
+  const branchBound = Boolean(user && !user.isHead && !user.isAdmin && user.branchId);
 
   const memberId = Number(searchParams.get("member_id") || "");
   const tab = (searchParams.get("tab") as TabId) || "pending";

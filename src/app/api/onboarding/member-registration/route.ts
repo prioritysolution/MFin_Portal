@@ -138,8 +138,8 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!user.isHead) {
-      branchId = user.branchId;
+    if (!user.isHead && !user.isAdmin) {
+      branchId = resolveBranchFilter(user, branchId);
     }
 
     const savePayload: MemberSaveInput = {

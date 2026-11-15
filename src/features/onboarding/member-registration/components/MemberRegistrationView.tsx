@@ -158,7 +158,7 @@ export function MemberRegistrationView() {
   const router = useRouter();
   const pageMeta = useMemo(() => onboardingModulePages.memberRegistration.toJSON(), []);
   const [user] = useState(() => getStoredAuthUser());
-  const isBranchBound = Boolean(user && !user.isHead && user.branchId);
+  const isBranchBound = Boolean(user && !user.isHead && !user.isAdmin && user.branchId);
 
   // Read initial query params from window on mount
   const initialParams = useMemo(() => {
@@ -582,7 +582,7 @@ export function MemberRegistrationView() {
           casteOptions={casteOptions}
           relationOptions={relationOptions}
           isBranchBound={isBranchBound}
-          userBranchId={user?.branchId}
+          userBranchId={user?.branchId ?? undefined}
           serverFieldErrors={serverFieldErrors}
           submitting={saving}
           onClose={() => {

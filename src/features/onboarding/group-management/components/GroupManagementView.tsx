@@ -139,34 +139,14 @@ function mapServerErrorsToFields(
 export function GroupManagementView() {
   const router = useRouter();
   const pageMeta = useMemo(() => onboardingModulePages.groupManagement.toJSON(), []);
-  const [user] = useState(() => getStoredAuthUser());
-  const isBranchBound = Boolean(user && !user.isHead && user.branchId);
+  const [user, setUser] = useState<ReturnType<typeof getStoredAuthUser>>(null);
+  const [initialized, setInitialized] = useState(false);
+  const isBranchBound = Boolean(user && !user.isHead && !user.isAdmin && user.branchId);
 
-  // Read initial query params from window on mount
-  const initialParams = useMemo(() => {
-    if (typeof window === "undefined") return new URLSearchParams();
-    return new URLSearchParams(window.location.search);
-  }, []);
-
-  // Filters state
-  const [filters, setFilters] = useState<GroupFilterValues>(() => ({
-    keyword: initialParams.get("keyword") || "",
-    branchId: isBranchBound && user?.branchId ? String(user.branchId) : initialParams.get("branch_id") || "",
-    centerId: initialParams.get("center_id") || "",
-    groupTypeCd: initialParams.get("group_type_cd") || "",
-    foId: initialParams.get("fo_id") || "",
-    statusCd: initialParams.get("status_cd") || "",
-  }));
-
-  const [debouncedKeyword, setDebouncedKeyword] = useState(filters.keyword);
-  const [page, setPage] = useState(() => {
-    const p = Number(initialParams.get("page"));
-    return Number.isFinite(p) && p > 0 ? p : 1;
-  });
-  const [pageSize, setPageSize] = useState(() => {
-    const ps = Number(initialParams.get("per_page"));
-    return [10, 20, 50, 100].includes(ps) ? ps : 50;
-  });
+  const [filters, setFilters] = useState<GroupFilterValues>(DEFAULT_FILTERS);
+  const [debouncedKeyword, setDebouncedKeyword] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(50);
 
   // Data state
   const [items, setItems] = useState<Group[]>([]);
@@ -199,17 +179,42 @@ export function GroupManagementView() {
   >({});
   const [successMessage, setSuccessMessage] = useToastText();
 
+  useEffect(() => {
+    const storedUser = getStoredAuthUser();
+    const params = new URLSearchParams(window.location.search);
+    const branchBound = Boolean(storedUser && !storedUser.isHead && !storedUser.isAdmin && storedUser.branchId);
+    const keyword = params.get("keyword") || "";
+    const initialPage = Number(params.get("page"));
+    const initialPageSize = Number(params.get("per_page"));
+
+    setUser(storedUser);
+    setFilters({
+      keyword,
+      branchId: branchBound && storedUser?.branchId ? String(storedUser.branchId) : params.get("branch_id") || "",
+      centerId: params.get("center_id") || "",
+      groupTypeCd: params.get("group_type_cd") || "",
+      foId: params.get("fo_id") || "",
+      statusCd: params.get("status_cd") || "",
+    });
+    setDebouncedKeyword(keyword.trim());
+    setPage(Number.isFinite(initialPage) && initialPage > 0 ? initialPage : 1);
+    setPageSize([10, 20, 50, 100].includes(initialPageSize) ? initialPageSize : 50);
+    setInitialized(true);
+  }, []);
+
   // Search debounce (350ms)
   useEffect(() => {
+    if (!initialized || filters.keyword.trim() === debouncedKeyword) return;
     const timer = window.setTimeout(() => {
       setDebouncedKeyword(filters.keyword.trim());
       setPage(1);
     }, 350);
     return () => window.clearTimeout(timer);
-  }, [filters.keyword]);
+  }, [filters.keyword, debouncedKeyword, initialized]);
 
   // Sync state to URL search parameters
   useEffect(() => {
+    if (!initialized) return;
     updateUrlQuery({
       keyword: debouncedKeyword || null,
       branch_id: filters.branchId || null,
@@ -220,7 +225,7 @@ export function GroupManagementView() {
       page: page > 1 ? page : null,
       per_page: pageSize !== 50 ? pageSize : null,
     });
-  }, [debouncedKeyword, filters, page, pageSize]);
+  }, [debouncedKeyword, filters, page, pageSize, initialized]);
 
   // Load auxiliary lookups once on mount
   useEffect(() => {
@@ -258,9 +263,9 @@ export function GroupManagementView() {
   // When branch filter changes, reload centers and staff
   useEffect(() => {
     const branchIdNum = Number(filters.branchId);
+    setCenters([]);
+    setStaff([]);
     if (!branchIdNum) {
-      setCenters([]);
-      setStaff([]);
       return;
     }
     let cancelled = false;
@@ -289,6 +294,7 @@ export function GroupManagementView() {
 
   // One group list request. Status cards are counted from that result.
   useEffect(() => {
+    if (!initialized) return;
     let cancelled = false;
     setLoading(true);
     setError(false);
@@ -344,6 +350,7 @@ export function GroupManagementView() {
     filters.statusCd,
     reloadKey,
     router,
+    initialized,
   ]);
 
   // Handlers
@@ -612,7 +619,7 @@ export function GroupManagementView() {
           frequencyOptions={frequencyOptions}
           dayOptions={dayOptions}
           isBranchBound={isBranchBound}
-          defaultBranchId={user?.branchId}
+          defaultBranchId={user?.branchId ?? undefined}
           serverFieldErrors={serverFieldErrors}
           onClose={() => {
             if (saving) return;

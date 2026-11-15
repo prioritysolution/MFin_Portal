@@ -1,3 +1,4 @@
+import { resolveBranchFilter as scopedBranch } from "@/lib/auth/bff-scope";
 import { NextResponse } from "next/server";
 import { listGroups } from "@/features/onboarding/group-management/services/group.service";
 import {
@@ -59,13 +60,13 @@ export async function GET(request: Request) {
         throw new ApiError({ message: "member_id is required", status: 422, code: "VALIDATION" });
       }
       const check = await checkMemberGroup(memberId);
-      if (!user.isHead && check.groupId) {
+      if (!user.isHead && !user.isAdmin && check.groupId) {
         const rows = await listMemberships({
           memberId,
           groupId: check.groupId,
           isActive: true,
           perPage: 1,
-          branchId: user.branchId,
+          branchId: scopedBranch(user, undefined),
         });
         if (rows.items.length === 0) {
           throw new ApiError({ message: "Forbidden", status: 403, code: "FORBIDDEN" });
@@ -102,7 +103,7 @@ export async function POST(request: Request) {
     const user = await requireSessionUser();
     const body = (await request.json()) as Record<string, unknown>;
     const action = String(body.action ?? "");
-    const branchId = user.isHead ? undefined : user.branchId;
+    const branchId = scopedBranch(user, undefined);
 
     if (action === "assign") {
       const groupId = optionalNumber(body.groupId);

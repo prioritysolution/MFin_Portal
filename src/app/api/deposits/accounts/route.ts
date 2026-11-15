@@ -1,3 +1,4 @@
+import { resolveBranchFilter as scopedBranch } from "@/lib/auth/bff-scope";
 import { NextResponse } from "next/server";
 import { SAVINGS_DEPOSIT_TYPE } from "@/features/deposits/savings/deposit-account.constants";
 import {
@@ -84,7 +85,7 @@ export async function POST(request: Request) {
     const body = (await request.json()) as Record<string, unknown>;
     const payload = { ...body };
     delete payload.action;
-    const branchScope = user.isHead ? undefined : user.branchId ?? undefined;
+    const branchScope = scopedBranch(user, undefined);
     if (typeof payload.accountId === "number") {
       await assertDepositAccountInScope(payload.accountId, branchScope);
     }

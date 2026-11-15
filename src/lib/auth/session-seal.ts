@@ -8,10 +8,11 @@ export type SealedSessionPayload = {
   tokenType: string;
   expiresAt: number;
   orgSchema: string;
+  persist?: boolean;
   user: {
     userId: number;
     orgId: number;
-    branchId: number;
+    branchId: number | null;
     userName: string;
     shortName: string;
     userCode: string;
@@ -23,8 +24,8 @@ export type SealedSessionPayload = {
     orgDisplayName: string;
     legalName: string;
     orgSchema: string;
-    branchCode: string;
-    branchName: string;
+    branchCode: string | null;
+    branchName: string | null;
     isHead: boolean;
     roleId: number | null;
     roleName: string | null;

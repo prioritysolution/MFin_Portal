@@ -7,8 +7,39 @@ import {
 } from "@/lib/auth/constants";
 import { readSessionFromRequest } from "@/lib/auth/session-edge";
 import { requiresHeadOfficePath } from "@/lib/permissions";
+import { api } from "@/lib/api/client";
+import { endpoints } from "@/lib/api/endpoints";
+import { menuTreeChildDtoSchema, menuTreeNodeDtoSchema } from "@/features/navigation/schemas/menu.schema";
+import { mapMenuTreeNode } from "@/features/navigation/mappers/menu-mapper";
+import { isApiError } from "@/lib/api/errors";
 
 const intlMiddleware = createMiddleware(routing);
+
+const MENU_GUARDED_PREFIXES = ["/master", "/onboarding", "/deposits", "/los", "/lms", "/accounting", "/mis", "/hr", "/security", "/customer-kyc"];
+
+async function menuAllowsPath(pathname: string, session: NonNullable<Awaited<ReturnType<typeof readSessionFromRequest>>>): Promise<boolean> {
+  const roleIds = [...new Set([session.user.roleId, ...session.user.roles.map((role) => role.roleId)].filter((id): id is number => typeof id === "number"))];
+  if (roleIds.length === 0) return false;
+  const menus = await Promise.all(roleIds.map((roleId) => api.get<unknown[]>(endpoints.menuTree, {
+    accessToken: session.token,
+    searchParams: { status: 1, role_id: roleId, lang: "EN" },
+    expectEnvelope: true,
+  })));
+  const routes = menus.flatMap((rows) => {
+    if (!Array.isArray(rows)) throw new Error("Invalid menu response");
+    return rows.flatMap((row) => {
+      const parsed = menuTreeNodeDtoSchema.safeParse(row);
+      if (!parsed.success || parsed.data.status !== 1) return [];
+      const children = parsed.data.children.flatMap((child) => {
+        const result = menuTreeChildDtoSchema.safeParse(child);
+        return result.success ? [result.data] : [];
+      });
+      const node = mapMenuTreeNode({ ...parsed.data, children });
+      return [node.route, ...node.children.filter((child) => child.status === 1).map((child) => child.route)];
+    });
+  });
+  return routes.some((route) => route != null && route !== "/" && (pathname === route || pathname.startsWith(`${route}/`)));
+}
 
 /**
  * Strip any leading locale segment(s) so paths like `/or/bn/login` become `/login`.
@@ -85,12 +116,30 @@ export default async function proxy(request: NextRequest) {
     isAuthenticated &&
     session &&
     requiresHeadOfficePath(pathnameWithoutLocale) &&
-    !session.user.isHead
+    !session.user.isHead && !session.user.isAdmin
   ) {
     const homeUrl = request.nextUrl.clone();
     homeUrl.pathname = "/dashboard";
     homeUrl.search = "";
     return NextResponse.redirect(homeUrl);
+  }
+
+  if (session && !session.user.isAdmin && MENU_GUARDED_PREFIXES.some((prefix) => pathnameWithoutLocale === prefix || pathnameWithoutLocale.startsWith(`${prefix}/`))) {
+    try {
+      if (!(await menuAllowsPath(pathnameWithoutLocale, session))) {
+        return new NextResponse("Access denied", { status: 403 });
+      }
+    } catch (error) {
+      if (isApiError(error) && error.isUnauthorized) {
+        const loginUrl = request.nextUrl.clone();
+        loginUrl.pathname = "/login";
+        loginUrl.search = "";
+        const response = NextResponse.redirect(loginUrl);
+        response.cookies.set(AUTH_SESSION_COOKIE, "", { httpOnly: true, path: "/", maxAge: 0 });
+        return response;
+      }
+      return new NextResponse("Unable to verify page access", { status: 503 });
+    }
   }
 
   return intlMiddleware(request);

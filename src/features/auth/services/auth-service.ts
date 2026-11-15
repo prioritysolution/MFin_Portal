@@ -65,11 +65,17 @@ export async function fetchCurrentUserFromLaravel(): Promise<PublicAuthUser> {
     });
   }
   const user = mapAuthUserDto(raw as AuthUserDto);
-  return {
+  if (user.userId !== session.user.userId || user.orgId !== session.user.orgId) {
+    await clearAuthSession();
+    throw new ApiError({ message: "Unauthorized", status: 401, code: "UNAUTHORIZED" });
+  }
+  const refreshedUser = {
     ...user,
     orgSchema: user.orgSchema || session.orgSchema,
     passwordExpired: session.user.passwordExpired,
   };
+  await setAuthSession({ ...session, user: refreshedUser }, { persist: session.persist });
+  return refreshedUser;
 }
 
 export async function logoutFromLaravel(): Promise<void> {

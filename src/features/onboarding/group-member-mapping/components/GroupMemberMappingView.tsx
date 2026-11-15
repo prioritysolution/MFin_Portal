@@ -48,7 +48,7 @@ export function GroupMemberMappingView() {
   const searchParams = useSearchParams();
   const [toast, setToast] = useToastText();
   const [user] = useState(() => getStoredAuthUser());
-  const branchBound = Boolean(user && !user.isHead && user.branchId);
+  const branchBound = Boolean(user && !user.isHead && !user.isAdmin && user.branchId);
 
   const [branchId, setBranchId] = useState(branchBound ? String(user?.branchId ?? "") : "");
   const [centerId, setCenterId] = useState("");

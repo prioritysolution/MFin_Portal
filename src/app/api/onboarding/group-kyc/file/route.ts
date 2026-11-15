@@ -1,3 +1,4 @@
+import { resolveBranchFilter as scopedBranch } from "@/lib/auth/bff-scope";
 import { randomUUID } from "crypto";
 import { mkdir, readFile, writeFile } from "fs/promises";
 import path from "path";
@@ -41,7 +42,7 @@ export async function POST(request: Request) {
     if (!Number.isFinite(groupId) || groupId <= 0 || !(file instanceof File)) {
       throw new ApiError({ message: "Group and image are required", status: 422, code: "VALIDATION" });
     }
-    await assertGroup(groupId, user.isHead ? undefined : user.branchId);
+    await assertGroup(groupId, scopedBranch(user, undefined));
     const extension = TYPES[file.type];
     if (!extension) {
       throw new ApiError({ message: "Use a JPG, PNG, or PDF", status: 422, code: "VALIDATION" });
@@ -66,7 +67,7 @@ export async function GET(request: Request) {
     if (!SAFE_PATH.test(relative)) {
       throw new ApiError({ message: "Invalid file", status: 404, code: "NOT_FOUND" });
     }
-    await assertGroup(Number(relative.split("/")[1]), user.isHead ? undefined : user.branchId);
+    await assertGroup(Number(relative.split("/")[1]), scopedBranch(user, undefined));
     const bytes = await readFile(storagePath(relative));
     const extension = relative.split(".").pop();
     const type = extension === "png" ? "image/png" : extension === "pdf" ? "application/pdf" : "image/jpeg";

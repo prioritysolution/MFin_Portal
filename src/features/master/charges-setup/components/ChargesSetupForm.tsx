@@ -175,6 +175,7 @@ function ChargesSetupFormBody({
   const adjustableEligible = selectedLedger?.adjustableEligible === true;
   const duringLabel =
     kind === "loan" ? t("fields.deductDuringCd") : t("fields.chargesDuringCd");
+  const hideMaxAmount = mode === "create" && Number(form.figureCd) === FIGURE_FIXED_OPT_CODE;
 
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -251,7 +252,7 @@ function ChargesSetupFormBody({
       chargeRate:
         form.chargeRate !== "" ? Number(form.chargeRate) : Number.NaN,
       figureCd: form.figureCd !== "" ? Number(form.figureCd) : 0,
-      maxAmount: form.maxAmount !== "" ? Number(form.maxAmount) : null,
+      maxAmount: !hideMaxAmount && form.maxAmount !== "" ? Number(form.maxAmount) : null,
       taxPercent: form.taxPercent !== "" ? Number(form.taxPercent) : 0,
       duringCd: form.duringCd !== "" ? Number(form.duringCd) : 0,
       chargesGl: form.chargesGl !== "" ? Number(form.chargesGl) : null,
@@ -362,18 +363,20 @@ function ChargesSetupFormBody({
           options={figureSelectOptions}
           onChange={(value) => updateField("figureCd", value)}
         />
-        <TextField
-          label={t("fields.maxAmount")}
-          value={form.maxAmount}
-          type="number"
-          min={0}
-          max={999999.99}
-          step="0.01"
-          showRange={false}
-          placeholder={t("placeholders.maxAmount")}
-          error={fieldErrors.maxAmount || undefined}
-          onChange={(value) => updateField("maxAmount", value)}
-        />
+        {!hideMaxAmount ? (
+          <TextField
+            label={t("fields.maxAmount")}
+            value={form.maxAmount}
+            type="number"
+            min={0}
+            max={999999.99}
+            step="0.01"
+            showRange={false}
+            placeholder={t("placeholders.maxAmount")}
+            error={fieldErrors.maxAmount || undefined}
+            onChange={(value) => updateField("maxAmount", value)}
+          />
+        ) : null}
         <TextField
           label={t("fields.taxPercent")}
           value={form.taxPercent}

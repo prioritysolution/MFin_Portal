@@ -1,3 +1,4 @@
+import { resolveBranchFilter as scopedBranch } from "@/lib/auth/bff-scope";
 import { NextResponse } from "next/server";
 import { listMembers } from "@/features/onboarding/member-registration/services/member.service";
 import {
@@ -65,7 +66,7 @@ export async function POST(request: Request) {
     const user = await requireSessionUser();
     const body = (await request.json()) as Record<string, unknown>;
     const action = String(body.action ?? "");
-    const branchId = user.isHead ? undefined : user.branchId;
+    const branchId = scopedBranch(user, undefined);
 
     if (action === "add") {
       const memberId = optionalNumber(body.memberId);

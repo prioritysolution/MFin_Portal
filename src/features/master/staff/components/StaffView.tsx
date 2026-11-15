@@ -77,6 +77,7 @@ export function StaffView() {
   const [branches, setBranches] = useState<Branch[]>([]);
   const [staffBranches, setStaffBranches] = useState<Branch[]>([]);
   const [designations, setDesignations] = useState<DesignationOption[]>([]);
+  const [lookupError, setLookupError] = useState<string | null>(null);
   const [roles, setRoles] = useState<Role[]>([]);
   const [roleLoadError, setRoleLoadError] = useState<string | null>(null);
 
@@ -93,31 +94,36 @@ export function StaffView() {
     let cancelled = false;
 
     async function loadLookups() {
-      try {
-        const [lookupResult, branchResult] = await Promise.all([
-          fetchStaffLookups(),
-          fetchBranchList({ page: 1, perPage: 200, isActive: 1 }),
-        ]);
-        if (cancelled) return;
-        setDesignations(lookupResult.designations);
-        setBranches(branchResult.items);
-      } catch (err) {
-        if (cancelled) return;
-        if (
-          (isStaffClientError(err) || isBranchClientError(err)) &&
-          err.status === 401
-        ) {
-          router.replace("/login");
-          router.refresh();
-        }
+      const [lookupResult, branchResult] = await Promise.allSettled([
+        fetchStaffLookups(),
+        fetchBranchList({ page: 1, perPage: 200, isActive: 1 }),
+      ]);
+      if (cancelled) return;
+      if (lookupResult.status === "fulfilled") {
+        setDesignations(lookupResult.value.designations);
       }
+      if (branchResult.status === "fulfilled") {
+        setBranches(branchResult.value.items);
+      }
+
+      const errors = [lookupResult, branchResult].flatMap((result) =>
+        result.status === "rejected" ? [result.reason] : [],
+      );
+      if (errors.some((err) =>
+        (isStaffClientError(err) || isBranchClientError(err)) && err.status === 401
+      )) {
+        router.replace("/login");
+        router.refresh();
+        return;
+      }
+      setLookupError(errors.length ? tErrors("generic") : null);
     }
 
     void loadLookups();
     return () => {
       cancelled = true;
     };
-  }, [router]);
+  }, [router, tErrors, formOpen]);
 
   useEffect(() => {
     if (!formOpen) return;
@@ -382,7 +388,7 @@ export function StaffView() {
         roles={roles}
         roleLoadError={roleLoadError}
         saving={saving}
-        errorMessage={formError}
+        errorMessage={formError || lookupError}
         onClose={() => {
           if (saving) return;
           setFormOpen(false);

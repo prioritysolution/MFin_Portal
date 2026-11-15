@@ -263,6 +263,7 @@
     }
   },
   "auth": {
+    "branchAssignmentRequired": "Your account has no assigned branch. Contact your administrator before accessing branch data.",
     "staffPortal": "Staff portal",
     "signInTitle": "Sign in to Core Banking",
     "welcomeBack": "Welcome Back",

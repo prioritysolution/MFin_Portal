@@ -69,7 +69,7 @@ export function GroupManagementFilters({
   const foSelectOptions: SelectOption[] = useMemo(
     () => [
       { value: "", label: "All" },
-      ...staff.map((s) => ({
+      ...staff.filter((s) => s.designationName?.trim().toLowerCase() === "field officer").map((s) => ({
         value: String(s.staffId),
         label: `${s.fullName} (${s.employeeCode})`,
       })),

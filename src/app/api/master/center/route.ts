@@ -27,7 +27,7 @@ function readOptionalText(raw: string | null): string | undefined {
 
 /** Non–head-office users may only mutate centers for their own branch. */
 function assertCenterMutationScope(user: AuthUser, branchId: number | undefined) {
-  if (user.isHead) return;
+  if (user.isHead || user.isAdmin) return;
   if (branchId == null || branchId !== user.branchId) {
     throw new ApiError({
       message: "Forbidden",

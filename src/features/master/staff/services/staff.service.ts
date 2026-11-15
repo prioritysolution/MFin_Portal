@@ -6,7 +6,6 @@ import { ApiError } from "@/lib/api/errors";
 import { clearAuthSession, getAccessToken } from "@/lib/auth/session";
 import {
   mapDesignationDto,
-  mapModuleAccessDto,
   mapPaginationMetaDto,
   mapStaffCreateToDto,
   mapStaffDto,
@@ -15,7 +14,6 @@ import {
 } from "@/features/master/staff/mappers/staff.mapper";
 import {
   designationDtoSchema,
-  moduleAccessDtoSchema,
   paginationMetaDtoSchema,
   staffCreateInputSchema,
   staffDtoSchema,
@@ -199,31 +197,30 @@ export async function getStaffLookups(): Promise<StaffLookups> {
   return withUnauthorizedClear(async () => {
     const token = await requireAccessToken();
 
-    const [designationPayload, modulePayload] = await Promise.all([
-      api.get<LaravelResponse<unknown[]>>(endpoints.staff.designationList, {
-        accessToken: token,
-        expectEnvelope: false,
-      }),
-      api.get<LaravelResponse<unknown[]>>(endpoints.staff.moduleAccessList, {
-        accessToken: token,
-        expectEnvelope: false,
-      }),
-    ]);
+    const designationPayload = await api.get<LaravelResponse<unknown[]>>(
+      endpoints.staff.designationList,
+      { accessToken: token, expectEnvelope: false },
+    );
+    if (!designationPayload?.success || !Array.isArray(designationPayload.data)) {
+      throw new ApiError({
+        message: "Designation response shape was unexpected",
+        status: 500,
+        code: "UNEXPECTED",
+      });
+    }
+    const designations = designationPayload.data.map((row) => {
+      const parsed = designationDtoSchema.safeParse(row);
+      if (!parsed.success) {
+        throw new ApiError({
+          message: "Designation response shape was unexpected",
+          status: 500,
+          code: "UNEXPECTED",
+          details: parsed.error.flatten(),
+        });
+      }
+      return mapDesignationDto(parsed.data);
+    });
 
-    const designations = Array.isArray(designationPayload?.data)
-      ? designationPayload.data.flatMap((row) => {
-          const parsed = designationDtoSchema.safeParse(row);
-          return parsed.success ? [mapDesignationDto(parsed.data)] : [];
-        })
-      : [];
-
-    const modules = Array.isArray(modulePayload?.data)
-      ? modulePayload.data.flatMap((row) => {
-          const parsed = moduleAccessDtoSchema.safeParse(row);
-          return parsed.success ? [mapModuleAccessDto(parsed.data)] : [];
-        })
-      : [];
-
-    return { designations, modules };
+    return { designations, modules: [] };
   });
 }

@@ -1,3 +1,4 @@
+import { resolveBranchFilter as scopedBranch } from "@/lib/auth/bff-scope";
 import { NextResponse } from "next/server";
 import {
   assertDepositAccountInScope,
@@ -20,7 +21,7 @@ export async function GET(request: Request) {
     }
     await assertDepositAccountInScope(
       accountId,
-      user.isHead ? undefined : user.branchId ?? undefined,
+      scopedBranch(user, undefined),
     );
     const data = await listDepositAccountMembers(accountId);
     return NextResponse.json({
@@ -46,7 +47,7 @@ export async function POST(request: Request) {
     }
     await assertDepositAccountInScope(
       accountId,
-      user.isHead ? undefined : user.branchId ?? undefined,
+      scopedBranch(user, undefined),
     );
     const result = await syncDepositAccountMembers(accountId);
     return NextResponse.json({
