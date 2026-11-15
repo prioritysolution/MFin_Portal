@@ -67,13 +67,6 @@ export function AcctHeadTable({
         ),
       },
       {
-        id: "mainhdName",
-        header: t("columns.mainhdName"),
-        cell: (row) => (
-          <span className="font-medium text-slate-800">{row.mainhdName}</span>
-        ),
-      },
-      {
         id: "category",
         header: t("columns.category"),
         cell: (row) => {
@@ -88,6 +81,13 @@ export function AcctHeadTable({
             </div>
           );
         },
+      },
+      {
+        id: "mainhdName",
+        header: t("columns.mainhdName"),
+        cell: (row) => (
+          <span className="font-medium text-slate-800">{row.mainhdName}</span>
+        ),
       },
       {
         id: "categoryType",

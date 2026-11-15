@@ -2,6 +2,7 @@
 
 import { useMemo, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import { formatDateDMY } from "@/lib/date-format";
 import { Ban, CircleCheck, Pencil } from "lucide-react";
 import { DataTable } from "@/components/shared/DataTable";
 import type { DataTableColumn } from "@/components/shared/DataTable";
@@ -67,14 +68,14 @@ export function FinYearTable({
         id: "startDate",
         header: t("columns.startDate"),
         cell: (row) => (
-          <span className="font-mono text-xs text-slate-700">{row.startDate}</span>
+          <span className="font-mono text-xs text-slate-700">{formatDateDMY(row.startDate)}</span>
         ),
       },
       {
         id: "endDate",
         header: t("columns.endDate"),
         cell: (row) => (
-          <span className="font-mono text-xs text-slate-700">{row.endDate}</span>
+          <span className="font-mono text-xs text-slate-700">{formatDateDMY(row.endDate)}</span>
         ),
       },
       {

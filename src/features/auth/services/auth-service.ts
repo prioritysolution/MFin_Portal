@@ -71,6 +71,10 @@ export async function fetchCurrentUserFromLaravel(): Promise<PublicAuthUser> {
   }
   const refreshedUser = {
     ...user,
+    shortName:
+      "short_name" in raw || "shortName" in raw
+        ? user.shortName
+        : session.user.shortName || user.shortName,
     orgSchema: user.orgSchema || session.orgSchema,
     passwordExpired: session.user.passwordExpired,
   };

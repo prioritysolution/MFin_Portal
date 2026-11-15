@@ -5,6 +5,7 @@ import {
   updateAcctLedger,
 } from "@/features/master/acct-ledger/services/acct-ledger.service";
 import { toBffErrorResponse } from "@/lib/api/bff-response";
+import { ApiError } from "@/lib/api/errors";
 import { assertHeadOffice, requireSessionUser } from "@/lib/auth/bff-scope";
 
 function readOptionalNumber(raw: string | null): number | undefined {
@@ -32,6 +33,9 @@ export async function GET(request: Request) {
       searchParams.get("is_active") ?? searchParams.get("status");
 
     const ledgerType = readOptionalText(searchParams.get("ledger_type"));
+    if (ledgerType && (!/^\d+$/.test(ledgerType) || Number(ledgerType) < 1 || Number(ledgerType) > 255)) {
+      throw new ApiError({ message: "Invalid ledger type", status: 422, code: "VALIDATION" });
+    }
 
     const result = await listAcctLedgers({
       page: readOptionalNumber(searchParams.get("page")),
@@ -40,6 +44,7 @@ export async function GET(request: Request) {
       mainhdId: readOptionalNumber(searchParams.get("mainhd_id")),
       keyword,
       ledgerType,
+      categName: readOptionalText(searchParams.get("categ_name")),
       isActive: readOptionalNumber(isActiveRaw),
     });
 

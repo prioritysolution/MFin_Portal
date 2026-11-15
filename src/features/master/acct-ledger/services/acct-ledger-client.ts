@@ -74,6 +74,7 @@ function listQueryKey(query: AcctLedgerListQuery): string {
   if (query.mainhdId != null) params.set("mainhd_id", String(query.mainhdId));
   if (query.keyword) params.set("keyword", query.keyword);
   if (query.ledgerType) params.set("ledger_type", query.ledgerType);
+  if (query.categName) params.set("categ_name", query.categName);
   if (query.isActive != null) params.set("is_active", String(query.isActive));
   return params.toString() || "default";
 }

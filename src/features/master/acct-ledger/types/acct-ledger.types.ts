@@ -45,6 +45,7 @@ export type AcctLedgerListQuery = {
   mainhdId?: number;
   keyword?: string;
   ledgerType?: string;
+  categName?: string;
   /** 1 / 0 — maps to `is_active` / `status` */
   isActive?: number;
 };

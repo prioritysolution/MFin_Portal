@@ -147,7 +147,7 @@ export function TextField({
           : undefined);
 
   const textValue = String(value ?? "");
-  const shownError = touched ? liveError : error;
+  const shownError = error || (touched ? liveError : undefined);
 
   function check(next: string, final: boolean) {
     if (type === "number" && next !== "") {
@@ -286,7 +286,7 @@ export function TextAreaField({
 }: TextAreaFieldProps) {
   const [touched, setTouched] = useState(false);
   const [liveError, setLiveError] = useState<string | undefined>();
-  const shownError = touched ? liveError : error;
+  const shownError = error || (touched ? liveError : undefined);
 
   return (
     <FormField
@@ -362,6 +362,7 @@ export function SelectField({
         searchPlaceholder={searchPlaceholder}
         emptyMessage={emptyMessage}
         aria-label={label}
+        aria-invalid={error ? true : undefined}
       />
     </FormField>
   );

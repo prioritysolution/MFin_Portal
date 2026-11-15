@@ -207,13 +207,14 @@ function LoanSchemeSetupFormBody({
   const [schedules, setSchedules] = useState<ApplOption[]>([]);
   const [capitalisationOn, setCapitalisationOn] = useState<ApplOption[]>([]);
   const [overdueOn, setOverdueOn] = useState<ApplOption[]>([]);
-  const [ledgers, setLedgers] = useState<AcctLedger[]>([]);
+  const [assetLedgers, setAssetLedgers] = useState<AcctLedger[]>([]);
+  const [incomeLedgers, setIncomeLedgers] = useState<AcctLedger[]>([]);
 
   useEffect(() => {
     let cancelled = false;
     async function load() {
       try {
-        const [products, repays, interests, schedule, capital, overdue, ledgerItems] =
+        const [products, repays, interests, schedule, capital, overdue, assets, income] =
           await Promise.all([
             fetchApplOptions(LOAN_PRODUCT_TYPE_OPT_GRP_ID),
             fetchApplOptions(LOAN_REPAY_TYPE_OPT_GRP_ID),
@@ -221,7 +222,8 @@ function LoanSchemeSetupFormBody({
             fetchApplOptions(LOAN_REPAY_SCHEDULE_OPT_GRP_ID),
             fetchApplOptions(LOAN_CAPITALISATION_ON_OPT_GRP_ID),
             fetchApplOptions(LOAN_OVERDUE_ON_OPT_GRP_ID),
-            loadActiveLedgers(),
+            loadActiveLedgers("Assets"),
+            loadActiveLedgers("Income"),
           ]);
         if (cancelled) return;
         setProductTypes(products);
@@ -230,7 +232,8 @@ function LoanSchemeSetupFormBody({
         setSchedules(schedule);
         setCapitalisationOn(capital);
         setOverdueOn(overdue);
-        setLedgers(ledgerItems);
+        setAssetLedgers(assets);
+        setIncomeLedgers(income);
       } catch {
         if (!cancelled) setOptionsError(tErrors("generic"));
       }
@@ -377,16 +380,9 @@ function LoanSchemeSetupFormBody({
     [form.overdueOnCd, overdueOn, setup?.overdueOnDesc],
   );
 
-  const ledgerOptions = useMemo(() => {
-    const options: Option[] = [
-      { value: "", label: t("placeholders.none") },
-      ...ledgers.map((ledger) => ({
-        value: String(ledger.ledgerId),
-        label: `${ledger.ledgerName} (${ledger.ledgerCode})`,
-      })),
-    ];
-    return ensureLedgers(options, setup);
-  }, [ledgers, setup, t]);
+  const loanLedgerOptions = useMemo(() => ledgerOptions(assetLedgers, t("placeholders.none"), setup?.loanLedger, setup?.loanLedgerName, setup?.loanLedgerCode), [assetLedgers, setup, t]);
+  const inttLedgerOptions = useMemo(() => ledgerOptions(incomeLedgers, t("placeholders.none"), setup?.inttLedger, setup?.inttLedgerName, setup?.inttLedgerCode), [incomeLedgers, setup, t]);
+  const odinttLedgerOptions = useMemo(() => ledgerOptions(incomeLedgers, t("placeholders.none"), setup?.odinttLedger, setup?.odinttLedgerName, setup?.odinttLedgerCode), [incomeLedgers, setup, t]);
 
   const selectProps = {
     searchPlaceholder: tUi("selectSearch"),
@@ -590,7 +586,7 @@ function LoanSchemeSetupFormBody({
             label={t("fields.loanLedger")}
             value={form.loanLedger}
             placeholder={t("placeholders.none")}
-            options={ledgerOptions}
+            options={loanLedgerOptions}
             onChange={(value) => updateField("loanLedger", value)}
             {...selectProps}
           />
@@ -599,7 +595,7 @@ function LoanSchemeSetupFormBody({
             value={form.inttLedger}
             placeholder={t("placeholders.none")}
             error={fieldErrors.inttLedger || undefined}
-            options={ledgerOptions}
+            options={inttLedgerOptions}
             onChange={(value) => updateField("inttLedger", value)}
             {...selectProps}
           />
@@ -608,7 +604,7 @@ function LoanSchemeSetupFormBody({
             value={form.odinttLedger}
             placeholder={t("placeholders.none")}
             error={fieldErrors.odinttLedger || undefined}
-            options={ledgerOptions}
+            options={odinttLedgerOptions}
             onChange={(value) => updateField("odinttLedger", value)}
             {...selectProps}
           />
@@ -656,20 +652,25 @@ function FlagSection({
   );
 }
 
-async function loadActiveLedgers(): Promise<AcctLedger[]> {
+async function loadActiveLedgers(categName: "Assets" | "Income"): Promise<AcctLedger[]> {
   const items: AcctLedger[] = [];
   let page = 1;
   let lastPage = 1;
   do {
     const result = await fetchAcctLedgerList({
       isActive: 1,
+      ledgerType: "3",
+      categName,
       page,
       perPage: 200,
     });
     items.push(...result.items);
+    if (!result.meta && result.items.length === 200) {
+      throw new Error("Ledger pagination information is missing");
+    }
     lastPage = result.meta?.lastPage ?? 1;
     page += 1;
-  } while (page <= lastPage && page <= 10);
+  } while (page <= lastPage);
   return items;
 }
 
@@ -685,22 +686,13 @@ function withCurrent(options: Option[], code: string, label?: string): Option[] 
   return [...options, { value: code, label: label || code }];
 }
 
-function ensureLedgers(options: Option[], setup: LoanSchemeSetup | null): Option[] {
-  if (!setup) return options;
-  const extras: Option[] = [];
-  const known = new Set(options.map((option) => option.value));
-  const add = (id: number | null, name: string | null, code: string | null) => {
-    if (id == null) return;
-    const value = String(id);
-    if (known.has(value)) return;
-    known.add(value);
-    extras.push({
-      value,
-      label: name ? (code ? `${name} (${code})` : name) : value,
-    });
-  };
-  add(setup.loanLedger, setup.loanLedgerName, setup.loanLedgerCode);
-  add(setup.inttLedger, setup.inttLedgerName, setup.inttLedgerCode);
-  add(setup.odinttLedger, setup.odinttLedgerName, setup.odinttLedgerCode);
-  return extras.length > 0 ? [...options, ...extras] : options;
+function ledgerOptions(ledgers: AcctLedger[], none: string, id?: number | null, name?: string | null, code?: string | null): Option[] {
+  const options = [
+    { value: "", label: none },
+    ...ledgers.map((ledger) => ({ value: String(ledger.ledgerId), label: `${ledger.ledgerName} (${ledger.ledgerCode})` })),
+  ];
+  if (id != null && !options.some((option) => option.value === String(id))) {
+    options.push({ value: String(id), label: name ? (code ? `${name} (${code})` : name) : String(id) });
+  }
+  return options;
 }

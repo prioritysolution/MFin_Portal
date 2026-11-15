@@ -7,7 +7,10 @@ import { isApiError } from "@/lib/api/errors";
 export async function POST(request: Request) {
   try {
     const json: unknown = await request.json();
-    const parsed = loginRequestSchema.safeParse(json);
+    const input = typeof json === "object" && json !== null && !Array.isArray(json)
+      ? { ...json, orgCode: "org_code" in json ? json.org_code : (json as Record<string, unknown>).orgCode }
+      : json;
+    const parsed = loginRequestSchema.safeParse(input);
     if (!parsed.success) {
       return NextResponse.json(
         {

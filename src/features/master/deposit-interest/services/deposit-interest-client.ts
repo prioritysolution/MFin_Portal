@@ -3,6 +3,7 @@
  */
 
 import { endpoints } from "@/lib/api/endpoints";
+import { fetchDepositSchemeSetups } from "@/features/master/deposit-schemes/services/deposit-schemes-client";
 import { dedupeRequest } from "@/lib/client/request-dedupe";
 import type {
   DepositSchemeSlab,
@@ -80,6 +81,31 @@ function slabsQueryKey(query: DepositSchemeSlabListQuery): string {
   if (query.isActive != null) params.set("is_active", String(query.isActive));
   if (query.search) params.set("search", query.search);
   return params.toString() || "default";
+}
+
+export async function fetchTermDepositSchemeOptions(): Promise<
+  { id: number; schemeName: string }[]
+> {
+  const options: { id: number; schemeName: string }[] = [];
+  let page = 1;
+  let lastPage = 1;
+
+  do {
+    const result = await fetchDepositSchemeSetups({
+      page,
+      perPage: 200,
+      depositTypeCd: 2,
+      isActive: 1,
+    });
+    options.push(...result.items.map(({ id, schemeName }) => ({ id, schemeName })));
+    if (!result.meta && result.items.length === 200) {
+      throw new Error("Deposit scheme pagination information is missing");
+    }
+    lastPage = result.meta?.lastPage ?? 1;
+    page += 1;
+  } while (page <= lastPage);
+
+  return options;
 }
 
 export async function fetchDepositSchemeSlabs(

@@ -36,12 +36,12 @@ function buildProfileFields(
       : user.branchName || user.branchCode || "—";
 
   return [
-    { label: t("fields.name"), value: user.userName || "—" },
+    { label: t("fields.name"), value: user.fullName || "—" },
     { label: t("fields.shortName"), value: user.shortName || "—" },
-    { label: t("fields.employeeId"), value: user.userCode || "—" },
+    { label: t("fields.employeeId"), value: user.employeeCode || "—" },
     {
       label: t("fields.designation"),
-      value: user.roleName || (user.isAdmin ? t("fields.admin") : "—"),
+      value: user.designationName || "—",
     },
     { label: t("fields.branch"), value: branch },
     {
@@ -49,8 +49,8 @@ function buildProfileFields(
       value: user.isActive ? t("fields.active") : t("fields.inactive"),
       type: "toggle",
     },
-    { label: t("fields.mobile"), value: user.userMob || "—", span: 2 },
-    { label: t("fields.email"), value: user.userEmail || "—", span: 2 },
+    { label: t("fields.mobile"), value: user.mobile || "—", span: 2 },
+    { label: t("fields.email"), value: user.email || "—", span: 2 },
   ];
 }
 

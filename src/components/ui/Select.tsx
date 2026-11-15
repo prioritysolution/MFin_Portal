@@ -37,6 +37,7 @@ type SelectProps = {
   className?: string;
   /** Accessible name when used without a wrapping label. */
   "aria-label"?: string;
+  "aria-invalid"?: boolean;
   id?: string;
 };
 
@@ -227,6 +228,7 @@ export function Select({
         aria-expanded={open}
         aria-controls={open ? listId : undefined}
         aria-label={aria["aria-label"]}
+        aria-invalid={aria["aria-invalid"]}
         onClick={() => (open ? setOpen(false) : openMenu())}
         onKeyDown={onTriggerKeyDown}
         className={`relative flex w-full items-center justify-between gap-2 border border-border bg-surface text-left text-sm font-medium text-slate-900 outline-none transition hover:border-border-strong focus:border-brand focus:bg-surface focus:shadow-[var(--focus-ring)] disabled:cursor-not-allowed disabled:opacity-50 ${

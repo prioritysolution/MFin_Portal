@@ -61,23 +61,22 @@ export function AcctLedgerTable({
         ),
       },
       {
-        id: "ledgerName",
-        header: t("columns.ledgerName"),
-        cell: (row) => (
-          <span className="font-medium text-slate-800">{row.ledgerName}</span>
-        ),
-      },
-      {
-        id: "ledgerType",
-        header: t("columns.ledgerType"),
-        cell: (row) =>
-          row.ledgerType ? (
-            <Badge tone="info" caps>
-              {ledgerTypes.find((option) => option.value === row.ledgerType)?.label ?? row.ledgerType}
-            </Badge>
-          ) : (
-            <span className="text-slate-400">—</span>
-          ),
+        id: "category",
+        header: t("columns.category"),
+        cell: (row) => {
+          const name = row.categName?.trim();
+          if (!name) return <span className="text-slate-400">—</span>;
+          return (
+            <div className="min-w-0">
+              <p className="truncate text-slate-800">{name}</p>
+              {row.categCode ? (
+                <p className="font-mono text-[11px] text-slate-500">
+                  {row.categCode}
+                </p>
+              ) : null}
+            </div>
+          );
+        },
       },
       {
         id: "mainHead",
@@ -96,22 +95,23 @@ export function AcctLedgerTable({
         },
       },
       {
-        id: "category",
-        header: t("columns.category"),
-        cell: (row) => {
-          const name = row.categName?.trim();
-          if (!name) return <span className="text-slate-400">—</span>;
-          return (
-            <div className="min-w-0">
-              <p className="truncate text-slate-800">{name}</p>
-              {row.categCode ? (
-                <p className="font-mono text-[11px] text-slate-500">
-                  {row.categCode}
-                </p>
-              ) : null}
-            </div>
-          );
-        },
+        id: "ledgerName",
+        header: t("columns.ledgerName"),
+        cell: (row) => (
+          <span className="font-medium text-slate-800">{row.ledgerName}</span>
+        ),
+      },
+      {
+        id: "ledgerType",
+        header: t("columns.ledgerType"),
+        cell: (row) =>
+          row.ledgerType ? (
+            <Badge tone="info" caps>
+              {ledgerTypes.find((option) => option.value === row.ledgerType)?.label ?? row.ledgerType}
+            </Badge>
+          ) : (
+            <span className="text-slate-400">—</span>
+          ),
       },
       {
         id: "subledgerCount",

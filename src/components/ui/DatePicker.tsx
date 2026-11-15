@@ -12,6 +12,7 @@ import {
 import { createPortal } from "react-dom";
 import { useLocale, useTranslations } from "next-intl";
 import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { formatDateDMY } from "@/lib/date-format";
 
 type DatePickerProps = {
   value: string;
@@ -194,16 +195,8 @@ export function DatePicker({
 
   const displayLabel = useMemo(() => {
     if (!selected) return null;
-    try {
-      return new Intl.DateTimeFormat(locale, {
-        year: "numeric",
-        month: "short",
-        day: "2-digit",
-      }).format(selected);
-    } catch {
-      return value;
-    }
-  }, [locale, selected, value]);
+    return formatDateDMY(value);
+  }, [selected, value]);
 
   const today = useMemo(() => {
     const now = new Date();

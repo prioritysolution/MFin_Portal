@@ -82,6 +82,7 @@ export async function listAcctLedgers(
           mainhd_id: query.mainhdId,
           keyword: query.keyword,
           ledger_type: query.ledgerType,
+          categ_name: query.categName,
           is_active: query.isActive,
         },
       },

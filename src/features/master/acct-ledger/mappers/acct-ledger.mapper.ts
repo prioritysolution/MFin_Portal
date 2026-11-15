@@ -44,11 +44,7 @@ function mapWritable(input: AcctLedgerCreateInput): AcctLedgerCreateDto {
     dto.ledger_type =
       input.ledgerType == null || String(input.ledgerType).trim() === ""
         ? null
-        : typeof input.ledgerType === "number"
-          ? input.ledgerType
-          : /^\d+$/.test(input.ledgerType.trim())
-            ? Number(input.ledgerType.trim())
-            : input.ledgerType.trim();
+        : Number(input.ledgerType);
   }
   if (input.isActive !== undefined) {
     dto.is_active = input.isActive === true;

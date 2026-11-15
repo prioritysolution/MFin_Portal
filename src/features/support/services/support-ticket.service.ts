@@ -70,7 +70,7 @@ function isClientSignInFailure(error: unknown): boolean {
 }
 
 function customerPhone(
-  user: { userPhone?: string; userMob?: string },
+  user: { userPhone?: string | null; userMob?: string },
   storedPhone?: string,
 ): string {
   return (user.userPhone || user.userMob || storedPhone || "").trim().slice(0, 30);

@@ -2,6 +2,7 @@
 
 import { useMemo, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import { formatDateDMY } from "@/lib/date-format";
 import { Ban, CircleCheck } from "lucide-react";
 import { DataTable } from "@/components/shared/DataTable";
 import type { DataTableColumn } from "@/components/shared/DataTable";
@@ -98,10 +99,10 @@ export function DepositInterestTable({
         header: t("fields.effectivePeriod", { fallback: "Effective Period" }),
         cell: (row) => (
           <div className="flex items-center text-xs text-foreground">
-            <span>{row.effectFrm}</span>
+            <span>{formatDateDMY(row.effectFrm)}</span>
             <span className="mx-1 text-muted">→</span>
             <span>
-              {row.effectUpto ||
+              {row.effectUpto ? formatDateDMY(row.effectUpto) :
                 t("fields.openEnded", { fallback: "Open-ended" })}
             </span>
           </div>

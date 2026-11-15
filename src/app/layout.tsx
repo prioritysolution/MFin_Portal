@@ -6,6 +6,7 @@ import { getLocale } from "next-intl/server";
 import { ThemeProvider } from "@/features/theme/ThemeProvider";
 import { THEME_BOOT_SCRIPT, THEME_COOKIE, isThemeMode } from "@/features/theme/theme";
 import { MENU_BOOT_SCRIPT } from "@/features/navigation/utils/menu-boot-script";
+import { FormErrorFocus } from "@/components/shared/FormErrorFocus";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -47,6 +48,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       suppressHydrationWarning
     >
       <body className="min-h-full bg-background font-sans text-foreground">
+        <FormErrorFocus />
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
         <Script
           id="mfin-menu-boot-script"

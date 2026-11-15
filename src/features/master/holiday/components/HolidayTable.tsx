@@ -2,6 +2,7 @@
 
 import { useMemo, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import { formatDateDMY } from "@/lib/date-format";
 import { Pencil } from "lucide-react";
 import { DataTable } from "@/components/shared/DataTable";
 import type { DataTableColumn } from "@/components/shared/DataTable";
@@ -60,7 +61,7 @@ export function HolidayTable({
         header: t("columns.holidayDate"),
         cell: (row) => (
           <span className="font-mono text-xs text-slate-700">
-            {row.holidayDate}
+            {formatDateDMY(row.holidayDate)}
           </span>
         ),
       },

@@ -62,16 +62,6 @@ export function AcctSubledgerBranchTable({
   const columns = useMemo<DataTableColumn<AcctSubledgerBranch>[]>(
     () => [
       {
-        id: "branch",
-        header: t("columns.branch"),
-        cell: (row) => nameCodeCell(row.branchName, row.branchCode),
-      },
-      {
-        id: "subledger",
-        header: t("columns.subledger"),
-        cell: (row) => nameCodeCell(row.subledgName, row.subledgCode),
-      },
-      {
         id: "ledger",
         header: t("columns.ledger"),
         cell: (row) => {
@@ -80,6 +70,16 @@ export function AcctSubledgerBranchTable({
           }
           return nameCodeCell(row.ledgerName, row.ledgerCode);
         },
+      },
+      {
+        id: "subledger",
+        header: t("columns.subledger"),
+        cell: (row) => nameCodeCell(row.subledgName, row.subledgCode),
+      },
+      {
+        id: "branch",
+        header: t("columns.branch"),
+        cell: (row) => nameCodeCell(row.branchName, row.branchCode),
       },
       {
         id: "isActive",

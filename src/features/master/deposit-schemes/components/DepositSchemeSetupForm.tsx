@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { Save } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
-import { PageToast } from "@/components/ui/PageToast";
 import { Button } from "@/components/ui/Button";
 import { CheckboxField, TextField, SelectField } from "@/components/ui/Form";
 import { depositSchemeSetupSaveInputSchema } from "../schemas/deposit-schemes.schema";
@@ -156,7 +155,8 @@ function DepositSchemeSetupFormBody({
   const [tdProdOptions, setTdProdOptions] = useState<ApplOption[]>([]);
   const [inttTypeOptions, setInttTypeOptions] = useState<ApplOption[]>([]);
   const [inttPayoutOptions, setInttPayoutOptions] = useState<ApplOption[]>([]);
-  const [ledgers, setLedgers] = useState<AcctLedger[]>([]);
+  const [principalLedgers, setPrincipalLedgers] = useState<AcctLedger[]>([]);
+  const [interestLedgers, setInterestLedgers] = useState<AcctLedger[]>([]);
   const [optionsError, setOptionsError] = useState(false);
 
   // Load General Dropdowns
@@ -164,13 +164,14 @@ function DepositSchemeSetupFormBody({
     let cancelled = false;
 
     async function loadInitialOptions() {
-      const [dt, sb, td, it, ip, ledgResult] = await Promise.allSettled([
+      const [dt, sb, td, it, ip, principalResult, interestResult] = await Promise.allSettled([
           fetchApplOptions(3), // Group 3: Deposit Type
           fetchApplOptions(5), // Group 5: SB Product Type
           fetchApplOptions(6), // Group 6: TD Product Type
           fetchApplOptions(12), // Group 12: Deposit Intt Type
           fetchApplOptions(10), // Group 10: Interest Payout
-          loadActiveLedgers(),
+          loadActiveLedgers("Liabilities"),
+          loadActiveLedgers("Expense"),
         ]);
         if (cancelled) return;
         if (dt.status === "fulfilled") setDepositTypeOptions(dt.value);
@@ -178,8 +179,9 @@ function DepositSchemeSetupFormBody({
         if (td.status === "fulfilled") setTdProdOptions(td.value);
         if (it.status === "fulfilled") setInttTypeOptions(it.value);
         if (ip.status === "fulfilled") setInttPayoutOptions(ip.value);
-        if (ledgResult.status === "fulfilled") setLedgers(ledgResult.value);
-      setOptionsError([dt, sb, td, it, ip, ledgResult].some((result) => result.status === "rejected"));
+        if (principalResult.status === "fulfilled") setPrincipalLedgers(principalResult.value);
+        if (interestResult.status === "fulfilled") setInterestLedgers(interestResult.value);
+      setOptionsError([dt, sb, td, it, ip, principalResult, interestResult].some((result) => result.status === "rejected"));
     }
 
     void loadInitialOptions();
@@ -289,20 +291,25 @@ function DepositSchemeSetupFormBody({
   ];
 
   const ledgerSelectOptions = useMemo(() => {
-    const opts = [
+    const principal = [
       { value: "", label: "-- None --" },
-      ...ledgers.map((l) => ({
+      ...principalLedgers.map((l) => ({
         value: String(l.ledgerId),
         label: `${l.ledgerName} (${l.ledgerCode})`,
       })),
     ];
-    const principal = [...opts];
-    const interest = [...opts];
+    const interest = [
+      { value: "", label: "-- None --" },
+      ...interestLedgers.map((l) => ({
+        value: String(l.ledgerId),
+        label: `${l.ledgerName} (${l.ledgerCode})`,
+      })),
+    ];
     if (setup?.prnLedger && !principal.some((o) => o.value === String(setup.prnLedger))) {
       principal.push({
         value: String(setup.prnLedger),
         label: setup.prnLedgerName
-          ? `${setup.prnLedgerName} (${setup.prnLedgerCode || `LD-${setup.prnLedger}`})`
+          ? (setup.prnLedgerCode ? `${setup.prnLedgerName} (${setup.prnLedgerCode})` : setup.prnLedgerName)
           : `Ledger #${setup.prnLedger}`,
       });
     }
@@ -310,12 +317,12 @@ function DepositSchemeSetupFormBody({
       interest.push({
         value: String(setup.inttLedg),
         label: setup.inttLedgerName
-          ? `${setup.inttLedgerName} (${setup.inttLedgerCode || `LD-${setup.inttLedg}`})`
+          ? (setup.inttLedgerCode ? `${setup.inttLedgerName} (${setup.inttLedgerCode})` : setup.inttLedgerName)
           : `Ledger #${setup.inttLedg}`,
       });
     }
     return { principal, interest };
-  }, [ledgers, setup]);
+  }, [principalLedgers, interestLedgers, setup]);
 
   return (
     <form autoComplete="off"
@@ -323,7 +330,7 @@ function DepositSchemeSetupFormBody({
       className="space-y-4"
       onSubmit={(e) => void handleSubmit(e)}
     >
-      <PageToast message={errorMessage ?? null} tone="error" />
+      {errorMessage ? <p role="alert" className="text-sm text-rose-700">{errorMessage}</p> : null}
       {optionsError ? <p role="alert" className="text-sm text-rose-700">{tErrors("generic")}</p> : null}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -461,12 +468,12 @@ function DepositSchemeSetupFormBody({
   );
 }
 
-async function loadActiveLedgers(): Promise<AcctLedger[]> {
+async function loadActiveLedgers(categName: "Liabilities" | "Expense"): Promise<AcctLedger[]> {
   const ledgers: AcctLedger[] = [];
   let page = 1;
   let lastPage = 1;
   do {
-    const result = await fetchAcctLedgerList({ isActive: 1, page, perPage: 200 });
+    const result = await fetchAcctLedgerList({ categName, ledgerType: "3", isActive: 1, page, perPage: 200 });
     ledgers.push(...result.items);
     if (!result.meta && result.items.length === 200) throw new Error("Ledger pagination missing");
     lastPage = result.meta?.lastPage ?? 1;

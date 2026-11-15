@@ -64,9 +64,9 @@ const ledgerTypeSchema = z
     if (value == null) return null;
     if (typeof value === "number") return value;
     const trimmed = value.trim();
-    return trimmed === "" ? null : trimmed;
+    return trimmed === "" ? null : /^\d+$/.test(trimmed) ? Number(trimmed) : NaN;
   })
-  .refine((value) => value == null || typeof value === "number" || value.length <= 50, {
+  .refine((value) => value == null || (Number.isInteger(value) && value > 0 && value <= 255), {
     message: "Ledger type is invalid",
   });
 

@@ -139,6 +139,7 @@ function DepositInterestFormBody({
   const [termOptions, setTermOptions] = useState<ApplOption[]>([]);
   const [existingSchemeSlabs, setExistingSchemeSlabs] = useState<DepositSchemeSlab[]>([]);
 
+
   useEffect(() => {
     let cancelled = false;
     async function loadTerms() {
@@ -183,12 +184,19 @@ function DepositInterestFormBody({
 
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
+    setFieldErrors((prev) => {
+      if (!prev[key]) return prev;
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
     setInternalError(null);
   }
 
   // Conflict detection: active slab with same scheme, same term_cd, overlapping duration, and overlapping date
   const conflictingActiveSlab = useMemo(() => {
     if (
+      !form.isActive ||
       !form.schemeId ||
       !form.termCd ||
       !form.minDuration ||
@@ -218,6 +226,7 @@ function DepositInterestFormBody({
       }) ?? null
     );
   }, [
+    form.isActive,
     form.schemeId,
     form.termCd,
     form.minDuration,

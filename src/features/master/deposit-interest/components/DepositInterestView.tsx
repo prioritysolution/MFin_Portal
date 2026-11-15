@@ -10,7 +10,7 @@ import { PageToast, useToastText } from "@/components/ui/PageToast";
 import { masterModulePages } from "@/lib/modules/module.types";
 import { fetchApplOptions } from "@/features/master/appl-options";
 import type { ApplOption } from "@/features/master/appl-options";
-import { getAllDepositSchemeSetups } from "@/features/master/deposit-schemes/services/deposit-schemes-client";
+import { isDepositSchemesClientError } from "@/features/master/deposit-schemes/services/deposit-schemes-client";
 import {
   DepositInterestFilters,
   type DepositInterestFilterValues,
@@ -19,6 +19,7 @@ import { DepositInterestTable } from "./DepositInterestTable";
 import { DepositInterestForm } from "./DepositInterestForm";
 import {
   fetchDepositSchemeSlabs,
+  fetchTermDepositSchemeOptions,
   isDepositInterestClientError,
   saveDepositSchemeSlab,
   toggleDepositSchemeSlabStatus,
@@ -89,24 +90,29 @@ export function DepositInterestView() {
   useEffect(() => {
     let cancelled = false;
     async function loadAuxiliaryOptions() {
-      try {
-        const [schemes, tOpts] = await Promise.all([
-          getAllDepositSchemeSetups(),
-          fetchApplOptions(7), // Group 7: Term
-        ]);
-        if (!cancelled) {
-          setAvailableSchemes(schemes);
-          setTermOptions(tOpts);
+      const [schemeResult, termResult] = await Promise.allSettled([
+        fetchTermDepositSchemeOptions(),
+        fetchApplOptions(7), // Group 7: Term
+      ]);
+      if (!cancelled) {
+        if (schemeResult.status === "fulfilled") {
+          setAvailableSchemes(schemeResult.value);
+        } else {
+          setAvailableSchemes([]);
+          setActionError(
+            isDepositSchemesClientError(schemeResult.reason)
+              ? schemeResult.reason.message
+              : tErrors("generic"),
+          );
         }
-      } catch {
-        // fallback
+        if (termResult.status === "fulfilled") setTermOptions(termResult.value);
       }
     }
     void loadAuxiliaryOptions();
     return () => {
       cancelled = true;
     };
-  }, [reloadKey]);
+  }, [reloadKey, setActionError, tErrors]);
 
   // Debounce filters
   useEffect(() => {

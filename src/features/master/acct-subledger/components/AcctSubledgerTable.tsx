@@ -59,11 +59,22 @@ export function AcctSubledgerTable({
         ),
       },
       {
-        id: "subledgName",
-        header: t("columns.subledgName"),
-        cell: (row) => (
-          <span className="font-medium text-slate-800">{row.subledgName}</span>
-        ),
+        id: "mainHead",
+        header: t("columns.mainHead"),
+        cell: (row) => {
+          const name = row.mainhdName?.trim();
+          if (!name) return <span className="text-slate-400">—</span>;
+          return (
+            <div className="min-w-0">
+              <p className="truncate text-slate-800">{name}</p>
+              {row.mainhdCode ? (
+                <p className="font-mono text-[11px] text-slate-500">
+                  {row.mainhdCode}
+                </p>
+              ) : null}
+            </div>
+          );
+        },
       },
       {
         id: "ledger",
@@ -82,22 +93,11 @@ export function AcctSubledgerTable({
         },
       },
       {
-        id: "mainHead",
-        header: t("columns.mainHead"),
-        cell: (row) => {
-          const name = row.mainhdName?.trim();
-          if (!name) return <span className="text-slate-400">—</span>;
-          return (
-            <div className="min-w-0">
-              <p className="truncate text-slate-800">{name}</p>
-              {row.mainhdCode ? (
-                <p className="font-mono text-[11px] text-slate-500">
-                  {row.mainhdCode}
-                </p>
-              ) : null}
-            </div>
-          );
-        },
+        id: "subledgName",
+        header: t("columns.subledgName"),
+        cell: (row) => (
+          <span className="font-medium text-slate-800">{row.subledgName}</span>
+        ),
       },
       {
         id: "branchCount",
