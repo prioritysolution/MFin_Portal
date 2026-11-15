@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { listMembers } from "@/features/onboarding/member-registration/services/member.service";
+import { ApiError } from "@/lib/api/errors";
 import {
   memberLedgerBranchScope,
   memberLedgerTxnQuery,
@@ -11,11 +13,12 @@ import { requireSessionUser } from "@/lib/auth/bff-scope";
 export async function GET(request: Request) {
   try {
     const user = await requireSessionUser();
-    const result = await getMemberLedgerTransactions(
-      "term",
-      memberLedgerTxnQuery(request),
-      memberLedgerBranchScope(user),
-    );
+    const query = memberLedgerTxnQuery(request);
+    const members = await listMembers({ memberId: query.memberId, branchId: memberLedgerBranchScope(user), page: 1, perPage: 1 });
+    if (!members.items.some((member) => member.memberId === query.memberId)) {
+      throw new ApiError({ message: "Forbidden", status: 403, code: "FORBIDDEN" });
+    }
+    const result = await getMemberLedgerTransactions({ ...query, section: "term" });
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
     return toBffErrorResponse(error);

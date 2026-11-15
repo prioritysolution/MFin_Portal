@@ -1,5 +1,5 @@
 import { ApiError } from "@/lib/api/errors";
-import type { MemberLedgerTxnQuery } from "./types/member-ledger.types";
+import type { MemberLedgerTransactionQuery } from "./types/member-ledger.types";
 
 export function memberLedgerBranchScope(user: {
   isHead: boolean;
@@ -13,7 +13,7 @@ export function memberLedgerBranchScope(user: {
   return user.branchId;
 }
 
-export function memberLedgerTxnQuery(request: Request): MemberLedgerTxnQuery {
+export function memberLedgerTxnQuery(request: Request): Omit<MemberLedgerTransactionQuery, "section"> {
   const params = new URL(request.url).searchParams;
   const memberId = Number(params.get("member_id"));
   const accountId = Number(params.get("account_id"));

@@ -228,8 +228,7 @@ export function MemberRegistrationView() {
   const [statusDialogTarget, setStatusDialogTarget] = useState<Member | null>(null);
   const [statusDialogNext, setStatusDialogNext] = useState<MemberStatus | null>(null);
 
-  const [successMessage, setSuccessMessage] = useState("");
-  useToastText(successMessage);
+  const [successMessage, setSuccessMessage] = useToastText();
 
   // 1. Initial lookup loads
   useEffect(() => {

@@ -86,7 +86,7 @@ export async function listSavingsTransactions(
 ): Promise<SavingsTransactionListResult> {
   return withUnauthorizedClear(async () => {
     const token = await requireAccessToken();
-    const payload = await api.get<LaravelResponse<unknown[]>>(
+    const payload = await api.get<LaravelResponse<unknown>>(
       endpoints.savingsTransaction.list,
       {
         accessToken: token,

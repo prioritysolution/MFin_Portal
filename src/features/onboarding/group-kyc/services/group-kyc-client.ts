@@ -52,7 +52,7 @@ export async function fetchGroupKyc(
     verify_status: query.verifyStatus,
     is_active: query.isActive == null ? undefined : query.isActive ? 1 : 0,
   })) {
-    if (value != null && value !== "") params.set(key, String(value));
+    if (value != null) params.set(key, String(value));
   }
   const result = await parse<GroupKycListResult>(
     await fetch(`${endpoints.bff.groupKyc}?${params}`, {

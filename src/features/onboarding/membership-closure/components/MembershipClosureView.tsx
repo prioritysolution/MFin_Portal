@@ -219,7 +219,7 @@ const CLOSED_ROWS: ClosedRow[] = [
   },
 ];
 
-const closureOptions = [MEMBER_CLOSED, MEMBER_DEATH].map((code) => ({
+const closureOptions = ([MEMBER_CLOSED, MEMBER_DEATH] as const).map((code) => ({
   value: String(code),
   label: CLOSURE_LABELS[code],
 }));

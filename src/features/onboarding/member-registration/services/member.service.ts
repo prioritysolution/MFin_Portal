@@ -203,7 +203,7 @@ export async function listMembers(
         })
       : [];
     items.sort((a, b) => b.memberId - a.memberId);
-    const rawMeta = payload?.meta as Record<string, unknown> | undefined;
+    const rawMeta = payload?.success === true ? payload.meta : undefined;
     const total = numberValue(rawMeta ?? {}, "total") ?? items.length;
     const page = numberValue(rawMeta ?? {}, "page") ?? query.page ?? 1;
     const perPage = numberValue(rawMeta ?? {}, "per_page", "perPage") ?? query.perPage ?? 50;

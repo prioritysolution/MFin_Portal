@@ -31,6 +31,7 @@ export type ModuleId =
   | "master.loanEligibility"
   | "security.auditLog"
   | "security.loginSettings"
+  | "onboarding.memberRegistration"
   | "onboarding.groupManagement"
   | "onboarding.groupMemberMapping"
   | "onboarding.customerKyc"

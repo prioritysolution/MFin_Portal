@@ -52,7 +52,7 @@ export async function fetchCurrentUserFromLaravel(): Promise<PublicAuthUser> {
   if (!session) {
     throw new ApiError({ message: "Unauthorized", status: 401, code: "UNAUTHORIZED" });
   }
-  const data = await api.get<{ user?: AuthUser }>(endpoints.auth.me, {
+  const data = await api.get<{ user?: AuthUserDto }>(endpoints.auth.me, {
     accessToken: session.token,
     expectEnvelope: true,
   });
@@ -64,7 +64,7 @@ export async function fetchCurrentUserFromLaravel(): Promise<PublicAuthUser> {
       code: "UNEXPECTED",
     });
   }
-  const user = mapAuthUserDto(raw as AuthUserDto);
+  const user = mapAuthUserDto(raw);
   if (user.userId !== session.user.userId || user.orgId !== session.user.orgId) {
     await clearAuthSession();
     throw new ApiError({ message: "Unauthorized", status: 401, code: "UNAUTHORIZED" });

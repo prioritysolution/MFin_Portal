@@ -34,7 +34,7 @@ let directoryAbort: AbortController | null = null;
 
 export async function fetchMembers(
   query: MemberListQuery,
-  options?: { generation?: number; replace?: boolean },
+  options?: { generation?: number; replace?: boolean; signal?: AbortSignal },
 ): Promise<MemberListResult> {
   const params = new URLSearchParams();
   for (const [key, value] of Object.entries({
@@ -52,7 +52,7 @@ export async function fetchMembers(
     if (value != null && value !== "") params.set(key, String(value));
   }
   const key = `${params.toString()}#${options?.generation ?? 0}`;
-  return dedupeRequest(key, async () => {
+  const load = async () => {
     const controller = new AbortController();
     if (options?.replace) {
       directoryAbort?.abort();
@@ -63,10 +63,11 @@ export async function fetchMembers(
         credentials: "same-origin",
         headers: { Accept: "application/json" },
         cache: "no-store",
-        signal: controller.signal,
+        signal: options?.signal ?? controller.signal,
       }),
     );
-  }, 0);
+  };
+  return options?.signal ? load() : dedupeRequest(key, load, 0);
 }
 
 export async function fetchMemberNominees(

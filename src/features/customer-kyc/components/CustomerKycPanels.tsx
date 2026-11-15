@@ -69,7 +69,7 @@ export function MemberPickerModal({
     const controller = new AbortController();
     const handle = window.setTimeout(() => {
       setLoading(true);
-      fetchMembers({ keyword: keyword.trim() || undefined, statusCd: 1, page: 1, perPage: 10 }, controller.signal)
+      fetchMembers({ keyword: keyword.trim() || undefined, statusCd: 1, page: 1, perPage: 10 }, { signal: controller.signal })
         .then((result) => setItems(result.items))
         .catch(() => {
           if (!controller.signal.aborted) setItems([]);

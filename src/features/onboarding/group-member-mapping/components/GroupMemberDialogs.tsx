@@ -117,7 +117,7 @@ export function AssignMembersModal({
           perPage: 50,
           page: 1,
         },
-        controller.signal,
+        { signal: controller.signal },
       )
         .then((result) => {
           if (!controller.signal.aborted) setCandidates(result.items);

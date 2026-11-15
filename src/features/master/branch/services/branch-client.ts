@@ -3,7 +3,7 @@
  */
 
 import { clearDedupe, dedupeRequest } from "@/lib/client/request-dedupe";
-export type {
+import type {
   Branch,
   BranchCreateInput,
   BranchListQuery,
@@ -11,6 +11,7 @@ export type {
   BranchMutationResult,
   BranchUpdateInput,
 } from "@/features/master/branch/types/branch.types";
+export type { Branch, BranchCreateInput, BranchListQuery, BranchListResult, BranchMutationResult, BranchUpdateInput } from "@/features/master/branch/types/branch.types";
 
 export type BranchClientError = {
   status: number;

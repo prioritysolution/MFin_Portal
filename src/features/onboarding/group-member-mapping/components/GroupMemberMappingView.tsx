@@ -211,7 +211,7 @@ export function GroupMemberMappingView() {
 
   return (
     <ModulePageShell page={onboardingModulePages.groupMemberMapping}>
-      <PageToast message={toast} onDismiss={() => setToast(null)} />
+      <PageToast message={toast} />
       <div className="grid gap-4 lg:grid-cols-[18rem_minmax(0,1fr)]">
         <section className="rounded-xl border border-border bg-white p-3">
           <div className="space-y-2">
