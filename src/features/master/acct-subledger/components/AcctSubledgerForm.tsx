@@ -135,6 +135,10 @@ function AcctSubledgerFormBody({
     setFieldErrors({});
 
     const ledgerId = Number(form.ledgerId);
+    if (ledgers.some((ledger) => ledger.value === form.ledgerId && ledger.isCash)) {
+      setFieldErrors({ ledgerId: t("cashLedgerError") });
+      return;
+    }
     const base = {
       subledgName: form.subledgName.trim(),
       ledgerId: Number.isFinite(ledgerId) && ledgerId > 0 ? ledgerId : 0,
@@ -196,9 +200,10 @@ function AcctSubledgerFormBody({
         placeholder={t("fields.ledgerIdPlaceholder")}
         searchPlaceholder={tUi("selectSearch")}
         emptyMessage={tUi("selectEmpty")}
+        hint={t("cashLedgerError")}
         error={fieldErrors.ledgerId || undefined}
         onChange={(ledgerId) => updateField("ledgerId", ledgerId)}
-        options={ledgers}
+        options={ledgers.filter((ledger) => !ledger.isCash)}
       />
 
       <CheckboxField

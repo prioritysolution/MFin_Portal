@@ -145,6 +145,7 @@
     "supportDeskHint": "Tickets you raise will show up here.",
     "accountMenu": "Account menu",
     "closeSidebar": "Close sidebar",
+    "openSidebar": "Open sidebar",
     "mainModules": "Main Modules",
     "menuLoading": "Loading menu…",
     "menuEmpty": "No menu items available for your account.",
@@ -1202,6 +1203,7 @@
       }
     },
     "acctSubledger": {
+      "cashLedgerError": "Cash ledgers cannot have subledgers. Select a non-Cash ledger.",
       "title": "Account Subledgers",
       "description": "Manage chart-of-accounts subledgers linked to ledgers",
       "add": "Add Subledger",
@@ -1421,6 +1423,9 @@
       }
     },
     "staff": {
+      "newPassword": "New password",
+      "newPasswordHint": "Leave blank to keep the current password.",
+      "phoneAccess": { "fieldStaff": "Field Staff", "tabsLabel": "Staff views", "chooseStaff": "Choose a staff member to preview phone module access.", "configure": "Module access", "done": "Done", "modules": "Example modules",  "title": "Field staff phone access (preview)", "demoNotice": "Example modules only. Selections are not saved and do not grant access.", "members": "Member registration", "collections": "Collections", "loanApplications": "Loan applications", "reports": "Reports" },
       "title": "Staff Master",
       "description": "Manage employees, designations, and module access",
       "add": "Add Staff",
@@ -1936,7 +1941,7 @@
           "inttTypeCd": "Select an interest type.",
           "repayScheduleCd": "Select a repay schedule.",
           "capitalisationOnCd": "Select when interest is capitalised.",
-          "incentiveDay": "Incentive day must be from 1 to 127.",
+          "incentiveDay": "Incentive day must be a whole number from 1 to 31.",
           "incentiveRate": "Incentive rate must be between 0 and 100, with at most 2 decimals.",
           "overdueOnCd": "Select what overdue is calculated on.",
           "overdurRate": "Overdue rate must be between 0 and 100, with at most 2 decimals.",

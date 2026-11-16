@@ -28,7 +28,7 @@ export const loanSchemeSetupSaveInputSchema = z
     isInttCapitalisation: z.boolean().optional().default(false),
     capitalisationOnCd: optionalPositiveInt,
     isIncentive: z.boolean().optional().default(false),
-    incentiveDay: z.number().int().min(1).max(127).nullable().optional(),
+    incentiveDay: z.number().int().min(1).max(31).nullable().optional(),
     incentiveRate: rate.nullable().optional(),
     isOverdue: z.boolean().optional().default(false),
     repayGraceDays: z.number().int().min(0).nullable().optional(),

@@ -501,7 +501,7 @@ function LoanSchemeSetupFormBody({
               required
               type="number"
               min={1}
-              max={127}
+              max={31}
               error={fieldErrors.incentiveDay || undefined}
               onChange={(value) => updateField("incentiveDay", value)}
             />

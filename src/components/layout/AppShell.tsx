@@ -19,6 +19,7 @@ type AppShellProps = {
 export function AppShell({ children, user }: AppShellProps) {
   const [currentUser, setCurrentUser] = useState(user);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const t = useTranslations("auth");
@@ -68,6 +69,7 @@ export function AppShell({ children, user }: AppShellProps) {
     >
       <Sidebar
         open={sidebarOpen}
+        collapsed={sidebarCollapsed}
         onClose={() => setSidebarOpen(false)}
         user={currentUser}
       />
@@ -81,7 +83,7 @@ export function AppShell({ children, user }: AppShellProps) {
           height: "100%",
         }}
       >
-        <Header onMenuClick={() => setSidebarOpen(true)} user={currentUser} />
+        <Header onMenuClick={() => setSidebarOpen(true)} sidebarCollapsed={sidebarCollapsed} onSidebarToggle={() => setSidebarCollapsed((current) => !current)} user={currentUser} />
         <main
           ref={mainRef}
           className="scrollbar-thin"

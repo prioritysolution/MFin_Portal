@@ -15,6 +15,7 @@ export type AcctSubledgerFilterValues = {
 export type AcctSubledgerLedgerOption = {
   value: string;
   label: string;
+  isCash?: boolean;
 };
 
 type AcctSubledgerFiltersProps = {

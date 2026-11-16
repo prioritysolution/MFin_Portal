@@ -102,6 +102,7 @@ export function AcctSubledgerView({
         setLedgers(
           result.items.map((item) => ({
             value: String(item.ledgerId),
+            isCash: item.ledgerType === "1",
             label: item.ledgerCode
               ? `${item.ledgerName} (${item.ledgerCode})`
               : item.ledgerName,

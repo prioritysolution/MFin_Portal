@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Plus } from "lucide-react";
+import { Plus, Users, Smartphone } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { ModulePageShell } from "@/components/shared/ModulePageShell";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { SectionTabs } from "@/components/shared/SectionTabs";
 import { Button } from "@/components/ui/Button";
 import { PageToast, useToastText } from "@/components/ui/PageToast";
 import { masterModulePages } from "@/lib/modules/module.types";
@@ -15,6 +16,7 @@ import {
 } from "@/features/master/staff/components/StaffFilters";
 import { StaffTable } from "@/features/master/staff/components/StaffTable";
 import { StaffForm } from "@/features/master/staff/components/StaffForm";
+import { FieldStaffPreview } from "@/features/master/staff/components/FieldStaffPreview";
 import {
   createStaff,
   fetchStaffList,
@@ -63,6 +65,7 @@ export function StaffView() {
   const pageMeta = masterModulePages.staff.toJSON();
 
   const [filters, setFilters] = useState<StaffFilterValues>(DEFAULT_FILTERS);
+  const [activeTab, setActiveTab] = useState<"staff" | "field">("staff");
   const [appliedFilters, setAppliedFilters] =
     useState<StaffFilterValues>(DEFAULT_FILTERS);
   const [page, setPage] = useState(1);
@@ -341,6 +344,8 @@ export function StaffView() {
     <ModulePageShell page={pageMeta}>
       <PageToast message={successMessage} />
 
+      <SectionTabs tabs={[{ id: "staff", title: t("title"), icon: Users }, { id: "field", title: t("phoneAccess.fieldStaff"), icon: Smartphone }]} activeId={activeTab} onChange={setActiveTab} label={t("phoneAccess.tabsLabel")} />
+
       <StaffFilters
         values={filters}
         branches={branches}
@@ -354,6 +359,7 @@ export function StaffView() {
         }}
       />
 
+      <div hidden={activeTab !== "staff"}>
       <StaffTable
         items={items}
         branches={[...branches, ...staffBranches]}
@@ -378,6 +384,10 @@ export function StaffView() {
           </Button>
         }
       />
+      </div>
+      <div hidden={activeTab !== "field"}>
+        <FieldStaffPreview items={items} branches={[...branches, ...staffBranches]} meta={meta} page={page} pageSize={pageSize} loading={loading} error={error} errorMessage={errorMessage} onRetry={() => setReloadKey((key) => key + 1)} onPageChange={setPage} onPageSizeChange={(size) => { setPageSize(size); setPage(1); }} />
+      </div>
 
       <StaffForm
         open={formOpen}

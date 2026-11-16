@@ -22,6 +22,8 @@ import { endpoints } from "@/lib/api/endpoints";
 
 type HeaderProps = {
   onMenuClick: () => void;
+  sidebarCollapsed: boolean;
+  onSidebarToggle: () => void;
   user: AuthUser;
 };
 
@@ -32,7 +34,7 @@ const languages: Array<{ code: AppLocale; label: string; short: string }> = [
   { code: "or", label: "ଓଡ଼ିଆ", short: "OR" },
 ];
 
-export function Header({ onMenuClick, user }: HeaderProps) {
+export function Header({ onMenuClick, sidebarCollapsed, onSidebarToggle, user }: HeaderProps) {
   const t = useTranslations("navigation");
   const tAuth = useTranslations("auth");
   const tConfirm = useTranslations("confirmDialog");
@@ -110,7 +112,18 @@ export function Header({ onMenuClick, user }: HeaderProps) {
               type="button"
               onClick={onMenuClick}
               className="shrink-0 rounded-xl border border-border bg-white p-2 text-slate-600 shadow-sm lg:hidden"
-              aria-label="Open sidebar"
+              aria-label={t("openSidebar")}
+            >
+              <Menu className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={onSidebarToggle}
+              className="hidden shrink-0 rounded-xl border border-border bg-surface p-2 text-slate-600 shadow-sm transition hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 lg:block"
+              aria-label={sidebarCollapsed ? t("openSidebar") : t("closeSidebar")}
+              aria-expanded={!sidebarCollapsed}
+              aria-controls="app-sidebar"
+              title={sidebarCollapsed ? t("openSidebar") : t("closeSidebar")}
             >
               <Menu className="h-4 w-4" />
             </button>

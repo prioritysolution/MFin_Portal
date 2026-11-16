@@ -31,6 +31,7 @@ export type StaffDto = {
   pan: string | null;
   device_id: number | null;
   user_id: number | null;
+  user_name?: string | null;
   status: number;
   module_access?: StaffModuleAccessDto[] | null;
   created_by?: number | null;
@@ -55,6 +56,7 @@ export type Staff = {
   pan: string | null;
   deviceId: number | null;
   userId: number | null;
+  userName?: string | null;
   status: number;
   moduleAccess: StaffModuleAccess[];
   createdAt: string | null;
@@ -140,12 +142,16 @@ export type StaffCreateDto = StaffWritableDto & {
 
 export type StaffUpdateInput = StaffWritableInput & {
   roleId?: number | null;
+  userName?: string | null;
+  userPass?: string | null;
   staffId: number;
   employeeCode: string;
 };
 
 export type StaffUpdateDto = StaffWritableDto & {
   role_id?: number | null;
+  user_name?: string;
+  user_pass?: string;
   staff_id: number;
   employee_code: string;
 };

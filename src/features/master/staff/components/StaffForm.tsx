@@ -94,7 +94,7 @@ function toFormState(staff: Staff | null): FormState {
     aadhaar: staff.aadhaar ?? "",
     pan: staff.pan ?? "",
     deviceId: staff.deviceId != null ? String(staff.deviceId) : "",
-    userName: "",
+    userName: staff.userName ?? "",
     userPass: "",
     status: staff.status,
   };
@@ -295,6 +295,8 @@ function StaffFormBody({
     const writable = toWritableFields(form);
     const payload: StaffUpdateInput = {
       ...writable,
+      ...(form.userName.trim() && form.userName.trim() !== (staff.userName ?? "") ? { userName: form.userName.trim() } : {}),
+      ...(form.userPass.trim() ? { userPass: form.userPass } : {}),
       ...(form.roleId !== (staff.roleId != null ? String(staff.roleId) : "")
         ? { roleId: form.roleId ? Number(form.roleId) : null }
         : {}),
@@ -492,26 +494,26 @@ function StaffFormBody({
         />
       </div>
 
-      {mode === "create" ? (
+      {(
         <div className="grid gap-4 sm:grid-cols-2">
           <TextField
             label={fieldLabels.userName}
-            required
+            required={mode === "create"}
             value={form.userName}
-            maxLength={100}
+            maxLength={mode === "edit" ? 25 : 100}
             error={fieldErrors.userName}
             onChange={(userName) => setForm((prev) => ({ ...prev, userName }))}
           />
           <TextField
-            label={fieldLabels.userPass}
-            required
+            label={mode === "edit" ? t("newPassword") : fieldLabels.userPass}
+            required={mode === "create"}
             type={showPassword ? "text" : "password"}
             value={form.userPass}
             maxLength={128}
-            hint={t("hints.userPass")}
+            hint={mode === "edit" ? t("newPasswordHint") : t("hints.userPass")}
             error={fieldErrors.userPass}
             validate={(value, final) => {
-              if (!final || value) return undefined;
+              if (mode === "edit" || !final || value) return undefined;
               return t("errors.userPass");
             }}
             onChange={(userPass) => setForm((prev) => ({ ...prev, userPass }))}
@@ -527,7 +529,7 @@ function StaffFormBody({
             }
           />
         </div>
-      ) : null}
+      )}
 
     </form>
   );

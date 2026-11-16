@@ -42,6 +42,7 @@ export function mapStaffDto(dto: {
   pan?: string | null;
   device_id?: number | null;
   user_id?: number | null;
+  user_name?: string | null;
   status: number;
   module_access?:
     | {
@@ -69,6 +70,7 @@ export function mapStaffDto(dto: {
     pan: dto.pan ?? null,
     deviceId: dto.device_id ?? null,
     userId: dto.user_id ?? null,
+    userName: dto.user_name ?? null,
     status: dto.status,
     moduleAccess: (dto.module_access ?? []).map(mapStaffModuleAccessDto),
     createdAt: dto.created_at ?? null,
@@ -120,6 +122,8 @@ export function mapStaffUpdateToDto(input: StaffUpdateInput): StaffUpdateDto {
   return {
     ...mapWritable(input),
     ...(input.roleId !== undefined ? { role_id: input.roleId } : {}),
+    ...(input.userName?.trim() ? { user_name: input.userName.trim() } : {}),
+    ...(input.userPass?.trim() ? { user_pass: input.userPass } : {}),
     staff_id: input.staffId,
     employee_code: input.employeeCode,
   };

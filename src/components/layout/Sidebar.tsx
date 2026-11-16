@@ -35,6 +35,7 @@ import { SidebarNavSkeleton } from "@/components/shared/skeletons/SidebarNavSkel
 
 type SidebarProps = {
   open: boolean;
+  collapsed: boolean;
   onClose: () => void;
   user: AuthUser;
 };
@@ -158,7 +159,7 @@ function revealMenuItem(scroller: HTMLElement, target: HTMLElement) {
   scroller.scrollTo({ top: Math.min(max, Math.max(0, next)) });
 }
 
-export function Sidebar({ open, onClose, user }: SidebarProps) {
+export function Sidebar({ open, collapsed, onClose, user }: SidebarProps) {
   const t = useTranslations("navigation");
   const tConfirm = useTranslations("confirmDialog");
   const locale = useLocale();
@@ -337,9 +338,10 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
       />
 
       <aside
+        id="app-sidebar"
         className={`fixed inset-y-0 left-0 z-50 flex h-full w-[var(--sidebar-width)] max-w-[100vw] shrink-0 flex-col overflow-hidden border-r border-border bg-surface pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)] transition-transform duration-300 lg:static lg:translate-x-0 ${
           open ? "translate-x-0" : "-translate-x-full"
-        }`}
+        } ${collapsed ? "lg:invisible lg:w-0 lg:border-0" : ""}`}
       >
         <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border px-5 py-4">
           <Link

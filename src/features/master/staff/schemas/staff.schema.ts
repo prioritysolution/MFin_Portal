@@ -29,6 +29,7 @@ export const staffDtoSchema = z.object({
   pan: z.string().nullable().optional(),
   device_id: z.number().nullable().optional(),
   user_id: z.number().nullable().optional(),
+  user_name: z.string().nullable().optional(),
   status: z.number(),
   module_access: z.array(staffModuleAccessDtoSchema).nullable().optional(),
   created_by: z.number().nullable().optional(),
@@ -75,6 +76,8 @@ export const staffCreateInputSchema = staffWritableInputSchema.extend({
 
 export const staffUpdateInputSchema = staffWritableInputSchema.extend({
   roleId: z.number().int().positive().nullable().optional(),
+  userName: z.string().trim().max(25).nullable().optional(),
+  userPass: z.string().max(128).nullable().optional(),
   staffId: z.number().int().positive(),
   employeeCode: z.string().trim().min(1).max(50),
 });

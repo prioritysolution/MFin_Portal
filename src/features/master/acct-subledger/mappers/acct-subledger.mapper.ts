@@ -32,11 +32,8 @@ function mapWritable(input: AcctSubledgerCreateInput): AcctSubledgerCreateDto {
     subledg_name: input.subledgName.trim(),
     ledger_id: input.ledgerId,
   };
-  if (input.subledgCode !== undefined) {
-    dto.subledg_code =
-      input.subledgCode == null || input.subledgCode.trim() === ""
-        ? null
-        : input.subledgCode.trim();
+  if (input.subledgCode != null && input.subledgCode.trim() !== "") {
+    dto.subledg_code = input.subledgCode.trim();
   }
   if (input.isActive !== undefined) {
     dto.is_active = input.isActive === true;

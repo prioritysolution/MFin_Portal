@@ -4,6 +4,7 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Card } from "@/components/ui/Card";
+import { controlClass, controlReadOnlyClass } from "@/components/ui/Input";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { EmptyState } from "@/components/shared/EmptyState";
@@ -111,13 +112,13 @@ export function OrganizationForm() {
       <dl className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {fields.map(([label, value]) => (
           <div key={label} className="min-w-0">
-            <dt className="text-xs font-semibold text-slate-600">{label}</dt>
-            <dd className="mt-1 whitespace-pre-wrap break-words text-sm text-slate-900">{value || "—"}</dd>
+            <dt className="text-xs font-bold text-slate-800">{label}</dt>
+            <dd className={`mt-1 min-h-11 whitespace-pre-wrap break-words ${controlClass} ${controlReadOnlyClass}`}>{value || "—"}</dd>
           </div>
         ))}
         <div>
-          <dt className="text-xs font-semibold text-slate-600">{t("fields.orgLogo")}</dt>
-          <dd className="mt-1">
+          <dt className="text-xs font-bold text-slate-800">{t("fields.orgLogo")}</dt>
+          <dd className={`mt-1 min-h-11 ${controlClass} ${controlReadOnlyClass}`}>
             {organization.orgLogo ? (
               // eslint-disable-next-line @next/next/no-img-element -- org logo may be base64 from API
               <img src={organization.orgLogo} alt={t("fields.orgLogo")} className="h-16 w-16 rounded-lg border border-border bg-white object-contain" />
