@@ -6,7 +6,7 @@ import { z } from "zod";
  * `remember` stays on the BFF and is not forwarded upstream.
  */
 export const loginRequestSchema = z.object({
-  orgCode: z.number().int().min(1).max(127),
+  orgCode: z.number().int().min(0).max(999),
   login: z.string().trim().min(1),
   password: z.string().min(1),
   remember: z.boolean().optional(),

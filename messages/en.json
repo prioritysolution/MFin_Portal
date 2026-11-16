@@ -269,7 +269,7 @@
     "welcomeBack": "Welcome Back",
     "signInSubtitle": "Sign in to your account to continue",
     "orgId": "Organization code",
-    "orgIdPlaceholder": "Code from 1 to 127",
+    "orgIdPlaceholder": "Enter a 3-digit code",
     "lockRemaining": "Try again in {minutes} minute(s).",
     "passwordExpiredNotice": "Your password has expired. Contact your administrator for assistance.",
     "username": "Username",
@@ -336,7 +336,7 @@
     "backToSignIn": "Back to sign in",
     "registerPendingApi": "Staff registration API is not available yet. This form checks each field only.",
     "errors": {
-      "orgId": "Enter an organization code from 1 to 127.",
+      "orgId": "Enter a 3-digit organization code.",
       "username": "Enter your username.",
       "password": "Enter your password.",
       "passwordMin": "Password must be 8 to 100 characters.",

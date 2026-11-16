@@ -135,14 +135,14 @@ export function LoginForm() {
           }
         }}
         validate={(value, final) =>
-          final && (!/^\d{1,3}$/.test(value.trim()) || Number(value) < 1 || Number(value) > 127)
+          final && !/^\d{3}$/.test(value.trim())
             ? t("errors.orgId")
             : undefined
         }
         onChange={(value) => {
           const digits = value.replace(/\D/g, "").slice(0, 3);
           setOrgId(digits);
-          if (fieldErrors.orgId && /^\d{1,3}$/.test(digits) && Number(digits) >= 1 && Number(digits) <= 127) {
+          if (fieldErrors.orgId && /^\d{3}$/.test(digits)) {
             setFieldErrors((prev) => {
               const next = { ...prev };
               delete next.orgId;

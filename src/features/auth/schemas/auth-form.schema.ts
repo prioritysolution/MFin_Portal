@@ -5,8 +5,7 @@ export const loginFormSchema = z.object({
   orgId: z
     .string()
     .trim()
-    .regex(/^\d{1,3}$/)
-    .refine((value) => Number(value) >= 1 && Number(value) <= 127),
+    .regex(/^\d{3}$/),
   username: z.string().trim().min(1).max(100),
   password: z.string().min(1).max(100),
 });
