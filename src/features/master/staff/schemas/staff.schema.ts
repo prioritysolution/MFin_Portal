@@ -30,6 +30,7 @@ export const staffDtoSchema = z.object({
   device_id: z.number().nullable().optional(),
   user_id: z.number().nullable().optional(),
   user_name: z.string().nullable().optional(),
+  is_field_staff: z.union([z.literal(0), z.literal(1), z.boolean()]).nullable().optional(),
   status: z.number(),
   module_access: z.array(staffModuleAccessDtoSchema).nullable().optional(),
   created_by: z.number().nullable().optional(),

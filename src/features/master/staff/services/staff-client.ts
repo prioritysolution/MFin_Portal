@@ -76,6 +76,7 @@ function listQueryKey(query: StaffListQuery): string {
   }
   if (query.keyword) params.set("keyword", query.keyword);
   if (query.status != null) params.set("status", String(query.status));
+  if (query.isFieldStaff != null) params.set("is_field_staff", String(query.isFieldStaff));
   if (query.includeModules) params.set("include_modules", "1");
   return params.toString() || "default";
 }
@@ -158,4 +159,25 @@ export async function fetchStaff(staffId: number): Promise<Staff | null> {
     includeModules: true,
   });
   return result.items[0] ?? null;
+}
+
+export async function setStaffFieldStatus(staffId: number, isFieldStaff: boolean): Promise<void> {
+  const response = await fetch("/api/master/staff/field-status", {
+    method: "POST",
+    headers: { Accept: "application/json", "Content-Type": "application/json" },
+    credentials: "same-origin",
+    body: JSON.stringify({ staffId, isFieldStaff }),
+  });
+  await parseEnvelope<{ staffId: number; isFieldStaff: boolean }>(response);
+  clearDedupe();
+}
+
+export type StaffModuleOption = { moduleId: number; moduleKey: string; moduleName: string };
+export async function fetchStaffModules(staffId: number): Promise<{ available: StaffModuleOption[]; assigned: StaffModuleOption[] }> {
+  const response = await fetch(`/api/master/staff/modules?staff_id=${encodeURIComponent(staffId)}`, { headers: { Accept: "application/json" }, credentials: "same-origin", cache: "no-store" });
+  return parseEnvelope(response);
+}
+export async function saveStaffModules(staffId: number, moduleIds: number[]): Promise<void> {
+  const response = await fetch("/api/master/staff/modules", { method: "POST", headers: { Accept: "application/json", "Content-Type": "application/json" }, credentials: "same-origin", body: JSON.stringify({ staffId, moduleIds }) });
+  await parseEnvelope(response);
 }

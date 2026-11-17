@@ -346,6 +346,7 @@ export function StaffView() {
 
       <SectionTabs tabs={[{ id: "staff", title: t("title"), icon: Users }, { id: "field", title: t("phoneAccess.fieldStaff"), icon: Smartphone }]} activeId={activeTab} onChange={setActiveTab} label={t("phoneAccess.tabsLabel")} />
 
+      <div hidden={activeTab !== "staff"}>
       <StaffFilters
         values={filters}
         branches={branches}
@@ -358,6 +359,7 @@ export function StaffView() {
           setSuccessMessage(null);
         }}
       />
+      </div>
 
       <div hidden={activeTab !== "staff"}>
       <StaffTable
@@ -386,7 +388,7 @@ export function StaffView() {
       />
       </div>
       <div hidden={activeTab !== "field"}>
-        <FieldStaffPreview items={items} branches={[...branches, ...staffBranches]} meta={meta} page={page} pageSize={pageSize} loading={loading} error={error} errorMessage={errorMessage} onRetry={() => setReloadKey((key) => key + 1)} onPageChange={setPage} onPageSizeChange={(size) => { setPageSize(size); setPage(1); }} />
+        <FieldStaffPreview active={activeTab === "field"} branches={[...branches, ...staffBranches]} />
       </div>
 
       <StaffForm

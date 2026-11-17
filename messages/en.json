@@ -1423,9 +1423,10 @@
       }
     },
     "staff": {
+      "fieldFlagNotice": "Adding a staff member marks them as field staff. This does not grant module access.",
       "newPassword": "New password",
       "newPasswordHint": "Leave blank to keep the current password.",
-      "phoneAccess": { "fieldStaff": "Field Staff", "tabsLabel": "Staff views", "chooseStaff": "Choose a staff member to preview phone module access.", "configure": "Module access", "done": "Done", "modules": "Example modules",  "title": "Field staff phone access (preview)", "demoNotice": "Example modules only. Selections are not saved and do not grant access.", "members": "Member registration", "collections": "Collections", "loanApplications": "Loan applications", "reports": "Reports" },
+      "phoneAccess": { "moduleTitle":"Staff module access","moduleNotice":"Assignments do not change role or menu permissions. Only administrators can save changes.","availableModules":"Available modules","noModules":"No active modules are available.","saveModules":"Save assignments","moduleLimit":"Select no more than 35 modules.", "sessionNotice":"Preview only. Field staff and module choices are not saved and do not grant access.","addFieldStaff":"Add Field Staff","add":"Add","selectStaff":"Select staff","emptyTitle":"No field staff added","emptyMessage":"Choose Add Field Staff to select an existing staff member.","remove":"Remove","retry":"Retry","loading":"Loading staff…", "fieldStaff": "Field Staff", "tabsLabel": "Staff views", "chooseStaff": "Choose a staff member to preview phone module access.", "configure": "Module access", "done": "Done", "modules": "Example modules",  "title": "Field staff phone access (preview)", "demoNotice": "Example modules only. Selections are not saved and do not grant access.", "members": "Member registration", "collections": "Collections", "loanApplications": "Loan applications", "reports": "Reports" },
       "title": "Staff Master",
       "description": "Manage employees, designations, and module access",
       "add": "Add Staff",

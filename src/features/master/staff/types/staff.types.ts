@@ -32,6 +32,7 @@ export type StaffDto = {
   device_id: number | null;
   user_id: number | null;
   user_name?: string | null;
+  is_field_staff?: number | boolean | null;
   status: number;
   module_access?: StaffModuleAccessDto[] | null;
   created_by?: number | null;
@@ -57,6 +58,7 @@ export type Staff = {
   deviceId: number | null;
   userId: number | null;
   userName?: string | null;
+  isFieldStaff?: boolean;
   status: number;
   moduleAccess: StaffModuleAccess[];
   createdAt: string | null;
@@ -71,6 +73,7 @@ export type StaffListQuery = {
   designationId?: number;
   keyword?: string;
   status?: number;
+  isFieldStaff?: 0 | 1;
   includeModules?: boolean;
 };
 

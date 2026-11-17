@@ -43,6 +43,7 @@ export function mapStaffDto(dto: {
   device_id?: number | null;
   user_id?: number | null;
   user_name?: string | null;
+  is_field_staff?: number | boolean | null;
   status: number;
   module_access?:
     | {
@@ -71,6 +72,7 @@ export function mapStaffDto(dto: {
     deviceId: dto.device_id ?? null,
     userId: dto.user_id ?? null,
     userName: dto.user_name ?? null,
+    isFieldStaff: dto.is_field_staff === 1 || dto.is_field_staff === true,
     status: dto.status,
     moduleAccess: (dto.module_access ?? []).map(mapStaffModuleAccessDto),
     createdAt: dto.created_at ?? null,

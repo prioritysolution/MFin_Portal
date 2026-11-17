@@ -5,6 +5,7 @@ import {
   updateStaff,
 } from "@/features/master/staff/services/staff.service";
 import { toBffErrorResponse } from "@/lib/api/bff-response";
+import { ApiError } from "@/lib/api/errors";
 import {
   applyStaffBranchScope,
   requireSessionUser,
@@ -22,6 +23,10 @@ export async function GET(request: Request) {
     const designationId = searchParams.get("designation_id");
     const keyword = searchParams.get("keyword");
     const status = searchParams.get("status");
+    const fieldStaff = searchParams.get("is_field_staff");
+    if (fieldStaff != null && fieldStaff !== "0" && fieldStaff !== "1") {
+      throw new ApiError({ message: "Invalid field staff filter", status: 422, code: "VALIDATION" });
+    }
     const includeModules = searchParams.get("include_modules");
 
     const requestedBranchId =
@@ -37,6 +42,7 @@ export async function GET(request: Request) {
       designationId: designationId ? Number(designationId) : undefined,
       keyword: keyword ?? undefined,
       status: status != null && status !== "" ? Number(status) : undefined,
+      isFieldStaff: fieldStaff === "0" ? 0 : fieldStaff === "1" ? 1 : undefined,
       includeModules:
         includeModules === "1" || includeModules === "true" ? true : undefined,
     });
