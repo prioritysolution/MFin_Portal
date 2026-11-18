@@ -8,6 +8,7 @@ import {
   useState,
   type CSSProperties,
   type KeyboardEvent,
+  type RefObject,
 } from "react";
 import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
@@ -19,6 +20,10 @@ export type SelectOption = {
   disabled?: boolean;
   /** Stable list identity when two options share the same value. */
   id?: string;
+  /** Optional portal host for dropdowns nested in another popover. */
+  portalContainerRef?: RefObject<HTMLElement | null>;
+  /** Minimum dropdown width in pixels when the trigger is compact. */
+  menuMinWidth?: number;
 };
 
 type SelectProps = {
@@ -58,6 +63,8 @@ export function Select({
   emptyMessage,
   className = "",
   id,
+  portalContainerRef,
+  menuMinWidth,
   ...aria
 }: SelectProps) {
   const t = useTranslations("ui");
@@ -148,8 +155,8 @@ export function Select({
       : Math.max(8, trigger.top - gap - menuHeight);
     return {
       position: "fixed",
-      left: trigger.left,
-      width: trigger.width,
+      left: Math.max(8, Math.min(trigger.left, window.innerWidth - Math.min(Math.max(trigger.width, menuMinWidth ?? 0), window.innerWidth - 16) - 8)),
+      width: Math.min(Math.max(trigger.width, menuMinWidth ?? 0), window.innerWidth - 16),
       top,
       maxHeight,
       zIndex: 240,
@@ -182,6 +189,10 @@ export function Select({
 
   function onTriggerKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
     if (disabled) return;
+    if (open) {
+      onListKeyDown(event);
+      return;
+    }
     if (
       event.key === "ArrowDown" ||
       event.key === "Enter" ||
@@ -193,7 +204,7 @@ export function Select({
   }
 
   function onListKeyDown(
-    event: KeyboardEvent<HTMLDivElement | HTMLInputElement>,
+    event: KeyboardEvent<HTMLDivElement | HTMLInputElement | HTMLButtonElement>,
   ) {
     if (event.key === "ArrowDown") {
       event.preventDefault();
@@ -349,7 +360,7 @@ export function Select({
             )}
           </ul>
         </div>,
-        document.body,
+        portalContainerRef?.current ?? document.body,
       )
         : null}
     </div>

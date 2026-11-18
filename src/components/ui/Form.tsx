@@ -19,6 +19,7 @@ export type FieldRestrict = "digits" | "phone" | "code" | "decimal";
 
 type FormFieldProps = {
   label: string;
+  hideLabel?: boolean;
   children: ReactNode;
   className?: string;
   required?: boolean;
@@ -30,6 +31,7 @@ type FormFieldProps = {
 /** Label + control + live hint, error, and limit counter. */
 export function FormField({
   label,
+  hideLabel = false,
   children,
   className = "",
   required,
@@ -39,7 +41,7 @@ export function FormField({
 }: FormFieldProps) {
   return (
     <div className={`block ${className}`}>
-      <span className="mb-1.5 block text-xs font-semibold text-slate-600">
+      <span className={hideLabel ? "sr-only" : "mb-1.5 block text-xs font-semibold text-slate-600"}>
         {label}
         {required ? <span className="text-rose-500"> *</span> : null}
       </span>
@@ -323,6 +325,7 @@ export function TextAreaField({
 
 type SelectFieldProps = {
   label: string;
+  hideLabel?: boolean;
   value: string;
   onChange: (value: string) => void;
   options: SelectOption[];
@@ -338,6 +341,7 @@ type SelectFieldProps = {
 
 export function SelectField({
   label,
+  hideLabel,
   value,
   onChange,
   options,
@@ -351,7 +355,7 @@ export function SelectField({
   emptyMessage,
 }: SelectFieldProps) {
   return (
-    <FormField label={label} required={required} error={error} hint={hint}>
+    <FormField label={label} hideLabel={hideLabel} required={required} error={error} hint={hint}>
       <Select
         value={value}
         onChange={onChange}

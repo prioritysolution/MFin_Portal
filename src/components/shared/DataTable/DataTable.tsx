@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { DataTableAlign, DataTableProps } from "./types";
 import { useTranslations } from "next-intl";
 import { EmptyState } from "@/components/shared/EmptyState";
@@ -65,6 +65,7 @@ export function DataTable<T>({
   tableLayout = "auto",
   minHeight,
   maxHeight,
+  fitViewport = true,
   caption,
   onRowClick,
   getRowClassName,
@@ -75,6 +76,7 @@ export function DataTable<T>({
 }: DataTableProps<T>) {
   const data = Array.isArray(rawData) ? rawData : [];
   const t = useTranslations("ui");
+  const tCommon = useTranslations("common");
 
   const selectionKeys = selection ? new Set(selection.selectedKeys) : null;
 
@@ -132,6 +134,10 @@ export function DataTable<T>({
     `rounded-[var(--radius-card)] border border-border bg-surface p-4 shadow-[var(--shadow-card)] sm:p-5 ${className}`.trim();
   const awaitingFirstRows = loading && data.length === 0;
   const [showSkeleton, setShowSkeleton] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const paginationRef = useRef<HTMLDivElement>(null);
+  const [viewportHeight, setViewportHeight] = useState<number | null>(null);
   const columnCount =
     columns.length + (rowActions ? 1 : 0) + (selection ? 1 : 0);
 
@@ -145,6 +151,44 @@ export function DataTable<T>({
     const id = window.setTimeout(() => setShowSkeleton(true), 180);
     return () => window.clearTimeout(id);
   }, [awaitingFirstRows]);
+
+  useEffect(() => {
+    if (!fitViewport || data.length === 0) return;
+    const section = sectionRef.current;
+    const scroll = scrollRef.current;
+    if (!section || !scroll) return;
+    const boundary = section.closest<HTMLElement>('[role="dialog"]') ?? section.closest<HTMLElement>("main");
+    const update = () => {
+      const rect = scroll.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      const bottom = Math.min(window.innerHeight, boundary?.getBoundingClientRect().bottom ?? window.innerHeight);
+      const paginationHeight = paginationRef.current?.getBoundingClientRect().height ?? 0;
+      const paddingBottom = parseFloat(window.getComputedStyle(section).paddingBottom) || 0;
+      const available = Math.max(160, Math.floor(bottom - rect.top - paginationHeight - paddingBottom - 12));
+      setViewportHeight((current) => current === available ? current : available);
+    };
+    let frame: number | null = null;
+    const scheduleUpdate = () => {
+      if (frame !== null) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = null;
+        update();
+      });
+    };
+    update();
+    const observer = new ResizeObserver(scheduleUpdate);
+    observer.observe(section);
+    if (boundary) observer.observe(boundary);
+    if (paginationRef.current) observer.observe(paginationRef.current);
+    window.addEventListener("resize", scheduleUpdate);
+    boundary?.addEventListener("scroll", scheduleUpdate, { passive: true });
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", scheduleUpdate);
+      boundary?.removeEventListener("scroll", scheduleUpdate);
+      if (frame !== null) window.cancelAnimationFrame(frame);
+    };
+  }, [data.length === 0, Boolean(pagination), fitViewport]);
 
   // Only show full skeleton on initial load when there is NO data yet.
   // When data is already present, keep the table visible and show a sleek background progress bar.
@@ -224,7 +268,7 @@ export function DataTable<T>({
   }
 
   return (
-    <section className={`relative flex flex-col justify-between ${cardClass}`}>
+    <section ref={sectionRef} className={`relative flex flex-col justify-between ${cardClass}`}>
       {/* Background reload indicator: subtle progress bar so the table never disappears or flashes */}
       <div
         className={`relative -mx-4 -mt-2 mb-3 h-0.5 overflow-hidden bg-slate-100 sm:-mx-5 transition-opacity duration-200 ${
@@ -240,26 +284,30 @@ export function DataTable<T>({
       {/* Non-intrusive inline error alert if background refetch fails while data is visible */}
       {error && data.length > 0 ? (
         <div className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-xs text-rose-800">
-          <span>{errorMessage || errorTitle || t("loadErrorTitle")}</span>
+          <span>{errorMessage || errorTitle || t("errorTitle")}</span>
           {onRetry ? (
             <button
               type="button"
               onClick={onRetry}
               className="font-semibold underline hover:text-rose-950"
             >
-              {t("retry")}
+              {tCommon("retry")}
             </button>
           ) : null}
         </div>
       ) : null}
 
       <div
-        className="table-scroll scrollbar-thin flex-1"
-        style={maxHeight ? { maxHeight, overflowY: "auto" } : undefined}
+        ref={scrollRef}
+        className="table-scroll scrollbar-thin min-h-0 flex-1 overflow-y-auto"
+        style={{ maxHeight: !fitViewport || viewportHeight == null ? (maxHeight ?? "50vh") : maxHeight ? `min(${viewportHeight}px, ${maxHeight})` : `${viewportHeight}px` }}
+        role="region"
+        aria-label={caption || (typeof title === "string" ? title : t("tableRegion"))}
+        tabIndex={0}
       >
         <table className="w-full text-left text-sm" style={{ minWidth, tableLayout }}>
           {caption ? <caption className="sr-only">{caption}</caption> : null}
-          <thead>
+          <thead className="sticky top-0 z-10 bg-surface">
             <tr className="border-b border-border text-[11px] uppercase tracking-[0.12em] text-muted-soft">
               {selection ? (
                 <th scope="col" className="w-10 pb-3 pe-3 ps-1 font-semibold">
@@ -353,7 +401,7 @@ export function DataTable<T>({
         </table>
       </div>
       {pagination ? (
-        <DataTablePagination {...pagination} className="mt-3" />
+        <div ref={paginationRef}><DataTablePagination {...pagination} className="mt-3" /></div>
       ) : null}
     </section>
   );

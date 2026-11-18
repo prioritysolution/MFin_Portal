@@ -129,6 +129,7 @@ export function StaffTable({
       emptyTitle={t("emptyTitle")}
       emptyMessage={t("emptyMessage")}
       minWidth="1050px"
+      fitViewport={false}
       caption={t("tableCaption")}
       rowActions={{
         header: t("columns.actions"),

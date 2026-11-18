@@ -7,6 +7,7 @@ import { useRouter } from "@/i18n/navigation";
 import { ModulePageShell } from "@/components/shared/ModulePageShell";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { SectionTabs } from "@/components/shared/SectionTabs";
+import { LoadingState } from "@/components/shared/LoadingState";
 import { Button } from "@/components/ui/Button";
 import { PageToast, useToastText } from "@/components/ui/PageToast";
 import { masterModulePages } from "@/lib/modules/module.types";
@@ -48,6 +49,7 @@ const DEFAULT_FILTERS: StaffFilterValues = {
 };
 
 const SEARCH_DEBOUNCE_MS = 350;
+const STAFF_TAB_STORAGE_KEY = "mfin.staff.active-tab";
 
 function filtersEqual(a: StaffFilterValues, b: StaffFilterValues): boolean {
   return (
@@ -66,6 +68,7 @@ export function StaffView() {
 
   const [filters, setFilters] = useState<StaffFilterValues>(DEFAULT_FILTERS);
   const [activeTab, setActiveTab] = useState<"staff" | "field">("staff");
+  const [tabRestored, setTabRestored] = useState(false);
   const [appliedFilters, setAppliedFilters] =
     useState<StaffFilterValues>(DEFAULT_FILTERS);
   const [page, setPage] = useState(1);
@@ -92,6 +95,19 @@ export function StaffView() {
   const [statusConfirmTarget, setStatusConfirmTarget] = useState<Staff | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useToastText();
+
+  useEffect(() => {
+    try {
+      const saved = window.sessionStorage.getItem(STAFF_TAB_STORAGE_KEY);
+      if (saved === "staff" || saved === "field") setActiveTab(saved);
+    } catch { /* Use the default tab when storage is unavailable. */ }
+    setTabRestored(true);
+  }, []);
+
+  function changeTab(tab: "staff" | "field") {
+    setActiveTab(tab);
+    try { window.sessionStorage.setItem(STAFF_TAB_STORAGE_KEY, tab); } catch { /* The tab still works without storage. */ }
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -138,7 +154,7 @@ export function StaffView() {
         let rolePage = 1;
         let hasMore = true;
         while (hasMore) {
-          const result = await fetchRoleList({ page: rolePage, perPage: 100 });
+          const result = await fetchRoleList({ page: rolePage, perPage: 100, status: 1 });
           allRoles.push(...result.items);
           hasMore = Boolean(result.meta?.hasMore && result.items.length);
           rolePage += 1;
@@ -318,7 +334,6 @@ export function StaffView() {
         aadhaar: staff.aadhaar,
         pan: staff.pan,
         deviceId: staff.deviceId,
-        moduleIds: staff.moduleAccess.map((item) => item.moduleId),
         status: nextActive ? 1 : 0,
       });
       setSuccessMessage(
@@ -340,11 +355,13 @@ export function StaffView() {
     }
   }
 
+  if (!tabRestored) return <LoadingState />;
+
   return (
     <ModulePageShell page={pageMeta}>
       <PageToast message={successMessage} />
 
-      <SectionTabs tabs={[{ id: "staff", title: t("title"), icon: Users }, { id: "field", title: t("phoneAccess.fieldStaff"), icon: Smartphone }]} activeId={activeTab} onChange={setActiveTab} label={t("phoneAccess.tabsLabel")} />
+      <SectionTabs tabs={[{ id: "staff", title: t("title"), icon: Users }, { id: "field", title: t("phoneAccess.fieldStaff"), icon: Smartphone }]} activeId={activeTab} onChange={changeTab} label={t("phoneAccess.tabsLabel")} />
 
       <div hidden={activeTab !== "staff"}>
       <StaffFilters

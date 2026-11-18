@@ -30,6 +30,7 @@ export function mapStaffDto(dto: {
   staff_id: number;
   branch_id?: number | null;
   employee_code: string;
+  employee_ref_code?: string | null;
   full_name: string;
   short_name?: string | null;
   designation_id?: number | null;
@@ -59,6 +60,7 @@ export function mapStaffDto(dto: {
     staffId: dto.staff_id,
     branchId: dto.branch_id ?? null,
     employeeCode: dto.employee_code,
+    employeeRefCode: dto.employee_ref_code,
     fullName: dto.full_name,
     shortName: dto.short_name ?? null,
     designationId: dto.designation_id ?? null,
@@ -96,6 +98,7 @@ function mapWritable(input: StaffWritableInput): StaffWritableDto {
   if (input.employeeCode !== undefined) {
     dto.employee_code = emptyToNull(input.employeeCode);
   }
+  if (input.employeeRefCode !== undefined) dto.employee_ref_code = emptyToNull(input.employeeRefCode);
   if (input.branchId !== undefined) dto.branch_id = input.branchId;
   if (input.designationId !== undefined) {
     dto.designation_id = input.designationId;
@@ -106,7 +109,6 @@ function mapWritable(input: StaffWritableInput): StaffWritableDto {
   if (input.aadhaar !== undefined) dto.aadhaar = emptyToNull(input.aadhaar);
   if (input.pan !== undefined) dto.pan = emptyToNull(input.pan);
   if (input.deviceId !== undefined) dto.device_id = input.deviceId;
-  if (input.moduleIds !== undefined) dto.module_ids = input.moduleIds;
   if (input.status !== undefined) dto.status = input.status;
   return dto;
 }
@@ -115,7 +117,7 @@ export function mapStaffCreateToDto(input: StaffCreateInput): StaffCreateDto {
   return {
     ...mapWritable(input),
     ...(input.roleId !== undefined ? { role_id: input.roleId } : {}),
-    user_name: input.userName,
+    ...(input.userName?.trim() ? { user_name: input.userName.trim() } : {}),
     user_pass: input.userPass,
   };
 }

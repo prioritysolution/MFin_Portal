@@ -10,7 +10,7 @@ import { Modal } from "@/components/ui/Modal";
 import { PageToast, useToastText } from "@/components/ui/PageToast";
 import { Link } from "@/i18n/navigation";
 import { TERM_DEPOSIT_TYPE } from "../deposit-account.constants";
-import { parseYmd, savingsTransactionHref } from "../deposit-account.rules";
+import { parseDepositDate, savingsTransactionHref } from "../deposit-account.rules";
 import {
   fetchDepositAccountView,
   syncDepositAccountMembers,
@@ -40,7 +40,7 @@ function formatDate(
   dash: string,
 ) {
   if (!value) return dash;
-  const parsed = parseYmd(value);
+  const parsed = parseDepositDate(value);
   if (!parsed) return dash;
   return format.dateTime(parsed, {
     day: "2-digit",

@@ -41,6 +41,7 @@
     "showingRecords": "{total} में से {from}–{to} दिखाए जा रहे हैं",
     "rowsPerPage": "प्रति पृष्ठ पंक्तियाँ",
     "selectAllRows": "सभी पंक्तियाँ चुनें",
+    "tableRegion": "तालिका की सामग्री",
     "selectRow": "पंक्ति चुनें",
     "actionsColumn": "क्रियाएँ",
     "filtersHeading": "फ़िल्टर",
@@ -152,7 +153,7 @@
     "menuUnauthorized": "आपका सत्र समाप्त हो गया है। कृपया फिर से साइन इन करें।",
     "menuError": "मेनू लोड नहीं हो सका।",
     "routeUnavailable": "यह पेज अभी उपलब्ध नहीं है।",
-    "branchLabel": "शाखा {branch}",
+    "branchLabel": "{branch} शाखा",
     "quickSearch": {
       "open": "त्वरित खोज खोलें",
       "close": "बंद करें",
@@ -1468,10 +1469,12 @@
         "actions": "क्रियाएँ"
       },
       "roleLoadError": "भूमिकाएँ लोड नहीं हो सकीं। पुनः प्रयास के लिए फ़ॉर्म बंद करके खोलें।",
+      "loadingModules": "मॉड्यूल लोड हो रहे हैं",
       "fields": {
         "fullName": "पूरा नाम",
         "shortName": "संक्षिप्त नाम",
-        "employeeCode": "कर्मचारी रेफरेंस कोड",
+        "employeeCode": "कर्मचारी कोड",
+        "employeeRefCode": "कर्मचारी रेफरेंस कोड",
         "branch": "शाखा",
         "role": "भूमिका",
         "designation": "पदनाम",
@@ -1490,7 +1493,8 @@
       "errors": {
         "fullName": "पूरा नाम लिखें (अधिकतम 100 अक्षर)।",
         "shortName": "संक्षिप्त नाम अधिकतम 50 अक्षर।",
-        "employeeCode": "सही कर्मचारी रेफरेंस कोड लिखें (अधिकतम 50 अक्षर)।",
+        "employeeCode": "सही कर्मचारी कोड लिखें (अधिकतम 50 अक्षर)।",
+        "employeeRefCode": "अधिकतम 25 अक्षरों का रेफरेंस कोड लिखें।",
         "branchId": "सही शाखा चुनें।",
         "roleId": "सही भूमिका चुनें।",
         "designationId": "सही पद चुनें।",

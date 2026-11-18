@@ -1,14 +1,12 @@
-﻿import { ChevronsRight, Plus, RotateCcw } from "lucide-react";
+﻿import { Plus, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
-/** Both actions add to the local session until backend saving is available. */
-export function BatchFormActions({ editing, clear }: { editing: boolean; clear: () => void }) {
+export function BatchFormActions({ editing, clear, busy = false }: { editing: boolean; clear: () => void; busy?: boolean }) {
   return (
     <div className="flex flex-wrap justify-between gap-3 border-t border-border pt-4">
-      <Button variant="secondary" icon={RotateCcw} onClick={clear}>Clear</Button>
+      <Button variant="secondary" icon={RotateCcw} disabled={busy} onClick={clear}>Clear</Button>
       <div className="flex flex-wrap gap-3">
-        <Button type="submit" variant="secondary" icon={Plus}>{editing ? "Update entry" : "Add to batch"}</Button>
-        <Button type="submit" icon={ChevronsRight}>Save &amp; Next</Button>
+        <Button type="submit" icon={Plus} disabled={busy}>{editing ? "Update entry" : "Add to batch"}</Button>
       </div>
     </div>
   );

@@ -13,6 +13,11 @@ export const endpoints = {
   },
   /** Same-origin BFF routes (browser → Next → Laravel). */
   bff: {
+    openingDeposits: "/api/opening/deposits",
+    openingDepositCustomers: "/api/opening/deposits/customers",
+    openingDepositExport: "/api/opening/deposits/export",
+    openingLoans: "/api/opening/loans",
+    openingLoanExport: "/api/opening/loans/export",
     menu: "/api/menu",
     dashboard: "/api/dashboard",
     auditLog: "/api/security/audit-log",
@@ -442,6 +447,22 @@ export const endpoints = {
     edit: "/api/MakerCheckerEdit",
   },
   /** Contract: docs/dashboard-api.md. */
+  openingDeposit: {
+    customers: "/api/OpeningDepositCustomerList",
+    list: "/api/OpeningDepositDraftList",
+    add: "/api/OpeningDepositDraftAdd",
+    edit: "/api/OpeningDepositDraftEdit",
+    delete: "/api/OpeningDepositDraftDelete",
+    export: "/api/OpeningDepositDraftExport",
+    finalize: "/api/OpeningDepositDraftFinalize",
+  },
+  openingLoan: {
+    list: "/api/OpeningLoanDraftList",
+    add: "/api/OpeningLoanDraftAdd",
+    edit: "/api/OpeningLoanDraftEdit",
+    delete: "/api/OpeningLoanDraftDelete",
+    export: "/api/OpeningLoanDraftExport",
+  },
   dashboard: {
     get: "/api/DashboardGet",
   },

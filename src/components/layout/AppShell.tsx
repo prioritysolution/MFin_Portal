@@ -104,8 +104,13 @@ export function AppShell({ children, user }: AppShellProps) {
               {children}
             </div>
           </div>
+          <div className="sm:hidden">
+            <Footer />
+          </div>
         </main>
-        <Footer />
+        <div className="hidden sm:block">
+          <Footer />
+        </div>
       </div>
       <Toaster />
     </div>

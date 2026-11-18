@@ -115,6 +115,7 @@ export function SubscriberPickerModal({
 
   function submitSearch(event?: FormEvent) {
     event?.preventDefault();
+    event?.stopPropagation();
     setQuery({ keyword: draft.trim(), page: 1 });
   }
 
@@ -193,12 +194,12 @@ export function SubscriberPickerModal({
                         <Button
                           type="button"
                           size="sm"
-                          variant={isSelected ? "success" : "primary"}
+                          variant={isSelected ? "success" : "secondary"}
                           icon={Check}
+                          aria-label={`${isSelected ? t("picker.selected") : t("picker.select")} ${item.name} (${item.code})`}
+                          tooltip={isSelected ? t("picker.selected") : t("picker.select")}
                           onClick={() => onSelect(item)}
-                        >
-                          {isSelected ? t("picker.selected") : t("picker.select")}
-                        </Button>
+                        />
                       </td>
                     </tr>
                   );

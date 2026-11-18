@@ -13,6 +13,7 @@ import { createPortal } from "react-dom";
 import { useLocale, useTranslations } from "next-intl";
 import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { formatDateDMY } from "@/lib/date-format";
+import { Select } from "@/components/ui/Select";
 
 type DatePickerProps = {
   value: string;
@@ -143,7 +144,11 @@ export function DatePicker({
       setOpen(false);
     }
     function onKey(event: globalThis.KeyboardEvent) {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape") {
+        event.stopPropagation();
+        if (panelRef.current?.querySelector('[aria-haspopup="listbox"][aria-expanded="true"]')) return;
+        setOpen(false);
+      }
     }
     document.addEventListener("mousedown", onPointerDown);
     document.addEventListener("keydown", onKey);
@@ -338,38 +343,36 @@ export function DatePicker({
           className="overflow-y-auto rounded-xl border border-border bg-surface p-3 shadow-[var(--shadow-card)]"
         >
           <div className="mb-2 flex items-center gap-1">
-            <select
+            <Select
               aria-label={t("calendarMonth")}
-              value={viewMonth.getMonth()}
-              onChange={(event) => {
-                const month = Number(event.target.value);
+              value={String(viewMonth.getMonth())}
+              onChange={(value) => {
+                const month = Number(value);
                 setViewMonth(
                   (current) => new Date(current.getFullYear(), month, 1),
                 );
               }}
-              className="h-8 min-w-0 flex-1 rounded-lg border border-border bg-surface px-1.5 text-xs font-semibold text-slate-800 outline-none focus:border-brand"
-            >
-              {monthOptions.map((month) => (
-                <option key={month.value} value={month.value}>
-                  {month.label}
-                </option>
-              ))}
-            </select>
-            <select
+              options={monthOptions}
+              size="sm"
+              searchable={false}
+              clearable={false}
+              className="min-w-0 flex-1"
+              portalContainerRef={panelRef}
+            />
+            <Select
               aria-label={t("calendarYear")}
-              value={viewMonth.getFullYear()}
-              onChange={(event) => {
-                const year = Number(event.target.value);
+              value={String(viewMonth.getFullYear())}
+              onChange={(value) => {
+                const year = Number(value);
                 setViewMonth((current) => new Date(year, current.getMonth(), 1));
               }}
-              className="h-8 w-[4.75rem] rounded-lg border border-border bg-surface px-1.5 text-xs font-semibold text-slate-800 outline-none focus:border-brand"
-            >
-              {yearOptions.map((year) => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
+              options={yearOptions.map((year) => ({ value: String(year), label: String(year) }))}
+              size="sm"
+              clearable={false}
+              className="w-[5.5rem] shrink-0"
+              menuMinWidth={160}
+              portalContainerRef={panelRef}
+            />
             <div className="ms-auto flex items-center gap-0.5">
               <button
                 type="button"

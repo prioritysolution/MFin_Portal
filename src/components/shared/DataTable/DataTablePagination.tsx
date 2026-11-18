@@ -30,7 +30,6 @@ export function DataTablePagination({
 }: DataTablePaginationProps) {
   const t = useTranslations("ui");
   const tCommon = useTranslations("common");
-
   const totalPages = resolveTotalPages(pageSize, total, totalPagesProp);
   const safePage = Math.min(Math.max(page, 1), totalPages);
   const from = total === 0 ? 0 : (safePage - 1) * pageSize + 1;

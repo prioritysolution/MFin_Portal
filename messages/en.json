@@ -41,6 +41,7 @@
     "showingRecords": "Showing {from}–{to} of {total}",
     "rowsPerPage": "Rows per page",
     "selectAllRows": "Select all rows",
+    "tableRegion": "Table contents",
     "selectRow": "Select row",
     "actionsColumn": "Actions",
     "filtersHeading": "Filters",
@@ -152,7 +153,7 @@
     "menuUnauthorized": "Your session has expired. Please sign in again.",
     "menuError": "Unable to load the menu.",
     "routeUnavailable": "This page is not available yet.",
-    "branchLabel": "Branch {branch}",
+    "branchLabel": "{branch} Branch",
     "quickSearch": {
       "open": "Open quick search",
       "close": "Close",
@@ -1468,10 +1469,12 @@
         "actions": "Actions"
       },
       "roleLoadError": "Unable to load roles. Close and reopen the form to try again.",
+      "loadingModules": "Loading modules",
       "fields": {
         "fullName": "Full name",
         "shortName": "Short name",
-        "employeeCode": "Employee ref code",
+        "employeeCode": "Employee code",
+        "employeeRefCode": "Employee ref code",
         "branch": "Branch",
         "role": "Role",
         "designation": "Designation",
@@ -1490,7 +1493,8 @@
       "errors": {
         "fullName": "Enter the full name (up to 100 characters).",
         "shortName": "Short name must be 50 characters or fewer.",
-        "employeeCode": "Enter a valid employee ref code (up to 50 characters).",
+        "employeeCode": "Enter a valid employee code (up to 50 characters).",
+        "employeeRefCode": "Enter a reference code of up to 25 characters.",
         "branchId": "Select a valid branch.",
         "roleId": "Select a valid role.",
         "designationId": "Select a valid designation.",

@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { useFormatter, useTranslations } from "next-intl";
-import { parseYmd } from "@/features/deposits/savings/deposit-account.rules";
+import { parseDepositDate } from "@/features/deposits/savings/deposit-account.rules";
 import {
   STATUS_PENDING,
   STATUS_REJECTED,
@@ -43,7 +43,7 @@ export function useSavingsTransactionLabels() {
             ? t("statuses.3")
             : t("statuses.1")),
       date: (row: SavingsTransaction) => {
-        const parsed = parseYmd(row.transDate);
+        const parsed = parseDepositDate(row.transDate);
         return parsed
           ? format.dateTime(parsed, { month: "short", day: "numeric", year: "numeric" })
           : "—";

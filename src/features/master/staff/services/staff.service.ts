@@ -45,6 +45,8 @@ export async function getStaffModules(staffId: number) {
     const availableResult = z.array(moduleSchema).safeParse(available);
     const assignedResult = z.array(moduleSchema).safeParse(assigned);
     if (!availableResult.success || !assignedResult.success) throw new ApiError({ message: "Staff module response shape was unexpected", status: 500, code: "UNEXPECTED" });
+    const availableIds = new Set(availableResult.data.map((module) => module.module_id));
+    if (availableIds.size !== availableResult.data.length || assignedResult.data.some((module) => !availableIds.has(module.module_id)) || new Set(assignedResult.data.map((module) => module.module_id)).size !== assignedResult.data.length) throw new ApiError({ message: "Staff module assignments could not be reconciled with the available catalog", status: 500, code: "UNEXPECTED" });
     const map = (item: z.infer<typeof moduleSchema>) => ({ moduleId: item.module_id, moduleKey: item.module_key, moduleName: item.module_name });
     return { available: availableResult.data.map(map), assigned: assignedResult.data.map(map) };
   });

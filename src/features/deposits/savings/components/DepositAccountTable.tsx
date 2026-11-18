@@ -8,7 +8,7 @@ import type { DataTableColumn } from "@/components/shared/DataTable";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { CUST_TYPE_GROUP, STATUS_ACTIVE } from "../deposit-account.constants";
-import { depositStatusTone, parseYmd, todayYmd } from "../deposit-account.rules";
+import { depositStatusTone, parseDepositDate, parseYmd, todayYmd } from "../deposit-account.rules";
 import type { DepositAccount, PaginationMeta } from "../types/deposit-account.types";
 
 type DepositAccountTableProps = {
@@ -65,6 +65,10 @@ export function DepositAccountTable({
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           });
+    const displayDate = (value: string | null | undefined) => {
+      const date = parseDepositDate(value);
+      return date ? format.dateTime(date, { day: "2-digit", month: "2-digit", year: "numeric" }) : t("dash");
+    };
 
     const statusColumn: DataTableColumn<DepositAccount> = {
       id: "status",
@@ -78,14 +82,7 @@ export function DepositAccountTable({
             {row.closingDate ? (
               <p className="mt-1 text-xs text-muted">
                 {t("closedOn", {
-                  date: format.dateTime(
-                    parseYmd(row.closingDate) ?? new Date(row.closingDate),
-                    {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                    },
-                  ),
+                  date: displayDate(row.closingDate),
                 })}
               </p>
             ) : null}
@@ -181,19 +178,13 @@ export function DepositAccountTable({
           id: "maturity",
           header: t("columns.maturity"),
           cell: (row) => {
-            const maturityDate = row.td?.maturityDate;
-            const matured =
-              !row.isClosed && maturityDate != null && maturityDate < todayYmd();
+            const maturityDate = parseDepositDate(row.td?.maturityDate);
+            const today = parseYmd(todayYmd());
+            const matured = !row.isClosed && maturityDate !== null && today !== null && maturityDate < today;
             return (
               <div>
                 <p className="text-slate-800">
-                  {maturityDate
-                    ? format.dateTime(parseYmd(maturityDate) ?? new Date(maturityDate), {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                      })
-                    : t("dash")}
+                  {displayDate(row.td?.maturityDate)}
                 </p>
                 <p className="text-xs text-muted">{money(row.td?.maturityAmount)}</p>
                 {matured ? (

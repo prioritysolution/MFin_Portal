@@ -12,7 +12,7 @@ export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 export type ApiSearchParams = Record<
   string,
-  string | number | boolean | null | undefined
+  string | number | boolean | readonly (string | number | boolean)[] | null | undefined
 >;
 
 export type ApiRequestOptions = {
@@ -46,7 +46,11 @@ function buildUrl(
   if (searchParams) {
     for (const [key, value] of Object.entries(searchParams)) {
       if (value === undefined || value === null) continue;
-      url.searchParams.set(key, String(value));
+      if (Array.isArray(value)) {
+        for (const item of value) url.searchParams.append(key, String(item));
+      } else {
+        url.searchParams.set(key, String(value));
+      }
     }
   }
 

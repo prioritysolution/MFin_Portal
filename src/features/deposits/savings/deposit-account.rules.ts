@@ -76,6 +76,15 @@ export function parseYmd(value: string): Date | null {
   return date;
 }
 
+/** Parse deposit API calendar dates without relying on browser-specific date parsing. */
+export function parseDepositDate(value: string | null | undefined): Date | null {
+  const text = value?.trim();
+  if (!text) return null;
+  if (/^\d{4}-\d{2}-\d{2}(?:$|[T ])/.test(text)) return parseYmd(text);
+  const dmy = /^(\d{2})\/(\d{2})\/(\d{4})(?:$|\s)/.exec(text);
+  return dmy ? parseYmd(`${dmy[3]}-${dmy[2]}-${dmy[1]}`) : null;
+}
+
 export function ageOn(dateOfBirth: string, onDate: string): number | null {
   const birth = parseYmd(dateOfBirth);
   const on = parseYmd(onDate);

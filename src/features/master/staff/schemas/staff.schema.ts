@@ -17,6 +17,7 @@ export const staffDtoSchema = z.object({
   staff_id: z.number(),
   branch_id: z.number().nullable().optional(),
   employee_code: z.string(),
+  employee_ref_code: z.string().nullable().optional(),
   full_name: z.string(),
   short_name: z.string().nullable().optional(),
   designation_id: z.number().nullable().optional(),
@@ -51,6 +52,7 @@ const staffWritableInputSchema = z.object({
   fullName: z.string().trim().min(1).max(100),
   shortName: optionalText(50),
   employeeCode: z.string().trim().max(50).nullable().optional(),
+  employeeRefCode: z.string().trim().max(25).nullable().optional(),
   branchId: z.number().int().positive().nullable().optional(),
   designationId: z.number().int().positive().nullable().optional(),
   mobile: optionalMobile(),
@@ -65,18 +67,17 @@ const staffWritableInputSchema = z.object({
   aadhaar: optionalAadhaar(),
   pan: optionalPan(),
   deviceId: z.number().int().positive().nullable().optional(),
-  moduleIds: z.array(z.number().int().positive()).optional(),
   status: z.number().int().min(0).max(1).optional(),
 });
 
 export const staffCreateInputSchema = staffWritableInputSchema.extend({
-  roleId: z.number().int().positive().optional(),
-  userName: z.string().trim().min(1).max(100),
+  roleId: z.number().int().positive().max(32767).optional(),
+  userName: z.string().trim().max(25).optional(),
   userPass: z.string().min(1).max(128),
 });
 
 export const staffUpdateInputSchema = staffWritableInputSchema.extend({
-  roleId: z.number().int().positive().nullable().optional(),
+  roleId: z.number().int().positive().max(32767).nullable().optional(),
   userName: z.string().trim().max(25).nullable().optional(),
   userPass: z.string().max(128).nullable().optional(),
   staffId: z.number().int().positive(),

@@ -46,6 +46,7 @@ type FormState = {
   fullName: string;
   shortName: string;
   employeeCode: string;
+  employeeRefCode: string;
   branchId: string;
   designationId: string;
   roleId: string;
@@ -66,6 +67,7 @@ function toFormState(staff: Staff | null): FormState {
       fullName: "",
       shortName: "",
       employeeCode: "",
+      employeeRefCode: "",
       branchId: "",
       designationId: "",
       roleId: "",
@@ -84,6 +86,7 @@ function toFormState(staff: Staff | null): FormState {
     fullName: staff.fullName,
     shortName: staff.shortName ?? "",
     employeeCode: staff.employeeCode,
+    employeeRefCode: staff.employeeRefCode ?? "",
     branchId: staff.branchId != null ? String(staff.branchId) : "",
     designationId:
       staff.designationId != null ? String(staff.designationId) : "",
@@ -178,6 +181,7 @@ export function StaffForm({
           fullName: t("fields.fullName"),
           shortName: t("fields.shortName"),
           employeeCode: t("fields.employeeCode"),
+          employeeRefCode: t("fields.employeeRefCode"),
           branchId: t("fields.branch"),
           designationId: t("fields.designation"),
           mobile: t("fields.mobile"),
@@ -215,6 +219,7 @@ type BodyProps = {
     fullName: string;
     shortName: string;
     employeeCode: string;
+    employeeRefCode: string;
     branchId: string;
     designationId: string;
     roleId: string;
@@ -278,6 +283,7 @@ function StaffFormBody({
     if (mode === "create") {
       const payload: StaffCreateInput = {
         ...toWritableFields(form),
+        ...(form.employeeRefCode.trim() ? { employeeRefCode: form.employeeRefCode.trim() } : {}),
         ...(form.roleId ? { roleId: Number(form.roleId) } : {}),
         userName: form.userName,
         userPass: form.userPass,
@@ -295,6 +301,7 @@ function StaffFormBody({
     const writable = toWritableFields(form);
     const payload: StaffUpdateInput = {
       ...writable,
+      ...(form.employeeRefCode !== (staff.employeeRefCode ?? "") ? { employeeRefCode: form.employeeRefCode.trim() || null } : {}),
       ...(form.userName.trim() && form.userName.trim() !== (staff.userName ?? "") ? { userName: form.userName.trim() } : {}),
       ...(form.userPass.trim() ? { userPass: form.userPass } : {}),
       ...(form.roleId !== (staff.roleId != null ? String(staff.roleId) : "")
@@ -341,6 +348,8 @@ function StaffFormBody({
         <TextField
           label={fieldLabels.employeeCode}
           value={form.employeeCode}
+          autoComplete="off"
+          readOnly={mode === "edit"}
           maxLength={50}
           error={fieldErrors.employeeCode}
           onChange={(employeeCode) =>
@@ -354,6 +363,10 @@ function StaffFormBody({
           error={fieldErrors.deviceId}
           onChange={(deviceId) => setForm((prev) => ({ ...prev, deviceId }))}
         />
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <TextField label={fieldLabels.employeeRefCode} value={form.employeeRefCode} maxLength={25} error={fieldErrors.employeeRefCode} onChange={(employeeRefCode) => setForm((prev) => ({ ...prev, employeeRefCode }))} />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -498,9 +511,8 @@ function StaffFormBody({
         <div className="grid gap-4 sm:grid-cols-2">
           <TextField
             label={fieldLabels.userName}
-            required={mode === "create"}
             value={form.userName}
-            maxLength={mode === "edit" ? 25 : 100}
+            maxLength={25}
             error={fieldErrors.userName}
             onChange={(userName) => setForm((prev) => ({ ...prev, userName }))}
           />

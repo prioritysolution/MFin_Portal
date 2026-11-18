@@ -41,6 +41,7 @@
     "showingRecords": "{total}-এর মধ্যে {from}–{to} দেখানো হচ্ছে",
     "rowsPerPage": "প্রতি পৃষ্ঠায় সারি",
     "selectAllRows": "সব সারি নির্বাচন করুন",
+    "tableRegion": "টেবিলের বিষয়বস্তু",
     "selectRow": "সারি নির্বাচন করুন",
     "actionsColumn": "কার্যক্রম",
     "filtersHeading": "ফিল্টার",
@@ -152,7 +153,7 @@
     "menuUnauthorized": "আপনার সেশন শেষ হয়ে গেছে। আবার সাইন ইন করুন।",
     "menuError": "মেনু লোড করা যায়নি।",
     "routeUnavailable": "এই পেজটি এখনও উপলব্ধ নয়।",
-    "branchLabel": "শাখা {branch}",
+    "branchLabel": "{branch} শাখা",
     "quickSearch": {
       "open": "দ্রুত অনুসন্ধান খুলুন",
       "close": "বন্ধ",
@@ -1468,10 +1469,12 @@
         "actions": "কার্যক্রম"
       },
       "roleLoadError": "ভূমিকা লোড করা যায়নি। আবার চেষ্টা করতে ফর্ম বন্ধ করে খুলুন।",
+      "loadingModules": "মডিউল লোড হচ্ছে",
       "fields": {
         "fullName": "পূর্ণ নাম",
         "shortName": "সংক্ষিপ্ত নাম",
-        "employeeCode": "কর্মচারী রেফারেন্স কোড",
+        "employeeCode": "কর্মচারী কোড",
+        "employeeRefCode": "কর্মচারী রেফারেন্স কোড",
         "branch": "শাখা",
         "role": "ভূমিকা",
         "designation": "পদবী",
@@ -1490,7 +1493,8 @@
       "errors": {
         "fullName": "পূর্ণ নাম লিখুন (সর্বোচ্চ ১০০ অক্ষর)।",
         "shortName": "সংক্ষিপ্ত নাম সর্বোচ্চ ৫০ অক্ষর।",
-        "employeeCode": "সঠিক কর্মচারী রেফারেন্স কোড লিখুন (সর্বোচ্চ ৫০ অক্ষর)।",
+        "employeeCode": "সঠিক কর্মচারী কোড লিখুন (সর্বোচ্চ ৫০ অক্ষর)।",
+        "employeeRefCode": "সর্বোচ্চ ২৫ অক্ষরের রেফারেন্স কোড লিখুন।",
         "branchId": "সঠিক শাখা নির্বাচন করুন।",
         "roleId": "সঠিক ভূমিকা নির্বাচন করুন।",
         "designationId": "সঠিক পদবী নির্বাচন করুন।",

@@ -19,6 +19,7 @@ export type StaffDto = {
   staff_id: number;
   branch_id: number | null;
   employee_code: string;
+  employee_ref_code?: string | null;
   full_name: string;
   short_name: string | null;
   designation_id: number | null;
@@ -45,6 +46,7 @@ export type Staff = {
   staffId: number;
   branchId: number | null;
   employeeCode: string;
+  employeeRefCode?: string | null;
   fullName: string;
   shortName: string | null;
   designationId: number | null;
@@ -103,6 +105,7 @@ export type StaffWritableInput = {
   fullName: string;
   shortName?: string | null;
   employeeCode?: string | null;
+  employeeRefCode?: string | null;
   branchId?: number | null;
   designationId?: number | null;
   mobile?: string | null;
@@ -111,13 +114,12 @@ export type StaffWritableInput = {
   aadhaar?: string | null;
   pan?: string | null;
   deviceId?: number | null;
-  moduleIds?: number[];
   status?: number;
 };
 
 export type StaffCreateInput = StaffWritableInput & {
   roleId?: number;
-  userName: string;
+  userName?: string;
   userPass: string;
 };
 
@@ -125,6 +127,7 @@ export type StaffWritableDto = {
   full_name: string;
   short_name?: string | null;
   employee_code?: string | null;
+  employee_ref_code?: string | null;
   branch_id?: number | null;
   designation_id?: number | null;
   mobile?: string | null;
@@ -133,13 +136,12 @@ export type StaffWritableDto = {
   aadhaar?: string | null;
   pan?: string | null;
   device_id?: number | null;
-  module_ids?: number[];
   status?: number;
 };
 
 export type StaffCreateDto = StaffWritableDto & {
   role_id?: number;
-  user_name: string;
+  user_name?: string;
   user_pass: string;
 };
 

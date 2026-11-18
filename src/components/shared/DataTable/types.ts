@@ -72,8 +72,10 @@ export type DataTableProps<T> = {
   tableLayout?: "auto" | "fixed";
   /** Minimum card height (CSS length) for the loading, error and empty states. With rows, the card fits its content. */
   minHeight?: string;
-  /** Maximum table height for vertical scroll (CSS length). */
+  /** Optional upper limit for the viewport-aware table scrolling area (CSS length). */
   maxHeight?: string;
+  /** When false, allow the table to grow to maxHeight regardless of its position in the viewport. */
+  fitViewport?: boolean;
   caption?: string;
   onRowClick?: (row: T, rowIndex: number) => void;
   /** Extra classes for one row, such as a live-update highlight. */
